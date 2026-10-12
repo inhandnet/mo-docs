@@ -1,0 +1,53 @@
+# Check commit messages and pull request titles against the convention in
+# README.md. Make this check required in the branch ruleset for `main`
+# (see README.md, "Enforcement on GitHub") so that a failing pull request
+# cannot be merged.
+name: commit-message
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: commit-message
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Pull requests are squash-merged, so the title becomes the commit
+      # message on `main`. Check it with the same rules.
+      - name: Check pull request title
+        if: github.event_name == 'pull_request'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          printf '%s\n' "$PR_TITLE" > "$RUNNER_TEMP/pr-title"
+          scripts/check-commit-msg.sh --file "$RUNNER_TEMP/pr-title"
+
+      - name: Check pull request commits
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: scripts/check-commit-msg.sh --revs "$BASE_SHA..$HEAD_SHA"
+
+      - name: Check pushed commits
+        if: github.event_name == 'push'
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+        run: |
+          if [[ $BEFORE =~ ^0+$ ]]; then
+            # First push of the branch: check only the newest commit.
+            scripts/check-commit-msg.sh --revs -1 "$AFTER"
+          else
+            scripts/check-commit-msg.sh --revs "$BEFORE..$AFTER"
+          fi
