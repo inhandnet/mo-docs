@@ -4,6 +4,87 @@ Documentation source for the InHand **Mo** series single-board computers
 (Mo62A, Mo68A). Content in this repository will be published to the Mo
 developer site.
 
+## Repository layout
+
+```text
+docs/                    Site content. Each directory is one URL.
+  index.md               Home page
+  choose-your-board/     Board comparison
+  mo62a/                 13 sections, the same for every board:
+    getting-started/       mo-os/  system-configuration/
+    application-deployment/  application-development/
+    real-time-cores/  hardware-development/  compliance/
+    low-level-development/  other-systems/  accessories/
+    faq/  resource-download/
+  mo68a/                 The same 13 sections
+  accessories/           Accessory specifications and guides
+  works-with-mo/         Ecosystem partners
+  security/              Vulnerability reporting, advisories, SBOMs
+snippets/                Content shared by several pages, written once
+overrides/               Theme customizations, such as the "Report an issue" button
+mkdocs.yml               Site configuration and navigation
+requirements.txt         Python packages needed to build the site
+.github/ISSUE_TEMPLATE/  Issue forms; usage questions go to the forum
+CONTRIBUTING.md          How to report problems and propose changes
+SECURITY.md              How to report security vulnerabilities
+```
+
+Each section directory has an `index.md`, which is the section's first
+page. Put the other pages of a section in the same directory, for example
+`docs/mo62a/getting-started/first-demo.md`, which is published at
+`/mo62a/getting-started/first-demo/`.
+
+## Local preview
+
+You need Python 3.9 or later and Git. The commands below run in the
+repository root. The first two set up the environment and are needed only
+once.
+
+**Linux and macOS**
+
+On Ubuntu and Debian, install the venv module first with
+`sudo apt install python3-venv`.
+
+```sh
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/mkdocs serve
+```
+
+**Windows** (PowerShell or Command Prompt)
+
+Install Python from <https://www.python.org/downloads/> or with
+`winget install Python.Python.3.12`.
+
+```bat
+py -m venv .venv
+.venv\Scripts\pip install -r requirements.txt
+.venv\Scripts\mkdocs serve
+```
+
+Open <http://127.0.0.1:8040> in a browser. When you save a file, the page
+reloads with the change. Stop the server with `Ctrl+C`.
+
+If another program already uses port 8040, the server stops with
+`Address already in use`. Choose another port, for example
+`mkdocs serve -a 127.0.0.1:8041`.
+
+Before you open a pull request, run the same build as CI. Use
+`.venv/bin/mkdocs` on Linux and macOS, `.venv\Scripts\mkdocs` on Windows:
+
+```sh
+.venv/bin/mkdocs build --strict
+```
+
+The build fails on a broken link, a page that is missing from the
+navigation in `mkdocs.yml`, or a missing snippet.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to report a problem, propose
+a change and write pages. Commit messages follow the convention below.
+Report security vulnerabilities as described in [SECURITY.md](SECURITY.md).
+
 ## Commit message convention
 
 Every commit in this repository follows the format below. Pull request titles
@@ -134,6 +215,7 @@ workflow all call it, so the rules exist in one place.
 | `.githooks/commit-msg` | `git commit` | A commit whose message breaks the convention |
 | `.githooks/pre-push` | `git push` | A push that contains such a commit, or an unsquashed `fixup!` / `squash!` commit |
 | `.github/workflows/commit-message.yml` | Every pull request and every push to `main` | The same, plus a pull request title that breaks the convention |
+| `.github/workflows/build.yml` | Every pull request and every push to `main` | A change that makes `mkdocs build --strict` fail |
 
 The script checks:
 
@@ -168,12 +250,13 @@ in **Settings › Rules › Rulesets**, with a branch ruleset for `main`:
 
 1. **Require a pull request before merging.** Nobody can push to `main`
    directly, so every change goes through the CI check.
-2. **Require status checks to pass**, and add the check `commit-message`.
+2. **Require status checks to pass**, and add the checks `commit-message`
+   and `build`.
 3. **Block force pushes.**
 4. In **Settings › General › Pull Requests**, allow **squash merging** only.
 
-With these settings, a pull request that breaks the convention cannot be
-merged.
+With these settings, a pull request that breaks the convention or the
+build cannot be merged.
 
 On a GitHub Enterprise plan, the ruleset rule **Restrict commit metadata**
 can also reject a non-conforming push on the server. Other plans do not
