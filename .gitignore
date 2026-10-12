@@ -1,0 +1,4 @@
+# Generated site and local environment
+site/
+.venv/
+__pycache__/

@@ -1,0 +1,94 @@
+site_name: Mo Documentation
+site_description: Documentation for the InHand Mo series single-board computers
+repo_url: https://github.com/inhandnet/mo-docs
+repo_name: inhandnet/mo-docs
+edit_uri: edit/main/docs/
+copyright: Documentation licensed under CC BY-SA 4.0
+
+# Port for `mkdocs serve`. 8000 is the default of many development servers,
+# so use a less common one to avoid conflicts on the same machine.
+dev_addr: 127.0.0.1:8040
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+    - content.tabs.link
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets:
+      base_path: [snippets]
+      check_paths: true
+
+# Navigation follows the documentation structure of the Mo developer
+# platform plan. Both boards use the same 13 sections in the same order.
+# docs/index.md is the Documentation root. It is not a tab; the site name
+# in the header links to it.
+nav:
+  - Choose your board: choose-your-board/index.md
+  - Mo62A:
+      - mo62a/index.md
+      - Getting started: mo62a/getting-started/index.md
+      - Mo OS: mo62a/mo-os/index.md
+      - System configuration: mo62a/system-configuration/index.md
+      - Application deployment: mo62a/application-deployment/index.md
+      - Application development: mo62a/application-development/index.md
+      - Real-time cores (R5F): mo62a/real-time-cores/index.md
+      - Hardware development: mo62a/hardware-development/index.md
+      - Compliance: mo62a/compliance/index.md
+      - Low-level development: mo62a/low-level-development/index.md
+      - Other systems: mo62a/other-systems/index.md
+      - Accessories: mo62a/accessories/index.md
+      - FAQ: mo62a/faq/index.md
+      - Resource download: mo62a/resource-download/index.md
+  - Mo68A:
+      - mo68a/index.md
+      - Getting started: mo68a/getting-started/index.md
+      - Mo OS: mo68a/mo-os/index.md
+      - System configuration: mo68a/system-configuration/index.md
+      - Application deployment: mo68a/application-deployment/index.md
+      - Application development: mo68a/application-development/index.md
+      - Real-time cores (R5F): mo68a/real-time-cores/index.md
+      - Hardware development: mo68a/hardware-development/index.md
+      - Compliance: mo68a/compliance/index.md
+      - Low-level development: mo68a/low-level-development/index.md
+      - Other systems: mo68a/other-systems/index.md
+      - Accessories: mo68a/accessories/index.md
+      - FAQ: mo68a/faq/index.md
+      - Resource download: mo68a/resource-download/index.md
+  - Accessories: accessories/index.md
+  - Works with Mo: works-with-mo/index.md
+  - Security: security/index.md
