@@ -1,0 +1,30 @@
+{#-
+  Page action buttons. Based on partials/actions.html of mkdocs-material
+  9.7.7, with a "Report an issue" button added after the edit button.
+  Check this file when you upgrade mkdocs-material.
+-#}
+{% if page.edit_url %}
+  {% if "content.action.edit" in features %}
+    <a href="{{ page.edit_url }}" title="{{ lang.t('action.edit') }}" class="md-content__button md-icon" rel="edit">
+      {% set icon = config.theme.icon.edit or "material/file-edit-outline" %}
+      {% include ".icons/" ~ icon ~ ".svg" %}
+    </a>
+  {% endif %}
+  {% if "content.action.view" in features %}
+    {% if "/blob/" in page.edit_url %}
+      {% set part = "blob" %}
+    {% else %}
+      {% set part = "edit" %}
+    {% endif %}
+    <a href="{{ page.edit_url | replace(part, 'raw') }}" title="{{ lang.t('action.view') }}" class="md-content__button md-icon">
+      {% set icon = config.theme.icon.view or "material/file-eye-outline" %}
+      {% include ".icons/" ~ icon ~ ".svg" %}
+    </a>
+  {% endif %}
+{% endif %}
+{% if config.repo_url %}
+  {#- Open the documentation error form with the page source filled in. -#}
+  <a href="{{ config.repo_url }}/issues/new?template=doc-error.yml&page={{ ('docs/' ~ page.file.src_uri) | urlencode }}" title="Report an issue" class="md-content__button md-icon" target="_blank" rel="noopener">
+    {% include ".icons/material/alert-circle-outline.svg" %}
+  </a>
+{% endif %}
