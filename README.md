@@ -178,3 +178,13 @@ merged.
 On a GitHub Enterprise plan, the ruleset rule **Restrict commit metadata**
 can also reject a non-conforming push on the server. Other plans do not
 offer this rule, so this repository relies on the CI check.
+
+## License
+
+The documentation in this repository is licensed under the
+[Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/)
+(CC BY-SA 4.0). See [`LICENSE`](LICENSE).
+
+Material quoted from third parties, such as diagrams or tables from vendor
+documentation, keeps its original license. Each such item names its source
+and license where it appears.
