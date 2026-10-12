@@ -1,0 +1,30 @@
+# Build the site in strict mode. A broken link, a missing page in the
+# navigation or a missing snippet fails the build. Make this check required
+# in the branch ruleset for `main` (see README.md, "Enforcement on GitHub").
+name: build
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build the site
+        run: mkdocs build --strict
