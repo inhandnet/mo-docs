@@ -1,0 +1,21 @@
+---
+title: "Build from source"
+description: "Mo 62A: SDK, U-Boot, kernel and root file system."
+sidebar_position: 1
+---
+
+The Mo 62A SDK is based on **TI Processor SDK Linux RT EdgeAI AM62A 11.01.07.05** and contains U-Boot, the Linux kernel (6.12, TI RT), the build system, cross-compilers and a flash tool.
+
+```bash
+git clone https://github.com/inhandnet/Mo62A.git mo-62a
+cd mo-62a
+./setup.sh            # installs host packages, creates the toolchain symlink
+make all_stage        # build U-Boot and the kernel, stage the output
+sudo bash bin/mo-62a-flash.sh
+```
+
+The flash tool can write directly to an SD card or create a `.img.zip` for balenaEtcher. To add Debian packages to the image, add them to the rootfs tarball before flashing.
+
+Full instructions: [SDK README](https://github.com/inhandnet/Mo62A#2-environment-setup) — host requirements, signing keys, device-tree overlays, partition layout and known pitfalls.
+
+<ComingSoon priority="P1" source="SDK README, SDK user guide" />

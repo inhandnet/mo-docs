@@ -1,0 +1,27 @@
+---
+title: "Pre-compiled models"
+description: "Mo 62A: Models included in the image."
+sidebar_position: 2
+---
+
+The Mo 62A image includes models from the TI model zoo, compiled for the C7x accelerator. They are in `/opt/model_zoo/` on the board, and `edgeai-demo list` shows them.
+
+| Model directory | Task | Format |
+|---|---|---|
+| `ONR-CL-6360-regNetx-200mf` | Classification | ONNX |
+| `TFL-CL-0000-mobileNetV1-mlperf` | Classification | TFLite |
+| `ONR-OD-8020-ssd-lite-mobv2-mmdet-coco-512x512` | Object detection (COCO) | ONNX |
+| `ONR-OD-8200-yolox-nano-lite-mmdet-coco-416x416` | Object detection (COCO) | ONNX |
+| `ONR-OD-8220-yolox-s-lite-mmdet-coco-640x640` | Object detection (COCO) | ONNX |
+| `ONR-OD-8420-yolox-s-lite-mmdet-widerface-640x640` | Face detection | ONNX |
+| `TFL-OD-2020-ssdLite-mobDet-DSP-coco-320x320` | Object detection (COCO) | TFLite |
+| `ONR-KD-7060-human-pose-yolox-s-640x640` | Human pose | ONNX |
+| `ONR-SS-7618-deeplabv3lite-mobv2-qat-robokit-768x432` | Semantic segmentation | ONNX |
+| `ONR-SS-8610-deeplabv3lite-mobv2-ade20k32-512x512` | Semantic segmentation (ADE20K) | ONNX |
+| `ONR-SS-8690-fpnlite-aspp-regnetx400mf-ade20k32-384x384` | Semantic segmentation (ADE20K) | ONNX |
+
+Source: [model_zoo in the Mo 62A repository](https://github.com/inhandnet/Mo62A/tree/HEAD/board-support/rootfs-overlay/opt/ti/model_zoo). In image v1.1.0 the ONNX models were recompiled for TIDL 11_02_17_00, with all nodes offloaded to the C7x.
+
+Models that do not run on this TIDL version are listed in [`unsupported_models.txt`](https://github.com/inhandnet/Mo62A/blob/HEAD/board-support/rootfs-overlay/opt/ti/model_zoo/unsupported_models.txt); see [Known issues](./known-issues.mdx).
+
+<ComingSoon priority="P1" source="Model Hub with per-board benchmarks and apt packages (GTM task R-11)" />

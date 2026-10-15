@@ -6,13 +6,13 @@ body:
     attributes:
       value: |
         Use this form for problems in the documentation. For questions about
-        using a board, ask in the [community forum](https://community.inhand.com).
+        using a product, ask in the [community forum](https://community.inhand.com).
   - type: input
     id: page
     attributes:
       label: Page
-      description: The page URL or source file. The "Report an issue" button on each page fills this in.
-      placeholder: docs/mo62a/getting-started/index.md
+      description: The documentation page URL or source file containing the problem.
+      placeholder: docs/mo-62a/getting-started/install-os.mdx
     validations:
       required: true
   - type: dropdown
@@ -44,5 +44,5 @@ body:
     id: image-version
     attributes:
       label: Image version
-      description: Optional. The image version on your board, if the problem depends on it.
+      description: Optional. The image version on your product, if the problem depends on it.
       placeholder: V1.1.0

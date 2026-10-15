@@ -1,0 +1,20 @@
+---
+title: "First boot"
+description: "Mo 62A: Set up your account, network and SSH."
+sidebar_position: 3
+---
+
+import FirstBoot from '@site/docs/_partials/getting-started/first-boot.mdx';
+
+<FirstBoot board="mo-62a" />
+
+## Connect to Wi-Fi later
+
+```bash
+nmcli device wifi list
+nmcli device wifi connect "SSID" password "password"
+```
+
+Attach an antenna to the U.FL connector for usable range.
+
+Next: [Run your first NPU demo](./first-npu-demo.mdx).

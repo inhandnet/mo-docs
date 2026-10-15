@@ -1,0 +1,25 @@
+Roboto, unmodified variable WOFF2 subsets retrieved 2026-10-14.
+Upstream: Google Fonts, Roboto v51, matching the ZYB prototype's Roboto family.
+License: SIL Open Font License 1.1, included in OFL.txt.
+The repository's content license does not replace the font license.
+
+Stylesheet reference:
+https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap
+
+roboto-latin.woff2
+https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2
+SHA256: 1404ca348bd75ef836f4dd8b6f2cc719458642d1237c368296b2fc652dca47dc
+
+roboto-latin-ext.woff2
+https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3KUBGEe.woff2
+SHA256: cedb374b05a35034cf96db185db4eeb8f8ce49e1a56197673702ff11b5533d6e
+
+roboto-symbols.woff2
+https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMaxKUBGEe.woff2
+SHA256: 2addf2d86d7a5778653b36d551e97a39da52855f82fac7461cfc1bd86d460aed
+
+License source:
+https://raw.githubusercontent.com/google/fonts/main/ofl/roboto/OFL.txt
+
+Latin/Latin Extended and symbols are bundled for the English documentation.
+Other scripts use the same system-font fallbacks as the reference site.

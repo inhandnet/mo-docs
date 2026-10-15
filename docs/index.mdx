@@ -1,0 +1,29 @@
+---
+title: Mo documentation
+description: Documentation for the Mo 62A and Mo 68A AI single-board computers.
+sidebar_position: 0
+slug: /
+---
+
+import ChooseYourBoard from '@site/src/components/ChooseYourBoard/index.mdx';
+
+import DocCardList from '@theme/DocCardList';
+import {useDocsSidebar} from '@docusaurus/plugin-content-docs/client';
+
+export const SectionCards = () => {
+  const sidebar = useDocsSidebar();
+  // The sidebar starts with this page; list only the sections.
+  return <DocCardList items={sidebar.items.filter((item) => !(item.type === 'link' && item.docId === 'index'))} />;
+};
+
+Documentation for the **Mo 62A** and **Mo 68A** AI single-board computers. Both boards use the same structure, so what you learn on one carries over to the other.
+
+<ChooseYourBoard />
+
+## All sections
+
+:::note[Applies to]
+Unless a page says otherwise, it applies to Mo 62A image **v1.1.0** and later. Mo 68A pages note their own image version.
+:::
+
+<SectionCards />

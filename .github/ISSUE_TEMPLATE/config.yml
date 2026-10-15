@@ -1,8 +1,8 @@
 # Issues in this repository are for errors in the documentation.
-# Questions about using the boards belong in the community forum.
+# Questions about using products belong in the community forum.
 blank_issues_enabled: false
 contact_links:
-  - name: Ask a question about using a Mo board
+  - name: Ask a question about using a product
     url: https://community.inhand.com
     about: Ask usage questions in the community forum, where answers stay searchable for everyone.
   - name: Report a security vulnerability

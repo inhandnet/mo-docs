@@ -1,53 +1,53 @@
-# Contributing to mo-docs
+# 文档维护
 
-Thank you for helping improve the Mo documentation. This repository holds
-documentation only. Questions about using a board belong in the
-[community forum](https://community.inhand.com), and security
-vulnerabilities are reported as described in [SECURITY.md](SECURITY.md).
+优先直接复用 ZYB 已有内容、组件和 Docusaurus 原生能力。只在实际需要时调整内容、路径和配置。
 
-## Report a problem
+## 修改和新增文档
 
-Every page on the site has two buttons next to the title:
+直接编辑 `docs/<产品>/<栏目>/<文章>.mdx`，例如 `docs/mo-62a/getting-started/install-os.mdx`。Mo68A 的同类文章在自己的产品目录中。
 
-- **Edit this page** opens the source file on GitHub, where you can propose
-  a change in a pull request.
-- **Report an issue** opens the documentation error form with the page
-  already filled in.
+```yaml
+---
+title: First boot
+description: Boot and sign in to your Mo board.
+sidebar_position: 3
+---
+```
 
-You can also open the form directly from the
-[Issues](https://github.com/inhandnet/mo-docs/issues/new/choose) tab.
+目录页沿用原型的 `index.mdx` 和 `DocCardList`；分类名称、顺序和折叠状态写在 `_category_.json` 中。侧栏自动从目录生成。不要额外编写 React 产品导航或维护生成出来的 Markdown。
 
-## Propose a change
+尚未写完的页面沿用原型组件：
 
-1. Fork the repository and create a branch.
-2. Make your change and preview it locally. See
-   [Local preview](README.md#local-preview).
-3. Run `mkdocs build --strict` and fix any warning.
-4. Open a pull request. Write the title in the commit message format,
-   because pull requests are squash-merged and the title becomes the commit
-   message. See [Commit message convention](README.md#commit-message-convention).
+```mdx
+<ComingSoon priority="P0" />
+```
 
-Small fixes, such as a typo or a broken link, can go straight to a pull
-request. For a new page or a change to the structure, open an issue first
-so that we can agree on where the content goes.
+尚未上传的下载文件保留待补说明，不制造空文件或无效下载地址。需要完全隐藏的草稿使用 Docusaurus 原生 `draft: true`，不要继续使用旧模型的 `status: draft`；静态生产构建（包括办公室预览构建）均不包含此类原生草稿，开发服务器可用于编写。
 
-## Writing rules
+## 共享内容
 
-- Write in English.
-- State the image version that a page applies to, for example
-  `Applies to image V1.1.0`.
-- Name files and directories in lowercase letters, digits and `-`. Do not
-  use spaces.
-- When you add a page, add it to `nav` in `mkdocs.yml`.
-- Put images next to the page that uses them, in an `images/` directory.
-- When the same content applies to more than one board, write it once in
-  `snippets/` and include it with `--8<-- "file.md"`.
-- Do not include internal information: internal host names, private IP
-  addresses, local paths from your computer, or customer names.
-- Material quoted from third parties keeps its original license. Name the
-  source and the license where it appears.
+沿用 `docs/_partials/` 中的 MDX 组件：
 
-## License
+```mdx
+import FlashOsImage from '@site/docs/_partials/getting-started/flash-os-image.mdx';
 
-By contributing, you agree that your contribution is licensed under the
-[CC BY-SA 4.0](LICENSE) license of this repository.
+<FlashOsImage board="mo-62a" />
+```
+
+用原型的 `Only` 区分板卡适用内容，新增型号前核验适用范围。共享内容修改后检查两款板卡页面。
+
+## 链接、图片和数据
+
+同产品 Markdown 文章优先使用相对文件链接。文档内 JSX 链接使用 `@site/src/components/DocumentationLink`：它将原型的 /docs 路径适配为当前文档根路径，并将 Hardware、Software、Contact 等路径转到 `DEVELOPER_PORTAL_URL`。Markdown 链接通过相同适配器渲染。不要把办公室 IP 写入正文。
+
+图片放在 `static/img/`。大型镜像、PDF 和 SDK 继续链接到真实资源，不提交虚构占位资产。
+
+`src/data/products.ts`、`src/data/generated/releases.json` 和 DocBlocks 的版本表均沿用 ZYB 原型，后续修改时同步核对来源。发布记录刷新使用 `npm run fetch-data`，不把旧快照称为本次实时获取的版本。
+
+首页选型表位于 `src/components/ChooseYourBoard/index.mdx`，其余首页内容位于 `docs/index.mdx`。新增 Mo 产品时补充该表和产品目录。核心板不属于本仓库。
+
+## 视觉和验收
+
+样式以 ZYB `src/css/custom.css` 为基线。Roboto、字号、字重、自然换行和左对齐沿用原型，不引入新的字体。已有字体来源和 OFL 许可在 `src/css/fonts/`。
+
+执行 `npm run check`，再按实际构建参数运行 `npm run test:browser`。检查目录卡片、共享内容、移动端、搜索和链接。发布前另行核验产品操作、版本、下载文件和安全渠道；页面存在不代表内容已验收。

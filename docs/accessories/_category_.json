@@ -1,0 +1,9 @@
+{
+  "label": "Accessories",
+  "position": 3,
+  "collapsed": true,
+  "link": {
+    "type": "doc",
+    "id": "accessories/index"
+  }
+}

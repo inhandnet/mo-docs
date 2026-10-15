@@ -1,0 +1,37 @@
+import Link from '@site/src/components/DocumentationLink';
+
+Mo boards boot from a microSD card. You write the OS image to the card on your computer, then put the card in the board.
+
+:::warning
+Writing the image erases everything on the card.
+:::
+
+## 1. Download the image
+
+<Only board={props.board} is="mo-62a">
+
+Get the latest image (`.img.zip`) from the <Link to="/software#os-images">Software page</Link>. Check the SHA256 checksum shown next to the file. The image and its source are built from [github.com/inhandnet/Mo62A](https://github.com/inhandnet/Mo62A).
+
+</Only>
+
+<Only board={props.board} is="mo-68a">
+
+Get the latest image from the [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO68A). The Mo 68A GitHub repository is coming soon.
+
+</Only>
+
+## 2. Write the image with balenaEtcher
+
+1. Install [balenaEtcher](https://etcher.balena.io) (Windows, macOS, Linux).
+2. Click **Flash from file** and select the downloaded `.img.zip`. You do not need to unzip it.
+3. Click **Select target** and choose your microSD card.
+4. Click **Flash!** and wait for **Flash Complete!**.
+5. Remove the card safely.
+
+Any other image writer, such as `dd` on Linux, also works.
+
+## 3. Optional: pre-configure the board
+
+Before you remove the card, you can set your user, password, network and hostname in `sysconfig.txt` on the card's `BOOT` drive. This is the recommended way to set up a board without a display. See <Link to={`/docs/${props.board}/getting-started/first-boot`}>First boot</Link>.
+
+To create an image from source, see <Link to={`/docs/${props.board}/low-level-development/build-from-source`}>Build from source</Link>.

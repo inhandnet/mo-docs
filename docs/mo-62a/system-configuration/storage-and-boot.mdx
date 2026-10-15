@@ -1,0 +1,27 @@
+---
+title: "Storage & boot"
+description: "Mo 62A: microSD boot, partitions and boot menu."
+sidebar_position: 1
+---
+
+The Mo 62A boots from the **microSD card**. Use a 16 GB or larger card, Class 10 / UHS-I (U1) or faster.
+
+## Partition layout
+
+| Partition | File system | Size | Label | Contents |
+|---|---|---|---|---|
+| 1 | FAT32 | 256 MiB | `BOOT` | Bootloaders, kernel, device trees, `extlinux/extlinux.conf`, `sysconfig.txt` |
+| 2 | ext4 | Rest of the card | `rootfs` | Debian root file system |
+
+The root file system grows to fill the card on the first boot.
+
+## Boot menu
+
+U-Boot reads `extlinux/extlinux.conf` and shows a menu with two entries:
+
+- `microSD` (default) — all 40-pin header pins are GPIO.
+- `microSD-periph` — enables I²C, UART, SPI, PWM and I²S on the header. See [Hardware interfaces](../hardware-development/hardware-interfaces.mdx#peripheral-mode-ic-uart-spi-pwm-is).
+
+## Troubleshooting
+
+If the board does not boot: re-seat the card until it clicks, try another card, and re-flash. Watch the [serial console](../hardware-development/hardware-interfaces.mdx#debug-uart-j4) to see where the boot stops.

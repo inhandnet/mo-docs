@@ -1,0 +1,57 @@
+{
+  "name": "@inhand/mo-docs",
+  "version": "0.1.0",
+  "private": true,
+  "description": "InHand Developer Documentation",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "validate": "node --test tests/docs.test.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node tests/browser.mjs",
+    "build": "docusaurus build",
+    "start": "docusaurus start --host 0.0.0.0 --port 8041 --no-open",
+    "fetch-data": "node scripts/fetch-releases.mjs",
+    "serve": "docusaurus serve --host 0.0.0.0 --port 8040 --no-open",
+    "typecheck": "tsc --noEmit",
+    "check": "npm test && npm run typecheck && npm run build"
+  },
+  "dependencies": {
+    "@docusaurus/core": "3.10.2",
+    "@docusaurus/preset-classic": "3.10.2",
+    "@mdx-js/react": "3.1.1",
+    "clsx": "2.1.1",
+    "gray-matter": "4.0.3",
+    "pagefind": "1.5.2",
+    "prism-react-renderer": "2.4.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@docusaurus/module-type-aliases": "3.10.2",
+    "@docusaurus/tsconfig": "3.10.2",
+    "@docusaurus/types": "3.10.2",
+    "@types/react": "19.2.14",
+    "playwright": "1.64.0",
+    "typescript": "6.0.2"
+  },
+  "browserslist": {
+    "production": [
+      ">0.5%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 2 chrome versions",
+      "last 2 firefox versions",
+      "last 2 safari versions"
+    ]
+  },
+  "overrides": {
+    "tinypool": "2.1.2",
+    "serialize-javascript": "7.1.2",
+    "postcss-selector-parser": "7.1.6",
+    "uuid": "11.1.1"
+  }
+}

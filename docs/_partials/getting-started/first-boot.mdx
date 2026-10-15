@@ -1,0 +1,71 @@
+import Link from '@site/src/components/DocumentationLink';
+
+## Set up the board before the first boot (recommended)
+
+After flashing, the card shows up on your computer as a drive named **BOOT**. Open `sysconfig.txt` on that drive in any text editor. Remove the leading `#` from a line to enable a setting:
+
+<Only board={props.board} is="mo-62a">
+
+```ini title="BOOT/sysconfig.txt"
+user_name=alice
+user_password=choose-a-strong-password
+hostname=mo62a-lab
+wifi_ssid=MyNetwork
+wifi_password=my wifi password
+wifi_country=US
+user_ssh_key=ssh-ed25519 AAAA... you@laptop
+timezone=Europe/Berlin
+```
+
+</Only>
+
+<Only board={props.board} is="mo-68a">
+
+```ini title="BOOT/sysconfig.txt"
+user_name=alice
+user_password=choose-a-strong-password
+hostname=mo68a-lab
+user_ssh_key=ssh-ed25519 AAAA... you@laptop
+timezone=Europe/Berlin
+```
+
+:::note[Mo 68A image]
+`sysconfig.txt` was introduced in Mo 62A image v1.0.8. Check that your Mo 68A image includes it; if the file is not on the `BOOT` drive, follow the quick start guide that came with the image.
+:::
+
+</Only>
+
+On the first boot the board applies these settings and then **deletes `sysconfig.txt`**, so no password is left on the card. For a static IP address, set `static_ip`, `static_mask`, `static_gateway` and `static_dns`.
+
+:::danger[Change the default password]
+If you leave `sysconfig.txt` unchanged, the image creates a default account whose password is published in that file. Set your own `user_password` before the first boot, or change it with `passwd` immediately after logging in. See <Link to={`/docs/${props.board}/mo-os/users-and-security`}>Users & security settings</Link>.
+:::
+
+## Connect and power on
+
+1. Insert the microSD card.
+2. Connect a display (optional), Ethernet, and a USB keyboard and mouse (optional).
+3. Connect a camera to the CSI connector if you have one. Do this with the power off.
+4. Connect the USB-C power supply last. The red power LED lights up.
+
+A normal boot takes about 30–45 seconds. **On the first boot** the board also expands the file system to fill the card and applies `sysconfig.txt`, then reboots automatically. Allow 1–2 extra minutes.
+
+## Log in
+
+**Over SSH.** The board gets an IP address from DHCP and announces itself over mDNS as `<hostname>.local`:
+
+```bash
+ssh alice@<hostname>.local
+# or, using the IP address shown by your router
+ssh alice@192.168.1.50
+```
+
+If you connect the board straight to your computer with a cable (no router), it uses a link-local address. mDNS still works.
+
+**On the desktop.** With a display attached, the XFCE desktop starts automatically. Log in with the user you set in `sysconfig.txt`.
+
+**Over the serial console.** Use a 3.3 V USB-to-TTL adapter on the 3-pin debug UART connector. Settings: **115200 baud, 8N1, no flow control**.
+
+```bash
+minicom -D /dev/ttyUSB0 -b 115200
+```

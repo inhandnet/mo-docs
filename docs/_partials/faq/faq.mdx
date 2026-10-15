@@ -1,0 +1,38 @@
+import Link from '@site/src/components/DocumentationLink';
+
+## Which AI frameworks and model formats are supported?
+
+Models run through TI's TIDL runtime, which accepts **ONNX** (`.onnx`) and **TFLite** (`.tflite`) models via ONNX Runtime and the TFLite delegate. Pre- and post-processing typically use OpenCV and GStreamer in Python or C/C++. See <Link to={`/docs/${props.board}/application-development/ai`}>AI development</Link>.
+
+## What is 2 TOPS enough for?
+
+Mo 62A suits classification, lightweight detection (for example YOLOX-nano), OCR, presence sensing, and pose or gesture recognition. For multiple streams or higher resolution at higher frame rates, use the Mo 68A (8 TOPS).
+
+## Do Raspberry Pi HATs and cases fit?
+
+Mechanically yes: the board is 85 × 56 mm with a 40-pin header in the standard position. Electrically the header is **3.3 V logic** — check the HAT's requirements first. Pins 27 / 28 are used by the camera bus on Mo 62A.
+
+## Does Mo run InHand DeviceLive or IEOS?
+
+No. Mo is a developer board managed with standard Debian tools and SSH.
+
+## The screen stays blank after boot
+
+Screen blanking is disabled in the image. Press a key or move the mouse. On the first boot the board reboots once after expanding the file system — wait 2–3 minutes.
+
+## The camera is not detected
+
+```bash
+v4l2-ctl --list-devices
+media-ctl -d /dev/media0 --print-topology
+```
+
+Power off, re-seat the ribbon cable with the latch locked, and for CSI cameras run `sudo init-imx219` before the demo.
+
+## The board does not boot from the SD card
+
+Make sure the card clicks into place, try a different card (16 GB+, Class 10 / UHS-I), and re-flash. Use the serial console to see where the boot stops.
+
+## Wi-Fi range is very short (Mo 62A)
+
+Attach an antenna to the U.FL connector.

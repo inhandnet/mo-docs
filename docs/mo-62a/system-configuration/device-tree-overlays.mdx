@@ -1,0 +1,11 @@
+---
+title: "Device tree overlays"
+description: "Mo 62A: 40-pin peripheral mode and camera overlays."
+sidebar_position: 2
+---
+
+The Mo 62A boots with all 40-pin header pins as GPIO. To enable I²C, UART, SPI, PWM and I²S on the header, choose the **`microSD-periph`** entry in the U-Boot boot menu, or set `default microSD-periph` in `extlinux/extlinux.conf` on the BOOT partition. This loads `k3-am62a7-mo-62a-exp-periph.dtbo`. The pin mapping is in [Hardware interfaces](../hardware-development/hardware-interfaces.mdx#peripheral-mode-ic-uart-spi-pwm-is).
+
+Camera overlays (for example `k3-am62a7-mo-62a-cam-imx219.dtso`) are in the SDK; see the [SDK README](https://github.com/inhandnet/Mo62A#47-known-dts-and-overlay-issues).
+
+<ComingSoon priority="P1" source="GitHub SDK README" />

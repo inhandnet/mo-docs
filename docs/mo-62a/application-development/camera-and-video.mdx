@@ -1,0 +1,29 @@
+---
+title: "Camera & video"
+description: "Mo 62A: Cameras, ISP, GStreamer, codecs and RTSP."
+sidebar_position: 2
+---
+
+## Camera preview (IMX219)
+
+The IMX219 camera works out of the box on the CSI connector. Connect it with the power off: lift the latch, insert the ribbon with the contacts facing the board, and lock the latch.
+
+```bash
+sudo imx219-preview.sh          # 15 fps (default)
+sudo imx219-preview.sh 30       # 30 fps
+sudo GAIN=232 imx219-preview.sh 5   # low light
+```
+
+The preview needs the display; the desktop pauses while it runs. Tuning variables:
+
+| Variable | Default | Range | Description |
+|---|---|---|---|
+| `FPS` | 15 | 5 / 8 / 10 / 15 / 30 | Frame rate (first argument) |
+| `WB_R` / `WB_B` | 0.5 / 0.6 | 0.0 – 1.0 | White balance red / blue reference |
+| `GAIN` | 150 | 0 – 232 | Analogue gain |
+| `DGAIN` | 256 | 256 – 4095 | Digital gain |
+| `EXPOSURE` | auto | lines | Exposure |
+
+If the camera is missing, check `v4l2-ctl --list-devices` and `media-ctl -d /dev/media0 --print-topology`.
+
+<ComingSoon priority="P1" source="GStreamer pipelines, ISP tuning and supported camera list" />

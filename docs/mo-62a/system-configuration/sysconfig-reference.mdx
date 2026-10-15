@@ -1,0 +1,20 @@
+---
+title: "sysconfig.txt reference"
+description: "Mo 62A: All first-boot settings."
+sidebar_position: 3
+---
+
+`sysconfig.txt` sits on the card's `BOOT` partition. On the first boot the board applies it and then deletes it. Remove the leading `#` to enable a line; the format is `key=value` without quotes.
+
+| Key | Meaning |
+|---|---|
+| `user_name`, `user_password` | Login user, created with sudo access |
+| `user_realname`, `user_shell` | Full name; `bash` or `zsh` |
+| `root_password` | Optional; root stays locked without it. Does not enable root SSH login |
+| `hostname` | Device name, also `<hostname>.local` over mDNS |
+| `user_ssh_key`, `root_ssh_key` | OpenSSH public key line, or a URL to download it from |
+| `locale`, `timezone` | For example `en_US.UTF-8`, `Europe/Berlin` |
+| `wifi_ssid`, `wifi_password`, `wifi_country` | Connect to Wi-Fi on first boot; country is the 2-letter code |
+| `static_ip`, `static_mask`, `static_gateway`, `static_dns` | Static Ethernet address instead of DHCP |
+
+Source: [bin/sysconfig.txt](https://github.com/inhandnet/Mo62A/blob/HEAD/bin/sysconfig.txt) in the Mo 62A repository.

@@ -1,0 +1,26 @@
+---
+title: "Network"
+description: "Mo 62A: Ethernet and wireless."
+sidebar_position: 2
+---
+
+## Ethernet
+
+Gigabit Ethernet with DHCP by default. For a static address, set `static_ip`, `static_mask`, `static_gateway` and `static_dns` in `sysconfig.txt` before the first boot ([First boot](../getting-started/first-boot.mdx)). A directly connected PC can reach the board with a link-local address.
+
+## Wi-Fi and Bluetooth
+
+| | |
+|---|---|
+| Wi-Fi | Wi-Fi 5 (802.11ac), dual-band, SDIO module |
+| Bluetooth | BLE 4.2 |
+| Antenna | U.FL connector — attach an antenna for usable range |
+
+Connect from the command line:
+
+```bash
+nmcli device wifi list
+nmcli device wifi connect "SSID" password "password"
+```
+
+Or set `wifi_ssid`, `wifi_password` and `wifi_country` in `sysconfig.txt` before the first boot. The Wi-Fi module is a pre-certified module; see [Compliance](../compliance/index.mdx).

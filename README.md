@@ -1,273 +1,73 @@
-# mo-docs
+# Mo documentation
 
-Documentation source for the InHand **Mo** series single-board computers
-(Mo62A, Mo68A). Content in this repository will be published to the Mo
-developer site.
+本仓库只维护 Mo 系列单板计算机的 Documentation，直接复用 ZYB 的 Docusaurus 文档源码。Mo62A、Mo68A、配件、Works with Mo 和 Security 均来自同一原型。核心板不在本仓库范围内。
 
-## Repository layout
+## 本地预览
 
-```text
-docs/                    Site content. Each directory is one URL.
-  index.md               Home page
-  choose-your-board/     Board comparison
-  mo62a/                 13 sections, the same for every board:
-    getting-started/       mo-os/  system-configuration/
-    application-deployment/  application-development/
-    real-time-cores/  hardware-development/  compliance/
-    low-level-development/  other-systems/  accessories/
-    faq/  resource-download/
-  mo68a/                 The same 13 sections
-  accessories/           Accessory specifications and guides
-  works-with-mo/         Ecosystem partners
-  security/              Vulnerability reporting, advisories, SBOMs
-snippets/                Content shared by several pages, written once
-overrides/               Theme customizations, such as the "Report an issue" button
-mkdocs.yml               Site configuration and navigation
-requirements.txt         Python packages needed to build the site
-.github/ISSUE_TEMPLATE/  Issue forms; usage questions go to the forum
-CONTRIBUTING.md          How to report problems and propose changes
-SECURITY.md              How to report security vulnerabilities
+要求 Node.js 24（见 .nvmrc）。
+
+```bash
+npm ci
+DOCS_PREVIEW=1 npm run build
+npm run serve
 ```
 
-Each section directory has an `index.md`, which is the section's first
-page. Put the other pages of a section in the same directory, for example
-`docs/mo62a/getting-started/first-demo.md`, which is published at
-`/mo62a/getting-started/first-demo/`.
+访问 http://localhost:8040。同一局域网可通过本机 IP 访问。3030 留给完整 ZYB Developer 原型。服务不包含开机自启。
 
-## Local preview
+构建时设置 `DEVELOPER_PORTAL_URL` 可以将 Hardware、Software、Contact 等入口指向本地 ZYB 站点；默认指向正式 Developer 地址。不要将内网 IP 固定写入源代码。
 
-You need Python 3.9 or later and Git. The commands below run in the
-repository root. The first two set up the environment and are needed only
-once.
+日常编辑用 `npm start`，在 8041 提供热更新；全文搜索需要静态构建。构建参数 `DOCS_BASE_URL` 默认为 `/`，也可部署为 `/docs/`；`DOCS_SITE_URL` 控制正式域名。`DOCS_PREVIEW=1` 显示预览提示、设置 noindex 并禁用 sitemap。该参数不代表内容已完成审核。
 
-**Linux and macOS**
+## 目录
 
-On Ubuntu and Debian, install the venv module first with
-`sudo apt install python3-venv`.
+- `docs/`：ZYB 的 Markdown/MDX 正文及 `_category_.json` 目录顺序。
+- `docs/_partials/`：直接复用的共享 MDX，通过板卡参数区分内容。
+- `sidebars.ts`：Docusaurus 原生自动侧栏。
+- `src/components/DocBlocks/`：ZYB 的 ComingSoon、下载、版本映射和规格组件。
+- `src/data/`：ZYB 产品资料与已有发布记录快照。
+- `src/components/DocumentationLink/`：将原型中的主站链接适配到独立部署地址。
+- `src/css/`：ZYB 样式与本地 Roboto 字体，含来源和 OFL 许可。
+- `legacy/`：改用 ZYB 前的稿件与元数据备份，不参与构建。
+- `build/`：生成的静态站点，不提交。
 
-```sh
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-.venv/bin/mkdocs serve
+编辑真实文档源文件，不再维护自建目录生成器、产品模板或 `.generated/`。新增文档方法见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
+## 内容状态
+
+本轮先完整复用原型，后续逐页调整。原型的 Coming soon 标记保留；尚未上传的文件、外部下载、规格、版本说明及安全渠道需进一步核对。导入 145 个页面不等于 145 篇文档已验收。
+
+发布记录使用原型自带的快照；构建不自动联网刷新。需要更新时运行原型的 `npm run fetch-data`，检查差异后提交。构建成功不等于上游链接或硬件操作已核验。
+
+## 检查
+
+```bash
+npm run check
+DOCS_PREVIEW=1 npm run build
+DOCS_PREVIEW=1 npm run test:browser
 ```
 
-**Windows** (PowerShell or Command Prompt)
+浏览器测试参数必须与构建一致，包括 `DEVELOPER_PORTAL_URL` 和 `DOCS_BASE_URL`。首次运行需安装 Playwright Chromium。CI 检查公开 /docs/ 与办公室预览 /，GitHub Pages 工作流另行检查实际发布路径。
 
-Install Python from <https://www.python.org/downloads/> or with
-`winget install Python.Python.3.12`.
+## 自动编译与发布
 
-```bat
-py -m venv .venv
-.venv\Scripts\pip install -r requirements.txt
-.venv\Scripts\mkdocs serve
-```
+- **在线预览**：`pages-preview.yml` 在推送 main 后自动检查、编译并发布到 GitHub Pages，预期地址为 https://inhandnet.github.io/mo-docs/。域名和路径读取 Pages 配置，不硬编码在源码中。预览保留提示栏和 noindex；noindex 不是访问控制，预览页面公开可访问。
+- **官网接口（dummy）**：`build.yml` 生成 `mo-docs-public-<commit SHA>` 静态产物，`website-deploy-dummy` 只在 Actions Summary 记录目标与交接说明，不连接官网服务器、不上传官网，也不需要官网凭据。
+- **办公室预览**：本地 8040 独立运行，不随 GitHub 发布改变；3030 仍是完整 ZYB Developer 原型。
 
-Open <http://127.0.0.1:8040> in a browser. When you save a file, the page
-reloads with the change. Stop the server with `Ctrl+C`.
+仓库 Settings → Pages 的 Source 需为 **GitHub Actions**。Pages 部署采用 GitHub 官方 [自定义工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)，仅 main 可以发布；PR 只校验构建。
 
-If another program already uses port 8040, the server stops with
-`Address already in use`. Choose another port, for example
-`mkdocs serve -a 127.0.0.1:8041`.
+预留 Repository variables：
 
-Before you open a pull request, run the same build as CI. Use
-`.venv/bin/mkdocs` on Linux and macOS, `.venv\Scripts\mkdocs` on Windows:
+| 变量 | 默认值 | 用途 |
+| --- | --- | --- |
+| `WEBSITE_SITE_URL` | `https://www.inhand.com` | 官网构建的域名与 canonical/sitemap |
+| `WEBSITE_BASE_URL` | `/docs/` | 官网挂载目录，必须以 `/` 开始和结束 |
+| `DEVELOPER_PORTAL_URL` | `https://www.inhand.com/developer` | Hardware、Software 等外部入口 |
 
-```sh
-.venv/bin/mkdocs build --strict
-```
+官网路径尚未确认，上述默认值只是接口占位，不表示官网入口已经开放。GitHub Pages 只托管 Documentation，不发布完整 ZYB Developer；预览中的外部门户链接仍指向预留地址。后续官网开放时，确认三个变量、配置独立生产凭据，将 dummy 步骤替换为实际部署，并验证文档深链接和 `/pagefind/` 资源。不得将 Pages 的 `/mo-docs/` 构建直接拷贝到官网 `/docs/`；两个目标需各自编译。
 
-The build fails on a broken link, a page that is missing from the
-navigation in `mkdocs.yml`, or a missing snippet.
+## 许可与提交
 
-## Contributing
+文档许可见 [LICENSE](LICENSE)，素材来源见 [static/ASSETS.md](static/ASSETS.md)，复用范围见 [ZYB-REUSE.md](ZYB-REUSE.md)。字体来源和许可保存在 `src/css/fonts/`，构建时同时复制到 `build/fonts/`。
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for how to report a problem, propose
-a change and write pages. Commit messages follow the convention below.
-Report security vulnerabilities as described in [SECURITY.md](SECURITY.md).
-
-## Commit message convention
-
-Every commit in this repository follows the format below. Pull request titles
-use the same format, because pull requests are squash-merged and the title
-becomes the commit message.
-
-### Format
-
-```text
-<type>(<scope>): <subject>
-
-<body>
-
-<footer>
-```
-
-The first line is required. The body and footer are optional, but write a body
-whenever the reason for the change is not obvious from the subject.
-
-### Type
-
-The types follow [Conventional Commits 1.0.0](https://www.conventionalcommits.org/en/v1.0.0/)
-and match the practice in the `inhandnet/documents` repository.
-
-| Type | Use it when you |
-|---|---|
-| `feat` | Add a new page or section, or a new site feature |
-| `fix` | Correct an error: wrong command, wrong value, broken link, typo |
-| `docs` | Change existing content: new image version, new data, clearer wording |
-| `refactor` | Move, rename or restructure pages without changing what they say |
-| `sync` | Import content automatically from another repository |
-| `ci` | Change CI workflows (link checks, publishing) |
-| `chore` | Change anything else that readers do not see: site configuration, README, templates, generated files |
-
-Use one type per commit. If a change needs two types, split it into two
-commits. For example, rename a file in a `refactor` commit, then edit it in a
-`docs` commit. This keeps the file history readable.
-
-### Scope
-
-The scope is optional. When you use one, name the part of the documentation
-that changes, in lowercase letters, digits, `-` and `/`. Recommended scopes:
-
-| Scope | Covers |
-|---|---|
-| `mo62a` | Pages for Mo62A |
-| `mo68a` | Pages for Mo68A |
-| `shared` | Content shared by all boards |
-| `choose-your-board` | The board selection page |
-| `accessories` | Accessory pages |
-| `works-with-mo` | Ecosystem partner pages |
-| `security` | Security advisories, vulnerability reporting, SBOM pages |
-
-You can narrow a board scope to one section, for example `mo62a/getting-started`.
-
-### Subject
-
-- Use the imperative mood: "add", not "added" or "adds".
-- Start with a lowercase letter. Do not end with a period.
-- Keep the whole first line to 72 characters or fewer.
-- Say what changes, not how. Product names keep their own spelling (`Mo62A`, `TIDL`).
-
-### Body
-
-- Explain **why** the change is needed. The diff already shows what changed.
-- Wrap lines at 72 characters.
-- If the content depends on a specific image version, state it, for example
-  `Applies to image V1.1.0`.
-
-### Footer
-
-| Trailer | Use |
-|---|---|
-| `Fixes: #<issue>` | The commit resolves an issue |
-| `Refs: #<issue>` | The commit relates to an issue but does not resolve it |
-| `Co-authored-by: Name <email>` | More than one person wrote the change |
-| `BREAKING CHANGE: <description>` | A page URL changes or a page is removed, so external links break. Add a redirect in the same pull request |
-
-A `!` after the type or scope, as in `refactor(mo62a)!: ...`, also marks a
-breaking change. Use it together with the `BREAKING CHANGE` trailer, which
-explains what breaks.
-
-### Examples
-
-```text
-feat(mo62a/getting-started): add first NPU demo walkthrough
-```
-
-```text
-fix(shared): correct calibration_frames default in TIDL compile guide
-
-The guide said the default is 8. The tool uses 20, and feeding fewer
-frames than configured makes the compiler skip writing artifacts
-without an error.
-
-Applies to image V1.1.0
-Fixes: #12
-```
-
-```text
-refactor(mo62a): rename quickstart.md to getting-started.md
-
-BREAKING CHANGE: /mo62a/quickstart is now /mo62a/getting-started.
-A redirect from the old path is included.
-```
-
-```text
-docs: update image version to V1.1.0 on all download pages
-```
-
-Automated commits may end with `[skip ci]`, for example
-`chore: regenerate llms.txt [skip ci]`. The check ignores that suffix.
-
-### Not allowed
-
-- Messages such as `update`, `fix typo`, `wip` or `misc` with no type.
-- Several unrelated changes in one commit.
-- Internal information in any part of the message: internal host names, IP
-  addresses, ticket links that customers cannot open, or customer names.
-
-## Automated checks
-
-`scripts/check-commit-msg.sh` holds the rules above. The git hooks and the CI
-workflow all call it, so the rules exist in one place.
-
-| Check | When it runs | What it rejects |
-|---|---|---|
-| `.githooks/commit-msg` | `git commit` | A commit whose message breaks the convention |
-| `.githooks/pre-push` | `git push` | A push that contains such a commit, or an unsquashed `fixup!` / `squash!` commit |
-| `.github/workflows/commit-message.yml` | Every pull request and every push to `main` | The same, plus a pull request title that breaks the convention |
-| `.github/workflows/build.yml` | Every pull request and every push to `main` | A change that makes `mkdocs build --strict` fail |
-
-The script checks:
-
-- the first line format and the type; the scope format when present;
-- the subject starts with a lowercase letter and has no final period;
-- the first line is 72 characters or fewer;
-- a blank second line before the body;
-- body lines are 72 characters or fewer (URLs and indented code are exempt);
-- no private IP address or internal domain anywhere in the message.
-
-### Enable the local hooks
-
-Run this once after you clone the repository:
-
-```sh
-git config core.hooksPath .githooks
-```
-
-Check the commits on your branch by hand:
-
-```sh
-scripts/check-commit-msg.sh --revs origin/main..HEAD
-```
-
-The local hooks help you find a problem before you push. They do not enforce
-the rules, because anyone can skip them with `git commit --no-verify`.
-
-### Enforcement on GitHub
-
-The CI check enforces the rules. A repository administrator sets this up once,
-in **Settings › Rules › Rulesets**, with a branch ruleset for `main`:
-
-1. **Require a pull request before merging.** Nobody can push to `main`
-   directly, so every change goes through the CI check.
-2. **Require status checks to pass**, and add the checks `commit-message`
-   and `build`.
-3. **Block force pushes.**
-4. In **Settings › General › Pull Requests**, allow **squash merging** only.
-
-With these settings, a pull request that breaks the convention or the
-build cannot be merged.
-
-On a GitHub Enterprise plan, the ruleset rule **Restrict commit metadata**
-can also reject a non-conforming push on the server. Other plans do not
-offer this rule, so this repository relies on the CI check.
-
-## License
-
-The documentation in this repository is licensed under the
-[Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/)
-(CC BY-SA 4.0). See [`LICENSE`](LICENSE).
-
-Material quoted from third parties, such as diagrams or tables from vendor
-documentation, keeps its original license. Each such item names its source
-and license where it appears.
+沿用 Conventional Commits 和现有提交检查，不在提交信息中写内网地址。GitHub Pages 是自动发布的预览；官网部署暂为 dummy。
