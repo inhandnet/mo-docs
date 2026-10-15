@@ -2,7 +2,7 @@ import React, {type ComponentProps} from 'react';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
-// Adapt ZYB's full-portal links for a separately hosted Documentation site.
+// Resolve documentation and portal links for independently hosted documentation.
 export default function DocumentationLink(props: ComponentProps<typeof Link>) {
   const {siteConfig} = useDocusaurusContext();
   const portal = siteConfig.customFields!.developerPortalUrl as string;

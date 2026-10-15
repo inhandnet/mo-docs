@@ -1,5 +1,7 @@
-# Asset provenance
+# Asset notices
 
-`img/logo.svg`, `img/favicon.png`, and `img/boards/mo-62a.png` / `mo-68a.png` are copied unchanged from the company-provided ZYB developer-site prototype in `mo-marketing-plan.zip`.
+The InHand logo, favicon, and Mo board images are supplied by InHand for use in this documentation website.
 
-They are used to maintain InHand brand consistency for this company documentation project. Trademark and product-image rights remain with their respective owners; the documentation license is not a trademark license. No AI-generated logo or replacement product photography is used.
+Trademark and product-image rights remain with their respective owners. The documentation license does not grant rights to use InHand trademarks or logos.
+
+Bundled font source information and license notices are distributed under `fonts/` in the built site and maintained in `src/css/fonts/` in the repository.

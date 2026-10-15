@@ -28,6 +28,8 @@ If you are reporting a problem rather than proposing a change, [open a documenta
 
 Only contribute material you have the right to share under the applicable license. When changing this README, keep [the Chinese version](README.zh-CN.md) in sync.
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for document structure, shared content, and review guidance.
+
 ### Edit and build on GitHub
 
 You do not need to clone the repository to contribute. Create a working branch or fork on GitHub, open the file you want to change, and use the pencil button to edit it. For Markdown files such as this README, the **Preview** tab shows the rendered text before you commit.

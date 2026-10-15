@@ -11,7 +11,7 @@ test('documentation contains only Mo boards and their shared resources', async (
   }
   for (const board of ['mo-62a', 'mo-68a']) {
     const sections = (await fs.readdir(new URL(`${board}/`, root), {withFileTypes: true})).filter(e => e.isDirectory());
-    assert.equal(sections.length, 13, `${board} must retain ZYB's complete section tree`);
+    assert.equal(sections.length, 13, `${board} must include the complete documentation section tree`);
   }
 });
 
@@ -25,4 +25,18 @@ test('shared MDX imports and category landing pages exist', async () => {
       if (category.link?.type === 'doc') await fs.access(new URL(`${category.link.id}.mdx`, root));
     }
   }
+});
+
+test('documentation placeholders do not expose planning metadata', async () => {
+  for (const file of await fs.readdir(root, {recursive: true})) {
+    if (!file.endsWith('.mdx')) continue;
+    const content = await fs.readFile(new URL(file, root), 'utf8');
+    assert.doesNotMatch(content, /<ComingSoon\b[^>]*\b(?:priority|source)=/, file);
+  }
+});
+
+test('repository and website security reporting instructions agree', async () => {
+  const policy = (await fs.readFile(new URL('../SECURITY.md', import.meta.url), 'utf8')).replace(/^# [^\n]*\n\s*/, '').trim();
+  const page = (await fs.readFile(new URL('security/vulnerability-reporting.mdx', root), 'utf8')).replace(/^---\n[\s\S]*?\n---\n\s*/, '').trim();
+  assert.equal(page, policy);
 });

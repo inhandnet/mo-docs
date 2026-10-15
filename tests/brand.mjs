@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 
-// Observed on the live ZYB 3030 /docs/ page, 2026-10-14. No live service
-// dependency in CI. Font files are local, not merely a Roboto fallback label.
+// Regression checks for the site's typography and layout.
+// Font files must load locally, not merely appear in a fallback list.
 export async function checkBrand(page, width) {
   await page.evaluate(() => document.fonts.ready);
   const family = 'Roboto, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif';

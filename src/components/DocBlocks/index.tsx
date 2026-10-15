@@ -9,12 +9,11 @@ export function Only({board, is, children}: {board: string; is: string | string[
   return (Array.isArray(is) ? is.includes(board) : board === is) ? <>{children}</> : null;
 }
 
-// Marks a planned page. `priority` is the GTM phase (P0 = before launch).
-export function ComingSoon({priority, source}: {priority?: string; source?: string}): ReactNode {
+// Public notice for content that is not yet available.
+export function ComingSoon(): ReactNode {
   return (
     <div className="mo-stub">
-      <strong>Coming soon.</strong> This page is planned{priority ? ` (${priority})` : ''} but not written yet.
-      {source ? <> Existing material: {source}.</> : null} Questions in the meantime? Ask on the{' '}
+      <strong>Coming soon.</strong> This content is being prepared. Questions in the meantime? Ask on the{' '}
       <Link href="https://community.inhand.com">forum</Link>.
     </div>
   );
@@ -104,7 +103,7 @@ export function BoardDownloads({board}: {board: Product['id']}): ReactNode {
   );
 }
 
-// Image ↔ firmware ↔ toolchain mapping (GTM task R-02). Fill rows as releases are verified.
+// Image ↔ firmware ↔ toolchain mapping. Update rows against verified releases.
 const VERSION_ROWS = [
   {board: 'Mo 62A', image: 'v1.1.0 (2026-08-19)', base: 'TI Processor SDK Linux RT EdgeAI 11.01.07.05', tidl: '11_02_17_00', ort: '1.23.0'},
   {board: 'Mo 68A', image: 'V1.0.0', base: 'To be published', tidl: 'To be published', ort: 'To be published'},

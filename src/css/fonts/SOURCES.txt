@@ -1,5 +1,5 @@
 Roboto, unmodified variable WOFF2 subsets retrieved 2026-10-14.
-Upstream: Google Fonts, Roboto v51, matching the ZYB prototype's Roboto family.
+Upstream: Google Fonts, Roboto v51.
 License: SIL Open Font License 1.1, included in OFL.txt.
 The repository's content license does not replace the font license.
 
