@@ -64,6 +64,7 @@ try {
     await page.goto(url + board + '/getting-started/install-os/', {waitUntil: 'networkidle'});
     assert.ok((await page.locator('.theme-doc-markdown').innerText()).includes('balenaEtcher'));
     assert.ok((await page.locator('.theme-edit-this-page').getAttribute('href')).endsWith('docs/' + board + '/getting-started/install-os.mdx'));
+    assert.ok((await page.locator('.theme-edit-this-page').getAttribute('href')).includes('/edit/master/'));
     const firstBoot = page.locator('.theme-doc-markdown a').filter({hasText: /^First boot$/});
     assert.ok((await firstBoot.first().getAttribute('href')).startsWith(base + board + '/'));
     await page.reload({waitUntil: 'networkidle'});

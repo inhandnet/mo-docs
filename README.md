@@ -50,11 +50,11 @@ DOCS_PREVIEW=1 npm run test:browser
 
 ## 自动编译与发布
 
-- **在线预览**：`pages-preview.yml` 在推送 main 后自动检查、编译并发布到 GitHub Pages，预期地址为 https://inhandnet.github.io/mo-docs/。域名和路径读取 Pages 配置，不硬编码在源码中。预览保留提示栏和 noindex；noindex 不是访问控制，预览页面公开可访问。
+- **在线预览**：`pages-preview.yml` 在 PR 合并到 master 后自动检查、编译并发布到 GitHub Pages，预期地址为 https://inhandnet.github.io/mo-docs/。域名和路径读取 Pages 配置，不硬编码在源码中。预览保留提示栏和 noindex；noindex 不是访问控制，预览页面公开可访问。
 - **官网接口（dummy）**：`build.yml` 生成 `mo-docs-public-<commit SHA>` 静态产物，`website-deploy-dummy` 只在 Actions Summary 记录目标与交接说明，不连接官网服务器、不上传官网，也不需要官网凭据。
 - **办公室预览**：本地 8040 独立运行，不随 GitHub 发布改变；3030 仍是完整 ZYB Developer 原型。
 
-仓库 Settings → Pages 的 Source 需为 **GitHub Actions**。Pages 部署采用 GitHub 官方 [自定义工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)，仅 main 可以发布；PR 只校验构建。
+仓库 Settings → Pages 的 Source 需为 **GitHub Actions**。Pages 部署采用 GitHub 官方 [自定义工作流](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)，仅 master 可以发布；PR 只校验构建。
 
 预留 Repository variables：
 
@@ -71,3 +71,11 @@ DOCS_PREVIEW=1 npm run test:browser
 文档许可见 [LICENSE](LICENSE)，素材来源见 [static/ASSETS.md](static/ASSETS.md)，复用范围见 [ZYB-REUSE.md](ZYB-REUSE.md)。字体来源和许可保存在 `src/css/fonts/`，构建时同时复制到 `build/fonts/`。
 
 沿用 Conventional Commits 和现有提交检查，不在提交信息中写内网地址。GitHub Pages 是自动发布的预览；官网部署暂为 dummy。
+
+默认分支为 `master`，`main` 保留历史但弃用。所有修改从工作分支提交 PR 到 `master`，禁止直接推送、强制推送和删除 master；管理员也没有绕过入口。合并前必须通过以下检查，且分支需基于最新 master：
+
+- `commit-message`：校验 PR 标题和 PR 内提交信息，继续使用 `.github/workflows/commit-message.yml` 与 `scripts/check-commit-msg.sh`。
+- `validate-and-build-public`：官网参数的测试、类型检查、构建和浏览器验证。
+- `validate-and-build-office-preview`：预览参数的同等检查。
+
+提交标题采用 `<type>(<scope>): <subject>`，scope 可省略；type 为 feat、fix、docs、refactor、sync、ci 或 chore，subject 以小写字母开头、不以句号结尾，标题不超过 72 字符。正文与标题间空一行，并遵守脚本中的行长与内部信息限制。Squash 合并时也需保留合规标题；不能把未经检查的任意文本改成最终提交信息。

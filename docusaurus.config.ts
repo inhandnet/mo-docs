@@ -22,7 +22,7 @@ const config: Config = {
   headTags: preview ? [{tagName: 'meta', attributes: {name: 'robots', content: 'noindex, nofollow'}}] : [],
   plugins: ['./plugins/build-cache.mjs', './plugins/search.mjs', './plugins/font-license.mjs'],
   presets: [['classic', {
-    docs: {path: 'docs', routeBasePath: '/', sidebarPath: './sidebars.ts', editUrl: 'https://github.com/inhandnet/mo-docs/edit/main/', showLastUpdateTime: false, showLastUpdateAuthor: false, breadcrumbs: true},
+    docs: {path: 'docs', routeBasePath: '/', sidebarPath: './sidebars.ts', editUrl: 'https://github.com/inhandnet/mo-docs/edit/master/', showLastUpdateTime: false, showLastUpdateAuthor: false, breadcrumbs: true},
     blog: false, pages: false,
     sitemap: preview ? false : {changefreq: 'weekly'},
     theme: {customCss: './src/css/custom.css'},

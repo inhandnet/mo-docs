@@ -8,7 +8,7 @@
 #       Check one message stored in a file (commit-msg hook, PR title).
 #   check-commit-msg.sh --revs <git rev-list arguments...>
 #       Check every non-merge commit selected by the rev-list arguments
-#       (pre-push hook, CI). Example: --revs origin/main..HEAD
+#       (pre-push hook, CI). Example: --revs origin/master..HEAD
 #
 # Exit status: 0 = all messages pass, 1 = at least one fails, 2 = usage error.
 

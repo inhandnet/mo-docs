@@ -6,5 +6,5 @@ contact_links:
     url: https://community.inhand.com
     about: Ask usage questions in the community forum, where answers stay searchable for everyone.
   - name: Report a security vulnerability
-    url: https://github.com/inhandnet/mo-docs/blob/main/SECURITY.md
+    url: https://github.com/inhandnet/mo-docs/blob/master/SECURITY.md
     about: Do not open a public issue. Follow the steps in SECURITY.md.

@@ -2,8 +2,9 @@ name: build
 
 on:
   pull_request:
+    branches: [master]
   push:
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
 
 permissions:
@@ -15,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    name: validate-and-build
+    name: validate-and-build-${{ matrix.mode }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -67,7 +68,7 @@ jobs:
 
   website-dummy:
     name: website-deploy-dummy
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     env:

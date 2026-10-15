@@ -1,14 +1,15 @@
 # Check commit messages and pull request titles against the convention in
-# README.md. Make this check required in the branch ruleset for `main`
+# README.md. Make this check required in the branch ruleset for `master`
 # (see README.md, "Enforcement on GitHub") so that a failing pull request
 # cannot be merged.
 name: commit-message
 
 on:
   pull_request:
+    branches: [master]
     types: [opened, edited, synchronize, reopened]
   push:
-    branches: [main]
+    branches: [master]
 
 permissions:
   contents: read
@@ -23,7 +24,7 @@ jobs:
           fetch-depth: 0
 
       # Pull requests are squash-merged, so the title becomes the commit
-      # message on `main`. Check it with the same rules.
+      # message on `master`. Check it with the same rules.
       - name: Check pull request title
         if: github.event_name == 'pull_request'
         env:
