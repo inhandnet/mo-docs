@@ -1,0 +1,18 @@
+import Link from '@site/src/components/DocumentationLink';
+
+Mo boards run AI models on TI's **C7x DSP with a Matrix Multiply Accelerator (MMA)** — 2 TOPS on Mo 62A, 8 TOPS (two C7x) on Mo 68A. The CPU stays free for your application.
+
+| Layer | What it does |
+|---|---|
+| Camera + ISP / VPAC | Captures frames; RAW→RGB, WDR, lens correction, scaling in hardware |
+| GStreamer / OpenCV | Moves and pre-processes frames |
+| ONNX Runtime or TFLite + TIDL | Runs the model; supported layers go to the C7x, the rest to the CPU |
+| Your application | Python or C/C++ post-processing and output |
+
+**Workflow:** train in your usual framework → export ONNX or TFLite → compile with <Link to={`/docs/${props.board}/application-development/ai/toolchain`}>edgeai-tidl-tools</Link> on a PC → copy the compiled model to the board → run with ONNX Runtime / TFLite.
+
+Background reading:
+- [The Edge AI toolchain on TI development boards: OpenCV, GStreamer and TIDL](https://www.inhand.com/en/support/blogs/ti-edge-ai-tools) (InHand blog)
+- [AM62A AI software stack](https://github.com/inhandnet/Mo62A/blob/HEAD/doc/AM62A_AI_Stack_ZH.md) (Chinese, with diagrams)
+
+<ComingSoon priority="P0" source="English software-stack diagram for both boards" />

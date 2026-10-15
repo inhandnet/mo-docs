@@ -1,0 +1,30 @@
+import Link from '@site/src/components/DocumentationLink';
+
+Models are compiled for the C7x accelerator on a Linux PC with TI's free [edgeai-tidl-tools](https://github.com/TexasInstruments/edgeai-tidl-tools). No registration and no GPU are required.
+
+## Match the toolchain to your image
+
+The compiled model must match the TIDL runtime in your image. Check the <Link to={`/docs/${props.board}/resource-download/version-map`}>version map</Link>:
+
+<VersionMap />
+
+## On-board SDK (no cross-compiling)
+
+To run models you already have, you do not need the PC toolchain. The image includes a C/C++ SDK:
+
+| Item | Location |
+|---|---|
+| Headers | `/usr/include/edgeai/` |
+| Libraries and CMake package | `/usr/lib/edgeai/`, `/usr/lib/cmake/EdgeAI/` |
+| Example projects | `/usr/share/edgeai-cpp-examples/` |
+| Developer guide | `/usr/share/edgeai-cpp-examples/DEV_GUIDE.md` |
+
+```cmake
+find_package(EdgeAI REQUIRED)
+add_executable(my_infer main.cpp)
+target_link_libraries(my_infer PRIVATE EdgeAI::edgeai)
+```
+
+Existing material (Chinese): [TIDL 11_02_17_00 upgrade guide](https://github.com/inhandnet/Mo62A/blob/HEAD/doc/TIDL_11_02_17_00_%E5%8D%87%E7%BA%A7%E6%8C%87%E5%8D%97.md).
+
+<ComingSoon priority="P0" source="English step-by-step PC setup for edgeai-tidl-tools" />

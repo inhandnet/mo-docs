@@ -2,3 +2,13 @@
 site/
 .venv/
 __pycache__/
+.pytest_cache/
+*.pyc
+node_modules/
+.docusaurus/
+.generated/
+build/
+.env.local
+*.log
+playwright-report/
+test-results/

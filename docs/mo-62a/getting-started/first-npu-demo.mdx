@@ -1,0 +1,63 @@
+---
+title: "Run your first NPU demo"
+description: "Mo 62A: Run a pre-installed detection demo on the AI accelerator."
+sidebar_position: 4
+---
+
+The image includes a model zoo, the TIDL inference runtime and a demo launcher, `edgeai-demo`. It runs the same models with a Python or a C/C++ backend, on a CSI or USB camera, and shows the result with a performance graph on the display.
+
+:::note[Applies to]
+Mo 62A image v1.1.0 and later.
+:::
+
+## 1. Connect a camera
+
+- **CSI camera (IMX219):** connect it with the power off, then initialise it after boot:
+
+  ```bash
+  sudo init-imx219
+  ```
+
+- **USB camera:** plug it into any USB port.
+
+## 2. Run the demo
+
+Interactive mode — choose camera, model and backend in turn:
+
+```bash
+edgeai-demo
+```
+
+Or from the command line:
+
+```bash
+edgeai-demo list                                  # list available models
+edgeai-demo run 2 --backend cpp    --camera csi   # C/C++ backend, CSI camera
+edgeai-demo run 2 --backend python --camera usb   # Python backend, USB camera
+edgeai-demo status                                # show the active camera
+```
+
+The detection view and a performance graph appear on the display. Press **Ctrl+C** to stop. `edgeai-demo` takes care of root privileges, environment variables, resetting the C7x and pausing the desktop.
+
+:::info[Is it really running on the NPU?]
+In R&D tests with image v1.1.0, the full USB camera → C7x inference → HDMI pipeline ran at about 46 FPS, and TIDL inference was about 11× faster than the same model on the CPU.
+:::
+
+## 3. Check inference without a camera
+
+```bash
+cp -r /usr/share/edgeai-cpp-examples/hello_inference ~/hello_inference
+cd ~/hello_inference && mkdir build && cd build
+cmake .. && make
+sudo LD_LIBRARY_PATH=/opt/ti/edgeai/lib ./hello_inference \
+     -m /opt/model_zoo/ONR-OD-8200-yolox-nano-lite-mmdet-coco-416x416
+```
+
+`Inference OK.` confirms the model ran on the C7x DSP.
+
+## Troubleshooting
+
+- **Camera not found:** run `v4l2-ctl --list-devices`. If the camera is missing, power off and re-seat the ribbon cable with the latch locked.
+- **Nothing on the display:** the demo needs the display; over SSH, keep a monitor connected.
+
+More in [FAQ & troubleshooting](../faq/index.mdx).

@@ -1,25 +1,7 @@
-# Security policy
+# Security reporting
 
-## Report a vulnerability
+Do not disclose suspected vulnerabilities, credentials, private keys, or exploit details in public GitHub issues.
 
-Do not report a security vulnerability in a public issue, a pull request
-or the community forum.
+InHand's dedicated product security reporting contact and response policy must be confirmed before the GTM security milestone is accepted. Until a verified private channel is published, use your existing private InHand support contact to request the appropriate route. Do not send vulnerability details through an unverified channel.
 
-<!-- TODO: Add the reporting channel when InHand has decided on it, for
-     example a security email address or GitHub private vulnerability
-     reporting. -->
-The reporting channel will be published here.
-
-## Scope
-
-This policy covers:
-
-- the software for Mo boards: system images, board support packages and
-  tools;
-- the documentation in this repository, when following it would leave a
-  board in an insecure state.
-
-## Advisories
-
-Security advisories and software bills of materials (SBOMs) are published
-in the Security section of the Mo documentation.
+Maintainers must review this policy together with `docs/security/vulnerability-reporting.mdx` before release. The documentation currently reuses ZYB's prototype wording; its reporting channel and response commitments still need confirmation. This repository does not assert that GitHub private vulnerability reporting is enabled.

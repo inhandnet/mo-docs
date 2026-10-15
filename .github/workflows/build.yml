@@ -1,30 +1,89 @@
-# Build the site in strict mode. A broken link, a missing page in the
-# navigation or a missing snippet fails the build. Make this check required
-# in the branch ruleset for `main` (see README.md, "Enforcement on GitHub").
 name: build
 
 on:
   pull_request:
+    branches: [master]
   push:
-    branches: [main]
+    branches: [master]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: mo-docs-build-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-    name: build
+    name: validate-and-build-${{ matrix.mode }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - mode: public
+            preview: '0'
+            base: '/docs/'
+          - mode: office-preview
+            preview: '1'
+            base: '/'
+    env:
+      DOCS_PREVIEW: ${{ matrix.preview }}
+      DOCS_BASE_URL: ${{ matrix.mode == 'public' && vars.WEBSITE_BASE_URL || matrix.base }}
+      DOCS_SITE_URL: ${{ vars.WEBSITE_SITE_URL || 'https://www.inhand.com' }}
+      DEVELOPER_PORTAL_URL: ${{ vars.DEVELOPER_PORTAL_URL || 'https://www.inhand.com/developer' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-node@v7
         with:
-          python-version: "3.12"
-          cache: pip
+          node-version-file: .nvmrc
+          cache: npm
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: npm ci
 
-      - name: Build the site
-        run: mkdocs build --strict
+      - name: Run tests
+        run: npm test
+
+      - name: Type check site components
+        run: npm run typecheck
+
+      - name: Build static site
+        run: npm run build
+
+      - name: Install browser for smoke tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify browser navigation and search
+        run: npm run test:browser
+
+      - name: Upload static site
+        uses: actions/upload-artifact@v7
+        with:
+          name: mo-docs-${{ matrix.mode }}-${{ github.sha }}
+          path: build/
+          if-no-files-found: error
+          retention-days: 14
+
+  website-dummy:
+    name: website-deploy-dummy
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      WEBSITE_SITE_URL: ${{ vars.WEBSITE_SITE_URL || 'https://www.inhand.com' }}
+      WEBSITE_BASE_URL: ${{ vars.WEBSITE_BASE_URL || '/docs/' }}
+      ARTIFACT_NAME: mo-docs-public-${{ github.sha }}
+    steps:
+      # Deliberately no credentials, server access, or production upload.
+      # Replace this step once the official website deployment is agreed.
+      - name: Describe future website handoff (no deployment)
+        run: |
+          printf '%s\n' \
+            '## Website deployment: DUMMY ONLY' \
+            "Static artifact: $ARTIFACT_NAME" \
+            "Reserved target: ${WEBSITE_SITE_URL}${WEBSITE_BASE_URL}" \
+            'No website server was contacted and nothing was published there.' \
+            'Future adapter: download the public artifact, deploy its contents under the configured base path, and verify deep links and Pagefind assets.' \
+            >> "$GITHUB_STEP_SUMMARY"

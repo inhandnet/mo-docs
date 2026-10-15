@@ -1,0 +1,42 @@
+import Link from '@site/src/components/DocumentationLink';
+
+## Set your own account before the first boot
+
+Edit `sysconfig.txt` on the card's `BOOT` drive (see <Link to={`/docs/${props.board}/getting-started/first-boot`}>First boot</Link>):
+
+```ini
+user_name=alice
+user_password=choose-a-strong-password
+user_ssh_key=ssh-ed25519 AAAA... you@laptop
+```
+
+`root_password` is optional; without it the root account stays locked. Setting it does not allow root login over SSH with a password — use `root_ssh_key` for that.
+
+## Change the password on a running board
+
+If you booted with the default account, change the password straight away:
+
+```bash
+passwd
+```
+
+## Use SSH keys
+
+```bash
+# on your computer
+ssh-copy-id alice@mo62a-lab.local
+```
+
+Then disable password logins by setting `PasswordAuthentication no` in `/etc/ssh/sshd_config` and running `sudo systemctl restart ssh`.
+
+## Firewall
+
+Debian's `nftables` or `ufw` both work. For example:
+
+```bash
+sudo apt install ufw
+sudo ufw allow ssh
+sudo ufw enable
+```
+
+Secure boot and OP-TEE are covered in <Link to={`/docs/${props.board}/low-level-development/secure-boot`}>Secure boot & OP-TEE</Link>. To report a vulnerability, see <Link to="/docs/security/vulnerability-reporting">Vulnerability reporting</Link>.

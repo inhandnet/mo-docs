@@ -1,0 +1,17 @@
+---
+title: "Serial console"
+description: "Mo 62A: Debug UART wiring and settings."
+sidebar_position: 2
+---
+
+Use a 3.3 V USB-to-TTL adapter on the 3-pin debug UART connector (J4, SH1.0). Settings: **115200 baud, 8N1, no flow control**. The kernel console is `ttyS2`.
+
+| Pin | Signal |
+|---|---|
+| 1 | UART0_RXD |
+| 2 | GND |
+| 3 | UART0_TXD |
+
+```bash
+minicom -D /dev/ttyUSB0 -b 115200
+```

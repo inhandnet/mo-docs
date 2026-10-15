@@ -1,0 +1,13 @@
+Mo OS is **Debian 13 (Trixie)** with the Linux 6.12 kernel, an XFCE desktop and the TI Edge AI runtime. Standard Debian tools work: `apt`, `systemctl`, NetworkManager (`nmcli`), `journalctl`.
+
+```bash
+sudo apt update && sudo apt upgrade   # Debian packages
+cat /etc/os-release
+mo-version                             # Mo image version
+```
+
+:::caution[Board-specific packages]
+TI runtime libraries and firmware are part of the Mo image and are not upgraded by Debian. To get a newer runtime, flash a newer Mo image. A Mo apt repository is planned.
+:::
+
+<ComingSoon priority="P0" source="user manual" />
