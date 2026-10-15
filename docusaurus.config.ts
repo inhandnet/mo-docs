@@ -30,7 +30,7 @@ const config: Config = {
   themeConfig: {
     colorMode: {defaultMode: 'light', disableSwitch: true, respectPrefersColorScheme: false},
     docs: {sidebar: {autoCollapseCategories: true}},
-    announcementBar: preview ? {id: 'zyb-preview', content: 'Preview of the InHand developer documentation. Content marked <b>Coming soon</b> is planned but not yet written.', isCloseable: true} : undefined,
+    announcementBar: preview ? {id: 'mo-docs-preview', content: 'Preview of the InHand developer documentation. Content marked <b>Coming soon</b> is planned but not yet written.', isCloseable: true} : undefined,
     navbar: {
       title: 'Developer', logo: {alt: 'InHand Networks', src: 'img/logo.svg', href: portal, target: '_self'},
       items: [

@@ -28,6 +28,8 @@ Markdown 和 MDX 源文件位于 [`docs/`](docs/)。本仓库维护文档及其�
 
 请仅提交你有权按照相应许可证分享的内容。修改本 README 时，请同步更新[英文版本](README.md)。
 
+文档结构、共享内容和检查要求见 [CONTRIBUTING.zh-CN.md](CONTRIBUTING.zh-CN.md)。
+
 ### 直接在 GitHub 编辑和构建
 
 参与贡献不需要将仓库克隆到本地。在 GitHub 上创建工作分支或 Fork 后，打开要修改的文件，点击铅笔按钮进行编辑。对于本 README 这样的 Markdown 文件，可以在提交前点击 **Preview** 查看排版效果。

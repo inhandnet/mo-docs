@@ -1,7 +1,7 @@
 # Security reporting
 
-Do not disclose suspected vulnerabilities, credentials, private keys, or exploit details in public GitHub issues.
+Do not disclose suspected vulnerabilities, exploit details, credentials, or private keys in public GitHub issues, pull requests, or forum posts.
 
-InHand's dedicated product security reporting contact and response policy must be confirmed before the GTM security milestone is accepted. Until a verified private channel is published, use your existing private InHand support contact to request the appropriate route. Do not send vulnerability details through an unverified channel.
+A dedicated private reporting channel for Mo products has not yet been published here. If you already have a private InHand support contact, ask them to confirm the appropriate security reporting channel before sharing sensitive details. Do not send vulnerability details through an unverified channel.
 
-Maintainers must review this policy together with `docs/security/vulnerability-reporting.mdx` before release. The documentation currently reuses ZYB's prototype wording; its reporting channel and response commitments still need confirmation. This repository does not assert that GitHub private vulnerability reporting is enabled.
+Ordinary documentation corrections can be submitted as issues or pull requests, provided they do not disclose a security vulnerability.

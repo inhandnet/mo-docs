@@ -300,7 +300,7 @@ export const APPLICATIONS = [
   {title: 'Education & robotics', image: '/img/products/shared/education.jpg'},
 ];
 
-// Optional accessories as listed on inhand.com product pages (plus the Mo 68A USB wireless adapter, GTM R-09);
+// Optional accessories as listed on inhand.com product pages, plus the Mo 68A USB wireless adapter;
 // official SKUs are not on sale yet.
 export const ACCESSORIES: {name: string; note: string; boards: Product['id'][]}[] = [
   {name: 'USB-C power supply', note: '5 V / 5 A', boards: ['mo-62a', 'mo-68a']},

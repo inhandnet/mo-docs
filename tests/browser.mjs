@@ -1,5 +1,5 @@
 // Tests built HTML with a real browser. The temporary server uses an OS-assigned
-// loopback port: it never takes over the user's 3030 or 8040 services.
+// loopback port so it does not interfere with running development servers.
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import fs from 'node:fs/promises';
@@ -34,6 +34,7 @@ try {
   page.on('response', response => { if (response.url().startsWith(origin) && response.status() >= 400) errors.push(response.status() + ' ' + response.url()); });
   await page.goto(url, {waitUntil: 'networkidle'});
   assert.equal(await page.locator('h1').innerText(), 'Mo documentation');
+  assert.ok((await page.locator('.theme-doc-markdown').innerText()).includes('Mo series'));
   assert.equal(await page.locator('meta[name="robots"][content="noindex, nofollow"]').count(), preview ? 1 : 0);
   const sidebar = page.locator('.theme-doc-sidebar-menu');
   const topLabels = await sidebar.locator(':scope > li > a, :scope > li > .menu__list-item-collapsible > a').allTextContents();
@@ -74,6 +75,7 @@ try {
     assert.equal(await page.locator('.theme-doc-markdown a[href="' + portal + '/software#os-images"]').count(), 1);
     await page.goto(url + board + '/application-deployment/containers/', {waitUntil: 'networkidle'});
     assert.ok((await page.locator('.mo-stub').innerText()).includes('Coming soon.'));
+    assert.doesNotMatch(await page.locator('.mo-stub').innerText(), /\bP[0-3]\b|Existing material/);
   }
 
   await page.goto(url + 'mo-62a/', {waitUntil: 'networkidle'});
@@ -108,7 +110,7 @@ try {
     await page.screenshot({path: path.join(process.env.QA_SCREENSHOT_DIR, 'desktop.png'), fullPage: true});
   }
   assert.deepEqual(errors, [], 'Browser console or resource failures');
-  console.log('ZYB documentation browser tests passed: ' + base + ', both boards, shared MDX, placeholders, downloads, search and mobile.');
+  console.log('Mo documentation browser tests passed: ' + base + ', both boards, shared MDX, placeholders, downloads, search and mobile.');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));
