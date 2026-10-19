@@ -1,63 +1,368 @@
 ---
 title: "Run your first NPU demo"
-description: "Mo 62A: Run a pre-installed detection demo on the AI accelerator."
+description: "Run IMX219 or sample-video object detection on Mo62A, choose a model and backend, and understand the HDMI results."
 sidebar_position: 4
 ---
 
-The image includes a model zoo, the TIDL inference runtime and a demo launcher, `edgeai-demo`. It runs the same models with a Python or a C/C++ backend, on a CSI or USB camera, and shows the result with a performance graph on the display.
+import csiAnimation from '@site/static/img/getting-started/mo62a-csi-connect.gif';
+import csiStill from '@site/static/img/getting-started/mo62a-csi-connect.png';
+import cameraInit from '@site/static/img/getting-started/mo62a-npu-initialize.png';
+import cameraStatus from '@site/static/img/getting-started/mo62a-npu-status.png';
+import cameraMenu from '@site/static/img/getting-started/mo62a-npu-menu-camera.png';
+import modelMenu from '@site/static/img/getting-started/mo62a-npu-menu-model.png';
+import backendMenu from '@site/static/img/getting-started/mo62a-npu-menu-backend.png';
+import pythonResult from '@site/static/img/getting-started/mo62a-npu-video-python.png';
+import cppResult from '@site/static/img/getting-started/mo62a-npu-video-cpp.png';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import peopleResult from '@site/static/img/getting-started/mo62a-npu-people-cpp.png';
+import petResult from '@site/static/img/getting-started/mo62a-npu-pet-cpp.png';
 
-:::note[Applies to]
-Mo 62A image v1.1.0 and later.
+Run live object detection with the pre-installed `edgeai-demo` launcher. An IMX219 camera supplies the video, a compiled YOLOX model detects common objects, and HDMI shows the annotated image and performance graphs. You do not need to train a model or install an AI development environment for this demo.
+
+You can also [run the supplied sample videos](#run-the-sample-video-no-camera-required) without a camera. Both paths run inference **on Mo62A**. The result screenshots and recording on this page use the video-file path; the camera connection and menu instructions are shown separately.
+
+Mo62A's AI accelerator is the **C7x DSP with its Matrix Multiply Accelerator (MMA)**. TIDL runs supported model operations on this hardware. Python and C/C++ are two application backends; choosing Python does not mean inference runs only on the CPU.
+
+This page covers the first demonstration. For the software stack and model development, continue to [AI development](../application-development/ai/index.mdx).
+
+| Your starting point | Follow this path |
+|---|---|
+| IMX219 connected, ready to show a live scene | Start with [camera connection](#1-connect-the-imx219-camera), then initialize and choose the model. |
+| No camera, or a repeatable demonstration | Go directly to [sample-video setup](#run-the-sample-video-no-camera-required). |
+| Want to inspect the results first | Open the [scene recordings](#actual-video-file-demonstration), then compare C/C++ and Python below them. |
+
+## Before you start
+
+Complete [First boot](./first-boot.mdx), then have the following ready:
+
+- A Mo62A OS image that includes `edgeai-demo`, the TIDL runtime and `/opt/model_zoo/` (v1.1.0 or later).
+- For live capture: a supported IMX219 CSI camera and a ribbon cable compatible with both connectors. These are not needed for the sample-video path.
+- An HDMI monitor connected to the board and powered on. The launcher uses a 1920 × 1080 output canvas.
+- An SSH or debug UART session to control the demo independently of HDMI.
+- For live capture: a well-lit scene containing recognizable objects, such as a cup, bottle, keyboard or mouse. Remove any lens cover and keep the lens clear.
+
+:::note[Save your desktop work]
+The demo uses HDMI directly and stops LightDM to release the display. This ends the current graphical desktop session. Save open work before starting, and run the commands below from SSH or debug UART. When the demo finishes, LightDM restarts and you may need to log into the desktop again.
 :::
 
-## 1. Connect a camera
+## 1. Connect the IMX219 camera
 
-- **CSI camera (IMX219):** connect it with the power off, then initialise it after boot:
+If the board is running, shut it down with `sudo poweroff`, wait for shutdown to finish and disconnect USB-C power. Do not connect or remove the CSI ribbon while the board is powered.
 
-  ```bash
-  sudo init-imx219
-  ```
+1. Find the **CSI** connector beside the audio jack and Ethernet port. Gently lift its locking bar; do not pull the connector body off the board.
+2. Insert the ribbon squarely into the connector, with the exposed contacts facing the board, as required by the connector shown here. Check the orientation at each end of your particular cable; its backing color alone does not identify the contact side.
+3. Close the locking bar evenly. The ribbon should remain straight at the socket and should not pull free. Check the camera-end connector too.
+4. Position the camera so its lens faces your test objects. Route the ribbon without a sharp crease or strain, then reconnect HDMI and power.
 
-- **USB camera:** plug it into any USB port.
+The animation isolates the camera connection and omits other cables. The ribbon is straightened for visibility; allow clearance above nearby connectors when routing the actual cable.
 
-## 2. Run the demo
+<picture className="mo-first-boot-animation">
+  <source media="(prefers-reduced-motion: reduce)" srcSet={csiStill} />
+  <img src={csiAnimation} alt="Fixed Mo62A board showing the CSI latch opening, the IMX219 ribbon being inserted and the latch closing" width="2900" height="1416" />
+</picture>
 
-Interactive mode — choose camera, model and backend in turn:
+## 2. Initialize and check the camera
+
+After the board boots, log in through SSH or debug UART and run:
+
+```bash
+sudo init-imx219
+```
+
+This configures the IMX219 media pipeline, creates stable camera device links and writes the active camera configuration used by the launcher. Run it after boot before your first CSI demo; connecting the cable alone does not perform this initialization.
+
+<a href={cameraInit} target="_blank" rel="noopener noreferrer">
+  <img src={cameraInit} alt="Actual IMX219 initialization detecting the sensor, configuring 1920 by 1080 RGGB capture and creating stable device links" width="1439" height="899" />
+</a>
+
+Check what the launcher will use:
+
+```bash
+edgeai-demo status
+```
+
+For this camera, look for `CAMERA_ID=imx219`, `VIDEO=/dev/video-imx219-cam0` and `SUBDEV=/dev/v4l-imx219-subdev0`. The numbered nodes behind those links may differ between images. The status command reports configuration and discovered devices; the live image in step 4 confirms that useful camera frames reach the display.
+
+<a href={cameraStatus} target="_blank" rel="noopener noreferrer">
+  <img src={cameraStatus} alt="edgeai-demo status showing the initialized IMX219 CSI configuration and no attached USB camera" width="1439" height="899" />
+</a>
+
+## 3. Choose a camera, model and backend
+
+Start the interactive launcher:
 
 ```bash
 edgeai-demo
 ```
 
-Or from the command line:
+**Choose the camera.** Enter `1` for **CSI (IMX219)**, or press Enter to accept that default. If it says the CSI camera is not initialized, cancel with Ctrl+C and complete step 2.
+
+<a href={cameraMenu} target="_blank" rel="noopener noreferrer">
+  <img src={cameraMenu} alt="edgeai-demo camera menu offering CSI IMX219 and USB, with CSI as the default" width="1439" height="899" />
+</a>
+
+**Choose the model.** For a first demonstration, select `ONR-OD-8220-yolox-s-lite-mmdet-coco-640x640`, the COCO general-object detector used in this walkthrough. Choose the `coco` variant, not the similarly named `widerface` model. It is number `3` in the image shown below. Check the displayed name before entering a number: indexes can change when the installed model set changes. Pressing Enter without a model selection cancels the launcher.
+
+<a href={modelMenu} target="_blank" rel="noopener noreferrer">
+  <img src={modelMenu} alt="Actual installed models grouped by detection, segmentation, classification and pose, with YOLOX-S-Lite (8220) at index 3" width="1439" height="899" />
+</a>
+
+**Choose the backend.** Enter `2` for **C/C++** to follow the main demonstration, or enter `1` / press Enter for **Python**. Both use the model's TIDL artifacts for acceleration. The application pipeline and post-processing implementation differ, so their overall frame rates need not be identical.
+
+<a href={backendMenu} target="_blank" rel="noopener noreferrer">
+  <img src={backendMenu} alt="edgeai-demo backend selection after choosing YOLOX-S-Lite (8220), offering Python and C/C++" width="1439" height="899" />
+</a>
+
+Authenticate if `sudo` requests your board login password. The launcher prints the selected camera, model and backend, stops the desktop, resets C7x and reinitializes the CSI camera before starting inference. Allow a few seconds for this transition; do not start a second demo at the same time.
+
+### Run the same selection directly
+
+After initialization, this command selects the same model without the menu:
 
 ```bash
-edgeai-demo list                                  # list available models
-edgeai-demo run 2 --backend cpp    --camera csi   # C/C++ backend, CSI camera
-edgeai-demo run 2 --backend python --camera usb   # Python backend, USB camera
-edgeai-demo status                                # show the active camera
+edgeai-demo run ONR-OD-8220-yolox-s-lite-mmdet-coco-640x640 \
+  --camera csi --backend cpp
 ```
 
-The detection view and a performance graph appear on the display. Press **Ctrl+C** to stop. `edgeai-demo` takes care of root privileges, environment variables, resetting the C7x and pausing the desktop.
+Replace `cpp` with `python` to use the Python backend. Use the full model name in repeatable instructions instead of relying on a model index.
 
-:::info[Is it really running on the NPU?]
-In R&D tests with image v1.1.0, the full USB camera → C7x inference → HDMI pipeline ran at about 46 FPS, and TIDL inference was about 11× faster than the same model on the CPU.
+To inspect the installed choices without starting inference:
+
+```bash
+edgeai-demo list
+```
+
+## Run the sample video (no camera required)
+
+Use this path if a camera is unavailable or you want a repeatable scene. Skip steps 1–3: neither a CSI connection nor `init-imx219` is needed. Keep HDMI connected and control the board through SSH or UART.
+
+The current `edgeai-demo` menu accepts CSI and USB cameras. For a file input, the helper below launches the **same installed EdgeAI Python or C/C++ application** with a video configuration. It uses **hardware H.264 decoding** (`v4l2h264dec`) and **TIDL acceleration** for YOLOX-S-Lite (8220). Decoding runs on the VPU; inference runs on C7x/MMA. The file configuration sets `drop: False`, so a faster decoder waits for the inference pipeline instead of decoding and discarding unnecessary frames.
+
+:::note[Video-demo image requirements]
+The hardware-decoded example was verified on a test device with the AM62A VPU polling and GStreamer V4L2 format fixes from the Mo62A source tree. These changes have not yet been validated in a newly released image. An older image can contain the demo and models but still lack these fixes; use a build containing them for this video path. The CSI instructions above do not require H.264 decoding.
 :::
 
-## 3. Check inference without a camera
+**1. On Mo62A**, create a working directory:
 
 ```bash
-cp -r /usr/share/edgeai-cpp-examples/hello_inference ~/hello_inference
-cd ~/hello_inference && mkdir build && cd build
-cmake .. && make
-sudo LD_LIBRARY_PATH=/opt/ti/edgeai/lib ./hello_inference \
-     -m /opt/model_zoo/ONR-OD-8200-yolox-nano-lite-mmdet-coco-416x416
+mkdir -p /tmp/mo-npu-video
 ```
 
-`Inference OK.` confirms the model ran on the C7x DSP.
+**2. On your computer**, download these three files into one directory:
+
+- <a href={useBaseUrl('/downloads/npu-demo/traffic-sample.mp4')} download>traffic-sample.mp4</a> — a 20-second, 1280 × 720 H.264 road video (about 11 MB).
+- <a href={useBaseUrl('/downloads/npu-demo/video-demo.yaml')} download>video-demo.yaml</a> — YOLOX-S-Lite (8220), a detection threshold of 0.4, looping video input and HDMI output.
+- <a href={useBaseUrl('/downloads/npu-demo/run-video-demo.sh')} download>run-video-demo.sh</a> — checks the input, stops the desktop, runs inference and restores the desktop service when stopped.
+
+From that download directory, copy the files to the board. Replace the username and address with your own:
+
+```bash
+scp traffic-sample.mp4 video-demo.yaml run-video-demo.sh \
+  YOUR_USERNAME@BOARD_IP_ADDRESS:/tmp/mo-npu-video/
+```
+
+**3. In the board's SSH or UART session**, start the C/C++ backend:
+
+```bash
+sudo bash /tmp/mo-npu-video/run-video-demo.sh cpp
+```
+
+The road scene repeats on the board's HDMI monitor. Look for vehicle boxes and labels as cars enter and leave the scene. Press **Ctrl+C in this same terminal** and wait for the completion message before trying Python:
+
+```bash
+sudo bash /tmp/mo-npu-video/run-video-demo.sh python
+```
+
+Both backends were tested on Mo62A with this video and YOLOX-S-Lite (8220). `/tmp` is temporary storage; copy the files again if they are removed after a reboot. To return to the camera demo, stop this run and follow steps 2–3.
+
+The input is an excerpt of [Queen Victoria Street (Fremantle Traffic Bridge) south](https://commons.wikimedia.org/wiki/File:Queen_Victoria_Street_%28Fremantle_Traffic_Bridge%29_south.ogv) by **Evad37**, released under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). The supplied excerpt uses seconds 5–25, converted to H.264 at 30 fps without audio. Detection boxes are produced by the model on the board.
+
+## 4. Watch and understand the results
+
+Look at the monitor attached to **the board's HDMI port**. The SSH terminal controls the process; it does not receive the video stream.
+
+For the YOLOX object-detection example, move a recognizable object into view. The live image should update, with boxes and category labels appearing when the model detects an object. This model recognizes COCO categories, not arbitrary products or every object in a scene. A missing box alone does not indicate an accelerator failure: check lighting, distance, framing and the model's supported classes.
+
+### Actual video-file demonstration
+
+Choose a scene or backend below. Every clip is a recording of **actual Mo62A HDMI output**, including the model's boxes and performance overlay. The additional scenes exercise people, overlapping objects and an animal in a different pose; this is object detection, not person identification, tracking or counting.
+
+The recordings are about 12 seconds long, silent and sampled at approximately 8 fps. Frames are buffered on the board and transferred afterward. Sampling still adds CPU work: the video frame rate and overlay readings during recording are **not** the controlled comparison below. Playbacks from separate runs need not show the same input frame at the same playback time.
+
+<Tabs lazy defaultValue="road-cpp">
+  <TabItem value="road-cpp" label="Road / C++">
+    <p>Road traffic with the C/C++ backend. Look for cars entering, leaving and overlapping in the scene.</p>
+    <video controls playsInline preload="none" poster={cppResult} width="1920" height="1080" aria-label="Road traffic detection on Mo62A using the C++ backend">
+      <source src={useBaseUrl('/img/getting-started/mo62a-npu-video-result.mp4')} type="video/mp4" />
+      <a href={useBaseUrl('/img/getting-started/mo62a-npu-video-result.mp4')}>Download the C++ road recording</a>.
+    </video>
+  </TabItem>
+  <TabItem value="road-python" label="Road / Python">
+    <p>The same road input and 8220 model with the Python backend. Compare the measured results below rather than browser playback speed.</p>
+    <video controls playsInline preload="none" poster={pythonResult} width="1920" height="1080" aria-label="Same road traffic and model on Mo62A using the Python backend">
+      <source src={useBaseUrl('/img/getting-started/mo62a-npu-road-python.mp4')} type="video/mp4" />
+      <a href={useBaseUrl('/img/getting-started/mo62a-npu-road-python.mp4')}>Download the Python road recording</a>.
+    </video>
+  </TabItem>
+  <TabItem value="people-cpp" label="People / C++">
+    <p>Pedestrians on Sabana Grande Boulevard, Caracas, using the C/C++ backend. Occlusion and small distant people can cause missed or unstable detections.</p>
+    <video controls playsInline preload="none" poster={peopleResult} width="1920" height="1080" aria-label="Actual Mo62A pedestrian detection with YOLOX-S-Lite 8220">
+      <source src={useBaseUrl('/img/getting-started/mo62a-npu-people-cpp.mp4')} type="video/mp4" />
+      <a href={useBaseUrl('/img/getting-started/mo62a-npu-people-cpp.mp4')}>Download the pedestrian recording</a>.
+    </video>
+    <p><a href={peopleResult} target="_blank" rel="noopener noreferrer">Open the full-resolution HDMI screenshot</a>.</p>
+  </TabItem>
+  <TabItem value="pet-cpp" label="Pet / C++">
+    <p>A cat playing indoors, using the C/C++ backend. This demonstrates another COCO class and changing animal pose; predictions can still be missed or incorrect.</p>
+    <video controls playsInline preload="none" poster={petResult} width="1920" height="1080" aria-label="Actual Mo62A cat detection with YOLOX-S-Lite 8220">
+      <source src={useBaseUrl('/img/getting-started/mo62a-npu-pet-cpp.mp4')} type="video/mp4" />
+      <a href={useBaseUrl('/img/getting-started/mo62a-npu-pet-cpp.mp4')}>Download the pet recording</a>.
+    </video>
+    <p><a href={petResult} target="_blank" rel="noopener noreferrer">Open the full-resolution HDMI screenshot</a>.</p>
+  </TabItem>
+</Tabs>
+
+### Try the other scenes on your board
+
+All three inputs use YOLOX-S-Lite COCO 8220, threshold 0.4, hardware H.264 decoding, `drop: False` and the same HDMI layout. Download a video and its matching configuration to your computer:
+
+| Scene | Input video | Configuration | What to observe |
+|---|---|---|---|
+| Road traffic | <a href={useBaseUrl('/downloads/npu-demo/traffic-sample.mp4')} download>20-second MP4</a> | <a href={useBaseUrl('/downloads/npu-demo/video-demo.yaml')} download>video-demo.yaml</a> | Vehicles at different distances and overlaps. |
+| Pedestrians | <a href={useBaseUrl('/downloads/npu-demo/people-sample.mp4')} download>12-second MP4</a> | <a href={useBaseUrl('/downloads/npu-demo/people-demo.yaml')} download>people-demo.yaml</a> | People walking past one another, with partial occlusion. |
+| Pet | <a href={useBaseUrl('/downloads/npu-demo/pet-sample.mp4')} download>20-second MP4</a> | <a href={useBaseUrl('/downloads/npu-demo/pet-demo.yaml')} download>pet-demo.yaml</a> | A cat moving and changing pose indoors. |
+
+Copy the selected pair into the board's working directory, alongside the helper from the previous section. For example, on your computer:
+
+```bash
+scp people-sample.mp4 people-demo.yaml \
+  YOUR_USERNAME@BOARD_IP_ADDRESS:/tmp/mo-npu-video/
+```
+
+Then run it from the board's SSH or UART session:
+
+```bash
+sudo bash /tmp/mo-npu-video/run-video-demo.sh cpp /tmp/mo-npu-video/people-demo.yaml
+```
+
+For the pet scene, copy `pet-sample.mp4` and `pet-demo.yaml` instead, then pass `/tmp/mo-npu-video/pet-demo.yaml`. Stop the current run with Ctrl+C and wait for cleanup before starting another. The helper also accepts `python`; the extra-scene recordings above show C/C++.
+
+**Video credits.** The pedestrian excerpt is from [Sabana Grande Caracas](https://commons.wikimedia.org/wiki/File:Sabana_Grande_Caracas._People_walking_on_the_Boulevard_of_Sabana_Grande,_famous_in_Caracas,_Venezuela.webm) by **Vicente Quintero (QuinteroP)**, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/), using its first 12 seconds. The pet excerpt is from [Cat playing in Taiwan](https://commons.wikimedia.org/wiki/File:Cat_playing_in_Taiwan.webm) by **MiNe**, [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/), using seconds 25–45. Both inputs are converted to 1280 × 720, 30 fps H.264 without audio; the result recordings add the board's actual detections and overlay. Attribution and change details are also in <a href={useBaseUrl('/downloads/npu-demo/SOURCE.txt')}>SOURCE.txt</a>.
+
+### C/C++ and Python: same model, same video
+
+Both backends invoke TIDL on C7x/MMA. C/C++ can reduce application and pipeline overhead, but changing the application language does not increase the accelerator's physical compute capacity. The measured benefit in this example is **higher end-to-end throughput**.
+
+For the same 20-second road video and 8220 model, three runs per backend produced:
+
+| Metric | C/C++ | Python |
+|---|---:|---:|
+| Completed pipeline frames per second, mean | **21.7 FPS** | **17.9 FPS** |
+| FPS range across three runs | 21.67–21.73 | 17.82–17.90 |
+| Whole-system CPU busy, mean across four cores | 31.4% | 31.2% |
+| Application-side `dl-inference` call time, mean | 41.5 ms | 41.5 ms |
+
+C/C++ processed about **21.5% more frames per second** at a similar CPU load. The inference-call times were almost identical. This is consistent with differences in scheduling, data handling and post-processing around inference; this test does not isolate Python's interpreter as the sole cause. The call timer includes runtime invocation overhead and is not an NPU-only kernel timer.
+
+<details>
+<summary>Measurement conditions and how to compare</summary>
+
+- One Mo62A test device with the hardware-decoding fixes described above; identical video bytes and compiled model artifacts for both backends.
+- 1280 × 720 input at 30 fps; 640 × 640 model input; threshold 0.4; `drop: False`; 1920 × 1080 HDMI output with the same performance overlay.
+- Each run discards 600 completed-frame reports for warm-up, then measures the next 600. There are three runs per backend, in the order C++, Python, Python, C++, C++, Python.
+- FPS and CPU use the same remote monotonic measurement interval. CPU busy comes from `/proc/stat`, normalized over all four cores. CPU frequency was 1.4 GHz at measurement boundaries; recorded SoC sensor values ranged approximately 76–85 °C. These are observed conditions, not a guarantee of constant thermal behavior.
+- Both installed applications enable their existing `-n -v` frame and inference reports. There is no screen recording or input-file transfer during measurement. SSH report collection adds some overhead; the results are rounded and are not a model-only benchmark.
+- To compare your own setup, run the **same configuration** once with `cpp` and once with `python`, stop between runs, allow warm-up and repeat in alternating order. Keep the decoder, model, scene, resolution and threshold unchanged. Compare throughput and CPU load separately from model-call timing.
+
+The <a href={useBaseUrl('/downloads/npu-demo/backend-comparison.json')} download>six-run measurement data</a> contains the input checksum, configuration, individual results, temperatures and timing method. These measurements apply to this board, model and scene; other workloads can give different results.
+
+</details>
+
+### Inspect the full-resolution results
+
+The full-resolution C/C++ screenshot shows the selected 8220 model, real vehicle detections and accelerator activity. Before recording, this run showed approximately **22 FPS**, **30% MPU** and **86% C7x**. These are readings from one test, not guaranteed performance figures.
+
+<a href={cppResult} target="_blank" rel="noopener noreferrer">
+  <img src={cppResult} alt="Actual Mo62A C/C++ HDMI output running YOLOX-S-Lite 8220 with hardware-decoded road video, vehicle boxes and performance graphs" width="1920" height="1080" />
+</a>
+
+The Python backend also runs the same model and video on the accelerator. Its application scheduling and post-processing differ, so overall throughput and utilization can differ. This screenshot is from a separate run and moment; it is not a frame-by-frame accuracy comparison. Category labels are predictions and can be incorrect.
+
+<a href={pythonResult} target="_blank" rel="noopener noreferrer">
+  <img src={pythonResult} alt="Actual Mo62A Python HDMI output detecting vehicles with YOLOX-S-Lite 8220 and hardware H.264 decoding" width="1920" height="1080" />
+</a>
+
+For a live CSI camera, the scene changes to what the lens sees. These video-file results demonstrate the inference and display path; they do not validate camera exposure or image quality.
+
+| On-screen item | What it means |
+|---|---|
+| Model name | The compiled model selected for this run. |
+| Bounding box and label | The detector's predicted object location and category. Predictions can be wrong. |
+| FPS | Output pipeline throughput measured by the overlay; it is not the model-only inference rate or a guaranteed camera frame rate. |
+| TEMP | The SoC temperature reported by the performance overlay. |
+| `mpu` | CPU processing load. Application logic, buffer copies and post-processing still use the CPU; software video decoding adds more work. |
+| `c7x_1` | Activity on the accelerator running TIDL inference. |
+| `VISS`, `MSC0`, `MSC1` | Image-processing and scaling activity in the VPAC pipeline. VISS is used with the raw CSI camera and is absent from the video-file screenshots. |
+| `DDR R`, `DDR W`, `DDR T` | Memory read, write and total bandwidth. |
+
+### Confirm hardware acceleration
+
+At startup, ONNX models print the number of operations assigned to TIDL. In the tested YOLOX-S-Lite (8220) run, both backends reported:
+
+```text
+Final number of subgraphs created are : 1, - Offloaded Nodes - 329, Total Nodes - 329
+```
+
+This means all 329 model nodes were assigned to the TIDL execution provider in that run. It does not mean the entire camera-to-display application runs on C7x. Combine the startup report with the updating video and `c7x_1` activity when checking the result. Different models can have different offload counts.
+
+### Why file input and CSI input can have different CPU loads
+
+An IMX219 supplies raw Bayer frames to the CSI receiver; the TI ISP and scaler handle much of the image preparation. An H.264 file first needs decoding. With `avdec_h264`, the CPU performs that decoding; with `v4l2h264dec`, the VPU performs it. Both paths still use the CPU for application work, and this hardware-decoded file path includes a copy into TI-compatible image buffers.
+
+A high `mpu` reading therefore does not by itself mean inference fell back to the CPU. Check the decoder, the TIDL offload report and `c7x_1` activity. For a repeatable file demo, `drop: False` avoids processing excess decoded frames; a live camera can instead drop old frames to keep latency low. Compare the same model and backend, and measure without screen recording or large file transfers. A smaller model can finish quickly and show lower C7x activity even while it is accelerated.
+
+FPS depends on the camera, model, backend, image processing, display and thermal conditions. A single demo screenshot is not a benchmark or a performance guarantee.
+
+## 5. Stop or try another model
+
+Press **Ctrl+C in the SSH or UART terminal that launched the demo**. Wait for cleanup and the shell prompt before starting another run. The launcher resets C7x and restarts LightDM; the HDMI display returns to the login screen or desktop.
+
+Run `edgeai-demo` again to choose another installed model. Each task displays a different result:
+
+| Task | What to expect |
+|---|---|
+| Object detection | Boxes and labels around supported objects. |
+| Classification | Class predictions for the image, rather than object locations. |
+| Semantic segmentation | Regions of the image colored by predicted class. |
+| Pose estimation | Detected body keypoints or skeletons when a person is in view. |
+
+The camera walkthrough uses YOLOX-S-Lite (8220) with IMX219; the recorded detection results use the supplied video file. Availability and behavior of other models depend on the image and model artifacts; consult [Pre-compiled models](../application-development/ai/model-hub.mdx) and [Known issues](../application-development/ai/known-issues.mdx).
+
+### Use a USB camera instead
+
+A compatible UVC camera can be used in place of IMX219. It does not require `init-imx219`. Attach it, check `edgeai-demo status`, then choose **USB** in the camera menu or use `--camera usb` in the direct command. The launcher selects a capture node and prefers MJPEG, with YUYV as a fallback. Camera format and resolution support vary; the screenshots and instructions above use IMX219.
 
 ## Troubleshooting
 
-- **Camera not found:** run `v4l2-ctl --list-devices`. If the camera is missing, power off and re-seat the ribbon cable with the latch locked.
-- **Nothing on the display:** the demo needs the display; over SSH, keep a monitor connected.
+| Symptom | What to check |
+|---|---|
+| `edgeai-demo` is not found | Verify that you booted the Mo62A image with the demo and model zoo installed. |
+| `No IMX219 found` | Power off before checking both ribbon ends and locking bars. Verify that the image enables the IMX219 device-tree overlay. |
+| CSI camera is not initialized | Run `sudo init-imx219`, then `edgeai-demo status` before starting inference. |
+| Video is black or too dark | Remove the lens cover, point the lens toward a well-lit scene and check camera exposure. Use the camera preview procedure to separate camera issues from model issues. |
+| No image appears in the SSH window | Video is sent to the board's HDMI monitor. Check the cable, monitor input and display connection. |
+| The desktop terminal disappears | The demo stops LightDM. Control the demo through SSH or UART instead. |
+| Camera or display is busy | Stop the previous preview or demo. Do not run multiple applications using the same camera or HDMI output. |
+| Model is missing or fails to load | Check `edgeai-demo list` and use an installed compiled model. Review the terminal error and model compatibility. |
+| Video appears but boxes are absent | Check the model task, supported classes, lighting, focus and object size. Try a clearly visible COCO object. |
+| Desktop does not return after an interrupted session | Once the demo has stopped, run `sudo systemctl start lightdm` through SSH or UART. |
 
-More in [FAQ & troubleshooting](../faq/index.mdx).
+## Continue with AI development
+
+- [AI overview](../application-development/ai/overview.mdx): C7x/MMA, TIDL and the camera-to-inference software stack.
+- [Pre-compiled models](../application-development/ai/model-hub.mdx): installed models, task types and compatibility references.
+- [Camera & video](../application-development/camera-and-video.mdx): camera preview and exposure tuning.
+- [AI development](../application-development/ai/index.mdx): the separate area for toolchain setup, model compilation, inference APIs and application development.
+- [C/C++ SDK example guide](https://github.com/inhandnet/Mo62A/blob/HEAD/board-support/extra-applications/edgeai-cpp/examples/DEV_GUIDE.md): source examples, including the camera-free `hello_inference` program.

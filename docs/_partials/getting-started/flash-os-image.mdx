@@ -1,4 +1,13 @@
 import Link from '@site/src/components/DocumentationLink';
+import ImageDownload, {ImageReleaseProvider} from '@site/src/components/ImageDownload';
+import installAnimation from '@site/static/img/getting-started/armbian-imager-install-windows.gif';
+import installStill from '@site/static/img/getting-started/armbian-imager-windows.png';
+import customImageAnimation from '@site/static/img/getting-started/armbian-imager-use-custom-image.gif';
+import customImageStill from '@site/static/img/getting-started/armbian-imager-use-custom-image.png';
+import sdCardAnimation from '@site/static/img/getting-started/armbian-imager-select-sd-card.gif';
+import sdCardStill from '@site/static/img/getting-started/armbian-imager-select-sd-card.png';
+import writeCardAnimation from '@site/static/img/getting-started/armbian-imager-write-sd-card.gif';
+import writeCardStill from '@site/static/img/getting-started/armbian-imager-write-sd-card.png';
 
 Mo boards boot from a microSD card. You write the OS image to the card on your computer, then put the card in the board.
 
@@ -10,7 +19,15 @@ Writing the image erases everything on the card.
 
 <Only board={props.board} is="mo-62a">
 
-Get the latest image (`.img.zip`) from the <Link to="/software#os-images">Software page</Link>. Check the SHA256 checksum shown next to the file. The image and its source are built from [github.com/inhandnet/Mo62A](https://github.com/inhandnet/Mo62A).
+<ImageReleaseProvider>
+
+Download the <ImageDownload>latest Mo62A OS image</ImageDownload> (or [view all releases](https://github.com/inhandnet/Mo62A/releases)).
+
+:::note
+Please also download the corresponding <ImageDownload asset="checksums">SHA256SUMS</ImageDownload> file to verify the image.
+:::
+
+</ImageReleaseProvider>
 
 </Only>
 
@@ -20,18 +37,129 @@ Get the latest image from the [InHand Resource Center](https://www.inhand.com/en
 
 </Only>
 
-## 2. Write the image with balenaEtcher
+## 2. Write the image with Armbian Imager
 
-1. Install [balenaEtcher](https://etcher.balena.io) (Windows, macOS, Linux).
-2. Click **Flash from file** and select the downloaded `.img.zip`. You do not need to unzip it.
-3. Click **Select target** and choose your microSD card.
-4. Click **Flash!** and wait for **Flash Complete!**.
+The steps below use Armbian Imager. Other image writers, such as [balenaEtcher](https://etcher.balena.io/), also work.
+
+1. Download and install [Armbian Imager](https://imager.armbian.com/) (choose the version for your operating system: Windows, macOS or Linux).
+
+   <div className="mo-tool-screenshot">
+
+   <picture>
+     <source media="(prefers-reduced-motion: reduce)" srcSet={installStill} />
+     <img src={installAnimation} alt="Downloading and installing Armbian Imager on Windows" />
+   </picture>
+
+   </div>
+
+2. Click **Use Custom Image**, select the downloaded OS image, then click **Open**.
+
+   <div className="mo-tool-screenshot">
+
+   <picture>
+     <source media="(prefers-reduced-motion: reduce)" srcSet={customImageStill} />
+     <img
+       src={props.board === 'mo-62a' ? customImageAnimation : customImageStill}
+       alt={props.board === 'mo-62a'
+         ? 'Armbian Imager: click Use Custom Image, select the Mo62A OS image, and click Open'
+         : 'Armbian Imager on Windows showing the Use Custom Image button'}
+     />
+   </picture>
+
+   </div>
+
+3. Insert the microSD card into a card reader and connect the reader to your computer. In **Storage**, select your microSD card. Check the device name and capacity to make sure you choose the correct card.
+
+   <Only board={props.board} is="mo-62a">
+
+   <div className="mo-tool-screenshot">
+     <picture>
+       <source media="(prefers-reduced-motion: reduce)" srcSet={sdCardStill} />
+       <img src={sdCardAnimation} alt="Armbian Imager: select the microSD card and review Confirm Selection" />
+     </picture>
+   </div>
+
+   </Only>
+
+4. Click **Erase & Flash**. Keep the card reader connected while the image is decompressed, written and verified. When **Flash complete!** appears, click **Done**.
+
+   <Only board={props.board} is="mo-62a">
+
+   <div className="mo-tool-screenshot">
+     <picture>
+       <source media="(prefers-reduced-motion: reduce)" srcSet={writeCardStill} />
+       <img src={writeCardAnimation} alt="Armbian Imager: write and verify the microSD card, then click Done" />
+     </picture>
+   </div>
+
+   </Only>
+
 5. Remove the card safely.
 
-Any other image writer, such as `dd` on Linux, also works.
+## 3. Pre-configure the board (Optional)
 
-## 3. Optional: pre-configure the board
+<Only board={props.board} is="mo-62a">
+
+<section className="mo-preconfigure">
+
+You can set your login details and network settings before the first boot. This is especially useful if you plan to use the board without a monitor or keyboard. If you do not need to pre-configure the board, continue to <Link to="/docs/mo-62a/getting-started/first-boot">First boot</Link>.
+
+:::note
+For security, we recommend changing the default username and password before the first boot. Choose a strong, unique password. If you skip this step, change the default password immediately after logging in.
+:::
+
+1. Open the microSD card's **BOOT** drive on your computer after writing the image. If you have already ejected the card reader, reconnect it. Do not power on the board yet.
+
+   <div className="mo-tool-screenshot">
+
+   ![Windows File Explorer showing sysconfig.txt selected on the BOOT drive](@site/static/img/getting-started/mo62a-boot-sysconfig-windows.png)
+
+   </div>
+
+2. Open the existing `sysconfig.txt` file in a plain-text editor. The screenshot below shows the original file before any changes.
+
+   <div className="mo-tool-screenshot">
+
+   ![Original Mo62A sysconfig.txt showing the default login and commented-out optional settings](@site/static/img/getting-started/mo62a-sysconfig-default.png)
+
+   </div>
+
+   Change the values you need and remove the leading `#` to enable a commented-out setting. Use `key=value` without quotation marks. Edit existing entries rather than adding duplicates; leave settings you do not need commented out. Replace the default login details shown in the screenshot with your own username and a strong, unique password.
+
+   **Login and hostname**
+
+   Replace the example username, password and hostname with your own values:
+
+   ```ini title="BOOT/sysconfig.txt — login and hostname"
+   user_name=alice
+   user_password=replace-with-your-own-strong-password
+   hostname=mo62a-lab
+   ```
+
+   **Wi-Fi (optional)**
+
+   To connect to Wi-Fi on the first boot, also enable these settings. Replace the network name and password with your Wi-Fi credentials, and set `wifi_country` to the two-letter code for the country where you will use the board:
+
+   ```ini title="BOOT/sysconfig.txt — Wi-Fi"
+   wifi_ssid=YourNetworkName
+   wifi_password=YourWiFiPassword
+   wifi_country=US
+   ```
+
+   If you use Ethernet with DHCP, no network settings need to be changed in this file. For SSH public keys, a static Ethernet IP address, timezone and other options, see the <Link to="/docs/mo-62a/system-configuration/sysconfig-reference">sysconfig.txt reference</Link>.
+
+3. Save the file as UTF-8 plain text without a BOM, keeping the name `sysconfig.txt` (not `sysconfig.txt.txt`). Safely eject the microSD card, then insert it into Mo62A and follow <Link to="/docs/mo-62a/getting-started/first-boot">First boot</Link> to connect and power on the board.
+
+The firmware processes `sysconfig.txt` automatically on the first boot and then deletes it from the BOOT partition. It is not read on subsequent boots. After logging in, check that your settings have taken effect; the file being deleted does not confirm that every setting was applied successfully.
+
+</section>
+
+</Only>
+
+<Only board={props.board} is="mo-68a">
 
 Before you remove the card, you can set your user, password, network and hostname in `sysconfig.txt` on the card's `BOOT` drive. This is the recommended way to set up a board without a display. See <Link to={`/docs/${props.board}/getting-started/first-boot`}>First boot</Link>.
+
+</Only>
 
 To create an image from source, see <Link to={`/docs/${props.board}/low-level-development/build-from-source`}>Build from source</Link>.

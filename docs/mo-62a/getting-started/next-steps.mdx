@@ -1,9 +1,43 @@
 ---
 title: "Next steps"
-description: "Mo 62A: Where to go after your first demo."
+description: "Choose your next Mo62A task: explore AI models, develop an application, configure networking or connect hardware."
 sidebar_position: 5
 ---
 
-import NextSteps from '@site/docs/_partials/getting-started/next-steps.mdx';
+Getting started takes you from preparing the board to booting Mo OS and running an accelerated demo. Choose the next task that fits your project; you do not need to follow every route below.
 
-<NextSteps board="mo-62a" />
+## Choose your next task
+
+| I want to… | Start here |
+|---|---|
+| Explore more AI models | [Pre-compiled models](../application-development/ai/model-hub.mdx) — find installed models and task types. Return to [the demo](./first-npu-demo.mdx#5-stop-or-try-another-model) to select another model. |
+| Build an inference application | [AI development](../application-development/ai/index.mdx) and the SDK guide below — understand C7x/MMA and TIDL, then start from an on-board C/C++ example. |
+| Use my own trained model | [Toolchain and runtime compatibility](../application-development/ai/toolchain.mdx) — match the compilation tools to the board's runtime before preparing model artifacts. |
+| Improve camera input | [Camera & video](../application-development/camera-and-video.mdx) — check capture and preview separately from inference, then tune the input for your application. |
+| Configure connectivity | [Network](../mo-os/network.mdx) — configure Ethernet or Wi-Fi through the terminal or desktop, or try the Bluetooth / BLE example. |
+| Connect external hardware | [Hardware interfaces](../hardware-development/hardware-interfaces.mdx) — check connector pinouts, signal voltage and peripheral modes before wiring. |
+
+## Move from the demo to your own AI application
+
+The [first NPU demo](./first-npu-demo.mdx) explains how to run and interpret an existing application. Model conversion, inference APIs and application design belong in [AI development](../application-development/ai/index.mdx).
+
+For a concrete starting point, the image's C/C++ SDK provides examples in `/usr/share/edgeai-cpp-examples/` and an accompanying `DEV_GUIDE.md`. The [SDK example guide in the source repository](https://github.com/inhandnet/mo-62a/blob/master/board-support/extra-applications/edgeai-cpp/examples/DEV_GUIDE.md) is currently in Chinese:
+
+- `hello_inference` loads a compiled model, runs one inference with zero-filled input and prints the outputs. It checks the inference environment without a camera or display; it is not a real-scene accuracy test.
+- `app_edgeai` provides the camera/video → inference → HDMI application and accepts YAML configurations. Use it as a starting point for a complete pipeline.
+
+Check the [version map](../resource-download/version-map.mdx) before replacing the runtime or compiling a model. A model file alone is not a substitute for compatible TIDL artifacts. Some AI development pages are still being expanded; use the existing SDK guide and the references on the toolchain page where a detailed walkthrough is not yet available.
+
+When evaluating a change, keep the input, model and resolution fixed. Record the backend and decoder, allow warm-up and compare throughput with CPU load and accelerator activity. The demo's [C/C++ versus Python comparison](./first-npu-demo.mdx#cc-and-python-same-model-same-video) shows one measured example; it is not a performance guarantee for other workloads.
+
+## Keep a reproducible setup
+
+Record the OS image version, board revision, camera or input video, model directory and application configuration that worked. Save your configuration files and application changes before reinstalling the OS; flashing a new image erases the selected storage device.
+
+For system configuration, continue to [Mo OS](../mo-os/index.mdx). For an image update, use [Install the OS](./install-os.mdx) and read the release notes before flashing.
+
+## Get help or improve the documentation
+
+Ask product usage questions in the [community forum](https://community.inhand.com). Include the image version, relevant hardware, command or configuration, expected result and the smallest useful error excerpt. Remove passwords, Wi-Fi credentials, personal network details and other private information before sharing logs or screenshots.
+
+For incorrect or missing documentation, use **Report an issue** on the affected page or [open a documentation issue](https://github.com/inhandnet/mo-docs/issues/new/choose). Include the page link and the behavior you observed.
