@@ -1,26 +1,353 @@
 ---
 title: "Network"
-description: "Mo 62A: Ethernet and wireless."
+description: "Mo 62A: configure Ethernet, Wi-Fi and Bluetooth Low Energy from the command line or desktop."
 sidebar_position: 2
 ---
 
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+import antennaAnimation from '@site/static/img/getting-started/mo62a-antenna-connect.gif';
+import antennaStill from '@site/static/img/getting-started/mo62a-antenna-connect.png';
+import wifiSelect from '@site/static/img/getting-started/mo62a-network-wifi-select.png';
+import wifiPassword from '@site/static/img/getting-started/mo62a-network-wifi-password.png';
+import wifiConnected from '@site/static/img/getting-started/mo62a-network-wifi-connected.png';
+
+import ethernetProfiles from '@site/static/img/getting-started/mo62a-network-ethernet-profiles.png';
+import ethernetDhcp from '@site/static/img/getting-started/mo62a-network-ethernet-dhcp.png';
+import ethernetStatic from '@site/static/img/getting-started/mo62a-network-ethernet-static.png';
+import ethernetTerminal from '@site/static/img/getting-started/mo62a-network-ethernet-terminal.png';
+import wifiTerminal from '@site/static/img/getting-started/mo62a-network-wifi-terminal.png';
+import bleTerminal from '@site/static/img/getting-started/mo62a-network-ble-terminal.png';
+import bleDiscover from '@site/static/img/getting-started/mo62a-network-ble-discover.png';
+import bleTrusted from '@site/static/img/getting-started/mo62a-network-ble-trusted.png';
+import blePaired from '@site/static/img/getting-started/mo62a-network-ble-paired.png';
+
+Mo62A uses NetworkManager for Ethernet and Wi-Fi, and BlueZ for Bluetooth. You can configure networking from a terminal or the XFCE desktop. For initial connections and login, start with [First boot](../getting-started/first-boot.mdx).
+
 ## Ethernet
 
-Gigabit Ethernet with DHCP by default. For a static address, set `static_ip`, `static_mask`, `static_gateway` and `static_dns` in `sysconfig.txt` before the first boot ([First boot](../getting-started/first-boot.mdx)). A directly connected PC can reach the board with a link-local address.
+Connect the Gigabit Ethernet port to a router or switch. The default Ethernet profile requests an address automatically using DHCP. Use the same local network as your computer when connecting by SSH.
 
-## Wi-Fi and Bluetooth
+### Command line
 
-| | |
-|---|---|
-| Wi-Fi | Wi-Fi 5 (802.11ac), dual-band, SDIO module |
-| Bluetooth | BLE 4.2 |
-| Antenna | U.FL connector — attach an antenna for usable range |
-
-Connect from the command line:
+Identify the Ethernet interface and its active connection profile:
 
 ```bash
-nmcli device wifi list
-nmcli device wifi connect "SSID" password "password"
+nmcli device status
+nmcli -f NAME,TYPE,DEVICE connection show --active
+ip -br address
 ```
 
-Or set `wifi_ssid`, `wifi_password` and `wifi_country` in `sysconfig.txt` before the first boot. The Wi-Fi module is a pre-certified module; see [Compliance](../compliance/index.mdx).
+The examples below use `end0` and `Wired connection 1`. Replace them with the interface and profile names reported on your board. A connection profile stores configuration; an interface is the physical network device.
+
+**Use automatic addressing (DHCP)**
+
+```bash
+sudo nmcli connection modify "Wired connection 1" \
+  ipv4.method auto ipv4.addresses "" ipv4.gateway "" \
+  ipv4.dns "" ipv4.ignore-auto-dns no
+sudo nmcli connection up "Wired connection 1"
+```
+
+**Use a static IPv4 address**
+
+Obtain an unused address, prefix length, gateway and DNS server from your network administrator. The following documentation addresses are examples; replace every address with values suitable for your network:
+
+```bash
+sudo nmcli connection modify "Wired connection 1" \
+  ipv4.method manual ipv4.addresses "192.0.2.20/24" \
+  ipv4.gateway "192.0.2.1" ipv4.dns "192.0.2.53"
+sudo nmcli connection up "Wired connection 1"
+```
+
+:::note
+Applying a profile can interrupt an SSH session using that interface. Make address changes from the local desktop or debug UART when possible. Reconnect using the new address after applying the change.
+:::
+
+To set a static address before the first boot, use `static_ip`, `static_mask`, `static_gateway` and `static_dns` in [`sysconfig.txt`](../system-configuration/sysconfig-reference.mdx). For later changes, use NetworkManager; the first-boot file is not read again on every boot.
+
+### Desktop
+
+**1. Choose the Ethernet profile.** Open **Applications → Settings → Advanced Network Configuration**, or run `nm-connection-editor` in a desktop terminal. Under **Ethernet**, select your connection and choose the gear-shaped edit button. The saved Wi-Fi profile name in this screenshot has been anonymized.
+
+<a href={ethernetProfiles} target="_blank" rel="noopener noreferrer">
+  <img src={ethernetProfiles} alt="Network Connections with Wired connection 1 selected and the saved Wi-Fi name anonymized" width="1920" height="1080" />
+</a>
+
+**2. Choose automatic or manual addressing.** Open **IPv4 Settings**. For a network with a DHCP server, keep **Automatic (DHCP)**. Addresses, gateway and DNS are supplied by the network.
+
+<a href={ethernetDhcp} target="_blank" rel="noopener noreferrer">
+  <img src={ethernetDhcp} alt="Ethernet IPv4 Settings using Automatic DHCP on the Mo62A desktop" width="1920" height="1080" />
+</a>
+
+For a static address, select **Manual**, choose **Add**, and enter the address, netmask or prefix length, and gateway. Enter the DNS server below the address table. The screenshot uses documentation-only example values; replace them with the settings for your network.
+
+<a href={ethernetStatic} target="_blank" rel="noopener noreferrer">
+  <img src={ethernetStatic} alt="Ethernet manual IPv4 draft showing example address 192.0.2.20, prefix 24, gateway 192.0.2.1 and DNS 192.0.2.53" width="1920" height="1080" />
+</a>
+
+**3. Apply and verify.** Select **Save** and authenticate if prompted. Use the network icon in the top panel to disconnect and reconnect the Ethernet profile, then check the address as described below. This interrupts traffic on that interface. Select **Cancel** if you are only reviewing a draft; the example static settings above were not applied to the test board.
+
+### Check the connection
+
+```bash
+nmcli -f GENERAL.STATE,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS device show end0
+ip route
+```
+
+`connected` confirms that NetworkManager activated the interface. Check the address, subnet, route and DNS separately. A link-local address alone does not provide Internet access. If both Ethernet and Wi-Fi are connected, Linux chooses routes by destination and metric; a successful Internet request does not by itself prove which interface carried it.
+
+The following live terminal shows an active Ethernet link, the default DHCP method and enabled link-local addressing. Account details are hidden by a simplified shell prompt.
+
+<a href={ethernetTerminal} target="_blank" rel="noopener noreferrer">
+  <img src={ethernetTerminal} alt="Live Mo62A Ethernet check showing an active carrier, DHCP and enabled IPv4 link-local addressing" width="1439" height="899" />
+</a>
+
+### Find the board
+
+Use the hostname configured in `sysconfig.txt` followed by `.local`, for example `BOARD_HOSTNAME.local`. The image includes Avahi for mDNS discovery. Your computer must support mDNS and be on a local network that permits it. A hostname without `.local` depends on your network's DNS or other name-resolution settings.
+
+If discovery fails, find the board in your router's DHCP client list, or use `hostname` and `ip -br address` on its desktop or serial console. Then connect by IP address as described in [First boot — SSH](../getting-started/first-boot.mdx#ssh).
+
+For a direct Ethernet cable between the board and a computer without a DHCP server, configure the computer for IPv4 link-local addressing. The board's default Ethernet profile enables an IPv4 link-local address (`169.254.x.x`) alongside DHCP. Both ends need compatible link-local addresses; `.local` also requires working mDNS. A direct cable alone does not provide Internet access.
+
+## Shared Wi-Fi and BLE antenna
+
+Wi-Fi and Bluetooth Low Energy share the antenna connected to **CON1**. Attach a compatible antenna before using either radio. If the board is running, shut it down with `sudo poweroff`, wait for shutdown to finish, and disconnect USB-C power before handling the antenna connector.
+
+Align the small snap connector over CON1 with its mating face pointing down toward the board. Press it straight down gently until seated; do not push it sideways into the socket or pull on the cable. The animation first moves the assembly into position, then shows the final seating motion. It omits other cables for clarity.
+
+<picture className="mo-first-boot-animation">
+  <source media="(prefers-reduced-motion: reduce)" srcSet={antennaStill} />
+  <img src={antennaAnimation} alt="Complete straight Wi-Fi and BLE antenna moving toward Mo62A and seating downward on CON1" width="2900" height="1416" />
+</picture>
+
+## Wi-Fi
+
+Mo62A supports dual-band Wi-Fi 5 (802.11ac). Attach the shared CON1 antenna, then use either method below. Keep an Ethernet, local desktop or serial session available while configuring Wi-Fi.
+
+### Command line
+
+Check the interface, enable Wi-Fi and scan for access points:
+
+```bash
+nmcli device status
+nmcli radio wifi on
+nmcli device wifi list ifname wlan0 --rescan yes
+```
+
+Replace `wlan0` if your image reports a different wireless interface. Select the exact network name (SSID), then connect:
+
+```bash
+nmcli --ask device wifi connect "YOUR_WIFI_SSID" ifname wlan0
+```
+
+Enter the Wi-Fi password at the interactive prompt. It is hidden during entry and is not included in the command line or shell history. If NetworkManager requests administrator authorization, authenticate when prompted, or run the command with `sudo` from a serial or SSH session.
+
+For a hidden network whose SSID and security settings you already know:
+
+```bash
+nmcli --ask device wifi connect "YOUR_WIFI_SSID" ifname wlan0 hidden yes
+```
+
+NetworkManager saves a connection profile after a successful connection. List profiles and reconnect an existing one with:
+
+```bash
+nmcli -f NAME,TYPE,DEVICE connection show
+nmcli connection up "YOUR_WIFI_PROFILE"
+```
+
+For enterprise Wi-Fi, obtain the authentication method and required certificates from your administrator. The personal-network example above is not an enterprise configuration.
+
+### Desktop
+
+The screenshots below show a real connection on the Mo62A XFCE desktop. Network names have been replaced with generic labels for privacy, and the password remains hidden. Select any screenshot to view it at its original size.
+
+**1. Select the network.** Click the network icon in the top panel. Under **Wi-Fi Networks**, open **Available networks** if shown, then select your access point. If Wi-Fi is disabled, right-click the network icon and enable it first.
+
+<a href={wifiSelect} target="_blank" rel="noopener noreferrer">
+  <img src={wifiSelect} alt="XFCE network menu showing available secured Wi-Fi networks with all SSIDs anonymized" width="1920" height="1080" />
+</a>
+
+**2. Authenticate.** In **Wi-Fi Network Authentication Required**, enter the access point's password. Leave **Show password** unchecked, then select **Connect**. Use the Wi-Fi password, which may differ from your Mo62A login password.
+
+<a href={wifiPassword} target="_blank" rel="noopener noreferrer">
+  <img src={wifiPassword} alt="Wi-Fi authentication dialog with anonymized SSID and a masked password before selecting Connect" width="1920" height="1080" />
+</a>
+
+**3. Confirm the connection.** Wait for authentication and address assignment. Reopen the network menu: the active Wi-Fi network appears above **Disconnect**. Ethernet may remain connected at the same time.
+
+<a href={wifiConnected} target="_blank" rel="noopener noreferrer">
+  <img src={wifiConnected} alt="XFCE menu after a successful Wi-Fi connection, showing the anonymized active network and Disconnect action" width="1920" height="1080" />
+</a>
+
+### Check and manage Wi-Fi
+
+```bash
+nmcli -f DEVICE,TYPE,STATE device
+nmcli -f GENERAL.STATE,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS device show wlan0
+ip route
+```
+
+Look for `wlan0` in the connected state and an address valid for your network. Connection to an access point is separate from Internet access; visitor networks may require a browser-based sign-in page.
+
+
+<a href={wifiTerminal} target="_blank" rel="noopener noreferrer">
+  <img src={wifiTerminal} alt="Live Mo62A terminal confirming Wi-Fi is enabled and wlan0 is connected" width="1439" height="899" />
+</a>
+
+To disconnect Wi-Fi without deleting its saved profile:
+
+```bash
+nmcli device disconnect wlan0
+```
+
+To forget a saved network, open **Advanced Network Configuration**, select the Wi-Fi profile and choose the delete button, or run:
+
+```bash
+nmcli connection delete "YOUR_WIFI_PROFILE"
+```
+
+Deleting or disconnecting the profile used by your current SSH session will end that connection. Use another access method first.
+
+To pre-configure Wi-Fi before the first boot, set `wifi_ssid`, `wifi_password` and the appropriate `wifi_country` in [`sysconfig.txt`](../system-configuration/sysconfig-reference.mdx). Use the country where the board operates; allowed channels vary by location. See [Compliance](../compliance/index.mdx) for module information.
+
+## Bluetooth Low Energy (BLE)
+
+BLE is configured separately from Wi-Fi, although both share the CON1 antenna. BlueZ provides command-line control, while **Bluetooth Manager** (Blueman) provides device discovery and pairing on the desktop. Pairing establishes a bond; connecting establishes a live link. GATT service discovery and characteristic reads/writes are separate operations and depend on the peripheral.
+
+### Command line
+
+Confirm that the Bluetooth service is active, then open BlueZ's interactive controller:
+
+```bash
+systemctl is-active bluetooth
+bluetoothctl
+```
+
+At the `bluetoothctl` prompt:
+
+```text
+power on
+agent on
+default-agent
+scan le
+```
+
+Put your peripheral in advertising or pairing mode. Identify it by its advertised name and address. Replace `DEVICE_ADDRESS` below with the address actually discovered; do not use an unrelated nearby device.
+
+```text
+scan off
+pair DEVICE_ADDRESS
+trust DEVICE_ADDRESS
+connect DEVICE_ADDRESS
+info DEVICE_ADDRESS
+```
+
+Follow any passkey or confirmation prompts on both devices. Only trust peripherals you recognize. Some BLE peripherals provide unencrypted GATT access without pairing; others require pairing before access. `Paired: yes`, `Trusted: yes`, `Connected: yes` and `ServicesResolved: yes` describe different states, so check the ones required by your peripheral.
+
+To inspect GATT attributes on a connected device:
+
+```text
+menu gatt
+list-attributes DEVICE_ADDRESS
+select-attribute CHARACTERISTIC_UUID
+read
+back
+```
+
+Replace `CHARACTERISTIC_UUID` with a readable characteristic from the peripheral's service specification. A write operation must use the characteristic's expected format and supported write type; arbitrary data may change the peripheral's settings. The reproducible demo below provides a dedicated characteristic for testing.
+
+When finished:
+
+```text
+disconnect DEVICE_ADDRESS
+quit
+```
+
+To remove a bond and its saved trust setting, use `remove DEVICE_ADDRESS` in `bluetoothctl`. The peripheral may also need its old bond cleared before pairing again.
+
+### Desktop
+
+**1. Open Bluetooth Manager.** Use **Applications → Settings → Bluetooth Manager**, or run `blueman-manager` in a desktop terminal. Ensure the Bluetooth switch is on, then select **Search** while the peripheral is advertising. Select the device you recognize. The screenshots use a Linux computer advertising the test name **Mo BLE Demo**; its address is hidden.
+
+<a href={bleDiscover} target="_blank" rel="noopener noreferrer">
+  <img src={bleDiscover} alt="Mo62A Bluetooth Manager with the discovered Mo BLE Demo peripheral selected and its address hidden" width="1920" height="1080" />
+</a>
+
+**2. Pair.** Select the key-shaped **Pair** button. Follow any confirmation or passkey prompt shown by the two devices. A peripheral using a no-input/no-output pairing method may complete without a passkey dialog. Wait for the paired status before continuing.
+
+<a href={blePaired} target="_blank" rel="noopener noreferrer">
+  <img src={blePaired} alt="Mo62A Bluetooth Manager after successful pairing with the BLE test peripheral, with the address hidden" width="1920" height="1080" />
+</a>
+
+**3. Trust and use the peripheral.** If you want to allow future connections to this known device, select the check-mark **Trust** button. Available connection actions depend on the peripheral's services. Blueman manages discovery, pairing and supported desktop profiles; it is not a general-purpose GATT characteristic editor. Use a BLE application or the command-line GATT procedure for custom sensor data and characteristic reads/writes. The disabled **Send File** action on a GATT-only peripheral is not a BLE failure.
+
+<a href={bleTrusted} target="_blank" rel="noopener noreferrer">
+  <img src={bleTrusted} alt="Bluetooth Manager showing the trusted test peripheral with a green check mark and an active connection, with its address hidden" width="1920" height="1080" />
+</a>
+
+The green check mark on the device icon indicates trust. The live connection shown here was established for the GATT test below. The device category or icon may vary with the computer's advertised Bluetooth class.
+
+To forget a peripheral, select it and choose **Remove**, then confirm. Turn Bluetooth off using the switch only when you no longer need any Bluetooth connection.
+
+### Verify BLE data transfer
+
+A successful pair alone does not verify data transfer. For a repeatable test, use a second Linux computer with BlueZ and an adapter supporting BLE peripheral advertising. Mo62A acts as the central device, and the computer provides a small read/write GATT service.
+
+The demo uses service UUID `12345678-1234-5678-1234-56789abcdef0` and characteristic UUID `12345678-1234-5678-1234-56789abcdef1`. The characteristic holds a short test string. These UUIDs belong to this example, not to every BLE device.
+
+**1. Prepare the two devices.** On both Mo62A and the second Linux computer, install the dependencies if needed (Debian/Ubuntu):
+
+```bash
+sudo apt update
+sudo apt install bluez python3-dbus python3-gi
+sudo systemctl start bluetooth
+bluetoothctl power on
+```
+
+If the radio is soft-blocked, unblock it with `sudo rfkill unblock bluetooth`. A hardware block must be released using the computer's switch or firmware setting. The computer's adapter must support LE advertising and the BlueZ GATT server API; a Bluetooth adapter that only supports central mode is insufficient.
+
+On Mo62A, run `bluetoothctl show` and note its **Controller** address. This is the board's Bluetooth address, not its Ethernet or Wi-Fi address.
+
+**2. Start the peripheral on the Linux computer.** Download <a href={useBaseUrl('/downloads/network/mo-ble-demo-peripheral.py')} download>mo-ble-demo-peripheral.py</a> onto that computer. In the directory containing the file, run:
+
+```bash
+sudo python3 mo-ble-demo-peripheral.py BOARD_BLUETOOTH_ADDRESS
+```
+
+Replace `BOARD_BLUETOOTH_ADDRESS` with the board's address from step 1. Wait for `GATT application ready` and `Advertising Mo BLE Demo`, and leave this terminal running. The script uses the first adapter supporting GATT and LE advertising, temporarily names it **Mo BLE Demo**, and accepts pairing requests only from the selected board. If needed, pair and trust it from Mo62A using either procedure above.
+
+This is a short-lived demonstration service with an unencrypted read/write test value. It is not a secure application protocol; do not send credentials or sensitive data through it.
+
+**3. Run the central on Mo62A.** Download <a href={useBaseUrl('/downloads/network/mo-ble-gatt-check.py')} download>mo-ble-gatt-check.py</a> onto Mo62A and save it as `/tmp/mo-ble-gatt-check.py`. Then run:
+
+```bash
+python3 /tmp/mo-ble-gatt-check.py --name "Mo BLE Demo"
+```
+
+Keep only one peripheral with that name in range. The client discovers the peripheral if necessary, connects, waits for service discovery, reads the test characteristic, writes `Mo62A BLE OK`, and reads it again. Success ends with `PASS: read-back matches the written value`. If access is denied in a remote terminal, rerun with `sudo`.
+
+The screenshot shows a real Mo62A-to-Linux-computer test: the connection and services resolve, a value is read, `Mo62A BLE OK` is written, and reading the characteristic again returns the same value. If the example has already run, the initial read may show the previous test value.
+
+<a href={bleTerminal} target="_blank" rel="noopener noreferrer">
+  <img src={bleTerminal} alt="Real BLE GATT test on Mo62A showing connected state, resolved services, a write and matching read-back" width="1439" height="899" />
+</a>
+
+**4. Finish the test.** The client disconnects a connection that it opened; an already-connected device stays connected. Use `disconnect DEVICE_ADDRESS` in `bluetoothctl` on Mo62A if needed. Press **Ctrl+C** in the peripheral terminal to stop advertising, unregister the demo service and restore the adapter settings changed by the script. Pairing bonds remain until removed: use the **Remove** action or `bluetoothctl remove DEVICE_ADDRESS` on each device if this was a temporary pairing. If you enabled or unblocked Bluetooth only for this test, restore its previous power/block state afterward.
+
+## Troubleshooting
+
+| Symptom | What to check |
+|---|---|
+| Ethernet has no carrier | Check the RJ45 cable, switch port and link indicator. Use `nmcli device status` and `nmcli -f WIRED-PROPERTIES.CARRIER device show end0`. |
+| Ethernet is connected but cannot reach the network | Verify the address, prefix, gateway, DNS and route. Avoid duplicate static addresses. |
+| `.local` name does not resolve | Confirm the configured hostname, same local network and mDNS support. Try the board's IP address. |
+| Wi-Fi network is missing or signal is weak | Check the CON1 antenna, distance, Wi-Fi radio state, channel/country settings and whether the SSID is hidden. Rescan after enabling Wi-Fi. |
+| Wi-Fi authentication fails | Check the exact SSID, password, keyboard layout and required security method. A login password is not necessarily the Wi-Fi password. |
+| Wi-Fi connects but Internet access fails | Check address assignment, gateway and DNS. Visitor networks may require a browser sign-in. With Ethernet also connected, inspect which route is used. |
+| Bluetooth controller is unavailable | Check `systemctl status bluetooth` and `bluetoothctl show`; ensure the radio is powered on and not blocked. |
+| BLE peripheral is not found | Attach the shared antenna, enable advertising/pairing on the peripheral, move it closer and scan for LE devices. |
+| BLE pairs but data is unavailable | Check live connection and service resolution, then use the correct service/characteristic UUIDs, permissions and data format. Pairing does not create a GATT service. |
+
+For account access and terminal login, return to [First boot](../getting-started/first-boot.mdx).

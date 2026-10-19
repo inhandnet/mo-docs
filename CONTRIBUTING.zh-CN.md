@@ -41,6 +41,7 @@ import FlashOsImage from '@site/docs/_partials/getting-started/flash-os-image.md
 - 文档页面之间优先使用相对文件链接。
 - JSX 链接使用 `@site/src/components/DocumentationLink`，以适配部署路径；其他门户栏目通过 `DEVELOPER_PORTAL_URL` 跳转。
 - 图片放在 `static/img/`。大型镜像、SDK 和下载文档链接到实际发布或资源位置。
+- 文档正文的插图、截图和 GIF 动图统一铺满正文可用宽度，与通栏 NOTE 提示框对齐，不再限定固定像素宽度。高度保持原始比例，不为统一高度而拉伸或裁切内容。统一使用全站 `--mo-doc-media-width` 样式，不在各页单独设置展示尺寸。编号步骤中的截图使用直接放在列表项内的 `mo-tool-screenshot` 容器，让图片与正文边缘对齐，同时保留步骤文字的缩进。源素材保留原始分辨率；全屏、分屏和手机预览时同时检查静态图与动图。
 - 产品信息保存在 `src/data/products.ts`。修改规格前核对来源和适用版本。
 - 发布记录使用已提交的 `src/data/generated/releases.json` 快照。运行 `npm run fetch-data` 刷新后，检查结果并单独提交；构建不会自动刷新数据。获取前应检查仓库映射，获取失败时可能继续保留旧快照。
 - 新增板卡时，同步更新文档目录、产品数据、选板表格及受影响的测试。

@@ -29,7 +29,7 @@ const config: Config = {
   } satisfies Preset.Options]],
   themeConfig: {
     colorMode: {defaultMode: 'light', disableSwitch: true, respectPrefersColorScheme: false},
-    docs: {sidebar: {autoCollapseCategories: true}},
+    docs: {sidebar: {hideable: true, autoCollapseCategories: true}},
     announcementBar: preview ? {id: 'mo-docs-preview', content: 'Preview of the InHand developer documentation. Content marked <b>Coming soon</b> is planned but not yet written.', isCloseable: true} : undefined,
     navbar: {
       title: 'Developer', logo: {alt: 'InHand Networks', src: 'img/logo.svg', href: portal, target: '_self'},

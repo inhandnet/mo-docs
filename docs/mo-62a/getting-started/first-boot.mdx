@@ -1,20 +1,207 @@
 ---
 title: "First boot"
-description: "Mo 62A: Set up your account, network and SSH."
+description: "Mo 62A: Connect the board, power on, log in and check your setup."
 sidebar_position: 3
 ---
 
-import FirstBoot from '@site/docs/_partials/getting-started/first-boot.mdx';
+import connectAnimation from '@site/static/img/getting-started/mo62a-connect-board.gif';
+import connectStill from '@site/static/img/getting-started/mo62a-connect-board.png';
+import sshSession from '@site/static/img/getting-started/mo62a-first-boot-ssh.png';
+import desktopLogin from '@site/static/img/getting-started/mo62a-first-boot-desktop-login.png';
+import desktopSession from '@site/static/img/getting-started/mo62a-first-boot-desktop.png';
+import uartSession from '@site/static/img/getting-started/mo62a-first-boot-uart.png';
+import storageCheck from '@site/static/img/getting-started/mo62a-first-boot-storage.png';
 
-<FirstBoot board="mo-62a" />
+Before you begin, follow [Install the OS](./install-os.mdx) to write the image to a microSD card. To set your login details or network settings before powering on, see [Pre-configure the board](./install-os.mdx#3-pre-configure-the-board-optional).
 
-## Connect to Wi-Fi later
+## 1. Connect the board
+
+Keep the USB-C power supply disconnected while inserting the card and connecting accessories.
+
+1. Insert the microSD card containing the OS image into Mo62A.
+2. Prepare one of the access methods below. You do not need all three.
+
+<div className="mo-first-boot-access-table">
+
+| Access method | What to connect |
+|---|---|
+| Ethernet / SSH | Connect Mo62A to a router or switch on the same network as your computer. For the simplest setup, use a network with DHCP. If you already configured Wi-Fi in `sysconfig.txt`, you can use that network instead; attach a compatible Wi-Fi antenna before powering on. |
+| Local desktop | Connect a micro HDMI-to-HDMI cable and an HDMI monitor or TV, plus a USB keyboard and mouse. Select the corresponding HDMI input on the display. |
+| Serial console | Connect a compatible USB-to-UART adapter to the board's debug UART and your computer. See [Serial console](../low-level-development/serial-console.mdx) for connection details. |
+
+</div>
+
+The animation shows the connections for all three access methods. Use the accessories for your chosen method, and connect USB-C power last.
+
+<picture className="mo-first-boot-animation">
+  <source media="(prefers-reduced-motion: reduce)" srcSet={connectStill} />
+  <img
+    src={connectAnimation}
+    alt="Mo62A connection sequence: microSD card, Micro HDMI, debug UART, Ethernet, USB keyboard, USB mouse, then USB-C power"
+    width="2162"
+    height="1416"
+  />
+</picture>
+
+A camera and other optional peripherals are not required for the first boot. See [Preparation](./preparation.mdx) for power and accessory requirements.
+
+## 2. Power on and wait
+
+Connect the USB-C power supply last to start the board.
+
+On the first boot, the firmware runs initial setup: it installs bundled software packages, expands the root filesystem to use the available space on the microSD card, and processes `sysconfig.txt` if present. This can take longer than subsequent boots.
+
+Wait until the board's status LED changes from solid red to blinking green. This indicates that the system has reached its normal running state, after the first-boot setup sequence has finished. The green LED's blink rate varies with CPU activity.
+
+:::note
+Keep the power supply connected, leave the microSD card in place, and do not restart the board while initial setup is running. A display or login prompt may appear before the status LED starts blinking green.
+:::
+
+Once the LED is blinking green, continue with your chosen login method below.
+
+## 3. Log in
+
+Use the username and password you configured in `sysconfig.txt`. If you kept the image's default configuration, use the default login details listed in the `sysconfig.txt` template supplied with that OS release. The username `alice` in the previous page is an example, not a required account name.
+
+Choose one of the three methods below. They all give you access to the same system; you do not need to log in through all three. Select a screenshot to open the full-size image and inspect the details.
+
+:::note[Change the default password]
+If you are using the default account password, change it immediately after logging in:
 
 ```bash
-nmcli device wifi list
-nmcli device wifi connect "SSID" password "password"
+passwd
 ```
 
-Attach an antenna to the U.FL connector for usable range.
+Use a strong, unique password. See [Users & security settings](../mo-os/users-and-security.mdx) for more account and SSH security options.
+:::
+
+### SSH
+
+If SSH is not available yet, allow more time for the network connection to become ready and check that the board and your computer are connected to the same network.
+
+The OS image includes mDNS discovery, which lets computers on the same local network find the board as `BOARD_HOSTNAME.local`. Use the hostname you set in `sysconfig.txt` in place of `BOARD_HOSTNAME`.
+
+Open a terminal on your computer, such as PowerShell on Windows or Terminal on macOS or Linux, and connect with your configured username:
+
+```bash
+ssh YOUR_USERNAME@BOARD_HOSTNAME.local
+```
+
+Your computer and network must support mDNS for this name to resolve. Using a hostname without `.local` depends on your network's name resolution settings.
+
+If the name does not resolve, use the board's IP address. Find it in your router's DHCP client list, or run `hostname` and `ip -br address` from a local desktop terminal or serial console to check the board's current name and addresses. If you configured a static address in `sysconfig.txt`, use that address instead:
+
+```bash
+ssh YOUR_USERNAME@BOARD_IP_ADDRESS
+```
+
+Replace `YOUR_USERNAME` and `BOARD_IP_ADDRESS` with your actual login name and board address. Enter your account password when prompted; password characters are not displayed. If you configured an SSH public key, use the matching private key on your computer.
+
+On the first connection, SSH may ask you to confirm the host key. Verify that the address and fingerprint belong to your board before accepting.
+
+After authentication, a shell prompt appears. Commands entered here run on Mo62A. To confirm the terminal and identify the running software, try:
+
+```bash
+tty
+uname -r
+cat /etc/os-release
+```
+
+The screenshot below shows a real SSH session. Terminal prompts in these screenshots are simplified to `$` to keep account details private; your prompt and software version may differ.
+
+<a href={sshSession} target="_blank" rel="noopener noreferrer">
+  <img src={sshSession} alt="Authenticated SSH terminal on Mo62A showing a pseudo-terminal, kernel version and Debian OS release" width="1439" height="899" />
+</a>
+
+If the connection fails, use the message to choose the next check:
+
+| Message | What to check |
+|---|---|
+| Could not resolve hostname | Try the board's IP address and verify its current hostname from the desktop or serial console. |
+| Connection timed out or No route to host | Check the Ethernet link, address and network connection between your computer and the board. |
+| Connection refused | Confirm the address belongs to your board, then check `systemctl status ssh` from the desktop or serial console. |
+| Permission denied | Check the username and password you configured, or the SSH key used by your computer. |
+
+When you have finished, type `exit` to return to your computer's terminal. This closes the SSH session without shutting down Mo62A.
+
+For direct Ethernet connections and more about hostname discovery, see [Network](../mo-os/network.mdx).
+
+### Local desktop
+
+With the monitor, keyboard and mouse connected, select the monitor's HDMI input and wait for the graphical login screen. If your image logs in automatically, continue from the desktop.
+
+Enter your configured username in the first field, enter your password in the password field, and select **Log In**. Check the keyboard layout and Caps Lock if authentication fails.
+
+<a href={desktopLogin} target="_blank" rel="noopener noreferrer">
+  <img src={desktopLogin} alt="Mo62A HDMI login screen with empty username and password fields and a Log In button" width="1920" height="1080" />
+</a>
+
+After login, the XFCE desktop appears. Open **Applications → Terminal Emulator**, or use the terminal icon in the bottom panel. You can run `tty`, `uname -r` and `cat /etc/os-release` here, just as in an SSH session.
+
+<a href={desktopSession} target="_blank" rel="noopener noreferrer">
+  <img src={desktopSession} alt="Mo62A XFCE desktop on HDMI with a local terminal showing the running kernel and Debian OS release" width="1920" height="1080" />
+</a>
+
+If the display stays blank, check the selected HDMI input and cable connection.
+
+### Serial console
+
+Connect the debug UART adapter to your computer. This method does not require an Ethernet connection or an HDMI display. For wiring and adapter requirements, see [Serial console](../low-level-development/serial-console.mdx).
+
+Find the port assigned to the adapter: on Linux, check `/dev/serial/by-id/` or `/dev/ttyUSB*`; on Windows, check **Device Manager → Ports (COM & LPT)**. Open that port in your serial terminal with **115200 baud, 8 data bits, no parity, 1 stop bit, and no flow control**. Disable both hardware (RTS/CTS) and software (XON/XOFF) flow control.
+
+For example, on a Linux computer with `minicom` installed:
+
+```bash
+minicom -D /dev/ttyUSB0 -b 115200 -8
+```
+
+Replace `/dev/ttyUSB0` with your adapter's actual device path. In minicom, press **Ctrl+A**, then **O**, open **Serial port setup**, and verify that **Hardware Flow Control** and **Software Flow Control** are both **No** before returning to the terminal.
+
+Press **Enter** if the board has already booted and the terminal is blank. At `login:`, enter your configured username; at `Password:`, enter your password. Password characters are not displayed. After the shell prompt appears, run `tty` to confirm the board-side console; this image uses `/dev/ttyS2`.
+
+<a href={uartSession} target="_blank" rel="noopener noreferrer">
+  <img src={uartSession} alt="Live Debug UART session using ttyUSB0 at 115200 baud, 8N1 and no flow control, with the board reporting ttyS2" width="1439" height="899" />
+</a>
+
+Unreadable characters usually indicate incorrect serial settings. If there is no response, check the selected port, flow control and wiring. Close other applications using the same serial port. On Linux, a permission error means your account needs access to the adapter device, commonly through the `dialout` group.
+
+When finished, type `exit` to log out of the board. In minicom, press **Ctrl+A**, then **X**, and confirm to close the terminal and release the port.
+
+## 4. Check your setup
+
+Run these commands on Mo62A, using SSH, the desktop terminal or the serial console:
+
+```bash
+whoami
+hostname
+ip -br address
+df -h /
+```
+
+Use the results to check each part of your setup:
+
+| Command | What to verify |
+|---|---|
+| `whoami` | The login account matches the username you intended to configure. |
+| `hostname` | The current hostname matches your `sysconfig.txt` setting. |
+| `ip -br address` | The interface you are using has an address suitable for your network. A `169.254.x.x` address is link-local; it is not a router-assigned address. |
+| `df -h /` | The root filesystem has free space and its capacity reflects the root partition after first-boot expansion. |
+
+To compare the root filesystem with the card's partition layout, also run:
+
+```bash
+lsblk -o NAME,SIZE,TYPE,MOUNTPOINTS
+```
+
+<a href={storageCheck} target="_blank" rel="noopener noreferrer">
+  <img src={storageCheck} alt="Mo62A storage check showing a 29.7G microSD card, BOOT and swap partitions, and an expanded root filesystem" width="1439" height="899" />
+</a>
+
+This example uses a nominal 32 GB microSD card. The card appears as about `29.7G`, while `df -h /` reports about `25G` for the root filesystem. BOOT, swap and filesystem overhead account for the difference. Your values depend on the card and image layout; compare the root filesystem with its partition, not with the compressed download size or the card's full advertised capacity.
+
+The firmware deletes `sysconfig.txt` from the BOOT partition after processing it. Neither the file disappearing nor the green LED blinking confirms that every setup step succeeded; check the results above. If setup does not complete or a setting has not taken effect, inspect `/var/log/mo-62a-firstboot-install.log` and `/var/log/mo-62a-auto-config.log` on the board.
+
+For Ethernet settings, Wi-Fi setup or Bluetooth / BLE, continue to [Network](../mo-os/network.mdx). That page covers the shared CON1 antenna connection, command-line and desktop configuration, and connection checks.
 
 Next: [Run your first NPU demo](./first-npu-demo.mdx).

@@ -54,6 +54,7 @@
   --mo-button-dark: #333;
   --mo-button-dark-fg: #fff;
   --mo-buy: #00a651;
+  --mo-doc-media-width: 100%;
 }
 
 [data-theme='dark'] {
@@ -298,6 +299,49 @@
   font-weight: 500;
   background: var(--mo-surface);
 }
+.mo-preparation-tables table {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+.mo-preparation-tables th,
+.mo-preparation-tables td {
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.mo-preparation-tables th:first-child,
+.mo-preparation-tables td:first-child {
+  width: 32%;
+}
+.mo-first-boot-access-table table {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+.mo-first-boot-access-table th,
+.mo-first-boot-access-table td {
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.mo-first-boot-access-table th:first-child,
+.mo-first-boot-access-table td:first-child {
+  width: 11rem;
+  white-space: nowrap;
+}
+@media (max-width: 576px) {
+  .mo-preparation-tables th,
+  .mo-preparation-tables td,
+  .mo-first-boot-access-table th,
+  .mo-first-boot-access-table td {
+    padding: 0.65rem;
+  }
+  .mo-first-boot-access-table th:first-child,
+  .mo-first-boot-access-table td:first-child {
+    width: 9rem;
+  }
+}
 .mo-badge {
   display: inline-block;
   font-size: 0.8rem;
@@ -334,6 +378,36 @@
 }
 .theme-doc-markdown h2 {
   font-size: 1.6rem;
+}
+/* Documentation media fills the body width, matching full-width admonitions.
+ * Preserve source proportions at every viewport size. */
+.theme-doc-markdown picture {
+  display: block;
+}
+.theme-doc-markdown img,
+.theme-doc-markdown video {
+  display: block;
+  width: var(--mo-doc-media-width);
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+}
+/* Step text retains list indentation; screenshots align with the document body. */
+.theme-doc-markdown li > .mo-tool-screenshot {
+  margin-left: calc(-1 * var(--ifm-list-left-padding));
+}
+/* Long pre-configuration steps share the body edge with their images and code.
+ * Keep native numbering inline instead of indenting every paragraph in a step. */
+.theme-doc-markdown .mo-preconfigure > ol {
+  padding-left: 0;
+  list-style-position: inside;
+}
+.theme-doc-markdown .mo-preconfigure > ol > li > p:first-child {
+  display: inline;
+}
+.theme-doc-markdown .mo-preconfigure > ol > li > .mo-tool-screenshot {
+  margin-left: 0;
+  margin-top: var(--ifm-paragraph-margin-bottom);
 }
 .theme-doc-sidebar-menu {
   font-size: 1rem;
@@ -395,11 +469,14 @@ a:focus-visible, button:focus-visible, select:focus-visible, .board-table-scroll
 
 .navbar__link svg[class*='iconExternalLink'] {display: none;}
 .navbar__link.navbar-buy {flex-shrink: 0;}
+/* Hide capture-edge artifacts without resampling or repainting screenshot text. */
+.mo-tool-screenshot img {clip-path: inset(2px round 8px);}
 .search-trigger, .search-trigger kbd {white-space: nowrap;}
 .board-table-scroll {overflow-x: auto; max-width: 100%; margin-bottom: 1rem;}
 .board-table-scroll table {display: table; width: 100%; margin: 0;}
 .board-table-scroll td, .board-table-scroll th {vertical-align: top;}
-.board-table-scroll td:first-child {min-width: 100px;}
+.board-table-scroll th:first-child,
+.board-table-scroll td:first-child {width: 9.5rem; min-width: 9.5rem; white-space: nowrap;}
 .board-table-scroll td:not(:first-child) {min-width: 200px;}
 @media (max-width: 1200px) {
   .search-trigger kbd, .search-trigger > span {display: none;}
