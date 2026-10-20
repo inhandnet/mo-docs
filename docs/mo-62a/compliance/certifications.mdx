@@ -1,9 +1,45 @@
 ---
 title: "Certifications"
-description: "Mo 62A: FCC, ISED, CE, UKCA and other certifications."
+description: "Mo62A regulatory evidence available for review, missing approval identifiers and how to request the correct documents."
 sidebar_position: 1
 ---
 
-Certification status and numbers for the Mo 62A (FCC, ISED, CE, UKCA and others).
+import directory from '@site/static/img/compliance/mo62a-public-doc-directory.png';
+import identity from '@site/static/img/compliance/mo62a-model-identification.png';
 
-<ComingSoon />
+## Evidence status
+
+No verified Mo62A-specific regulatory approval identifier or formal conformity document was available in the material reviewed for this documentation on October 20, 2026. This is a documentation gap, not a finding that the product is uncertified.
+
+The review covered the public [Mo62A documentation directory](https://github.com/inhandnet/Mo62A/tree/master/doc), the published product datasheet and the [official Mo62A product page](https://www.inhand.com/en/products/ai-edge-computers/mo-62a/). These sources describe hardware and software, but they are not substitutes for the applicable approval records or signed declarations.
+
+<a href={directory} target="_blank" rel="noopener noreferrer">
+  <img src={directory} alt="Actual public Mo62A GitHub documentation directory reviewed for this page, showing technical guides, schematics and secure-boot resources; this is not a certification record" width="1440" height="1100" />
+</a>
+
+## Information to confirm for the target market
+
+The topics below are requests for evidence, not a claim that every scheme applies to every configuration or destination.
+
+| Topic | Status in this documentation | Information to request |
+|---|---|---|
+| United States / FCC | No verified Mo62A-specific identifier or compliance package recorded | Applicable authorization records, responsible party and covered configuration |
+| Canada / ISED | No verified identifier or integration package recorded | Applicable records, radio configuration and installation conditions |
+| EU conformity | No signed Mo62A declaration available here | Applicable signed declaration, model scope and supporting reports |
+| UK conformity | No signed Mo62A declaration available here | Applicable signed declaration and model/market scope |
+| Other destinations | Not evaluated here | Destination-specific documentation for the exact product |
+| Wireless module | Module identity is described in hardware sources; approval conditions are not verified here | Module identifiers, approved antenna configuration and host integration instructions |
+
+Do not copy a certification number from another InHand product or assume that an on-board radio is pre-certified solely because a module part number is known. No such blanket module-approval claim is made here.
+
+## Match the exact product
+
+The datasheet's order-code page identifies the 2 GB, 4 GB and 8 GB variants. It is reproduced for product identification only, not as evidence of certification.
+
+<a href={identity} target="_blank" rel="noopener noreferrer">
+  <img src={identity} alt="Unmodified Mo62A datasheet order-code page identifying Mo-62A memory variants; it contains product identification, not a regulatory approval" width="1273" height="1800" />
+</a>
+
+When contacting InHand through your established support/sales contact or the [official product page](https://www.inhand.com/en/products/ai-edge-computers/mo-62a/), provide the ordered model, PCB/assembly revision, target market, radio/antenna configuration and intended enclosure. Share serial numbers privately when needed.
+
+Use [Declarations & test reports](./declarations.mdx) to check the returned files and [Integration notes](./integration-notes.mdx) to record the final-product configuration. A qualified compliance reviewer should determine the applicable market requirements; this page is an evidence inventory, not a market-access approval.
