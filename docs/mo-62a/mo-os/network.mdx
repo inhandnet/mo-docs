@@ -343,7 +343,7 @@ The terminal output below shows a test between Mo62A and a Linux computer: the c
 | Symptom | What to check |
 |---|---|
 | Ethernet has no carrier | Check the RJ45 cable, switch port and link indicator. Use `nmcli device status` and `nmcli -f WIRED-PROPERTIES.CARRIER device show end0`. |
-| Ethernet is connected but cannot reach the network | Verify the address, prefix, gateway, DNS and route. Avoid duplicate static addresses. |
+| Ethernet link up but no network | Verify the address, prefix, gateway, DNS and route. Avoid duplicate static addresses. |
 | `.local` name does not resolve | Confirm the configured hostname, same local network and mDNS support. Try the board's IP address. |
 | Wi-Fi network is missing or signal is weak | Check the CON1 antenna, distance, Wi-Fi radio state, channel/country settings and whether the SSID is hidden. Rescan after enabling Wi-Fi. |
 | Wi-Fi authentication fails | Check the exact SSID, password, keyboard layout and required security method. A login password is not necessarily the Wi-Fi password. |

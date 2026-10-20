@@ -485,13 +485,18 @@ a:focus-visible, button:focus-visible, select:focus-visible, .board-table-scroll
   .search-panel {padding: 1rem;}
   .search-tools > span {display: none;}
 }
-/* Troubleshooting tables: keep each symptom on one line where space allows. */
+/* Troubleshooting and other two-column tables: a fixed 38% first column so
+   every two-column table on a page lines up; only the last column wraps. */
 .mo-troubleshooting-table {
   overflow-x: auto;
 }
 .mo-troubleshooting-table table {
   display: table;
   width: 100%;
+  table-layout: fixed;
+}
+.mo-troubleshooting-table td:last-child {
+  overflow-wrap: anywhere;
 }
 .mo-troubleshooting-table th,
 .mo-troubleshooting-table td {
@@ -500,12 +505,12 @@ a:focus-visible, button:focus-visible, select:focus-visible, .board-table-scroll
 }
 .mo-troubleshooting-table th:first-child,
 .mo-troubleshooting-table td:first-child {
+  width: 42%;
   white-space: nowrap;
 }
 @media (max-width: 1279px) {
   .mo-troubleshooting-table th:first-child,
   .mo-troubleshooting-table td:first-child {
-    width: 36%;
     white-space: normal;
   }
 }
@@ -530,9 +535,12 @@ a:focus-visible, button:focus-visible, select:focus-visible, .board-table-scroll
   text-align: left;
   vertical-align: top;
 }
-.mo-method-table th:first-child,
-.mo-method-table td:first-child {
+.mo-method-table th:not(:last-child),
+.mo-method-table td:not(:last-child) {
   white-space: nowrap;
+}
+.mo-method-table td:last-child {
+  overflow-wrap: anywhere;
 }
 @media (max-width: 576px) {
   .mo-method-table th,
@@ -540,8 +548,30 @@ a:focus-visible, button:focus-visible, select:focus-visible, .board-table-scroll
     padding: 0.65rem;
     overflow-wrap: anywhere;
   }
-  .mo-method-table th:first-child,
-  .mo-method-table td:first-child {
+  .mo-method-table th:not(:last-child),
+  .mo-method-table td:not(:last-child) {
     white-space: normal;
   }
+}
+/* Tables with the same number of columns on one page share column widths. */
+.mo-cols-3 table {
+  table-layout: fixed;
+}
+.mo-cols-3 th:nth-child(1) {
+  width: 22%;
+}
+.mo-cols-3 th:nth-child(2) {
+  width: 24%;
+}
+.mo-cols-4 table {
+  table-layout: fixed;
+}
+.mo-cols-4 th:nth-child(1) {
+  width: 22%;
+}
+.mo-cols-4 th:nth-child(2) {
+  width: 17%;
+}
+.mo-cols-4 th:nth-child(3) {
+  width: 19%;
 }

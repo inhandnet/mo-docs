@@ -135,11 +135,11 @@ Builds compete with your application for CPU, memory and microSD throughput. For
 
 | Symptom | What to check |
 |---|---|
-| `permission denied while trying to connect to the Docker daemon socket` | Use `sudo`, or add the user to the `docker` group and log in again. |
-| `Cannot connect to the Docker daemon` | Check the service with `systemctl status docker --no-pager` and start it with `sudo systemctl start docker`. |
+| Permission denied on the Docker socket | The message ends with `connect to the Docker daemon socket`. Use `sudo`, or add the user to the `docker` group and log in again. |
+| The daemon is not running | `Cannot connect to the Docker daemon`. Check the service with `systemctl status docker --no-pager` and start it with `sudo systemctl start docker`. |
 | Pulling an image times out | The board cannot reach the registry. Check Internet access and DNS with `curl -I https://registry-1.docker.io/v2/`; behind a proxy, configure it in a `docker.service` drop-in. |
-| `no matching manifest for linux/arm64` | The image has no Arm 64-bit variant. Pick a multi-architecture image or build your own. |
-| A published port is not reachable from another computer | Check `sudo docker compose ps` for the port mapping and that no other service uses the port on the board (`ss -ltn`). |
+| No `arm64` image variant | `no matching manifest for linux/arm64`: the image has no Arm 64-bit variant. Pick a multi-architecture image or build your own. |
+| A published port is not reachable | Check `sudo docker compose ps` for the port mapping and that no other service uses the port on the board (`ss -ltn`). |
 | The container cannot open a device | Pass it with `--device` and check the owning group with `ls -l /dev/DEVICE`; confirm the device exists in the current boot entry. |
 | The root file system fills up | Remove unused images and containers with `sudo docker system prune`, and keep large data in a bind mount you can manage. |
 

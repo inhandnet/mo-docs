@@ -163,13 +163,13 @@ Security fixes for Debian packages arrive through APT. Check for and install upd
 
 | Symptom | What to check |
 |---|---|
-| `sudo` reports that the user is not in the sudoers file | Add the user to the `sudo` group with `sudo usermod -aG sudo USERNAME` from an administrator account, then log in again. |
+| `sudo` says the user is not in sudoers | Add the user to the `sudo` group with `sudo usermod -aG sudo USERNAME` from an administrator account, then log in again. |
 | A new group does not take effect | Group changes apply at the next login. Log out and back in, or start a new SSH session. |
-| SSH refuses the password after hardening | `PasswordAuthentication no` is active. Log in with your key, or remove `/etc/ssh/sshd_config.d/50-local.conf` from a local or serial console and reload the service. |
-| The board is unreachable after `ufw enable` | `ufw` is not supported on this kernel. From the local desktop or serial console, run `sudo ufw disable`, then `sudo iptables -P INPUT ACCEPT` and `sudo iptables -F`. |
+| Password rejected after SSH hardening | `PasswordAuthentication no` is active. Log in with your key, or remove `/etc/ssh/sshd_config.d/50-local.conf` from a local or serial console and reload the service. |
+| Unreachable after `ufw enable` | `ufw` is not supported on this kernel. From the local desktop or serial console, run `sudo ufw disable`, then `sudo iptables -P INPUT ACCEPT` and `sudo iptables -F`. |
 | `sshd -t` reports an error | Fix the drop-in file before reloading; the running server keeps the previous configuration until the reload succeeds. |
-| The board no longer answers to `BOARD_HOSTNAME.local` | The firewall blocks mDNS. Keep `udp dport 5353 accept` in the `input` chain and reload `nftables`. |
-| A service is unreachable after enabling the firewall | Run `sudo nft list chain inet filter input` and add an `accept` rule for the port; compare with `ss -ltnu` to see which ports are listening. |
+| The `.local` name stops answering | The firewall blocks mDNS. Keep `udp dport 5353 accept` in the `input` chain and reload `nftables`. |
+| A service is blocked by the firewall | Run `sudo nft list chain inet filter input` and add an `accept` rule for the port; compare with `ss -ltnu` to see which ports are listening. |
 
 </div>
 

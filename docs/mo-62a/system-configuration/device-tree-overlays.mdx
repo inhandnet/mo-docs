@@ -14,18 +14,18 @@ This page was tested on **Mo62A image V1.1.0** (built 2026-08-19), with Debian 1
 
 ## Boot entries and overlays
 
-Each entry in `extlinux/extlinux.conf` on the `BOOT` partition loads the base device tree `ti/k3-am62a7-mo-62a.dtb` plus the overlay named in its `fdtoverlays` line. The entries supplied with the image:
+Each entry in `extlinux/extlinux.conf` on the `BOOT` partition loads the base device tree `ti/k3-am62a7-mo-62a.dtb` plus the overlay named in its `fdtoverlays` line. The overlay files are `ti/k3-am62a7-mo-62a-NAME.dtbo`; the table shows the `NAME` part. The entries supplied with the image:
 
-<div className="mo-method-table">
+<div className="mo-method-table mo-cols-4">
 
-| Boot entry | Overlay (`ti/`) | Header pins | Linux device |
+| Boot entry | Overlay | Linux device | Header pins |
 |---|---|---|---|
-| `microSD-default` | `k3-am62a7-mo-62a-cam-imx219.dtbo` | All 40-pin GPIO; pins 27 and 28 reserved for the camera I²C | CSI camera `/dev/video-imx219-cam0` |
-| `microSD-i2c0` | `k3-am62a7-mo-62a-exp-i2c0.dtbo` | 3 (SDA), 5 (SCL) | `/dev/i2c-0` (WKUP_I2C0) |
-| `microSD-uart5` | `k3-am62a7-mo-62a-exp-uart5.dtbo` | 8 (TXD), 10 (RXD) | `/dev/ttyS3` (UART5) |
-| `microSD-spi0` | `k3-am62a7-mo-62a-exp-spi0.dtbo` | 19 (MOSI), 21 (MISO), 23 (CLK), 24 (CS0), 26 (CS1) | `spidev` on SPI0 |
-| `microSD-ehrpwm0` | `k3-am62a7-mo-62a-exp-ehrpwm0.dtbo` | 32 (EHRPWM0_B), 33 (EHRPWM0_A) | `/sys/class/pwm/pwmchip0` |
-| `microSD-audio` | `k3-am62a7-mo-62a-exp-audio.dtbo` | 3, 5 (I²C control) and 12, 35, 38, 40 (I²S) | WM8960 audio HAT sound card |
+| `microSD-default` | `cam-imx219` | CSI camera | All 40 pins are GPIO; pins 27 and 28 reserved for the camera I²C bus |
+| `microSD-i2c0` | `exp-i2c0` | `/dev/i2c-0` | 3 (SDA), 5 (SCL) — WKUP_I2C0 |
+| `microSD-uart5` | `exp-uart5` | `/dev/ttyS3` | 8 (TXD), 10 (RXD) — UART5 |
+| `microSD-spi0` | `exp-spi0` | SPI0 bus | 19 (MOSI), 21 (MISO), 23 (CLK), 24 (CS0), 26 (CS1) |
+| `microSD-ehrpwm0` | `exp-ehrpwm0` | `pwmchip0` | 33 (EHRPWM0_A), 32 (EHRPWM0_B) |
+| `microSD-audio` | `exp-audio` | WM8960 card | 3, 5 (I²C control); 12, 35, 38, 40 (I²S) |
 
 </div>
 
@@ -86,9 +86,9 @@ The overlay sources (`.dtso`) and the base device tree live in the Mo62A reposit
 
 | Symptom | What to check |
 |---|---|
-| The bus device does not appear after switching | Run `bootcfg show` to confirm the entry took effect; the switch only applies after the reboot it performs. |
+| No bus device after switching | Run `bootcfg show` to confirm the entry took effect; the switch only applies after the reboot it performs. |
 | The camera stopped working | The current entry is not `microSD-default`, which is the only supplied entry with the camera overlay. Switch back or add an entry that lists both overlays. |
-| The board does not boot after editing `extlinux.conf` | Restore `extlinux.conf.bak` from a computer, or select a supplied entry from the U-Boot menu on the debug UART. |
+| No boot after editing `extlinux.conf` | Restore `extlinux.conf.bak` from a computer, or select a supplied entry from the U-Boot menu on the debug UART. |
 | I²C bus numbers changed | With `exp-i2c0` or `exp-audio`, WKUP_I2C0 becomes `/dev/i2c-0` and the on-board buses move up by one. Address buses by their function, not by a fixed number. |
 
 </div>

@@ -359,7 +359,7 @@ A compatible UVC camera can be used in place of IMX219. It does not require `ini
 | Camera or display is busy | Stop the previous preview or demo. Do not run multiple applications using the same camera or HDMI output. |
 | Model is missing or fails to load | Check `edgeai-demo list` and use an installed compiled model. Review the terminal error and model compatibility. |
 | Video appears but boxes are absent | Check the model task, supported classes, lighting, focus and object size. Try a clearly visible COCO object. |
-| Desktop does not return after an interrupted session | Once the demo has stopped, run `sudo systemctl start lightdm` through SSH or UART. |
+| Desktop does not return after Ctrl+C | Once the demo has stopped, run `sudo systemctl start lightdm` through SSH or UART. |
 
 </div>
 
