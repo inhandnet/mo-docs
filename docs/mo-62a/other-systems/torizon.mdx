@@ -1,9 +1,66 @@
 ---
 title: "Torizon"
-description: "Mo 62A: Container-based industrial Linux with OTA."
+description: "Torizon OS and cloud integration status for Mo62A."
 sidebar_position: 2
 ---
 
-Running Torizon on the board.
+import systemInfo from '@site/static/img/mo-os/mo62a-system.png';
+import dockerHello from '@site/static/img/application-deployment/mo62a-docker-hello.png';
 
-<ComingSoon />
+## Current validation status
+
+Torizon OS has not been installed or boot-tested on Mo62A in this documentation
+validation. Torizon Connector, device enrollment, remote access and OTA have
+not been tested either. The existing MoOS Docker tests do not establish any of
+these results.
+
+| Path | Upstream reference | Mo62A validation |
+| --- | --- | --- |
+| Torizon OS image | Board-specific images and supported hardware | No verified Mo62A image or boot result |
+| Torizon Connector | Integration with an existing Debian/Ubuntu environment | Installation and cloud enrollment not tested |
+| Containers on MoOS | The board's existing Docker installation | Local Docker and Compose examples passed; not a Torizon test |
+
+## OS support and cloud integration are different
+
+Toradex's [TI hardware support page](https://developer.toradex.com/torizon/torizoncore/supported-hardware/supported-hardware-ti/)
+lists specific TI evaluation boards and BeagleY AI. That list is not a Mo62A
+support statement; matching a processor family alone is insufficient.
+
+Toradex also documents [Torizon Connector for Debian and Ubuntu](https://developer.toradex.com/torizon/torizon-platform/torizon-connector/).
+This is a separate integration path involving installation and device
+provisioning. It should not be presented as replacing MoOS with a verified
+Torizon OS image or as proof of OS update and rollback support.
+
+<a href={systemInfo} target="_blank" rel="noreferrer"><img src={systemInfo} alt="Actual Mo62A MoOS system identity used as the existing-system baseline" /></a>
+
+Existing MoOS baseline. No Torizon software or cloud provisioning is
+demonstrated by this capture.
+
+## What has been tested locally
+
+The [Containers guide](../application-deployment/containers.mdx) records Docker
+versions, an ARM64 hello-world container and a Compose web service on MoOS.
+Use that guide when the requirement is local application deployment without
+introducing a cloud-management service.
+
+<a href={dockerHello} target="_blank" rel="noreferrer"><img src={dockerHello} alt="Real Docker hello-world result on Mo62A running MoOS" /></a>
+
+Successful Docker execution on MoOS. It is not a Torizon certification,
+enrollment or OTA result.
+
+## Requirements for a separate evaluation
+
+Before installing an agent or enrolling a device, agree on the service account,
+device ownership, network access, credential storage, data handling and removal
+procedure. Review the upstream installer before executing it with administrator
+privileges. Do not copy provisioning tokens into documentation or screenshots.
+
+Keep a recoverable MoOS image and an independent access path. An evaluation
+record should distinguish application updates from operating-system updates,
+then exercise network loss, restart, update failure, rollback and removal.
+Camera and NPU access inside containers require their own tests against the
+host's driver/runtime versions.
+
+No installation, account creation or fleet enrollment was performed for this
+page. Follow the upstream [supported hardware documentation](https://developer.toradex.com/torizon/torizoncore/supported-hardware/)
+to confirm an appropriate integration path with its maintainer.
