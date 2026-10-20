@@ -1,0 +1,234 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="1580" viewBox="0 0 1360 1580" role="img" aria-labelledby="title desc">
+  <title id="title">Mo 62A J6 40-pin expansion header — physical-pin reference</title>
+  <desc id="desc">Twenty rows of odd and even physical pin numbers, with SoC GPIO signal names and optional peripheral functions. This is a numbered reference, not the physical orientation of the board. Pins 27 and 28 are reserved for the camera I2C bus. All GPIO signals use 3.3-volt logic. Never apply 5 volts to a signal pin.</desc>
+  <style>
+    text { font-family: "DejaVu Sans", Arial, sans-serif; fill: #183342; }
+    .title { font-size: 40px; font-weight: 700; }
+    .subtitle { font-size: 25px; }
+    .small { font-size: 21px; }
+    .label { font-size: 27px; font-weight: 600; }
+    .alt { font-size: 21px; fill: #49616e; }
+    .pin { font-size: 24px; font-weight: 700; fill: white; text-anchor: middle; dominant-baseline: middle; }
+    .card-title { font-size: 27px; font-weight: 700; }
+    .card-text { font-size: 24px; }
+    .signal { fill: #167568; }
+    .power3 { fill: #a65d00; }
+    .power5 { fill: #b53a32; }
+    .ground { fill: #4a5964; }
+    .reserved { fill: #7950a5; }
+    .row { fill: #f1f6f7; }
+  </style>
+  <rect width="1360" height="1580" rx="20" fill="#fff"/>
+  <text x="32" y="57" class="title">Mo 62A · J6 / USER EXPN</text>
+  <text x="32" y="99" class="subtitle">40-pin reference — physical pin numbers, not BCM GPIO numbers</text>
+  <text x="32" y="136" class="subtitle">Numbered schematic only. This drawing does not show the board's physical orientation.</text>
+
+  <g transform="translate(45 178)">
+    <circle r="11" class="power3"/><text x="21" y="8" class="small">3.3 V power</text>
+    <circle cx="218" r="11" class="power5"/><text x="239" y="8" class="small">5 V power</text>
+    <circle cx="414" r="11" class="ground"/><text x="435" y="8" class="small">Ground</text>
+    <circle cx="590" r="11" class="signal"/><text x="611" y="8" class="small">3.3 V signal</text>
+    <circle cx="814" r="11" class="reserved"/><text x="835" y="8" class="small">Reserved camera I²C</text>
+  </g>
+  <text x="32" y="224" class="small">SoC signal / optional function</text>
+  <text x="484" y="224" class="small" text-anchor="middle">ODD</text>
+  <text x="550" y="224" class="small" text-anchor="middle">EVEN</text>
+  <text x="590" y="224" class="small">SoC signal / optional function</text>
+
+  <g id="pin-rows">
+    <g transform="translate(0 240)">
+      <rect x="32" width="928" height="58" rx="9" class="row"/>
+      <text x="448" y="39" class="label" text-anchor="end">3.3 V power</text>
+      <circle cx="484" cy="29" r="23" class="power3"/><text x="484" y="30" class="pin">1</text>
+      <circle cx="550" cy="29" r="23" class="power5"/><text x="550" y="30" class="pin">2</text>
+      <text x="586" y="39" class="label">5 V power</text>
+    </g>
+    <g transform="translate(0 300)">
+      <text x="448" y="25" class="label" text-anchor="end">MCU_GPIO0_20</text>
+      <text x="448" y="50" class="alt" text-anchor="end">ALT · WKUP_I2C0_SDA</text>
+      <circle cx="484" cy="29" r="23" class="signal"/><text x="484" y="30" class="pin">3</text>
+      <circle cx="550" cy="29" r="23" class="power5"/><text x="550" y="30" class="pin">4</text>
+      <text x="586" y="39" class="label">5 V power</text>
+    </g>
+    <g transform="translate(0 360)">
+      <rect x="32" width="928" height="58" rx="9" class="row"/>
+      <text x="448" y="25" class="label" text-anchor="end">MCU_GPIO0_19</text>
+      <text x="448" y="50" class="alt" text-anchor="end">ALT · WKUP_I2C0_SCL</text>
+      <circle cx="484" cy="29" r="23" class="signal"/><text x="484" y="30" class="pin">5</text>
+      <circle cx="550" cy="29" r="23" class="ground"/><text x="550" y="30" class="pin">6</text>
+      <text x="586" y="39" class="label">GND</text>
+    </g>
+    <g transform="translate(0 420)">
+      <text x="448" y="39" class="label" text-anchor="end">GPIO0_39</text>
+      <circle cx="484" cy="29" r="23" class="signal"/><text x="484" y="30" class="pin">7</text>
+      <circle cx="550" cy="29" r="23" class="signal"/><text x="550" y="30" class="pin">8</text>
+      <text x="586" y="25" class="label">GPIO1_25</text>
+      <text x="586" y="50" class="alt">ALT · UART5_TXD</text>
+    </g>
+    <g transform="translate(0 480)">
+      <rect x="32" width="928" height="58" rx="9" class="row"/>
+      <text x="448" y="39" class="label" text-anchor="end">GND</text>
+      <circle cx="484" cy="29" r="23" class="ground"/><text x="484" y="30" class="pin">9</text>
+      <circle cx="550" cy="29" r="23" class="signal"/><text x="550" y="30" class="pin">10</text>
+      <text x="586" y="25" class="label">GPIO1_24</text>
+      <text x="586" y="50" class="alt">ALT · UART5_RXD</text>
+    </g>
+    <g transform="translate(0 540)">
+      <text x="448" y="39" class="label" text-anchor="end">GPIO1_23</text>
+      <circle cx="484" cy="29" r="23" class="signal"/><text x="484" y="30" class="pin">11</text>
+      <circle cx="550" cy="29" r="23" class="signal"/><text x="550" y="30" class="pin">12</text>
+      <text x="586" y="25" class="label">GPIO1_0</text>
+      <text x="586" y="50" class="alt">ALT · MCASP2_ACLKX</text>
+    </g>
+    <g transform="translate(0 600)">
+      <rect x="32" width="928" height="58" rx="9" class="row"/>
+      <text x="448" y="39" class="label" text-anchor="end">GPIO0_42</text>
+      <circle cx="484" cy="29" r="23" class="signal"/><text x="484" y="30" class="pin">13</text>
+      <circle cx="550" cy="29" r="23" class="ground"/><text x="550" y="30" class="pin">14</text>
+      <text x="586" y="39" class="label">GND</text>
+    </g>
+    <g transform="translate(0 660)">
+      <text x="448" y="39" class="label" text-anchor="end">GPIO1_22</text>
+      <circle cx="484" cy="29" r="23" class="signal"/><text x="484" y="30" class="pin">15</text>
+      <circle cx="550" cy="29" r="23" class="signal"/><text x="550" y="30" class="pin">16</text>
+      <text x="586" y="39" class="label">GPIO0_38</text>
+    </g>
+    <g transform="translate(0 720)">
+      <rect x="32" width="928" height="58" rx="9" class="row"/>
+      <text x="448" y="39" class="label" text-anchor="end">3.3 V power</text>
+      <circle cx="484" cy="29" r="23" class="power3"/><text x="484" y="30" class="pin">17</text>
+      <circle cx="550" cy="29" r="23" class="signal"/><text x="550" y="30" class="pin">18</text>
+      <text x="586" y="39" class="label">GPIO0_40</text>
+    </g>
+    <g transform="translate(0 780)">
+      <text x="448" y="25" class="label" text-anchor="end">GPIO1_18</text>
+      <text x="448" y="50" class="alt" text-anchor="end">ALT · SPI0_D0 / MOSI</text>
+      <circle cx="484" cy="29" r="23" class="signal"/><text x="484" y="30" class="pin">19</text>
+      <circle cx="550" cy="29" r="23" class="ground"/><text x="550" y="30" class="pin">20</text>
+      <text x="586" y="39" class="label">GND</text>
+    </g>
+    <g transform="translate(0 840)">
+      <rect x="32" width="928" height="58" rx="9" class="row"/>
+      <text x="448" y="25" class="label" text-anchor="end">GPIO1_19</text>
+      <text x="448" y="50" class="alt" text-anchor="end">ALT · SPI0_D1 / MISO</text>
+      <circle cx="484" cy="29" r="23" class="signal"/><text x="484" y="30" class="pin">21</text>
+      <circle cx="550" cy="29" r="23" class="signal"/><text x="550" y="30" class="pin">22</text>
+      <text x="586" y="39" class="label">GPIO0_14</text>
+    </g>
+    <g transform="translate(0 900)">
+      <text x="448" y="25" class="label" text-anchor="end">GPIO1_17</text>
+      <text x="448" y="50" class="alt" text-anchor="end">ALT · SPI0_CLK</text>
+      <circle cx="484" cy="29" r="23" class="signal"/><text x="484" y="30" class="pin">23</text>
+      <circle cx="550" cy="29" r="23" class="signal"/><text x="550" y="30" class="pin">24</text>
+      <text x="586" y="25" class="label">GPIO1_15</text>
+      <text x="586" y="50" class="alt">ALT · SPI0_CS0</text>
+    </g>
+    <g transform="translate(0 960)">
+      <rect x="32" width="928" height="58" rx="9" class="row"/>
+      <text x="448" y="39" class="label" text-anchor="end">GND</text>
+      <circle cx="484" cy="29" r="23" class="ground"/><text x="484" y="30" class="pin">25</text>
+      <circle cx="550" cy="29" r="23" class="signal"/><text x="550" y="30" class="pin">26</text>
+      <text x="586" y="25" class="label">GPIO1_16</text>
+      <text x="586" y="50" class="alt">ALT · SPI0_CS1</text>
+    </g>
+    <g transform="translate(0 1020)">
+      <rect x="32" width="928" height="58" rx="9" fill="#f2edf8"/>
+      <text x="448" y="25" class="label" text-anchor="end">I2C2_SDA</text>
+      <text x="448" y="50" class="alt" text-anchor="end">RESERVED · camera bus</text>
+      <circle cx="484" cy="29" r="23" class="reserved"/><text x="484" y="30" class="pin">27</text>
+      <circle cx="550" cy="29" r="23" class="reserved"/><text x="550" y="30" class="pin">28</text>
+      <text x="586" y="25" class="label">I2C2_SCL</text>
+      <text x="586" y="50" class="alt">RESERVED · camera bus</text>
+    </g>
+    <g transform="translate(0 1080)">
+      <rect x="32" width="928" height="58" rx="9" class="row"/>
+      <text x="448" y="39" class="label" text-anchor="end">GPIO0_36</text>
+      <circle cx="484" cy="29" r="23" class="signal"/><text x="484" y="30" class="pin">29</text>
+      <circle cx="550" cy="29" r="23" class="ground"/><text x="550" y="30" class="pin">30</text>
+      <text x="586" y="39" class="label">GND</text>
+    </g>
+    <g transform="translate(0 1140)">
+      <text x="448" y="39" class="label" text-anchor="end">GPIO0_33</text>
+      <circle cx="484" cy="29" r="23" class="signal"/><text x="484" y="30" class="pin">31</text>
+      <circle cx="550" cy="29" r="23" class="signal"/><text x="550" y="30" class="pin">32</text>
+      <text x="586" y="25" class="label">GPIO1_14</text>
+      <text x="586" y="50" class="alt">ALT · EHRPWM0_B</text>
+    </g>
+    <g transform="translate(0 1200)">
+      <rect x="32" width="928" height="58" rx="9" class="row"/>
+      <text x="448" y="25" class="label" text-anchor="end">GPIO1_13</text>
+      <text x="448" y="50" class="alt" text-anchor="end">ALT · EHRPWM0_A</text>
+      <circle cx="484" cy="29" r="23" class="signal"/><text x="484" y="30" class="pin">33</text>
+      <circle cx="550" cy="29" r="23" class="ground"/><text x="550" y="30" class="pin">34</text>
+      <text x="586" y="39" class="label">GND</text>
+    </g>
+    <g transform="translate(0 1260)">
+      <text x="448" y="25" class="label" text-anchor="end">GPIO0_91</text>
+      <text x="448" y="50" class="alt" text-anchor="end">ALT · MCASP2_AFSX</text>
+      <circle cx="484" cy="29" r="23" class="signal"/><text x="484" y="30" class="pin">35</text>
+      <circle cx="550" cy="29" r="23" class="signal"/><text x="550" y="30" class="pin">36</text>
+      <text x="586" y="25" class="label">GPIO1_9</text>
+      <text x="586" y="50" class="alt">ALT · EHRPWM1_A</text>
+    </g>
+    <g transform="translate(0 1320)">
+      <rect x="32" width="928" height="58" rx="9" class="row"/>
+      <text x="448" y="39" class="label" text-anchor="end">GPIO0_41</text>
+      <circle cx="484" cy="29" r="23" class="signal"/><text x="484" y="30" class="pin">37</text>
+      <circle cx="550" cy="29" r="23" class="signal"/><text x="550" y="30" class="pin">38</text>
+      <text x="586" y="25" class="label">GPIO1_5</text>
+      <text x="586" y="50" class="alt">ALT · MCASP2_AXR0</text>
+    </g>
+    <g transform="translate(0 1380)">
+      <text x="448" y="39" class="label" text-anchor="end">GND</text>
+      <circle cx="484" cy="29" r="23" class="ground"/><text x="484" y="30" class="pin">39</text>
+      <circle cx="550" cy="29" r="23" class="signal"/><text x="550" y="30" class="pin">40</text>
+      <text x="586" y="25" class="label">GPIO1_2</text>
+      <text x="586" y="50" class="alt">ALT · MCASP2_AXR1</text>
+    </g>
+  </g>
+
+  <g id="notes">
+    <rect x="990" y="240" width="338" height="238" rx="14" fill="#fff3e8"/>
+    <text x="1010" y="280" class="card-title">Before wiring</text>
+    <text x="1010" y="321" class="card-text">
+      <tspan x="1010">Power off the board.</tspan>
+      <tspan x="1010" dy="34">Locate physical pin 1</tspan>
+      <tspan x="1010" dy="34">on the actual board.</tspan>
+      <tspan x="1010" dy="40" font-weight="700">No 5 V on signal pins.</tspan>
+    </text>
+    <rect x="990" y="496" width="338" height="390" rx="14" fill="#eaf5f2"/>
+    <text x="1010" y="536" class="card-title">Verified loopbacks</text>
+    <text x="1010" y="577" class="card-text">
+      <tspan x="1010" font-weight="700">GPIO · pins 7 ↔ 11</tspan>
+      <tspan x="1010" dy="33">GPIO0_39 ↔ GPIO1_23</tspan>
+      <tspan x="1010" dy="49" font-weight="700">UART5 · pins 8 ↔ 10</tspan>
+      <tspan x="1010" dy="33">TXD ↔ RXD</tspan>
+      <tspan x="1010" dy="49" font-weight="700">PWM · pins 33 → 35</tspan>
+      <tspan x="1010" dy="33">EHRPWM0_A output</tspan>
+      <tspan x="1010" dy="33">to GPIO0_91 input</tspan>
+      <tspan x="1010" dy="44">Use the matching mode.</tspan>
+    </text>
+    <rect x="990" y="904" width="338" height="210" rx="14" fill="#f2edf8"/>
+    <text x="1010" y="944" class="card-title">Pins 27 / 28</text>
+    <text x="1010" y="985" class="card-text">
+      <tspan x="1010">Camera I²C reserved.</tspan>
+      <tspan x="1010" dy="34">Not general GPIO.</tspan>
+      <tspan x="1010" dy="42">Pin 27: SDA</tspan>
+      <tspan x="1010" dy="34">Pin 28: SCL</tspan>
+    </text>
+    <rect x="990" y="1132" width="338" height="306" rx="14" fill="#f1f6f7"/>
+    <text x="1010" y="1172" class="card-title">Read the labels</text>
+    <text x="1010" y="1213" class="card-text">
+      <tspan x="1010">GPIO names identify</tspan>
+      <tspan x="1010" dy="34">the SoC signal.</tspan>
+      <tspan x="1010" dy="42">ALT needs the correct</tspan>
+      <tspan x="1010" dy="34">pinmux / overlay.</tspan>
+      <tspan x="1010" dy="42">Pin 32: EHRPWM0_B</tspan>
+      <tspan x="1010" dy="34">Pin 33: EHRPWM0_A</tspan>
+    </text>
+  </g>
+  <path d="M32 1464H1328" stroke="#c9d8df" stroke-width="2"/>
+  <text x="32" y="1502" class="small">Source: Mo62A SDK README and AM62A7 board DTS / pinmux. GPIO, UART5 and PWM loopbacks: board-tested.</text>
+  <text x="32" y="1537" class="small">Physical numbering is fixed; Linux gpiochip / PWM device numbers must be checked on the running image.</text>
+  <text id="schematic-reference" x="32" y="1568" class="small">Schematic reference: J6; match USER EXPN and physical pin 1 on your board.</text>
+</svg>

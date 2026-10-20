@@ -1,9 +1,48 @@
 ---
 title: "Mechanical"
-description: "Mo 62A: Dimensions, 3D model and mounting holes."
+description: "Mo62A published dimensions, mounting reference and missing production CAD data."
 sidebar_position: 4
 ---
 
-Mo 62A: Dimensions, 3D model and mounting holes.
+import mechanical from '@site/static/img/hardware-development/mo62a-mechanical.png';
 
-<ComingSoon />
+## Published dimensions
+
+The [Mo62A datasheet (Chinese PDF)](https://cdn.shopify.com/s/files/1/0369/9536/7051/files/Mo_62A__V1.0_e7e46c7c-d546-41ad-bf9d-0308dbf8e339.pdf) lists an 85 × 56 mm board and a mass of 47 g. Page 3 contains the front, side and connector views reproduced below.
+
+:::warning[Reference only, not a production drawing]
+The source explicitly states that all dimensions are approximate, for reference only, and must not be used for manufacturing. Dimensions can change without notice. This page does not replace a revision-controlled mechanical drawing with tolerances.
+:::
+
+<a href={mechanical} target="_blank" rel="noopener noreferrer">
+  <img src={mechanical} alt="Unmodified page 3 of the Mo62A datasheet: approximate 85 by 56 mm board, mounting and connector views, with the original Chinese prohibition on using these dimensions for manufacturing" width="1273" height="1800" />
+</a>
+
+| Item | Published reference | Use |
+|---|---|---|
+| Board outline | 85 × 56 mm | Initial space planning only |
+| Mass | 47 g | Product specification; accessories are separate |
+| Mounting-hole centres | Approximately 58 × 49 mm in the drawing | Confirm against the actual revision and a toleranced drawing |
+| Hole diameter | Approximately 2.5 mm in the drawing | Do not infer an approved screw size or tightening torque |
+| Connector and component heights | Shown as reference dimensions on page 3 | Do not derive enclosure tooling from the raster image |
+
+## Enclosure and cable clearance
+
+![Mo62A board photograph for connector placement reference](/img/boards/mo-62a.png)
+
+Use the photograph to recognise connector locations, not to measure them. A similar board footprint does not guarantee Raspberry Pi enclosure compatibility. Check all of the following on the board revision and accessories you will actually ship:
+
+- micro HDMI, stacked USB and Ethernet plug bodies, cable bends and strain relief.
+- USB-C power plug, microSD insertion/removal and access to controls.
+- Camera FPC entry, latch access, bend space and correct contact orientation.
+- Header/HAT height, underside clearance and safe separation from conductive parts.
+- Heatsink, fan, airflow path, antenna and RF-cable clearance.
+- Mounting points, insulating spacers and mechanical load from external cables.
+
+See [Hardware interfaces](./hardware-interfaces.mdx) for connector identification and [Power & thermal](./power-and-thermal.mdx) for cooling considerations.
+
+## Production CAD and release status
+
+No verified public STEP model, DXF outline or toleranced production drawing was found in the reviewed Mo62A hardware resources. No case-fit or mounting-load test was performed for this page.
+
+Before enclosure tooling, request the mechanical package for the exact PCB/assembly revision, including connector envelopes, keep-outs, mounting tolerances and approved fasteners. Include the board's silkscreen and ordered SKU; a schematic filename alone is not sufficient revision identification. See [Hardware revisions](./hardware-revisions.mdx).
