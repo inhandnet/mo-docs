@@ -474,6 +474,55 @@ try {
         [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
       for (const href of usingMoOsHrefs) assert.equal((await page.request.get(origin + href)).status(), 200, 'Using Mo OS link must resolve: ' + href);
 
+      await page.goto(url + board + '/mo-os/display-and-audio/', {waitUntil: 'networkidle'});
+      const displayAudioBody = page.locator('.theme-doc-markdown');
+      assert.deepEqual(await displayAudioBody.locator('h2').allTextContents().then(items => items.map(item => item.replace(/\u200b/g, ''))), [
+        'Connect a display',
+        'Configure the display from XFCE',
+        'Inspect or set a mode from the terminal',
+        'Screen blanking and wake-up',
+        'Choose an audio output',
+        'Configure the headset microphone',
+        'Manage audio from the terminal',
+        'Troubleshooting',
+      ]);
+      assert.equal(await displayAudioBody.locator('img').count(), 5);
+      for (const [file, width, height] of [
+        ['mo62a-display-settings', 1920, 1080],
+        ['mo62a-display-terminal', 1440, 900],
+        ['mo62a-audio-output', 1920, 1080],
+        ['mo62a-audio-input', 1920, 1080],
+        ['mo62a-audio-terminal', 1440, 900],
+      ]) {
+        const screenshot = displayAudioBody.locator(`img[src*="${file}"]`);
+        assert.equal(await screenshot.count(), 1);
+        await screenshot.evaluate(image => image.decode());
+        assert.deepEqual(await screenshot.evaluate(image => [image.naturalWidth, image.naturalHeight]), [width, height]);
+        assert.ok(await screenshot.getAttribute('alt'));
+        assert.equal(await screenshot.evaluate(image => image.closest('a')?.href), await screenshot.evaluate(image => image.src));
+        assert.equal(await screenshot.evaluate(image => image.closest('a')?.target), '_blank');
+      }
+      const displayAudioText = await displayAudioBody.innerText();
+      for (const expected of [
+        'Mo62A image V1.1.0',
+        'xrandr --current',
+        'DPMS is Enabled',
+        '600 seconds (10 minutes)',
+        'Mo62A Headset Output',
+        'Mo62A HDMI Output',
+        'Mo62A Headset Microphone',
+        'pw-record',
+      ]) assert.ok(displayAudioText.includes(expected), 'Missing Display & audio guidance: ' + expected);
+      assert.ok(!displayAudioText.includes('DPMS) is disabled by default'));
+      for (const width of [390, 768, 1440, 1920, 2560]) {
+        await page.setViewportSize({width, height: 1000});
+        await checkDocumentationMedia(page);
+      }
+      await page.setViewportSize({width: 1440, height: 1000});
+      const displayAudioHrefs = await displayAudioBody.locator('a[href]').evaluateAll(links =>
+        [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
+      for (const href of displayAudioHrefs) assert.equal((await page.request.get(origin + href)).status(), 200, 'Display & audio link must resolve: ' + href);
+
       await page.goto(url + board + '/mo-os/network/', {waitUntil: 'networkidle'});
       const networkBody = page.locator('.theme-doc-markdown');
       assert.deepEqual(await networkBody.locator('h2').allTextContents().then(items => items.map(item => item.replace(/\u200b/g, ''))), [

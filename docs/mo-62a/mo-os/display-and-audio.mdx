@@ -1,15 +1,223 @@
 ---
 title: "Display & audio"
-description: "Mo 62A: Display output and audio."
+description: "Configure the Mo62A Micro HDMI display, DPMS screen blanking, PipeWire playback outputs and headset microphone."
 sidebar_position: 3
 ---
 
-## Display
+import displaySettings from '@site/static/img/mo-os/mo62a-display-settings.png';
+import displayTerminal from '@site/static/img/mo-os/mo62a-display-terminal.png';
+import audioOutput from '@site/static/img/mo-os/mo62a-audio-output.png';
+import audioInput from '@site/static/img/mo-os/mo62a-audio-input.png';
+import audioTerminal from '@site/static/img/mo-os/mo62a-audio-terminal.png';
 
-micro HDMI output. Screen blanking (DPMS) is disabled by default in the image.
+Mo62A provides video and stereo playback through its Micro HDMI connector. Its 3.5 mm CTIA headset connector provides stereo headphone playback and microphone capture. Mo OS manages desktop audio with PipeWire and WirePlumber and provides PulseAudio-compatible tools for applications.
 
-## Audio
+:::info[Tested software]
+This page was tested on **Mo62A image V1.1.0** with Debian 13, Linux 6.12.35, PipeWire 1.4.2 and WirePlumber 0.5.8. The detected monitor modes and controls depend on your display, adapter and later image updates.
+:::
 
-3.5 mm headset jack (headphone out and microphone in). PCM / I²S is also available on the 40-pin header.
+## Connect a display
 
-<ComingSoon />
+Use a **Micro HDMI to HDMI** cable or adapter. For the most predictable first boot, connect the display and select its HDMI input before applying USB-C power to Mo62A. The connector carries both video and audio. A passive HDMI-to-DVI adapter can carry video but normally does not carry audio.
+
+The desktop uses the modes reported by the display's EDID. On the tested monitor, Mo OS selected 1920×1080 at 60 Hz. Your monitor can report a different preferred mode.
+
+For the full board connection order and the first local login, see [First boot](../getting-started/first-boot.mdx).
+
+## Configure the display from XFCE
+
+Open **Applications → Settings → Display**, or run this command in a terminal on the local desktop:
+
+```bash
+xfce4-display-settings
+```
+
+Select the connected display, then choose its resolution, refresh rate, scale and rotation. Keep a mode that the monitor reports as supported. Select **Apply** after reviewing the change.
+
+<a href={displaySettings} target="_blank" rel="noopener noreferrer">
+  <img src={displaySettings} alt="Real Mo62A XFCE Display settings showing a connected HDMI monitor at 1920 by 1080, 60 hertz and scale 1" width="1920" height="1080" />
+</a>
+
+If a new mode produces a blank or unstable picture, wait for the confirmation timeout where offered, or use SSH or the debug UART to restore a known-good mode. Do not disconnect power while the system is writing files.
+
+## Inspect or set a mode from the terminal
+
+List the connector, current mode and modes reported by the monitor:
+
+```bash
+xrandr --current
+```
+
+The active mode has `*`; the preferred mode has `+`. The desktop HDMI connector is normally named `HDMI-1` on Mo62A. Use the name reported on your board rather than assuming it in a script.
+
+Set a mode that appears in the list:
+
+```bash
+xrandr --output HDMI-1 --mode 1920x1080 --rate 60
+```
+
+Ask X11 to select a suitable mode automatically:
+
+```bash
+xrandr --output HDMI-1 --auto
+```
+
+An `xrandr` change affects the running X11 session. Use the XFCE Display settings when you want the desktop to save a configuration for later sessions.
+
+The following real terminal capture shows the tested monitor, current mode and display power settings. The shell prompt was simplified to hide account and network details.
+
+<a href={displayTerminal} target="_blank" rel="noopener noreferrer">
+  <img src={displayTerminal} alt="Real Mo62A terminal showing HDMI-1 at 1920 by 1080 and enabled DPMS with a 600 second off timeout" width="1440" height="900" />
+</a>
+
+## Screen blanking and wake-up
+
+Mo OS enables Display Power Management Signaling (DPMS). The supplied desktop configuration keeps the X11 screen saver disabled and turns the monitor off after **600 seconds (10 minutes)** of inactivity. Keyboard or mouse input wakes it.
+
+Check the current session:
+
+```bash
+xset q
+```
+
+The relevant lines should report `DPMS is Enabled`, an `Off` value of `600`, and whether the monitor is currently on or off. To test blanking and restore the display manually:
+
+```bash
+xset dpms force off
+xset dpms force on
+```
+
+The first command blanks the display immediately, so run the second from SSH or the debug UART if local input does not restore the picture. To restore the supplied 10-minute session policy:
+
+```bash
+xset +dpms
+xset dpms 0 0 600
+xset s off
+xset s noblank
+```
+
+These commands change the active X11 session. The image applies its standard policy again when the desktop session starts.
+
+## Choose an audio output
+
+Open **Applications → Multimedia → PulseAudio Volume Control**, or run:
+
+```bash
+pavucontrol
+```
+
+Open **Output Devices**. Mo OS exposes two playback paths:
+
+| Output | Use |
+|---|---|
+| **Mo62A Headset Output** | Stereo playback through the 3.5 mm CTIA headset connector. |
+| **Mo62A HDMI Output** | Stereo playback through Micro HDMI to a display, television or receiver that accepts HDMI audio. |
+
+Use the speaker button to mute or unmute an output, adjust its level, and select the green fallback button for the output new applications should prefer. An application that is already playing can also be moved from the **Playback** tab.
+
+<a href={audioOutput} target="_blank" rel="noopener noreferrer">
+  <img src={audioOutput} alt="Real Mo62A PulseAudio Volume Control showing separate Mo62A Headset Output and Mo62A HDMI Output devices" width="1920" height="1080" />
+</a>
+
+The screenshot uses the descriptive endpoint names supplied by the current Mo62A board configuration. An earlier image can show both outputs as **Built-in Audio Stereo**. In that case, distinguish them by their stable node names in the command-line section below: `platform-sound` is the headset codec and `platform-sound-hdmi` is HDMI.
+
+HDMI audio also depends on the receiving device. Confirm that the display has speakers or an audio output, accepts audio on the selected HDMI input, is not muted and is set to a suitable volume. A successful software playback command alone does not prove that sound is audible at the far end.
+
+## Configure the headset microphone
+
+Open **Input Devices** in PulseAudio Volume Control. **Mo62A Headset Microphone** is the capture path for the microphone contact on a CTIA headset. Select **All Except Monitors** in the **Show** list to hide loopback monitor sources, then check that the microphone is unmuted and watch the level meter while speaking.
+
+<a href={audioInput} target="_blank" rel="noopener noreferrer">
+  <img src={audioInput} alt="Real Mo62A PulseAudio Volume Control Input Devices tab showing the Mo62A Headset Microphone and its input level meter" width="1920" height="1080" />
+</a>
+
+Use a CTIA-compatible four-contact headset if you need both headphones and a microphone on the same plug. A three-contact stereo headphone plug provides playback only. A standalone microphone or an OMTP-wired headset can require an adapter.
+
+HDMI is a playback path on Mo62A; it does not provide a microphone input.
+
+## Manage audio from the terminal
+
+List PipeWire devices and identify the defaults:
+
+```bash
+wpctl status
+pactl get-default-sink
+pactl get-default-source
+```
+
+An asterisk in `wpctl status` marks the current default. Numeric WirePlumber IDs can change after a reboot or service restart. For repeatable commands, use the stable node names:
+
+```bash
+# 3.5 mm headset output
+pactl set-default-sink alsa_output.platform-sound.stereo-fallback
+
+# HDMI output
+pactl set-default-sink alsa_output.platform-sound-hdmi.stereo-fallback
+
+# 3.5 mm headset microphone
+pactl set-default-source alsa_input.platform-sound.stereo-fallback
+```
+
+Set the current default output to 50 percent or toggle mute:
+
+```bash
+wpctl set-volume @DEFAULT_AUDIO_SINK@ 50%
+wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+```
+
+Avoid unexpectedly high output levels when using headphones. Start at a low level and increase it gradually.
+
+This real terminal capture shows the two audio devices, both playback paths, the microphone capture path and the active defaults. The software test behind this page also confirmed that both playback nodes entered the running state and that the microphone node produced a 48 kHz PCM capture; no claim about perceived loudness or acoustic quality is inferred from that software check.
+
+<a href={audioTerminal} target="_blank" rel="noopener noreferrer">
+  <img src={audioTerminal} alt="Real Mo62A terminal showing named PipeWire analog and HDMI devices, two playback sinks, the headset microphone source and default nodes" width="1440" height="900" />
+</a>
+
+### Test playback and recording
+
+Play a WAV file through a specific output without changing the system default:
+
+```bash
+pw-play --target alsa_output.platform-sound.stereo-fallback FILE.wav
+pw-play --target alsa_output.platform-sound-hdmi.stereo-fallback FILE.wav
+```
+
+Record from the headset microphone until you press **Ctrl+C**:
+
+```bash
+pw-record \
+  --target alsa_input.platform-sound.stereo-fallback \
+  --rate 48000 --channels 2 --format s16 recording.wav
+```
+
+Play the file back through the selected default output:
+
+```bash
+pw-play recording.wav
+```
+
+Low-level ALSA enumeration can help when a PipeWire node is missing:
+
+```bash
+aplay -l
+arecord -l
+```
+
+On the tested hardware, ALSA card 0 is the TLV320AIC3106 analog codec with playback and capture; card 1 is HDMI playback.
+
+## Troubleshooting
+
+| Symptom | What to check |
+|---|---|
+| No image at startup | Confirm the Micro HDMI cable, adapter, monitor power and selected input. Connect the display before power-up, then check `xrandr --current` from SSH or the debug UART. |
+| `HDMI-1` is disconnected | Reseat the cable, remove an unnecessary adapter, try another known-good cable/input and inspect `dmesg` for display or DRM errors. |
+| The desktop mode is unsupported or unstable | Select a mode listed by `xrandr`; restore one with `xrandr --output HDMI-1 --mode MODE --rate RATE`. |
+| The screen becomes black after inactivity | Move the mouse or press a key. Check `xset q`; the supplied image intentionally powers the monitor off after 10 minutes. |
+| The monitor remains black after wake input | From SSH or UART, run `DISPLAY=:0 XAUTHORITY=~/.Xauthority xset dpms force on`, then inspect the desktop session and `/tmp/dpms-wakeup.log`. |
+| The XFCE desktop does not start | Check `systemctl status lightdm --no-pager` and `sudo journalctl -u lightdm -b --no-pager`. |
+| No sound from HDMI | Select the HDMI output, unmute both Mo62A and the display, confirm the receiver supports HDMI audio, and try a WAV file with `pw-play --target`. |
+| No sound from the headset | Select the headset output, check mute and volume, reseat the plug and test another CTIA-compatible headset. |
+| No microphone level | Use a CTIA four-contact headset, select the headset microphone, unmute it and check that the application has selected the same source. |
+| Audio devices are missing | Run `systemctl --user status pipewire pipewire-pulse wireplumber` and `wpctl status`, then inspect `journalctl --user -u wireplumber -b`. |
+
+For the desktop and terminal basics, return to [Using Mo OS](./using-mo-os.mdx). For connector and pin information, see [Hardware interfaces](../hardware-development/hardware-interfaces.mdx).
