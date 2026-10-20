@@ -686,6 +686,32 @@ try {
         for (const href of hrefs) assert.equal((await page.request.get(origin + href)).status(), 200, slug + ' link must resolve: ' + href);
       }
 
+      await page.goto(url + board + '/application-development/camera-and-video/', {waitUntil: 'networkidle'});
+      const camera = page.locator('.theme-doc-markdown');
+      assert.equal(await camera.locator('img').count(), 4);
+      await checkDocumentationMedia(page);
+      for (const name of ['discovery', 'devices', 'jpeg']) {
+        const capture = camera.locator(`img[src*="mo62a-camera-${name}"]`);
+        assert.equal(await capture.count(), 1);
+        assert.deepEqual(await capture.evaluate(image => [image.naturalWidth, image.naturalHeight]), [1440, 900]);
+        assert.equal(await capture.evaluate(image => image.closest('a')?.target), '_blank');
+      }
+      assert.equal(await camera.locator('picture source[media="(prefers-reduced-motion: reduce)"]').count(), 1);
+      const cameraText = await camera.innerText();
+      for (const phrase of ['io-mode=2', 'Got EOS', 'not the E5010', 'not revalidated', 'does not implement']) {
+        assert.ok(cameraText.includes(phrase), 'Missing camera boundary: ' + phrase);
+      }
+      assert.ok(!cameraText.includes('Coming soon'));
+      assert.ok(!/10\.5\.\d+\.\d+/.test(cameraText));
+      const cameraDownload = camera.locator('a[href$="/capture-jpeg-mmap.sh"]');
+      assert.equal(await cameraDownload.count(), 1);
+      const cameraScript = await page.request.get(origin + await cameraDownload.getAttribute('href'));
+      assert.equal(cameraScript.status(), 200);
+      assert.ok((await cameraScript.text()).startsWith('#!/bin/bash'));
+      const cameraLinks = await camera.locator('a[href]').evaluateAll(links =>
+        [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
+      for (const href of cameraLinks) assert.equal((await page.request.get(origin + href)).status(), 200, href);
+
       await page.goto(url + board + '/application-development/gpio-and-peripherals/', {waitUntil: 'networkidle'});
       const peripherals = page.locator('.theme-doc-markdown');
       assert.equal(await peripherals.locator('img').count(), 3);

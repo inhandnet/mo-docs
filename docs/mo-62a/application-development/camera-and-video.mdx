@@ -1,29 +1,176 @@
 ---
 title: "Camera & video"
-description: "Mo 62A: Cameras, ISP, GStreamer, codecs and RTSP."
+description: "Connect an IMX219 camera, inspect the CSI pipeline and capture JPEG frames through the Mo62A ISP."
 sidebar_position: 2
 ---
 
-## Camera preview (IMX219)
+import csiAnimation from '@site/static/img/getting-started/mo62a-csi-connect.gif';
+import csiStill from '@site/static/img/getting-started/mo62a-csi-connect.png';
+import discovery from '@site/static/img/application-development/mo62a-camera-discovery.png';
+import devices from '@site/static/img/application-development/mo62a-camera-devices.png';
+import jpeg from '@site/static/img/application-development/mo62a-camera-jpeg.png';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
-The IMX219 camera works out of the box on the CSI connector. Connect it with the power off: lift the latch, insert the ribbon with the contacts facing the board, and lock the latch.
+Start with an IMX219 camera on the CSI connector and the default boot entry. The reproducible example below captures 1920 × 1080 frames through the TI ISP and saves JPEG files without taking over the HDMI display.
+
+:::info[Tested path]
+This procedure was tested on a Mo62A running image V1.1.0 and Linux 6.12.35. The V4L2 mmap capture path (`io-mode=2`) completed repeatedly with normal end-of-stream and two valid JPEG files. This is a frame-capture test, not a sustained frame-rate benchmark or a certification of every camera or codec.
+:::
+
+## Connect the camera
+
+Shut down the board and disconnect USB-C power before inserting or removing the CSI ribbon. Release the connector latch, insert the matching ribbon squarely in the orientation shown, and close the latch. Do not force a ribbon with a different pitch or contact orientation into the connector.
+
+<picture className="mo-first-boot-animation">
+  <source media="(prefers-reduced-motion: reduce)" srcSet={csiStill} />
+  <img src={csiAnimation} alt="IMX219 ribbon insertion into the Mo62A CSI connector with power disconnected" width="2900" height="1416" />
+</picture>
+
+Reconnect power and log in. Check the selected boot entry:
 
 ```bash
-sudo imx219-preview.sh          # 15 fps (default)
-sudo imx219-preview.sh 30       # 30 fps
-sudo GAIN=232 imx219-preview.sh 5   # low light
+bootcfg show
 ```
 
-The preview needs the display; the desktop pauses while it runs. Tuning variables:
+Use `microSD-default` for this procedure. If a peripheral test selected another entry, run `sudo bootcfg switch microSD-default`, confirm the reboot and reconnect. The supplied GPIO peripheral entries do not all include the camera overlay.
 
-| Variable | Default | Range | Description |
-|---|---|---|---|
-| `FPS` | 15 | 5 / 8 / 10 / 15 / 30 | Frame rate (first argument) |
-| `WB_R` / `WB_B` | 0.5 / 0.6 | 0.0 – 1.0 | White balance red / blue reference |
-| `GAIN` | 150 | 0 – 232 | Analogue gain |
-| `DGAIN` | 256 | 256 – 4095 | Digital gain |
-| `EXPOSURE` | auto | lines | Exposure |
+## Initialize and identify the pipeline
 
-If the camera is missing, check `v4l2-ctl --list-devices` and `media-ctl -d /dev/media0 --print-topology`.
+Ensure no other application is using the camera, then initialize it:
 
-<ComingSoon />
+```bash
+sudo init-imx219
+sudo edgeai-demo status
+```
+
+Initialization configures the media links and sensor format, creates the camera aliases and records the discovered configuration in `/etc/csi-camera/csi-camera.conf`. On the tested board, the capture alias resolves to `/dev/video2`; use the alias in applications because numeric video nodes can change.
+
+| Node | Purpose |
+|---|---|
+| `/dev/video-imx219-cam0` | CSI image capture |
+| `/dev/v4l-imx219-subdev0` | IMX219 sensor controls |
+| `/dev/media0` | Media-controller topology on the tested image |
+
+<a href={discovery} target="_blank" rel="noopener noreferrer">
+  <img src={discovery} alt="Live Mo62A terminal showing IMX219 initialization, stable device aliases and Edge AI camera status" width="1440" height="900" />
+</a>
+
+Inspect the actual devices and required plugins:
+
+```bash
+sudo v4l2-ctl --list-devices
+sudo media-ctl -d /dev/media0 --print-topology
+sudo gst-inspect-1.0 tiovxisp
+sudo gst-inspect-1.0 jpegenc
+```
+
+The CSI node supplies Bayer data, not a ready-to-display RGB image. The pipeline must apply the sensor's ISP tuning before converting or encoding it. Codec devices and CSI devices can appear together in `v4l2-ctl`; do not choose a codec node as the camera source.
+
+<a href={devices} target="_blank" rel="noopener noreferrer">
+  <img src={devices} alt="Live Mo62A V4L2 device and GStreamer codec-plugin discovery; enumeration does not demonstrate successful encoding" width="1440" height="900" />
+</a>
+
+:::note
+The codec discovery screenshot comes from a development test system with earlier codec work. It shows what that system enumerated, not a stock-image support matrix. Finding an encoder plugin does not prove that encoding, format negotiation or a complete streaming application works.
+:::
+
+## Capture JPEG frames
+
+Download <a href={useBaseUrl('/downloads/camera/capture-jpeg-mmap.sh')} download>capture-jpeg-mmap.sh</a> and copy it to the board. Choose an output directory that does not already exist:
+
+```bash
+sudo bash capture-jpeg-mmap.sh /tmp/camera-capture-01
+```
+
+The script initializes the camera, processes 30 frames and retains the final two files. It refuses to reuse an existing output directory. The core pipeline is:
+
+```bash
+gst-launch-1.0 \
+  v4l2src device=/dev/video-imx219-cam0 io-mode=2 num-buffers=30 ! \
+  'video/x-bayer,format=rggb,width=1920,height=1080,framerate=30/1' ! \
+  tiovxisp sensor-name=SENSOR_SONY_IMX219_RPI \
+    dcc-isp-file=/opt/imaging/imx219/linear/dcc_viss.bin \
+    sink_0::dcc-2a-file=/opt/imaging/imx219/linear/dcc_2a.bin \
+    format-msb=7 ! \
+  'video/x-raw,format=NV12,width=1920,height=1080' ! \
+  videoconvert ! jpegenc quality=90 ! \
+  multifilesink location=/tmp/camera-capture-01/frame-%02d.jpg max-files=2
+```
+
+When running this pipeline directly, create a fresh output directory and run `sudo init-imx219` first, then run GStreamer with root permissions as the downloaded script does.
+
+| Stage | Work performed |
+|---|---|
+| `v4l2src` | Acquire 1920 × 1080 RGGB Bayer frames using mmap |
+| `tiovxisp` | Apply the IMX219 DCC files through the TI ISP and output NV12 |
+| `videoconvert` | Convert to a pixel format accepted by the JPEG encoder |
+| `jpegenc` | Encode JPEG on the CPU; this is not the E5010 hardware encoder |
+| `multifilesink` | Write numbered files and keep the newest two |
+
+Expect `Got EOS`, pipeline cleanup and `file` output identifying `frame-28.jpg` and `frame-29.jpg` as 1920 × 1080 JPEG images. The capture shown below includes pipeline setup and processing; its duration is not a pure ISP or encoding benchmark.
+
+<a href={jpeg} target="_blank" rel="noopener noreferrer">
+  <img src={jpeg} alt="Repeated mmap-based IMX219 capture completing with EOS and two valid 1920 by 1080 JPEG files" width="1440" height="900" />
+</a>
+
+Open the files on the desktop, or copy them to your computer using your own SSH account and hostname. Check framing, focus and exposure as well as file validity. `/tmp` is temporary storage; copy any images you need to retain elsewhere. Review images for private information before sharing them.
+
+To repeat the test, use a new directory such as `/tmp/camera-capture-02`. Stop one capture before starting another.
+
+## Local display preview
+
+The test board also contains `imx219-preview.sh`, a helper that sends the ISP output to `kmssink` on HDMI:
+
+```bash
+sudo imx219-preview.sh
+sudo imx219-preview.sh 30
+sudo env GAIN=232 imx219-preview.sh 5
+```
+
+This helper stops the display manager while it owns the display and attempts to restart it on exit. Save desktop work before running it. It requires an attached display and root access; SSH itself does not show the preview. Check `command -v imx219-preview.sh` before relying on its availability in another image.
+
+The installed helper accepts the following settings:
+
+| Setting | Default | Meaning |
+|---|---|---|
+| First argument | `15` | Frame rate: 5, 8, 10, 15 or 30 fps |
+| `GAIN` | `150` | Sensor analogue gain |
+| `DGAIN` | `256` | Sensor digital gain |
+| `EXPOSURE` | Frame-rate-dependent maximum | Exposure in sensor line units |
+
+Use `sudo v4l2-ctl -d /dev/v4l-imx219-subdev0 --list-ctrls` to inspect current sensor limits. This helper does not implement `WB_R` or `WB_B` environment controls.
+
+The helper uses a different capture mode (`io-mode=5`) from the tested JPEG procedure. HDMI preview was not revalidated for this page. An earlier JPEG experiment with that capture mode stalled on repeated starts; the mmap procedure above completed repeatedly. This observation does not establish a driver root cause or guarantee that every DMA-buffer pipeline fails.
+
+## Video codecs and streaming
+
+Camera acquisition, ISP processing, encoding, decoding and network transport are separate stages. This page verifies the first three stages only for software JPEG encoding.
+
+| Task | Evidence and boundary |
+|---|---|
+| Camera-to-JPEG | Repeated mmap acquisition, TI ISP processing and CPU JPEG encoding verified here |
+| Video-file inference | See the tested scenarios in [Run your first NPU demo](../getting-started/first-npu-demo.mdx); file decoding is a separate path |
+| H.264 / H.265 encoding | Plugins were enumerated in the development environment; end-to-end encoding was not tested here |
+| RTSP publishing | No validated RTSP server recipe is supplied on this page |
+| USB cameras or another CSI sensor | Not tested by this IMX219 procedure; sensor format, driver and ISP tuning must be checked separately |
+
+Do not replace `jpegenc` with a hardware codec element and assume the pipeline remains valid. Check accepted formats, buffer modes, resolution and actual output before adding transport or inference.
+
+## Troubleshooting
+
+| Symptom | What to check |
+|---|---|
+| IMX219 is not found | Disconnect power before checking the ribbon and latch. Confirm `microSD-default`, then rerun initialization and inspect the media topology. |
+| Camera is busy | Stop the application that owns it. `sudo fuser /dev/video-imx219-cam0` identifies users; do not kill unrelated video applications. |
+| Permission denied or missing plugins as a normal user | Run the supplied procedure with `sudo`. Compare root plugin discovery before concluding that a plugin is absent. |
+| Missing DCC files | Check both files under `/opt/imaging/imx219/linear/` and initialize the camera. Do not use tuning files for another sensor. |
+| Pipeline stays at PLAYING without files | Check device ownership and use the tested `io-mode=2` path. Stop the stalled process before retrying; preserve its log if the problem repeats. |
+| Files are valid but dark | Check lighting and sensor exposure/gain controls; file validity alone does not establish image quality. |
+| Desktop is absent after preview | Exit the preview first, then check `systemctl status lightdm`. Restart it only after the preview has released the display. |
+
+## Related pages
+
+- [Device tree overlays](../system-configuration/device-tree-overlays.mdx): camera and peripheral boot entries.
+- [GPIO & peripherals](./gpio-and-peripherals.mdx): restoring the default entry after loopback tests.
+- [Inference APIs](./ai/inference-apis.mdx): feeding preprocessed input into an AI application.
+- [Display & audio](../mo-os/display-and-audio.mdx): display configuration and ownership.
