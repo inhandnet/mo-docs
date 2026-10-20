@@ -427,7 +427,7 @@ try {
         'Manage services and read logs',
         'Set time, time zone and synchronization',
         'Restart and shut down safely',
-        'Troubleshooting checklist',
+        'Troubleshooting',
         'Continue with Mo OS',
       ]);
       assert.equal(await usingMoOsBody.locator('img').count(), 5);
@@ -522,6 +522,102 @@ try {
       const displayAudioHrefs = await displayAudioBody.locator('a[href]').evaluateAll(links =>
         [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
       for (const href of displayAudioHrefs) assert.equal((await page.request.get(origin + href)).status(), 200, 'Display & audio link must resolve: ' + href);
+
+      await page.goto(url + board + '/mo-os/remote-access/', {waitUntil: 'networkidle'});
+      const remoteBody = page.locator('.theme-doc-markdown');
+      assert.deepEqual(await remoteBody.locator('h2').allTextContents().then(items => items.map(item => item.replace(/\u200b/g, ''))), [
+        'Choose a method',
+        'Log in with SSH',
+        'Use SSH keys',
+        'Transfer files',
+        'Use the desktop with VNC',
+        'Run one graphical application',
+        'Access from outside your local network',
+        'Troubleshooting',
+        'Continue with Mo OS',
+      ]);
+      assert.equal(await remoteBody.locator('img').count(), 6);
+      for (const [file, width, height] of [
+        ['mo62a-ssh-login', 1440, 900],
+        ['mo62a-ssh-keys', 1440, 900],
+        ['mo62a-file-transfer', 1440, 900],
+        ['mo62a-vnc-password', 1200, 316],
+        ['mo62a-vnc-desktop', 1920, 1080],
+        ['mo62a-x11-forwarding', 1920, 1080],
+      ]) {
+        const screenshot = remoteBody.locator(`img[src*="${file}"]`);
+        assert.equal(await screenshot.count(), 1);
+        await screenshot.evaluate(image => image.decode());
+        assert.deepEqual(await screenshot.evaluate(image => [image.naturalWidth, image.naturalHeight]), [width, height]);
+        assert.ok(await screenshot.getAttribute('alt'));
+        assert.equal(await screenshot.evaluate(image => image.closest('a')?.target), '_blank');
+      }
+      assert.equal(await remoteBody.locator('picture source[media="(prefers-reduced-motion: reduce)"]').count(), 3);
+      const remoteText = await remoteBody.innerText();
+      for (const expected of [
+        'Mo62A image V1.1.0',
+        'ssh alice@BOARD_HOSTNAME.local',
+        'ssh-copy-id alice@BOARD_HOSTNAME.local',
+        'rsync -av --progress',
+        'x11vnc -display :0 -auth guess -localhost',
+        'ssh -N -L 5900:localhost:5900 mo62a',
+        'ssh -X mo62a mousepad',
+        'Do not forward port 22 or 5900',
+      ]) assert.ok(remoteText.includes(expected), 'Missing Remote access guidance: ' + expected);
+      assert.ok(!/10\.5\.\d+\.\d+/.test(remoteText));
+      for (const width of [390, 768, 1440, 1920, 2560]) {
+        await page.setViewportSize({width, height: 1000});
+        await checkDocumentationMedia(page);
+      }
+      await page.setViewportSize({width: 1440, height: 1000});
+      const remoteHrefs = await remoteBody.locator('a[href]').evaluateAll(links =>
+        [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
+      for (const href of remoteHrefs) assert.equal((await page.request.get(origin + href)).status(), 200, 'Remote access link must resolve: ' + href);
+
+      await page.goto(url + board + '/mo-os/users-and-security/', {waitUntil: 'networkidle'});
+      const securityBody = page.locator('.theme-doc-markdown');
+      assert.deepEqual(await securityBody.locator('h2').allTextContents().then(items => items.map(item => item.replace(/\u200b/g, ''))), [
+        'Accounts created at first boot',
+        'Change your password',
+        'Add users and grant permissions',
+        'Require a password for sudo',
+        'Harden the SSH server',
+        'Enable a firewall',
+        'Keep the system updated',
+        'Troubleshooting',
+        'Related pages',
+      ]);
+      assert.equal(await securityBody.locator('img').count(), 4);
+      for (const file of ['mo62a-change-password', 'mo62a-add-user', 'mo62a-sshd-hardening', 'mo62a-nftables']) {
+        const screenshot = securityBody.locator(`img[src*="${file}"]`);
+        assert.equal(await screenshot.count(), 1);
+        await screenshot.evaluate(image => image.decode());
+        assert.deepEqual(await screenshot.evaluate(image => [image.naturalWidth, image.naturalHeight]), [1440, 900]);
+        assert.ok(await screenshot.getAttribute('alt'));
+        assert.equal(await screenshot.evaluate(image => image.closest('a')?.target), '_blank');
+      }
+      const securityText = await securityBody.innerText();
+      for (const expected of [
+        'Mo62A image V1.1.0',
+        'without entering a password',
+        'passwd -S',
+        'sudo usermod -aG sudo,dialout,video,render bob',
+        'sudo rm /etc/sudoers.d/010-USERNAME-nopasswd',
+        'PasswordAuthentication no',
+        'sudo sshd -t',
+        'udp dport 5353 accept',
+        'sudo systemctl enable --now nftables',
+      ]) assert.ok(securityText.includes(expected), 'Missing Users & security guidance: ' + expected);
+      assert.ok(!securityText.includes('sudo ufw enable'));
+      assert.ok(!/10\.5\.\d+\.\d+/.test(securityText));
+      for (const width of [390, 768, 1440, 1920, 2560]) {
+        await page.setViewportSize({width, height: 1000});
+        await checkDocumentationMedia(page);
+      }
+      await page.setViewportSize({width: 1440, height: 1000});
+      const securityHrefs = await securityBody.locator('a[href]').evaluateAll(links =>
+        [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
+      for (const href of securityHrefs) assert.equal((await page.request.get(origin + href)).status(), 200, 'Users & security link must resolve: ' + href);
 
       await page.goto(url + board + '/mo-os/network/', {waitUntil: 'networkidle'});
       const networkBody = page.locator('.theme-doc-markdown');

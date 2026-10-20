@@ -29,7 +29,7 @@ After a local login, select **Applications** at the upper-left to open programs 
 The bottom panel also provides shortcuts to frequently used applications. The exact menu entries depend on the packages installed in your image.
 
 <a href={desktopApplications} target="_blank" rel="noopener noreferrer">
-  <img src={desktopApplications} alt="Real Mo62A XFCE desktop with the Applications menu open" width="1920" height="1080" />
+  <img src={desktopApplications} alt="Mo62A XFCE desktop with the Applications menu open" width="1920" height="1080" />
 </a>
 
 For the initial desktop login, SSH and serial-console steps, see [First boot](../getting-started/first-boot.mdx). Network settings are covered in [Network](./network.mdx), and monitor and sound settings are covered in [Display & audio](./display-and-audio.mdx).
@@ -55,10 +55,10 @@ lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINTS
 
 `free -h` separates currently used memory from cache that Linux can reclaim. `df -h` reports filesystem space; `lsblk` shows the underlying devices and partitions. A nearly full root filesystem can prevent package installation and services from writing data.
 
-The following capture is a real SSH session on the tested image. Resource use and available storage are only a snapshot and will differ on your board. The shell prompt has been simplified to hide account and network details.
+The terminal output below was recorded over SSH on the tested image. Resource use and available storage will differ on your board. The shell prompt is shortened to `$` to hide account and network details.
 
 <a href={systemTerminal} target="_blank" rel="noopener noreferrer">
-  <img src={systemTerminal} alt="Real Mo62A SSH terminal showing the Mo OS version, Debian release, kernel, uptime, memory and root filesystem usage" width="1440" height="900" />
+  <img src={systemTerminal} alt="Mo62A SSH terminal showing the Mo OS version, Debian release, kernel, uptime, memory and root filesystem usage" width="1440" height="900" />
 </a>
 
 ## Work with files and storage
@@ -113,12 +113,12 @@ sudo apt install PACKAGE_NAME
 PACKAGE_COMMAND --version
 ```
 
-The real session below installs `ripgrep` as an example and runs `rg --version`. Replace it with the package you need. The demonstration package was removed from the test board after recording.
+The terminal output below installs `ripgrep` as an example and runs `rg --version`. Replace it with the package you need.
 
 <a href={aptInstallAnimation} target="_blank" rel="noopener noreferrer">
   <picture className="mo-first-boot-animation">
     <source media="(prefers-reduced-motion: reduce)" srcSet={aptInstallStill} />
-    <img src={aptInstallAnimation} alt="Real Mo62A terminal recording of apt update, installing ripgrep and checking the installed version" width="1440" height="900" />
+    <img src={aptInstallAnimation} alt="Mo62A terminal recording of apt update, installing ripgrep and checking the installed version" width="1440" height="900" />
   </picture>
 </a>
 
@@ -169,12 +169,16 @@ sudo systemctl enable --now SERVICE_NAME
 sudo systemctl disable --now SERVICE_NAME
 ```
 
+:::warning
+
 Restarting or stopping a network, login or remote-access service can disconnect your session. Check the service name and keep a local desktop or serial console available when changing a service needed for remote access.
 
-This real session shows no failed units at that moment, confirms three services are active, then inspects `s1-powerkey` and its current-boot log. Timestamps, process IDs and resource use change on every boot.
+:::
+
+The terminal output below shows no failed units and confirms that `NetworkManager`, `lightdm` and `s1-powerkey` are active. It then shows the status of `s1-powerkey` and its log for the current boot. Timestamps, process IDs and resource use will differ on your board.
 
 <a href={servicesTerminal} target="_blank" rel="noopener noreferrer">
-  <img src={servicesTerminal} alt="Real Mo62A SSH terminal checking failed systemd units, active services and the s1-powerkey journal" width="1439" height="899" />
+  <img src={servicesTerminal} alt="Mo62A SSH terminal checking failed systemd units, active services and the s1-powerkey journal" width="1439" height="899" />
 </a>
 
 ## Set time, time zone and synchronization
@@ -207,17 +211,19 @@ sudo systemctl poweroff
 
 Run only the command you intend to use. After `poweroff`, wait for shutdown to complete before disconnecting USB-C power or removing the microSD card.
 
-On the XFCE desktop, select **Applications → Log Out**, then choose **Restart** or **Shut Down**. The screenshot comes from the real Mo62A desktop; the account name in the dialog title was anonymized.
+On the XFCE desktop, select **Applications → Log Out**, then choose **Restart** or **Shut Down**. The account name in the dialog title has been anonymized.
 
 <a href={desktopShutdown} target="_blank" rel="noopener noreferrer">
-  <img src={desktopShutdown} alt="Real Mo62A XFCE logout dialog with Restart and Shut Down actions and an anonymized account name" width="1920" height="1080" />
+  <img src={desktopShutdown} alt="Mo62A XFCE logout dialog with Restart and Shut Down actions and an anonymized account name" width="1920" height="1080" />
 </a>
 
 On the tested image, a short press of the board's **S1** button opens this desktop shutdown dialog. Holding S1 for about five seconds requests an operating-system shutdown; holding it for about seven seconds can force a hardware power-off. Use a forced power-off only when the system is unresponsive, because it can lose unwritten data or damage a filesystem. The S1 timing behavior is defined by the supplied image and board hardware and can vary with a later release.
 
-## Troubleshooting checklist
+## Troubleshooting
 
-| Symptom | Checks |
+<div className="mo-troubleshooting-table">
+
+| Symptom | What to check |
 |---|---|
 | A command is not found | Check spelling and `command -v COMMAND`. Search for its package with APT, and confirm the instructions match your image version. |
 | APT cannot download packages | Check address, route, DNS and system time. Continue with [Network](./network.mdx). |
@@ -225,6 +231,8 @@ On the tested image, a short press of the board's **S1** button opens this deskt
 | A service does not start | Run `systemctl status SERVICE_NAME --no-pager` and `sudo journalctl -u SERVICE_NAME -b --no-pager`, then address the first relevant error. |
 | The root filesystem is full | Use `df -h /` and `sudo du -xhd1 /var /home 2>/dev/null` to find large areas. Back up and remove only files you recognize. |
 | The desktop is unavailable | Use SSH or the debug UART, check `systemctl status lightdm --no-pager`, and inspect its current-boot journal. |
+
+</div>
 
 ## Continue with Mo OS
 

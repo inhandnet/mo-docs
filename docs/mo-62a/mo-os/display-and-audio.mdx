@@ -35,7 +35,7 @@ xfce4-display-settings
 Select the connected display, then choose its resolution, refresh rate, scale and rotation. Keep a mode that the monitor reports as supported. Select **Apply** after reviewing the change.
 
 <a href={displaySettings} target="_blank" rel="noopener noreferrer">
-  <img src={displaySettings} alt="Real Mo62A XFCE Display settings showing a connected HDMI monitor at 1920 by 1080, 60 hertz and scale 1" width="1920" height="1080" />
+  <img src={displaySettings} alt="Mo62A XFCE Display settings showing a connected HDMI monitor at 1920 by 1080, 60 hertz and scale 1" width="1920" height="1080" />
 </a>
 
 If a new mode produces a blank or unstable picture, wait for the confirmation timeout where offered, or use SSH or the debug UART to restore a known-good mode. Do not disconnect power while the system is writing files.
@@ -64,10 +64,10 @@ xrandr --output HDMI-1 --auto
 
 An `xrandr` change affects the running X11 session. Use the XFCE Display settings when you want the desktop to save a configuration for later sessions.
 
-The following real terminal capture shows the tested monitor, current mode and display power settings. The shell prompt was simplified to hide account and network details.
+The terminal output below shows the connected monitor, its current mode and the display power settings. The shell prompt is shortened to `$` to hide account and network details.
 
 <a href={displayTerminal} target="_blank" rel="noopener noreferrer">
-  <img src={displayTerminal} alt="Real Mo62A terminal showing HDMI-1 at 1920 by 1080 and enabled DPMS with a 600 second off timeout" width="1440" height="900" />
+  <img src={displayTerminal} alt="Mo62A terminal showing HDMI-1 at 1920 by 1080 and enabled DPMS with a 600 second off timeout" width="1440" height="900" />
 </a>
 
 ## Screen blanking and wake-up
@@ -116,7 +116,7 @@ Open **Output Devices**. Mo OS exposes two playback paths:
 Use the speaker button to mute or unmute an output, adjust its level, and select the green fallback button for the output new applications should prefer. An application that is already playing can also be moved from the **Playback** tab.
 
 <a href={audioOutput} target="_blank" rel="noopener noreferrer">
-  <img src={audioOutput} alt="Real Mo62A PulseAudio Volume Control showing separate Mo62A Headset Output and Mo62A HDMI Output devices" width="1920" height="1080" />
+  <img src={audioOutput} alt="Mo62A PulseAudio Volume Control showing separate Mo62A Headset Output and Mo62A HDMI Output devices" width="1920" height="1080" />
 </a>
 
 The screenshot uses the descriptive endpoint names supplied by the current Mo62A board configuration. An earlier image can show both outputs as **Built-in Audio Stereo**. In that case, distinguish them by their stable node names in the command-line section below: `platform-sound` is the headset codec and `platform-sound-hdmi` is HDMI.
@@ -128,7 +128,7 @@ HDMI audio also depends on the receiving device. Confirm that the display has sp
 Open **Input Devices** in PulseAudio Volume Control. **Mo62A Headset Microphone** is the capture path for the microphone contact on a CTIA headset. Select **All Except Monitors** in the **Show** list to hide loopback monitor sources, then check that the microphone is unmuted and watch the level meter while speaking.
 
 <a href={audioInput} target="_blank" rel="noopener noreferrer">
-  <img src={audioInput} alt="Real Mo62A PulseAudio Volume Control Input Devices tab showing the Mo62A Headset Microphone and its input level meter" width="1920" height="1080" />
+  <img src={audioInput} alt="Mo62A PulseAudio Volume Control Input Devices tab showing the Mo62A Headset Microphone and its input level meter" width="1920" height="1080" />
 </a>
 
 Use a CTIA-compatible four-contact headset if you need both headphones and a microphone on the same plug. A three-contact stereo headphone plug provides playback only. A standalone microphone or an OMTP-wired headset can require an adapter.
@@ -167,10 +167,10 @@ wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
 
 Avoid unexpectedly high output levels when using headphones. Start at a low level and increase it gradually.
 
-This real terminal capture shows the two audio devices, both playback paths, the microphone capture path and the active defaults. The software test behind this page also confirmed that both playback nodes entered the running state and that the microphone node produced a 48 kHz PCM capture; no claim about perceived loudness or acoustic quality is inferred from that software check.
+The terminal output below shows the two audio devices, both playback paths, the microphone capture path and the active defaults. During testing, both playback nodes reached the running state and the microphone produced a 48 kHz PCM recording. This confirms the software audio path only, not loudness or audio quality.
 
 <a href={audioTerminal} target="_blank" rel="noopener noreferrer">
-  <img src={audioTerminal} alt="Real Mo62A terminal showing named PipeWire analog and HDMI devices, two playback sinks, the headset microphone source and default nodes" width="1440" height="900" />
+  <img src={audioTerminal} alt="Mo62A terminal showing named PipeWire analog and HDMI devices, two playback sinks, the headset microphone source and default nodes" width="1440" height="900" />
 </a>
 
 ### Test playback and recording
@@ -207,6 +207,8 @@ On the tested hardware, ALSA card 0 is the TLV320AIC3106 analog codec with playb
 
 ## Troubleshooting
 
+<div className="mo-troubleshooting-table">
+
 | Symptom | What to check |
 |---|---|
 | No image at startup | Confirm the Micro HDMI cable, adapter, monitor power and selected input. Connect the display before power-up, then check `xrandr --current` from SSH or the debug UART. |
@@ -219,5 +221,7 @@ On the tested hardware, ALSA card 0 is the TLV320AIC3106 analog codec with playb
 | No sound from the headset | Select the headset output, check mute and volume, reseat the plug and test another CTIA-compatible headset. |
 | No microphone level | Use a CTIA four-contact headset, select the headset microphone, unmute it and check that the application has selected the same source. |
 | Audio devices are missing | Run `systemctl --user status pipewire pipewire-pulse wireplumber` and `wpctl status`, then inspect `journalctl --user -u wireplumber -b`. |
+
+</div>
 
 For the desktop and terminal basics, return to [Using Mo OS](./using-mo-os.mdx). For connector and pin information, see [Hardware interfaces](../hardware-development/hardware-interfaces.mdx).
