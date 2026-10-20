@@ -1,17 +1,202 @@
 ---
 title: "GPIO & peripherals"
-description: "Mo 62A: libgpiod, I\u00b2C, SPI, UART and PWM."
+description: "Use the Mo62A 40-pin header with libgpiod, UART5 and PWM, reproduce the loopback tests, and identify the I²C and SPI interfaces."
 sidebar_position: 1
 ---
 
+import gpioResult from '@site/static/img/application-development/mo62a-gpio-loopback.png';
+import uartResult from '@site/static/img/application-development/mo62a-uart-loopback.png';
+import pwmResult from '@site/static/img/application-development/mo62a-pwm-loopback.png';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+The 40-pin header exposes GPIO and multiplexed peripheral signals. This page starts with a GPIO loopback, then uses the same wiring to test UART5 and PWM after selecting their boot entries. Each test checks what arrives at an input pin, so a successful configuration command alone is not counted as a passing test.
+
+:::info[Tested software]
+The loopbacks were tested on Mo62A image V1.1.0 with Linux 6.12.35, libgpiod command-line tools 2.2.1, Python gpiod 2.2.0 and pyserial 3.5. GPIO, UART5 at 115200 baud and EHRPWM0_A at 50 Hz / 25% duty were verified. External I²C devices and SPI transfers were not tested for this page.
+:::
+
+## Connect the loopbacks
+
+Shut down the board and disconnect power before wiring the header. Use the physical pin numbers in [Hardware interfaces](../hardware-development/hardware-interfaces.mdx#40-pin-header-j9), not Raspberry Pi BCM numbers or Linux GPIO offsets. Connect these three pairs, then power on:
+
+| Physical pins | Test | Boot entry |
+|---|---|---|
+| 7 ↔ 11 | GPIO output read back through another GPIO input | `microSD-default` |
+| 8 ↔ 10 | GPIO first; UART5 TX to RX after switching modes | `microSD-default`, then `microSD-uart5` |
+| 33 ↔ 35 | GPIO first; EHRPWM0_A to a GPIO input after switching modes | `microSD-default`, then `microSD-ehrpwm0` |
+
+:::warning
+Header signals use 3.3 V logic. Do not connect a 5 V signal, a power pin or two actively driven outputs together. Pins 27 and 28 are reserved for the camera I²C bus. These loopbacks connect pins on the same board; an external peripheral also needs a common ground.
+:::
+
+Use only the three boot entries above while these jumpers are fitted. In particular, the audio overlay uses pin 35 for I²S. The tests below run one at a time and release the resources they acquire.
+
+## GPIO: numbering and command line
+
+Check the boot entry and GPIO controllers:
+
 ```bash
-gpiodetect
-gpioget -c gpiochip2 23
-gpioset --hold-period=2s -c gpiochip1 39=1
+bootcfg show
+sudo gpiodetect
+gpioset --version
 ```
 
-Pin numbers are in [Hardware interfaces](../hardware-development/hardware-interfaces.mdx).
+If the entry is not `microSD-default`, run `sudo bootcfg switch microSD-default`. The command asks for confirmation and reboots. Reconnect before continuing.
 
-Programming the 40-pin header from the command line, Python and C: GPIO, I²C, SPI, UART and PWM.
+The tested image enumerates the header controllers as follows. Confirm the controller names with `gpiodetect` if using another image; chip indices are not physical pin numbers.
 
-<ComingSoon />
+| Physical pin | Controller and line offset | Function in this test |
+|---|---|---|
+| 7 | `gpiochip1`, line 39 | GPIO0_39 |
+| 11 | `gpiochip2`, line 23 | GPIO1_23 |
+| 8 | `gpiochip2`, line 25 | GPIO1_25, or UART5 TX |
+| 10 | `gpiochip2`, line 24 | GPIO1_24, or UART5 RX |
+| 33 | `gpiochip2`, line 13 | GPIO1_13, or EHRPWM0_A |
+| 35 | `gpiochip1`, line 91 | GPIO0_91 |
+
+`gpiochip1` is `600000.gpio` and `gpiochip2` is `601000.gpio`. The MCU-domain controller is `gpiochip0` (`4201000.gpio`).
+
+For a manual check of pins 7 and 11, hold pin 7 high in one terminal:
+
+```bash
+sudo gpioset -c gpiochip1 39=1
+```
+
+While that command is running, read pin 11 in a second terminal:
+
+```bash
+sudo gpioget --numeric -c gpiochip2 23
+```
+
+The expected value is `1`. Stop `gpioset` with **Ctrl+C**, run it again with `39=0`, and read pin 11 again; the expected value is `0`. After stopping the output command, explicitly return pin 7 to input:
+
+```bash
+sudo gpioget --numeric -c gpiochip1 39
+```
+
+With libgpiod 2.x, `gpioset` normally stays running to own the output line. `--hold-period` is a minimum hold time, not an instruction to exit after that time. A value is not guaranteed after the owning process exits.
+
+## GPIO: Python loopback
+
+Download <a href={useBaseUrl('/downloads/peripherals/mo-docs-gpio-loopback.py')} download>mo-docs-gpio-loopback.py</a>, copy it to the board and run it with all three jumpers fitted:
+
+```bash
+sudo python3 mo-docs-gpio-loopback.py
+```
+
+The script uses the libgpiod 2.x `request_lines`, `set_value` and `get_value` APIs. It requests all six pins as inputs first, drives `01011010` from one pin in each pair and compares the received bits, then reverses the direction. Both pins return to input before changing direction, so they are never deliberately driven against one another. A `finally` block returns all six pins to input before releasing the requests.
+
+The terminal output below shows all six directional checks passing. The prompt is shortened, and the downloaded script was placed in `/tmp` for the test.
+
+<a href={gpioResult} target="_blank" rel="noopener noreferrer">
+  <img src={gpioResult} alt="Mo62A GPIO loopback test with three physical pin pairs passing in both directions and all six lines returned to input" width="1440" height="900" />
+</a>
+
+## UART5: transmit and receive
+
+Leave the 8 ↔ 10 jumper connected. Enable UART5 and reboot:
+
+```bash
+sudo bootcfg switch microSD-uart5
+```
+
+After reconnecting, confirm the live device-tree node as well as the device file:
+
+```bash
+bootcfg show
+tr -d '\0' < /proc/device-tree/bus@f0000/serial@2850000/status; echo
+ls -l /dev/ttyS3
+```
+
+The node status must be `okay`. `/dev/ttyS3` can exist in the default GPIO configuration too, so its existence alone does not confirm that UART5 is active.
+
+Download <a href={useBaseUrl('/downloads/peripherals/mo-docs-uart-loopback.py')} download>mo-docs-uart-loopback.py</a> and run:
+
+```bash
+sudo python3 mo-docs-uart-loopback.py
+```
+
+The script opens `/dev/ttyS3` at 115200 baud, 8 data bits, no parity and 1 stop bit, with software and hardware flow control disabled. It checks a 22-byte text message and a second payload containing every byte value from 0 to 255. Reads and writes have two-second timeouts; any mismatch fails the test, and the port closes on exit.
+
+<a href={uartResult} target="_blank" rel="noopener noreferrer">
+  <img src={uartResult} alt="Mo62A UART5 node enabled after reboot and exact receive matches for text and all 256 byte values at 115200 baud" width="1440" height="900" />
+</a>
+
+For an external UART device, connect board TX to device RX, board RX to device TX, and ground to ground. This header is a 3.3 V UART interface, not an RS-232 port. UART5 is separate from the [debug console](../getting-started/first-boot.mdx#serial-console).
+
+## PWM: verify the output with a GPIO input
+
+Leave 33 ↔ 35 connected and select the PWM entry:
+
+```bash
+sudo bootcfg switch microSD-ehrpwm0
+```
+
+After reconnecting, locate the controller:
+
+```bash
+bootcfg show
+for chip in /sys/class/pwm/pwmchip*; do
+  readlink -f "$chip"
+done
+```
+
+EHRPWM0 is the controller at `23000000.pwm`; channel 0 drives physical pin 33. Do not select a controller only because it is named `pwmchip0`: the fan controller at `23010000.pwm` is also present, and enumeration changes when EHRPWM0 is enabled.
+
+Download <a href={useBaseUrl('/downloads/peripherals/mo-docs-pwm-loopback.py')} download>mo-docs-pwm-loopback.py</a> and run:
+
+```bash
+sudo python3 mo-docs-pwm-loopback.py
+```
+
+The script locates EHRPWM0 by its hardware address, exports channel 0 and sets a 20,000,000 ns period with a 5,000,000 ns duty cycle: 50 Hz and 25%. GPIO0_91 on pin 35 records rising and falling edges. The median interval between rising edges gives the period; the median rising-to-falling interval gives the high time. The test requires at least ten complete cycles.
+
+The terminal output below shows 60 edges and measured values of 50.00 Hz and 25.00%. This checks digital edge timing through the jumper; it is not an oscilloscope measurement of voltage levels or signal quality.
+
+<a href={pwmResult} target="_blank" rel="noopener noreferrer">
+  <img src={pwmResult} alt="Mo62A EHRPWM0 channel 0 measured through GPIO pin 35 at 50 Hz and 25 percent duty, followed by resource cleanup" width="1440" height="900" />
+</a>
+
+The script refuses to take over an already exported PWM channel. On exit it disables and unexports its channel and releases the GPIO input.
+
+## I²C and SPI
+
+These buses need their own overlay and suitable external wiring. No external I²C device or SPI loopback was connected for the tests above.
+
+| Interface | Header pins | How to identify it |
+|---|---|---|
+| WKUP_I2C0 | 3 (SDA), 5 (SCL) | Select `microSD-i2c0`; use `i2cdetect -l` to list adapters and check their controller identity before choosing a bus number |
+| SPI0 | 19 (MOSI), 21 (MISO), 23 (clock), 24 (CS0), 26 (CS1) | Select `microSD-spi0`; inspect `/sys/bus/spi/devices/` and `/dev/spidev*` |
+
+The three jumpers used on this page do not make an SPI loopback: that would require MOSI pin 19 connected to MISO pin 21. A Linux SPI controller also needs an appropriate child device and driver binding before a userspace `spidev` node is available.
+
+For I²C, check the peripheral's voltage, pull-ups, address and register protocol before making transfers. `i2cdetect -l` lists adapters without probing device addresses; do not treat a blanket address scan or a write to an unknown register as a harmless connection test. Bus numbers can change with the selected overlay.
+
+See [Device tree overlays](../system-configuration/device-tree-overlays.mdx) for the supplied entries and how pin ownership changes.
+
+## Restore the default configuration
+
+After testing:
+
+```bash
+sudo bootcfg switch microSD-default
+```
+
+Reconnect and check `bootcfg show`. This returns pins 8/10 and 32/33 to GPIO and restores the camera overlay. Shut down and disconnect power before removing the jumpers or connecting another peripheral.
+
+## Troubleshooting
+
+| Symptom | What to check |
+|---|---|
+| GPIO reports a busy line | Another process or a peripheral driver owns it. Stop your previous test and check `gpioinfo`; select the correct boot entry before requesting the pin. |
+| GPIO always reads 0 or 1 | Check physical numbering, the paired input, and the controller/offset mapping. Ensure the output command is still running. Do not use BCM numbers as line offsets. |
+| Python gpiod example fails at import or request creation | These examples use libgpiod 2.x. Check `python3 -c 'import gpiod; print(gpiod.__version__)'`; the older 1.x API is different. |
+| UART receives nothing | Confirm `serial@2850000/status` is `okay`, pins 8 and 10 are connected, and no terminal program has the port open. |
+| PWM produces no input edges | Confirm the EHRPWM0 controller address, channel 0 and the 33 ↔ 35 jumper. Pin 35 must be a GPIO input, not an I²S signal. |
+| Camera disappears after a peripheral test | The supplied peripheral boot entries do not load the camera overlay. Restore `microSD-default`. |
+
+## Related pages
+
+- [Hardware interfaces](../hardware-development/hardware-interfaces.mdx): connector orientation and the complete pin map.
+- [Device tree overlays](../system-configuration/device-tree-overlays.mdx): selecting pin functions at boot.
+- [Camera & video](./camera-and-video.mdx): CSI camera initialization and capture.

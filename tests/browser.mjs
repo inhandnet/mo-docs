@@ -686,6 +686,31 @@ try {
         for (const href of hrefs) assert.equal((await page.request.get(origin + href)).status(), 200, slug + ' link must resolve: ' + href);
       }
 
+      await page.goto(url + board + '/application-development/gpio-and-peripherals/', {waitUntil: 'networkidle'});
+      const peripherals = page.locator('.theme-doc-markdown');
+      assert.equal(await peripherals.locator('img').count(), 3);
+      await checkDocumentationMedia(page);
+      for (const name of ['gpio', 'uart', 'pwm']) {
+        const screenshot = peripherals.locator(`img[src*="mo62a-${name}-loopback"]`);
+        assert.equal(await screenshot.count(), 1);
+        assert.deepEqual(await screenshot.evaluate(image => [image.naturalWidth, image.naturalHeight]), [1440, 900]);
+        assert.equal(await screenshot.evaluate(image => image.closest('a')?.target), '_blank');
+        const download = peripherals.locator(`a[href$="/mo-docs-${name}-loopback.py"]`);
+        assert.equal(await download.count(), 1);
+        const response = await page.request.get(origin + await download.getAttribute('href'));
+        assert.equal(response.status(), 200);
+        assert.ok((await response.text()).startsWith('#!/usr/bin/env python3'));
+      }
+      const peripheralText = await peripherals.innerText();
+      for (const phrase of ['01011010', '115200', '50.00 Hz', '25.00%', 'not tested', 'Restore the default configuration']) {
+        assert.ok(peripheralText.includes(phrase), 'Missing peripheral guidance: ' + phrase);
+      }
+      assert.ok(!peripheralText.includes('Coming soon'));
+      assert.ok(!/10\.5\.\d+\.\d+/.test(peripheralText));
+      const peripheralLinks = await peripherals.locator('a[href]').evaluateAll(links =>
+        [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
+      for (const href of peripheralLinks) assert.equal((await page.request.get(origin + href)).status(), 200, href);
+
       for (const [slug, headings, images, phrases] of [
         ['overview', ['Three things to know first', 'The software stack', 'What happens during an inference', 'Subgraph partitioning', 'Versions must match', 'Where to go next'],
           ['ai-stack-overview', 'ai-inference-flow', 'ai-subgraph', 'ai-version-matrix'], ['C7x DSP', 'TIDL 11_02_17_00', 'Offloaded Nodes - 329']],
