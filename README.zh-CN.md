@@ -84,16 +84,25 @@ Git commit message 和 Pull Request 标题采用以下格式：
 - 完整标题不超过 72 个字符。
 - 如需正文，标题与正文之间空一行；正文每行不超过 72 个字符，URL 和缩进代码除外。
 - 不得包含私有 IP 地址、仅限内部访问的域名或敏感信息。
+- 在末尾添加双语信息块，供版本发布时自动生成准确的中英文变更记录：
+
+  ```text
+  Message:
+    en: Describe the user-visible change in English.
+    zh: 用中文描述用户可见的变更。
+  ```
 
 示例：
 
 ```text
 docs: clarify the first-boot instructions
-fix(docs): correct a download link
-ci: update documentation checks
+
+Message:
+  en: Clarify the first-boot instructions.
+  zh: 完善首次启动说明。
 ```
 
-[提交信息工作流](.github/workflows/commit-message.yml)通过 [`scripts/check-commit-msg.sh`](scripts/check-commit-msg.sh) 执行检查，同时检查 PR 标题和 PR 中的提交。采用 Squash 合并时，最终提交信息也必须符合规范。
+[提交信息工作流](.github/workflows/commit-message.yml)通过 [`scripts/check-commit-msg.sh`](scripts/check-commit-msg.sh) 执行检查，同时检查 PR 标题、PR 正文和 PR 中的每个提交。请在 PR 正文末尾保留相同的 `Message` 信息块，使 Squash 合并后的 `master` 提交继续包含双语变更说明。
 
 ### GitHub 合并规则
 
@@ -104,6 +113,21 @@ ci: update documentation checks
 - `validate-and-build-office-preview`
 
 禁止直接推送、强制推送或删除 `master`。修改合并到 `master` 后，自动触发文档构建和网站发布。
+
+### 版本发布
+
+`master` 的持续部署与版本发布相互独立。Pull Request 合并后仍按现有方式发布当前网站。推送格式严格为 `V<主版本>.<次版本>.<修订号>` 的 annotated tag 时，工作流会执行完整检查、构建公共静态站点，并发布包含站点压缩包、版本信息、根据 Git 双语提交信息自动生成的中英文 changelog，以及 SHA-256 校验和的 GitHub Release。
+
+去掉开头 `V` 后的版本号必须与 `package.json` 和 `package-lock.json` 同时一致。创建发布标签前，应先通过经过审核的 Pull Request 更新这两个文件。标签只能基于已经进入 `master` 的提交创建：
+
+```bash
+git switch master
+git pull --ff-only
+git tag -a V1.0.0 -m "Mo documentation V1.0.0"
+git push origin V1.0.0
+```
+
+请用仓库声明的实际版本替换 `V1.0.0`。轻量标签、小写 `v`、预发布后缀、版本不一致，或标签提交不属于 `master` 时，发布会被拒绝。维护人员也可以手动运行 release 工作流来构建和验证候选版本；手动运行不会发布 GitHub Release。
 
 ## 许可证
 

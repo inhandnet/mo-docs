@@ -1,0 +1,126 @@
+name: release
+
+on:
+  push:
+    tags: ['V*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Candidate version (build and validate only; does not publish)'
+        required: true
+        default: V1.0.0
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mo-docs-release-${{ github.event_name == 'push' && github.ref_name || inputs.version }}
+  cancel-in-progress: false
+
+env:
+  VERSION: ${{ github.event_name == 'push' && github.ref_name || inputs.version }}
+  DOCS_PREVIEW: '0'
+  DOCS_BASE_URL: ${{ vars.WEBSITE_BASE_URL || '/docs/' }}
+  DOCS_SITE_URL: ${{ vars.WEBSITE_SITE_URL || 'https://www.inhand.com' }}
+  DEVELOPER_PORTAL_URL: ${{ vars.DEVELOPER_PORTAL_URL || 'https://www.inhand.com/developer' }}
+
+jobs:
+  build:
+    name: validate-and-package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event_name == 'push' && github.ref || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Validate version, tag and source branch
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          node scripts/validate-release-version.mjs "$VERSION"
+          SOURCE_COMMIT=$(git rev-parse HEAD)
+          if [ "$EVENT_NAME" = push ]; then
+            test "$(git cat-file -t "refs/tags/$VERSION")" = tag
+            SOURCE_COMMIT=$(git rev-parse "refs/tags/$VERSION^{commit}")
+            test "$SOURCE_COMMIT" = "$(git rev-parse HEAD)"
+          fi
+          git merge-base --is-ancestor "$SOURCE_COMMIT" refs/remotes/origin/master
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate and build public site
+        run: npm run check
+
+      - name: Install browser for smoke tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify built navigation, search and media
+        run: npm run test:browser
+
+      - name: Package static site
+        run: |
+          mkdir -p dist
+          node scripts/generate-changelog.mjs --version "$VERSION" --output dist
+          SOURCE_COMMIT=$(git rev-parse HEAD)
+          SOURCE_DATE=$(git show -s --format=%cI HEAD)
+          tar -C build -czf "dist/mo-docs-$VERSION.tar.gz" .
+          printf '{\n  "version": "%s",\n  "commit": "%s",\n  "sourceDate": "%s"\n}\n' \
+            "$VERSION" "$SOURCE_COMMIT" "$SOURCE_DATE" > dist/release.json
+          (
+            cd dist
+            sha256sum "mo-docs-$VERSION.tar.gz" release.json \
+              CHANGELOG.en.md CHANGELOG.zh-CN.md release-notes.md > SHA256SUMS
+          )
+
+      - name: Upload release candidate
+        uses: actions/upload-artifact@v7
+        with:
+          name: mo-docs-release-${{ env.VERSION }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: publish-github-release
+    if: github.event_name == 'push' && github.repository == 'inhandnet/mo-docs'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          name: mo-docs-release-${{ env.VERSION }}
+          path: dist/
+
+      - name: Upload assets to a draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release create "$VERSION" \
+            "dist/mo-docs-$VERSION.tar.gz" \
+            dist/release.json \
+            dist/CHANGELOG.en.md \
+            dist/CHANGELOG.zh-CN.md \
+            dist/release-notes.md \
+            dist/SHA256SUMS \
+            --verify-tag \
+            --notes-file dist/release-notes.md \
+            --title "Mo documentation $VERSION" \
+            --draft
+
+      - name: Publish the complete release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release edit "$VERSION" --draft=false

@@ -84,16 +84,25 @@ Commit messages and pull request titles use this format:
 - Keep the complete title within 72 characters.
 - If a body is needed, separate it from the title with a blank line. Wrap body lines at 72 characters; URLs and indented code are exempt.
 - Do not include private IP addresses, internal-only domains, or sensitive information.
+- Add a final bilingual block so versioned releases can generate accurate English and Chinese changelogs:
+
+  ```text
+  Message:
+    en: Describe the user-visible change in English.
+    zh: 用中文描述用户可见的变更。
+  ```
 
 Examples:
 
 ```text
 docs: clarify the first-boot instructions
-fix(docs): correct a download link
-ci: update documentation checks
+
+Message:
+  en: Clarify the first-boot instructions.
+  zh: 完善首次启动说明。
 ```
 
-The rules are enforced by [the commit-message workflow](.github/workflows/commit-message.yml) using [`scripts/check-commit-msg.sh`](scripts/check-commit-msg.sh). Both the pull request title and its commits are checked. A squash merge must also use a compliant commit message.
+The rules are enforced by [the commit-message workflow](.github/workflows/commit-message.yml) using [`scripts/check-commit-msg.sh`](scripts/check-commit-msg.sh). The pull request title, pull request body and every commit are checked. Put the same final `Message` block in the pull request body so a squash merge preserves it in the commit on `master`.
 
 ### Enforcement on GitHub
 
@@ -104,6 +113,21 @@ The rules are enforced by [the commit-message workflow](.github/workflows/commit
 - `validate-and-build-office-preview`
 
 Direct pushes, force pushes, and deletion of `master` are blocked. Changes merged into `master` automatically trigger the documentation build and website publication.
+
+### Versioned releases
+
+The continuous deployment from `master` and versioned releases are separate. Merging a pull request keeps publishing the current website. Pushing an annotated tag that exactly matches `V<major>.<minor>.<patch>` runs the full checks, builds the public static site, and publishes a GitHub Release containing the site archive, release metadata, English and Chinese changelogs generated from the validated Git messages, and SHA-256 checksums.
+
+The version without the leading `V` must match both `package.json` and `package-lock.json`. Update those files through a reviewed pull request before creating a release tag. Create the tag only from a commit already contained in `master`:
+
+```bash
+git switch master
+git pull --ff-only
+git tag -a V1.0.0 -m "Mo documentation V1.0.0"
+git push origin V1.0.0
+```
+
+Replace `V1.0.0` with the version declared by the repository. A lightweight tag, a lowercase `v`, a prerelease suffix, a version mismatch, or a tag whose commit is not in `master` is rejected. Maintainers can run the release workflow manually to build and validate a candidate; manual runs do not publish a GitHub Release.
 
 ## License
 
