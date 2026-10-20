@@ -123,7 +123,7 @@ The version without the leading `V` must match both `package.json` and `package-
 ```bash
 git switch master
 git pull --ff-only
-git tag -a V1.0.0 -m "Mo documentation V1.0.0"
+git tag -a V1.0.0 -m "V1.0.0"
 git push origin V1.0.0
 ```
 
