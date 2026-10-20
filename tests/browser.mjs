@@ -737,6 +737,52 @@ try {
         [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
       for (const href of peripheralLinks) assert.equal((await page.request.get(origin + href)).status(), 200, href);
 
+      for (const [route, images, phrases] of [
+        ['ai/compile-your-own-model', 2, ['not an end-to-end pass', 'Invalid Error Type!', 'No custom-model artifact']],
+        ['ai/tutorial-yolo', 2, ['not passed validation', '8220', 'not a simulation']],
+        ['ai/benchmarks', 2, ['10.900 ms', '40.402 ms', 'not guaranteed', 'No power measurement']],
+        ['ai/llms-on-cpu', 1, ['No language model', 'no measured tokens/s', 'not proof']],
+        ['partner-sdks', 1, ['not a compatibility', 'Ultralytics', 'TIDLExecutionProvider']],
+      ]) {
+        await page.goto(url + board + '/application-development/' + route + '/', {waitUntil: 'networkidle'});
+        const article = page.locator('.theme-doc-markdown');
+        assert.equal(await article.locator('img').count(), images, route);
+        await checkDocumentationMedia(page);
+        const text = await article.innerText();
+        assert.ok(!text.includes('Coming soon'), route);
+        assert.ok(!/10\.5\.\d+\.\d+/.test(text), route);
+        for (const phrase of phrases) assert.ok(text.includes(phrase), route + ': ' + phrase);
+        const localLinks = await article.locator('a[href]').evaluateAll(links =>
+          [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
+        for (const href of localLinks) {
+          const response = await page.request.get(origin + href);
+          assert.equal(response.status(), 200, route + ': ' + href);
+          const target = new URL(href, origin);
+          if (target.hash && response.headers()['content-type']?.includes('text/html')) {
+            const html = await response.text();
+            assert.ok(html.includes(`id="${decodeURIComponent(target.hash.slice(1))}"`), 'Missing anchor ' + href);
+          }
+        }
+        if (route === 'ai/tutorial-yolo') {
+          const recording = article.locator('video');
+          assert.equal(await recording.count(), 1);
+          await recording.evaluate(video => video.play());
+          await page.waitForFunction(() => document.querySelector('.theme-doc-markdown video').currentTime > 0.5);
+          assert.deepEqual(await recording.evaluate(video => [video.videoWidth, video.videoHeight]), [1920, 1080]);
+          await recording.evaluate(video => video.pause());
+        }
+      }
+      for (const name of ['nano', 'small']) {
+        const response = await page.request.get(url + 'downloads/ai/benchmark-' + name + '.json');
+        const report = await response.json();
+        assert.equal(report.runs, 100);
+        assert.equal(report.warmup, 5);
+        assert.equal(report.samples_ms.length, 100);
+        const mean = report.samples_ms.reduce((sum, value) => sum + value, 0) / 100;
+        assert.ok(Math.abs(mean - report.mean_ms) < 1e-9);
+        assert.ok(/^[a-f0-9]{64}$/.test(report.model_sha256));
+      }
+
       for (const [slug, headings, images, phrases] of [
         ['overview', ['Three things to know first', 'The software stack', 'What happens during an inference', 'Subgraph partitioning', 'Versions must match', 'Where to go next'],
           ['ai-stack-overview', 'ai-inference-flow', 'ai-subgraph', 'ai-version-matrix'], ['C7x DSP', 'TIDL 11_02_17_00', 'Offloaded Nodes - 329']],

@@ -1,9 +1,76 @@
 ---
 title: "Performance & benchmarks"
-description: "Mo 62A: Method, results and scripts."
+description: "Reproduce Mo62A inference-call measurements and distinguish them from video throughput, CPU load and accuracy."
 sidebar_position: 7
 ---
 
-Test method, results per model, same-tier comparison and scripts to reproduce them.
+import result from '@site/static/img/application-development/ai/mo62a-benchmark.png';
+import videoResult from '@site/static/img/getting-started/mo62a-npu-video-cpp.png';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
-<ComingSoon />
+Measure the part of the application you intend to improve. A model-call latency, a video pipeline's completed-frame rate and an accuracy score answer different questions; none can replace the others.
+
+## Measurement scope
+
+| Metric | Includes | Does not establish |
+|---|---|---|
+| Inference-call latency | Wall-clock time around synchronous `session.run`, including runtime overhead and supported CPU fallback | Camera or video FPS, preprocessing cost, model accuracy |
+| Application throughput | Completed frames from input decoding through application processing | A hardware-only NPU execution time |
+| System CPU busy | Activity across all four CPU cores during the measurement interval | Power consumption or attribution to one process |
+| Accuracy | Task metrics against labeled validation data | Latency or sustained throughput |
+
+The results below come from one Mo62A running V1.1.0, Linux 6.12.35 and TI ONNX Runtime 1.23.0 with TIDL 11_02_17_00. They are observations, not guaranteed performance limits.
+
+## Reproduce inference-call timing
+
+Download <a href={useBaseUrl('/downloads/ai/benchmark-inference.py')} download>benchmark-inference.py</a> to the board. Stop other inference applications first, then run:
+
+```bash
+sudo python3 benchmark-inference.py \
+  /opt/model_zoo/ONR-OD-8200-yolox-nano-lite-mmdet-coco-416x416 \
+  --warmup 5 --runs 100 --output nano.json
+```
+
+Repeat with `ONR-OD-8220-yolox-s-lite-mmdet-coco-640x640` and a new output path such as `small.json`. The script refuses to overwrite an existing result.
+
+It creates a TIDL session with graph optimization disabled, allocates correctly shaped all-zero input, warms up, and measures 100 synchronous calls with a monotonic clock. Session creation and input allocation are outside the timed region. It checks that outputs are finite, then saves every sample, the model checksum, runtime version, CPU frequency and thermal readings.
+
+Blank input is deliberately a timing-only test. It is not representative calibration data and does not demonstrate detection accuracy. Inspect the runtime's offload report: these two tests each reported 329/329 nodes in one TIDL subgraph. Merely requesting the provider does not guarantee that an arbitrary network is fully offloaded.
+
+| Model | Input | Mean | Median | p95 |
+|---|---|---|---|---|
+| YOLOX-nano-lite (8200) | 416 × 416 | 10.900 ms | 10.902 ms | 10.980 ms |
+| YOLOX-S-Lite (8220) | 640 × 640 | 40.402 ms | 40.406 ms | 40.530 ms |
+
+<a href={result} target="_blank" rel="noopener noreferrer">
+  <img src={result} alt="Live Mo62A measurements of 100 inference calls after five warm-up calls for YOLOX-nano-lite and YOLOX-S-Lite" width="1440" height="900" />
+</a>
+
+CPU frequency was 1.4 GHz at both boundaries; the sampled thermal zones ranged approximately 52–57 °C across these runs. Frequency samples at the boundaries do not prove that it never changed inside the interval. An earlier nano run averaged 10.523 ms; repeated measurements vary, so do not treat the last decimal as a product specification.
+
+Download the complete results: <a href={useBaseUrl('/downloads/ai/benchmark-nano.json')} download>nano JSON</a> and <a href={useBaseUrl('/downloads/ai/benchmark-small.json')} download>small JSON</a>. No screen capture occurred inside the timed loop; the terminal was captured after both commands finished.
+
+## Video application comparison
+
+The [first NPU demo](../../getting-started/first-npu-demo.mdx#cc-and-python-same-model-same-video) separately compared the C/C++ and Python backends using the same road video, 8220 model and configuration. Each run discarded 600 completed frames, then measured 600; three runs per backend were interleaved.
+
+| Backend | Completed-frame rate | System CPU busy | Mean inference-call time |
+|---|---|---|---|
+| C/C++ | 21.70 fps | 31.42% | 41.46 ms |
+| Python | 17.86 fps | 31.25% | 41.51 ms |
+
+These measurements used the development board's hardware-decoding fixes described in that tutorial. They are not a claim about an unmodified image or a general ranking of the two languages. Both backends use TIDL; preprocessing, postprocessing and scheduling differ around the runtime call.
+
+<a href={videoResult} target="_blank" rel="noopener noreferrer">
+  <img src={videoResult} alt="Actual Mo62A HDMI output of the YOLOX-S-Lite road-video application; this separate screenshot is not the timed measurement interval" width="1920" height="1080" />
+</a>
+
+The <a href={useBaseUrl('/downloads/npu-demo/backend-comparison.json')} download>six-run comparison data</a> records the input checksum, configuration, CPU accounting and temperatures. That experiment recorded approximately 76–85 °C, so it must not be conflated with the shorter, cooler timing runs above. No power measurement was taken.
+
+## Make a fair comparison
+
+Keep the board, image, model bytes, artifacts, input, resolution and threshold fixed. Record warm-up, run length, background applications, cooling, clock policy and the exact timer boundaries. Alternate test order and report individual runs as well as a summary. Avoid recording or transferring screenshots during a timed interval.
+
+Do not convert `1000 / latency_ms` into claimed end-to-end video FPS: it ignores the rest of the pipeline. Do not compare the all-zero timing input with a published accuracy benchmark, and do not infer energy efficiency from CPU utilization.
+
+For accuracy, use labeled data that represents the intended deployment and compare the same preprocessing, class mapping and postprocessing before and after quantization. For power, measure at a stated electrical boundary with a suitable meter and record what peripherals are included.

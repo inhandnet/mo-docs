@@ -1,9 +1,80 @@
 ---
-title: "Tutorial: quantize and deploy YOLO"
-description: "Mo 62A: From an ONNX model to an app running on the board."
+title: "YOLO: deployment and quantization"
+description: "Run the verified YOLOX-Lite model on Mo62A and understand what remains to validate for a custom quantized YOLO export."
 sidebar_position: 5
 ---
 
-From an ONNX model: compile, quantize, write the inference app and run it on the board.
+import road from '@site/static/img/getting-started/mo62a-npu-video-cpp.png';
+import people from '@site/static/img/getting-started/mo62a-npu-people-cpp.png';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
-<ComingSoon />
+The verified deployment route uses the TI YOLOX-Lite models already compiled into the image. This is different from exporting an arbitrary Ultralytics model and quantizing it for AM62A.
+
+:::info[Scope]
+Video-file deployment, inference offload and the displayed detections below were tested on Mo62A. A fresh custom-YOLO export-to-quantization-to-deployment tutorial has not passed validation, so no such result is claimed here.
+:::
+
+## Choose the verified model
+
+| Model | Input | Use in these examples |
+|---|---|---|
+| YOLOX-nano-lite, 8200 | 416 × 416 | Shorter inference-call latency; useful as a runtime baseline |
+| YOLOX-S-Lite, 8220 | 640 × 640 | The road, people and pet demonstrations |
+
+List installed models:
+
+```bash
+edgeai-demo list
+```
+
+Both model directories include the original network, compiled artifacts and `param.yaml`. Keep those files together. Neither the shared name “YOLO” nor a similar input resolution makes another network compatible with these artifacts.
+
+## Deploy the supplied video example
+
+Follow the tested [sample-video setup](../../getting-started/first-npu-demo.mdx#run-the-sample-video-no-camera-required) to download the input, launcher and configuration. It documents the test environment's decoder changes and the display requirements.
+
+After setup on the board:
+
+```bash
+sudo bash /tmp/mo-npu-video/run-video-demo.sh cpp
+```
+
+The configuration selects the 8220 directory and a visualization threshold of 0.4. HDMI shows boxes and class labels; the SSH terminal controls the application, not the video display. Stop the process with **Ctrl+C** before starting another pipeline.
+
+<a href={road} target="_blank" rel="noopener noreferrer">
+  <img src={road} alt="Actual Mo62A HDMI output with YOLOX-S-Lite road-traffic detections" width="1920" height="1080" />
+</a>
+
+<video controls playsInline preload="none" poster={road} width="1920" height="1080" aria-label="Actual Mo62A YOLOX-S-Lite road detection recording">
+  <source src={useBaseUrl('/img/getting-started/mo62a-npu-video-result.mp4')} type="video/mp4" />
+  <a href={useBaseUrl('/img/getting-started/mo62a-npu-video-result.mp4')}>Download the recording</a>.
+</video>
+
+This is a recording of board output from the existing demo, not a simulation of a custom model. The road input is the CC0 excerpt credited in [the source tutorial](../../getting-started/first-npu-demo.mdx#run-the-sample-video-no-camera-required).
+
+## Check more than one scene
+
+The same tutorial supplies a pedestrian input and configuration. Inspect missed detections, occlusion and small objects as well as visible boxes:
+
+<a href={people} target="_blank" rel="noopener noreferrer">
+  <img src={people} alt="Actual Mo62A pedestrian detections with the same 8220 model, illustrating overlapping people and different object scales" width="1920" height="1080" />
+</a>
+
+These examples demonstrate object detection, not person identification, tracking, counting or a measured accuracy score. Recording adds work to the system; use [Performance & benchmarks](./benchmarks.mdx) for the separate controlled timing results.
+
+## Quantize a custom YOLO model
+
+Follow the acceptance stages in [Compile your own model](./compile-your-own-model.mdx). Before attempting conversion, record the exact architecture, weights, exporter version, input shape, opset, preprocessing and output decoder.
+
+| Stage | Required evidence |
+|---|---|
+| CPU export check | Correct outputs from the exported ONNX graph using the intended preprocessing |
+| Operator review | AM62A support for this exact graph, not support inferred from another SoC |
+| Calibration | Representative inputs, the required frame count and a complete compiler log |
+| Detection metadata | Head description and postprocessing compatible with this export |
+| Target inference | Successful board loading, expected offload and finite, meaningful outputs |
+| Accuracy evaluation | Task metrics on held-out labeled data before and after quantization |
+
+TI's YOLOX-Lite networks are not interchangeable with standard YOLOv8/YOLO11 exports. Replacing an activation or another operator to make compilation proceed changes the network; it must be assessed against the trained model and accuracy requirements. Do not relabel a pre-compiled TI demonstration as a successful custom-model conversion.
+
+Until this complete path is validated for a specific model revision, use the supplied models for integration work and retain custom export/quantization as an explicitly unverified step.
