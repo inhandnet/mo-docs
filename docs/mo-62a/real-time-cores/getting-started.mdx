@@ -1,9 +1,60 @@
 ---
-title: "Zephyr / FreeRTOS getting started"
-description: "Mo 62A: Build and load firmware with remoteproc."
+title: "RTOS preparation and support status"
+description: "What must be established before building or loading custom Zephyr or FreeRTOS firmware on Mo62A."
 sidebar_position: 2
 ---
 
-Build and load firmware with remoteproc.
+import firmware from '@site/static/img/real-time-cores/mo62a-firmware.png';
+import cores from '@site/static/img/real-time-cores/mo62a-cores.png';
 
-<ComingSoon />
+There is no validated Mo62A Zephyr or custom FreeRTOS build/load tutorial in this documentation yet. A TI evaluation-board target or a processor family name is not automatically a Mo62A board target.
+
+## Preserve a recoverable baseline
+
+Before evaluating an RTOS, record the image version, boot entry, remoteproc identities and firmware checksums. The following checks do not write to the processors:
+
+```bash
+mo-version
+bootcfg show
+ls -l /lib/firmware/am62a-*fw
+file -L /lib/firmware/am62a-*fw
+sha256sum /lib/firmware/am62a-*fw
+```
+
+<a href={firmware} target="_blank" rel="noopener noreferrer">
+  <img src={firmware} alt="Read-only identification and checksums of the Mo62A firmware files before any RTOS development" width="1440" height="900" />
+</a>
+
+The hashes shown identify files from this test installation, not a signed release manifest. A firmware file name alone does not identify its contents or establish the image version.
+
+Keep a known-good boot medium and a documented recovery path. [Storage & boot](../system-configuration/storage-and-boot.mdx) explains the current boot layout; [Serial console](../low-level-development/serial-console.mdx) provides the independent diagnostic connection.
+
+## Establish the missing prerequisites
+
+| Area | Required before loading an application |
+|---|---|
+| Board target | Exact PCB revision and a maintained board configuration |
+| SDK / RTOS | Supported release, source revision, license and toolchain |
+| Core ownership | Confirmation that the selected core can be repurposed without removing required system services |
+| Memory | Linker layout, reserved-memory regions, vrings, shared buffers and cache policy |
+| Peripherals | Pin mux, clock/reset ownership, interrupt routing and Linux driver conflicts |
+| Firmware interface | Resource table, expected services and RPMsg endpoint protocol |
+| Recovery | Known-good firmware and boot medium, console access and an agreed restoration procedure |
+
+Choose these together; an application compiled for the wrong memory layout can interfere with Linux or another processor even if it loads.
+
+## Understand the current state
+
+<a href={cores} target="_blank" rel="noopener noreferrer">
+  <img src={cores} alt="The test image already runs remote firmware; the wakeup R5F is attached rather than an unused empty core" width="1440" height="900" />
+</a>
+
+The test image has a running MCU R5F and an attached wakeup R5F, not a documented spare core. No device-tree reservation, firmware replacement or core stop/start was performed during this documentation check.
+
+## Acceptance criteria for a future tutorial
+
+A complete tutorial must show the exact source and build command, reproducible ELF output, a reviewed memory/resource configuration, board boot logs, an application-visible result and restoration of the original system.
+
+If the application uses RPMsg, validate the protocol in both directions with timeouts and error handling. If it uses external I/O, add the physical wiring, voltage limits and measurements. If it makes a real-time claim, measure latency and jitter under a defined Linux workload; a successful boot is not a latency result.
+
+Until those prerequisites are available, use the [read-only examples](./examples.mdx) or the tested Linux peripheral APIs. Do not try guessed `west` board names, generic FreeRTOS binaries or a stop/load/start sequence copied from another TI board.

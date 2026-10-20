@@ -783,6 +783,29 @@ try {
         assert.ok(/^[a-f0-9]{64}$/.test(report.model_sha256));
       }
 
+      for (const [slug, phrases] of [
+        ['overview', ['79000000.r5f', '78000000.r5f', 'attached', 'No custom R5F firmware']],
+        ['getting-started', ['no validated Mo62A', 'sha256sum', 'Core ownership']],
+        ['rpmsg', ['No custom endpoint', 'root-only', 'readlink -f']],
+        ['examples', ['not R5F firmware examples', 'Not validated', 'CAN application']],
+      ]) {
+        await page.goto(url + board + '/real-time-cores/' + slug + '/', {waitUntil: 'networkidle'});
+        const article = page.locator('.theme-doc-markdown');
+        assert.equal(await article.locator('img').count(), 2);
+        await checkDocumentationMedia(page);
+        const text = await article.innerText();
+        for (const phrase of phrases) assert.ok(text.includes(phrase), slug + ': ' + phrase);
+        assert.ok(!text.includes('Coming soon'));
+        assert.ok(!/10\.5\.\d+\.\d+/.test(text));
+        for (const img of await article.locator('img').all()) {
+          assert.deepEqual(await img.evaluate(image => [image.naturalWidth, image.naturalHeight]), [1440, 900]);
+          assert.equal(await img.evaluate(image => image.closest('a')?.target), '_blank');
+        }
+        const localLinks = await article.locator('a[href]').evaluateAll(links =>
+          [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
+        for (const href of localLinks) assert.equal((await page.request.get(origin + href)).status(), 200, href);
+      }
+
       for (const [slug, headings, images, phrases] of [
         ['overview', ['Three things to know first', 'The software stack', 'What happens during an inference', 'Subgraph partitioning', 'Versions must match', 'Where to go next'],
           ['ai-stack-overview', 'ai-inference-flow', 'ai-subgraph', 'ai-version-matrix'], ['C7x DSP', 'TIDL 11_02_17_00', 'Offloaded Nodes - 329']],

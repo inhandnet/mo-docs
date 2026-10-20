@@ -1,9 +1,65 @@
 ---
 title: "Overview"
-description: "Mo 62A: What the R5F can do and how it splits work with Linux."
+description: "Identify Mo62A remote processors, their current firmware ownership and the limits of real-time application support."
 sidebar_position: 1
 ---
 
-What the R5F can do and how it splits work with Linux.
+import cores from '@site/static/img/real-time-cores/mo62a-cores.png';
+import firmware from '@site/static/img/real-time-cores/mo62a-firmware.png';
 
-<ComingSoon />
+Mo62A uses heterogeneous processors alongside the Linux application cores. Some remote processors are already running firmware needed by the image; their presence is not an invitation to replace that firmware with an arbitrary RTOS example.
+
+:::info[Verified scope]
+The observations below are read-only checks on image V1.1.0 with Linux 6.12.35 and `microSD-default`. No custom R5F firmware, Zephyr image, FreeRTOS application or Linux-to-custom-firmware message exchange was validated for this section.
+:::
+
+## Identify the processors
+
+Read the name, state and firmware attributes:
+
+```bash
+for r in /sys/class/remoteproc/remoteproc*; do
+  printf '\n%s\n' "${r##*/}"
+  for field in name state firmware; do
+    printf '  %s: ' "$field"
+    cat "$r/$field"
+  done
+done
+```
+
+<a href={cores} target="_blank" rel="noopener noreferrer">
+  <img src={cores} alt="Live Mo62A remoteproc inventory showing C7x, MCU R5F and wakeup R5F states without changing firmware" width="1440" height="900" />
+</a>
+
+| Hardware identity | Observed state | Interpretation |
+|---|---|---|
+| `7e000000.dsp` | `running` | C7x DSP using `am62a-c71_0-fw`; used by the image's AI/vision stack |
+| `79000000.r5f` | `running` | MCU-domain R5F using `am62a-mcu-r5f0_0-fw` |
+| `78000000.r5f` | `attached` | Wakeup-domain R5F already started outside Linux remoteproc; firmware attribute shows `unknown` |
+
+The names correspond to the AM62A device-tree nodes. Match those names rather than assuming that `remoteproc0`, `remoteproc1` or a virtio number always identifies the same core.
+
+For an attached processor, `unknown` does not mean that it has no firmware. The kernel deliberately uses that string when Linux attached to a processor started by another entity and does not know the loaded image. See the [kernel remoteproc interface](https://docs.kernel.org/staging/remoteproc.html) for the framework.
+
+## Firmware belongs to the running system
+
+The inspected image resolves the C7x and MCU R5F firmware links into `/opt/ti/firmware/`:
+
+<a href={firmware} target="_blank" rel="noopener noreferrer">
+  <img src={firmware} alt="Live firmware symlink, ELF identification and SHA-256 inspection for the installed Mo62A C7x and MCU R5F images" width="1440" height="900" />
+</a>
+
+Neither an ELF file nor a running state proves that an RTOS development kit is ready for an application. The memory map, resource table, mailboxes, peripherals, firmware services and Linux drivers must agree.
+
+:::warning
+Do not stop a processor, write a new firmware name or overwrite these files while using AI, the ISP or other firmware-dependent services. Stopping a system-owned core can disrupt more than the terminal running the command. This section intentionally provides no generic stop/load/start recipe.
+:::
+
+## Choose the appropriate development path
+
+- For Linux GPIO, UART and PWM applications, use [GPIO & peripherals](../application-development/gpio-and-peripherals.mdx).
+- For AI inference and camera processing, use the existing [AI runtime](../application-development/ai/overview.mdx) and [camera pipeline](../application-development/camera-and-video.mdx).
+- For a custom real-time application, first complete the [RTOS preparation checklist](./getting-started.mdx).
+- For Linux-side channel discovery, continue to [Inter-core communication](./rpmsg.mdx).
+
+Real-time latency, custom firmware boot, motor control, CAN, encoder handling and micro-ROS remain separate validation tasks. No timing or functional-safety guarantee is established by these inspection commands.
