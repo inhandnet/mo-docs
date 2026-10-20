@@ -37,6 +37,8 @@ test('release workflow keeps tag publication separate from master deployment', a
   assert.match(release, /CHANGELOG\.en\.md/);
   assert.match(release, /CHANGELOG\.zh-CN\.md/);
   assert.match(release, /--notes-file dist\/release-notes\.md/);
+  assert.match(release, /--title "\$VERSION"/);
+  assert.doesNotMatch(release, /--title "Mo documentation \$VERSION"/);
   assert.match(masterBuild, /branches:\s*\[master\]/);
 });
 

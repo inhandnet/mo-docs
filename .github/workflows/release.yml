@@ -116,7 +116,7 @@ jobs:
             dist/SHA256SUMS \
             --verify-tag \
             --notes-file dist/release-notes.md \
-            --title "Mo documentation $VERSION" \
+            --title "$VERSION" \
             --draft
 
       - name: Publish the complete release
