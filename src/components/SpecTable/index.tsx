@@ -1,13 +1,14 @@
 import type {ReactNode} from 'react';
 import type {Product} from '@site/src/data/products';
+import DocumentationTable from '@site/src/components/DocumentationTable';
 
 export function SpecTable({product}: {product: Product}): ReactNode {
   return (
     <>
       {product.specs.map((group) => (
-        <div key={group.title} className="mo-table">
+        <div key={group.title}>
           <h3>{group.title}</h3>
-          <table className="mo-spec-table">
+          <DocumentationTable className="mo-spec-table">
             <tbody>
               {group.rows.map((row) => (
                 <tr key={row.label}>
@@ -16,7 +17,7 @@ export function SpecTable({product}: {product: Product}): ReactNode {
                 </tr>
               ))}
             </tbody>
-          </table>
+          </DocumentationTable>
         </div>
       ))}
     </>

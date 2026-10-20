@@ -439,13 +439,6 @@ a:focus-visible, button:focus-visible, select:focus-visible, .board-table-scroll
   .search-panel {padding: 1rem;}
   .search-tools > span {display: none;}
 }
-/* Troubleshooting and other two-column tables: a fixed 38% first column so
-   every two-column table on a page lines up; only the last column wraps. */
-/* Method tables: keep the short first column on one line; wide tables
-   scroll inside their wrapper instead of widening the page. */
-/* All Markdown tables: only the last column wraps; the rest stay on one line.
-   Wide tables scroll inside .mo-table instead of widening the page. */
-
 /* Tables: fixed column widths by column count, identical on every page.
    Cells wrap, so columns never overlap at any viewport or sidebar state. */
 .theme-doc-markdown .mo-table {
@@ -455,6 +448,7 @@ a:focus-visible, button:focus-visible, select:focus-visible, .board-table-scroll
 .theme-doc-markdown .mo-table table {
   display: table;
   width: 100%;
+  min-width: var(--mo-table-min-width, 0px);
   table-layout: fixed;
   margin-bottom: 0;
 }
@@ -463,7 +457,17 @@ a:focus-visible, button:focus-visible, select:focus-visible, .board-table-scroll
   text-align: left;
   vertical-align: top;
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+/* Inline code and links inherit the same word boundaries as ordinary text. */
+.theme-doc-markdown .mo-table :is(code, a) {
+  white-space: normal;
+  overflow-wrap: normal;
+  word-break: normal;
+}
+.theme-doc-markdown .mo-table .mo-code-token {
+  white-space: nowrap;
 }
 /* 2 columns: 32 / 68 */
 .theme-doc-markdown .mo-table table:has(tr > :nth-child(2):last-child) th:nth-child(1) { width: 32%; }
@@ -476,12 +480,13 @@ a:focus-visible, button:focus-visible, select:focus-visible, .board-table-scroll
 .theme-doc-markdown .mo-table table:has(tr > :nth-child(4):last-child) th:nth-child(3) { width: 20%; }
 /* 5 columns: 16 x 4 / 36 */
 .theme-doc-markdown .mo-table table:has(tr > :nth-child(5):last-child) th:nth-child(-n + 4) { width: 16%; }
-/* 6 columns: 8 / 14 / 26 / 14 / 8 / 30 */
-.theme-doc-markdown .mo-table table:has(tr > :nth-child(6):last-child) th:nth-child(1) { width: 8%; }
-.theme-doc-markdown .mo-table table:has(tr > :nth-child(6):last-child) th:nth-child(2) { width: 14%; }
-.theme-doc-markdown .mo-table table:has(tr > :nth-child(6):last-child) th:nth-child(3) { width: 26%; }
+/* 6 columns: 14 / 24 / 13 / 14 / 12 / 23.
+   Preserve words in these dense tables; narrow screens scroll the wrapper. */
+.theme-doc-markdown .mo-table table:has(tr > :nth-child(6):last-child) th:nth-child(1) { width: 14%; }
+.theme-doc-markdown .mo-table table:has(tr > :nth-child(6):last-child) th:nth-child(2) { width: 24%; }
+.theme-doc-markdown .mo-table table:has(tr > :nth-child(6):last-child) th:nth-child(3) { width: 13%; }
 .theme-doc-markdown .mo-table table:has(tr > :nth-child(6):last-child) th:nth-child(4) { width: 14%; }
-.theme-doc-markdown .mo-table table:has(tr > :nth-child(6):last-child) th:nth-child(5) { width: 8%; }
+.theme-doc-markdown .mo-table table:has(tr > :nth-child(6):last-child) th:nth-child(5) { width: 12%; }
 /* Board comparison on the home page: 24 / 38 / 38 */
 .theme-doc-markdown .mo-compare-table table th:nth-child(1) { width: 24%; }
 .theme-doc-markdown .mo-compare-table table th:nth-child(2) { width: 38%; }

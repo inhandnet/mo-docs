@@ -6,20 +6,24 @@ import {ComingSoon, BoardSpecs, ReleaseNotes, VersionMap, Only, BoardDownloads} 
 
 import DocumentationLink from '@site/src/components/DocumentationLink';
 import type {ComponentProps} from 'react';
+import DocumentationTable from '@site/src/components/DocumentationTable';
 
-// Every Markdown table scrolls inside its own wrapper instead of widening the page.
-function Table(props: ComponentProps<'table'>) {
-  return (
-    <div className="mo-table">
-      <table {...props} />
-    </div>
-  );
+// A path, identifier or option is one token; commands can wrap at spaces.
+function Code({children, ...props}: ComponentProps<'code'>) {
+  const OriginalCode = MDXComponents.code;
+  if (typeof children !== 'string' || props.className || children.includes('\n')) {
+    return <OriginalCode {...props}>{children}</OriginalCode>;
+  }
+  return <code {...props}>{children.split(/(\s+)/).map((token, index) =>
+    /^\s+$/.test(token) ? token : <span className="mo-code-token" key={index}>{token}</span>,
+  )}</code>;
 }
 
 export default {
   ...MDXComponents,
   a: DocumentationLink,
-  table: Table,
+  table: DocumentationTable,
+  code: Code,
   Tabs,
   TabItem,
   ComingSoon,
