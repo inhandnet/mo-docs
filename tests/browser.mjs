@@ -654,6 +654,39 @@ try {
         for (const href of hrefs) assert.equal((await page.request.get(origin + href)).status(), 200, slug + ' link must resolve: ' + href);
       }
 
+      for (const [slug, headings, images, phrases] of [
+        ['containers', ['What is included', 'Run your first container', 'Run a service with Docker Compose', 'Keep data outside the container', 'Give a container access to hardware', 'Build an image on the board', 'Troubleshooting', 'Related pages'],
+          ['mo62a-docker-hello', 'mo62a-docker-compose', 'mo62a-docker-client'], ['Docker Engine 26.1', 'sudo docker run --rm hello-world', 'restart: unless-stopped', '--device /dev/ttyS3']],
+        ['partner-applications', ['Status', 'Node-RED', 'Related pages'],
+          ['mo62a-nodered-run', 'mo62a-nodered-editor'], ['node_red_data', 'Not verified', 'http://BOARD_HOSTNAME.local:1880/']],
+      ]) {
+        await page.goto(url + board + '/application-deployment/' + slug + '/', {waitUntil: 'networkidle'});
+        const body = page.locator('.theme-doc-markdown');
+        assert.deepEqual(await body.locator('h2').allTextContents().then(items => items.map(item => item.replace(/\u200b/g, ''))), headings, slug + ' headings');
+        assert.equal(await body.locator('img').count(), images.length, slug + ' image count');
+        for (const file of images) {
+          const screenshot = body.locator(`img[src*="${file}"]`);
+          assert.equal(await screenshot.count(), 1);
+          await screenshot.evaluate(image => image.decode());
+          assert.deepEqual(await screenshot.evaluate(image => [image.naturalWidth, image.naturalHeight]), [1440, 900]);
+          assert.ok(await screenshot.getAttribute('alt'));
+          assert.equal(await screenshot.evaluate(image => image.closest('a')?.target), '_blank');
+        }
+        const text = await body.innerText();
+        for (const phrase of phrases) assert.ok(text.includes(phrase), 'Missing ' + slug + ' guidance: ' + phrase);
+        assert.ok(!/10\.5\.\d+\.\d+/.test(text));
+        assert.ok(!text.includes('Coming soon'), slug + ' must not be a placeholder');
+        for (const width of [390, 768, 1440, 1920, 2560]) {
+          await page.setViewportSize({width, height: 1000});
+          await checkDocumentationMedia(page);
+          assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), slug + ' must not overflow at ' + width);
+        }
+        await page.setViewportSize({width: 1440, height: 1000});
+        const hrefs = await body.locator('a[href]').evaluateAll(links =>
+          [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
+        for (const href of hrefs) assert.equal((await page.request.get(origin + href)).status(), 200, slug + ' link must resolve: ' + href);
+      }
+
       await page.goto(url + board + '/mo-os/network/', {waitUntil: 'networkidle'});
       const networkBody = page.locator('.theme-doc-markdown');
       assert.deepEqual(await networkBody.locator('h2').allTextContents().then(items => items.map(item => item.replace(/\u200b/g, ''))), [
@@ -700,7 +733,7 @@ try {
     await checkDocumentationMedia(page);
     await page.goto(url + board + '/resource-download/', {waitUntil: 'networkidle'});
     assert.equal(await page.locator('.theme-doc-markdown a[href="' + portal + '/software#os-images"]').count(), 1);
-    await page.goto(url + board + '/application-deployment/containers/', {waitUntil: 'networkidle'});
+    await page.goto(url + board + '/other-systems/armbian/', {waitUntil: 'networkidle'});
     assert.ok((await page.locator('.mo-stub').innerText()).includes('Coming soon.'));
     assert.doesNotMatch(await page.locator('.mo-stub').innerText(), /\bP[0-3]\b|Existing material/);
   }

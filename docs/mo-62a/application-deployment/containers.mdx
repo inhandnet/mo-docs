@@ -1,9 +1,152 @@
 ---
 title: "Containers"
-description: "Mo 62A: Running Docker containers."
+description: "Run Docker containers and Docker Compose services on Mo62A: the included Docker Engine, your first container, a web service that starts at boot, hardware access and troubleshooting."
 sidebar_position: 1
 ---
 
-Install Docker and run containers on Mo.
+import dockerHello from '@site/static/img/application-deployment/mo62a-docker-hello.png';
+import dockerCompose from '@site/static/img/application-deployment/mo62a-docker-compose.png';
+import dockerClient from '@site/static/img/application-deployment/mo62a-docker-client.png';
 
-<ComingSoon />
+Mo OS includes Docker Engine and Docker Compose, so applications packaged as containers run on Mo62A without any installation step. This page shows the included versions, runs a first container, deploys a web service that restarts with the board, and explains how containers reach the board's hardware.
+
+:::info[Tested software]
+This page was tested on **Mo62A image V1.1.0** (built 2026-08-19) with Docker Engine 26.1.5 and Docker Compose 2.26.1 from Debian 13. The board needs Internet access to pull images from a registry.
+:::
+
+## What is included
+
+<div className="mo-method-table">
+
+| Component | Package | Notes |
+|---|---|---|
+| Docker Engine 26.1 | `docker.io` | The `docker` service is enabled and starts at boot. |
+| Docker Compose 2.26 | `docker-compose` | Used as `docker compose`. |
+| Buildx | `docker-buildx` | Builds images on the board with `docker buildx`. |
+| containerd | `containerd` | Container runtime used by Docker. |
+
+</div>
+
+Mo62A is an Arm 64-bit (`arm64`, also called `aarch64`) system. Pull images that provide an `arm64` variant; most official images on Docker Hub do. Images built only for `amd64` do not run.
+
+The storage driver is `overlay2` on the microSD card, and cgroup v2 with the systemd driver is active. Image layers and container data count against the free space of the root file system; check it with `df -h /`.
+
+## Run your first container
+
+Docker commands need root or membership of the `docker` group. The examples use `sudo`.
+
+```bash
+docker --version && docker compose version
+sudo docker run --rm hello-world
+```
+
+`docker run` pulls the image on first use, starts the container, prints its output and, with `--rm`, removes the container when it exits. The message confirms that the client, the daemon and the registry connection work and that the `arm64` variant was selected.
+
+<a href={dockerHello} target="_blank" rel="noopener noreferrer">
+  <img src={dockerHello} alt="Mo62A terminal showing the Docker and Compose versions and the output of docker run hello-world" width="1440" height="900" />
+</a>
+
+To let a user run Docker without `sudo`, add the account to the `docker` group and log in again:
+
+```bash
+sudo usermod -aG docker USERNAME
+```
+
+Membership of the `docker` group is equivalent to root access on the board, because a container can mount any host path. Grant it only to accounts you trust, as described in [Users & security settings](../mo-os/users-and-security.mdx#add-users-and-grant-permissions).
+
+## Run a service with Docker Compose
+
+Compose describes one or more services in a `compose.yaml` file and keeps them running. The example below serves a static page with nginx on port 8080 and restarts the container when the board reboots.
+
+```bash
+mkdir -p ~/web/html && cd ~/web
+printf '<h1>Served from Mo62A</h1>\n' > html/index.html
+cat > compose.yaml <<'EOF'
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./html:/usr/share/nginx/html:ro
+    restart: unless-stopped
+EOF
+sudo docker compose up -d
+sudo docker compose ps
+curl -s http://localhost:8080
+```
+
+<a href={dockerCompose} target="_blank" rel="noopener noreferrer">
+  <img src={dockerCompose} alt="Mo62A terminal creating a compose.yaml for nginx, starting it with docker compose up, listing the service and fetching the page with curl" width="1440" height="900" />
+</a>
+
+`ports` publishes container port 80 on port 8080 of the board, `volumes` makes the `html` directory available inside the container, and `restart: unless-stopped` makes Docker start the service again at boot until you stop it. From another computer on the network, open `http://BOARD_HOSTNAME.local:8080/`:
+
+<a href={dockerClient} target="_blank" rel="noopener noreferrer">
+  <img src={dockerClient} alt="Terminal on a computer fetching the nginx page served by a container on Mo62A with curl" width="1440" height="900" />
+</a>
+
+Useful Compose commands, run in the directory that holds `compose.yaml`:
+
+```bash
+sudo docker compose logs -f        # follow the service logs
+sudo docker compose pull && sudo docker compose up -d   # update to a newer image
+sudo docker compose down           # stop and remove the containers
+```
+
+Published ports are reachable from the whole network. Docker manages its own packet filter rules for them, so the [nftables rules](../mo-os/users-and-security.mdx#enable-a-firewall) on the board do not block published container ports.
+
+## Keep data outside the container
+
+Anything written inside a container is lost when the container is recreated. Store application data in a bind mount, as in the nginx example, or in a named volume:
+
+```bash
+sudo docker volume create app_data
+sudo docker run -d --name app -v app_data:/data IMAGE
+```
+
+Named volumes live under `/var/lib/docker/volumes/` on the microSD card. Include them in your backups, or bind-mount a directory under `/home` instead so the data is visible as ordinary files.
+
+## Give a container access to hardware
+
+Containers do not see the board's devices by default. Pass the device files a container needs with `--device`, and add the container user to the matching group when the image does not run as root:
+
+```bash
+sudo docker run --rm -it --device /dev/ttyS3 --group-add dialout debian:trixie-slim bash
+```
+
+The same works for `/dev/i2c-*`, `/dev/spidev*`, `/dev/gpiochip*` and USB cameras (`/dev/video*`). Which devices exist depends on the selected [boot entry](../system-configuration/device-tree-overlays.mdx). Avoid `--privileged`: it exposes every device and disables most isolation.
+
+The TI Edge AI runtime that drives the C7x accelerator needs `/dev/dma_heap`, `/dev/rpmsg*`, `/dev/mem` and the TI libraries from the Mo OS image, and the tested image runs the AI demos as root. Running accelerated inference inside a container is not covered by this page; run AI workloads on the host as described in [AI development](../application-development/ai/index.mdx), and use containers for the application logic around them.
+
+## Build an image on the board
+
+Docker Buildx builds images directly on Mo62A, which produces `arm64` images without cross-compilation:
+
+```bash
+sudo docker buildx build -t myapp:latest .
+```
+
+Builds compete with your application for CPU, memory and microSD throughput. For larger projects, build on a computer with `docker buildx build --platform linux/arm64` and copy the image with `docker save` and `docker load`, or push it to a registry.
+
+## Troubleshooting
+
+<div className="mo-troubleshooting-table">
+
+| Symptom | What to check |
+|---|---|
+| `permission denied while trying to connect to the Docker daemon socket` | Use `sudo`, or add the user to the `docker` group and log in again. |
+| `Cannot connect to the Docker daemon` | Check the service with `systemctl status docker --no-pager` and start it with `sudo systemctl start docker`. |
+| Pulling an image times out | The board cannot reach the registry. Check Internet access and DNS with `curl -I https://registry-1.docker.io/v2/`; behind a proxy, configure it in a `docker.service` drop-in. |
+| `no matching manifest for linux/arm64` | The image has no Arm 64-bit variant. Pick a multi-architecture image or build your own. |
+| A published port is not reachable from another computer | Check `sudo docker compose ps` for the port mapping and that no other service uses the port on the board (`ss -ltn`). |
+| The container cannot open a device | Pass it with `--device` and check the owning group with `ls -l /dev/DEVICE`; confirm the device exists in the current boot entry. |
+| The root file system fills up | Remove unused images and containers with `sudo docker system prune`, and keep large data in a bind mount you can manage. |
+
+</div>
+
+## Related pages
+
+- [Partner applications](./partner-applications.mdx): ready-made applications that run in containers.
+- [Users & security settings](../mo-os/users-and-security.mdx): the `docker` group and the firewall.
+- [Storage & boot](../system-configuration/storage-and-boot.mdx): free space on the microSD card.

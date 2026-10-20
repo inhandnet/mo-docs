@@ -1,9 +1,69 @@
 ---
 title: "Partner applications"
-description: "Mo 62A: Frigate, Node-RED, Mender, Viam."
+description: "Ready-made applications on Mo62A: Node-RED in a container, tested step by step, and the status of other ecosystem applications."
 sidebar_position: 2
 ---
 
-Deployment guides for ecosystem partners: Frigate (NVR with NPU detection), Node-RED, Mender (OTA) and Viam. See also [Works with Mo](/works-with-mo).
+import noderedRun from '@site/static/img/application-deployment/mo62a-nodered-run.png';
+import noderedEditor from '@site/static/img/application-deployment/mo62a-nodered-editor.png';
 
-<ComingSoon />
+This page collects deployment guides for applications from the Mo ecosystem. Each guide is added only after the application has been run on a Mo62A with the stated image. The overview of partners and their integration status is in [Works with Mo](../../works-with-mo/index.mdx).
+
+:::info[Tested software]
+Node-RED was tested on **Mo62A image V1.1.0** (built 2026-08-19) with the `nodered/node-red` container image and Docker Engine 26.1. Other applications listed below have not been verified on Mo62A yet.
+:::
+
+## Status
+
+<div className="mo-method-table">
+
+| Application | Use | Status on Mo62A |
+|---|---|---|
+| [Node-RED](#node-red) | Flow-based automation and dashboards | Tested in a container, guide below |
+| Frigate | Network video recorder with object detection | Not verified; accelerated detection on the C7x is not available in Frigate |
+| Mender | Over-the-air updates | Not verified |
+| Viam | Robotics platform | Not verified |
+
+</div>
+
+## Node-RED
+
+Node-RED runs well in a container on Mo62A. The steps below keep its flows in a named volume so they survive container upgrades, publish the editor on port 1880 and restart the container with the board. Docker is included in Mo OS; see [Containers](./containers.mdx) for the basics.
+
+**1. Create a volume and start the container:**
+
+```bash
+sudo docker volume create node_red_data
+sudo docker run -d --name nodered --restart unless-stopped \
+  -p 1880:1880 -v node_red_data:/data nodered/node-red
+sudo docker ps
+```
+
+The first start downloads about 680 MB. `docker ps` shows the container as `health: starting` for a few seconds and then `healthy`.
+
+<a href={noderedRun} target="_blank" rel="noopener noreferrer">
+  <img src={noderedRun} alt="Mo62A terminal creating the node_red_data volume, starting the Node-RED container and listing it with docker ps" width="1440" height="900" />
+</a>
+
+**2. Open the editor.** On a computer in the same network, open `http://BOARD_HOSTNAME.local:1880/`. The editor loads with an empty flow; the named volume satisfies the warning about flow storage that Node-RED shows on first use.
+
+<a href={noderedEditor} target="_blank" rel="noopener noreferrer">
+  <img src={noderedEditor} alt="Node-RED editor served from Mo62A, opened in a browser on a computer, showing the empty Flow 1 and the node palette" width="1440" height="900" />
+</a>
+
+**3. Secure the editor.** The editor has no login by default, and port 1880 is reachable from the whole network. Before leaving Node-RED running, enable the admin login in `settings.js` inside the volume, or restrict the port to the board with `-p 127.0.0.1:1880:1880` and reach it through an [SSH tunnel](../mo-os/remote-access.mdx#use-the-desktop-with-vnc). See the [Node-RED security documentation](https://nodered.org/docs/user-guide/runtime/securing-node-red).
+
+**4. Maintain the container:**
+
+```bash
+sudo docker logs -f nodered                 # follow the runtime log
+sudo docker stop nodered && sudo docker start nodered
+sudo docker pull nodered/node-red && sudo docker rm -f nodered   # then run step 1 again to upgrade
+```
+
+The flows stay in the `node_red_data` volume across these commands. To access serial ports or GPIO from nodes, pass the devices to the container as described in [Give a container access to hardware](./containers.mdx#give-a-container-access-to-hardware).
+
+## Related pages
+
+- [Containers](./containers.mdx): Docker and Docker Compose on Mo62A.
+- [Works with Mo](../../works-with-mo/index.mdx): ecosystem partners and integration status.
