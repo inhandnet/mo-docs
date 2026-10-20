@@ -1,9 +1,180 @@
 ---
 title: "Users & security settings"
-description: "Mo 62A: Change the default password, SSH keys, firewall."
+description: "Manage Mo62A accounts and passwords, control sudo and device permissions, harden the SSH server and enable a firewall."
 sidebar_position: 5
 ---
 
-import UsersAndSecurity from '@site/docs/_partials/mo-os/users-and-security.mdx';
+import changePassword from '@site/static/img/mo-os/mo62a-change-password.png';
+import addUser from '@site/static/img/mo-os/mo62a-add-user.png';
+import sshdHardening from '@site/static/img/mo-os/mo62a-sshd-hardening.png';
+import firewall from '@site/static/img/mo-os/mo62a-nftables.png';
 
-<UsersAndSecurity board="mo-62a" />
+Mo OS is a standard Debian system: accounts, passwords, `sudo`, SSH and the firewall work as on any Debian 13 installation. This page covers the settings that matter for a board that is reachable over the network, starting with the account created at first boot.
+
+:::info[Tested software]
+This page was tested on **Mo62A image V1.1.0** (built 2026-08-19), with Debian 13 (Trixie) and Linux 6.12.35. Commands and defaults can differ in later releases.
+:::
+
+## Accounts created at first boot
+
+The first boot reads `sysconfig.txt` from the `BOOT` partition and creates the account named there (see [Pre-configure the board](../getting-started/install-os.mdx#3-pre-configure-the-board-optional)). On the tested image this account:
+
+- is a member of the `sudo` group;
+- can run `sudo` **without entering a password**, through the file `/etc/sudoers.d/010-USERNAME-nopasswd`;
+- receives the SSH public key from `user_ssh_key`, if one was set.
+
+The `root` account stays locked unless `root_password` is set, and even then it cannot log in over SSH with a password. `root_ssh_key` installs a key for root instead. Replace the default username and password in `sysconfig.txt` before the first boot; if the board already booted with them, change the password now.
+
+## Change your password
+
+Run `passwd` as the user whose password you want to change. Enter the current password once and the new password twice. Nothing is displayed while you type.
+
+```bash
+passwd
+```
+
+`passwd -S` shows the account status: `P` means the password is set and usable, `L` means the account is locked.
+
+<a href={changePassword} target="_blank" rel="noopener noreferrer">
+  <img src={changePassword} alt="Mo62A terminal changing a user password with passwd and showing the account status with passwd -S" width="1440" height="900" />
+</a>
+
+An administrator can set another user's password with `sudo passwd USERNAME`, or lock an account with `sudo passwd -l USERNAME`.
+
+## Add users and grant permissions
+
+Create a user, set a password and add the groups the user needs. Group membership takes effect at the next login.
+
+```bash
+sudo adduser --gecos 'Bob Example' --disabled-password bob
+sudo passwd bob
+sudo usermod -aG sudo,dialout,video,render bob
+groups bob
+```
+
+<a href={addUser} target="_blank" rel="noopener noreferrer">
+  <img src={addUser} alt="Mo62A terminal creating the user bob, setting a password, adding groups with usermod and listing the result" width="1440" height="900" />
+</a>
+
+Groups that control access to Mo62A hardware and services:
+
+<div className="mo-troubleshooting-table">
+
+| Group | Grants access to |
+|---|---|
+| `sudo` | Administrative commands through `sudo` |
+| `dialout` | Serial ports, including USB-to-UART adapters |
+| `video`, `render` | Cameras, the display controller and the GPU |
+| `audio` | Sound devices |
+| `plugdev` | Removable USB devices |
+| `netdev`, `bluetooth` | Changing network connections and Bluetooth settings from the desktop |
+| `i2c`, `gpio` | I²C and GPIO character devices on the 40-pin header |
+| `docker` | The Docker daemon, which is equivalent to root access |
+
+</div>
+
+The AI demos and the TI Edge AI runtime use `/dev/mem`, DMA heaps and the C7x remote processor. On the tested image these need root, so run them with `sudo` or through the supplied `edgeai-demo` launcher. Remove a user with `sudo deluser --remove-home USERNAME`.
+
+## Require a password for sudo
+
+The first-boot account runs `sudo` without a password. This is convenient on a development bench, but any process running as that user can then become root. To require the user's password again, remove the drop-in file and check the result:
+
+```bash
+sudo rm /etc/sudoers.d/010-USERNAME-nopasswd
+sudo -l
+```
+
+Replace `USERNAME` with the account name. `sudo -l` lists the rules that apply to you; after the change it asks for your password first. Accounts added with `usermod -aG sudo` always need a password.
+
+## Harden the SSH server
+
+Set up key login first, as described in [Remote access](./remote-access.mdx#use-ssh-keys), and confirm that it works for every account that needs remote access. Then put your settings in a drop-in file rather than editing `/etc/ssh/sshd_config`:
+
+```bash
+sudo tee /etc/ssh/sshd_config.d/50-local.conf <<'EOF'
+PasswordAuthentication no
+PermitRootLogin no
+MaxAuthTries 3
+EOF
+sudo sshd -t && echo 'configuration OK'
+sudo systemctl reload ssh
+sudo sshd -T | grep -E '^(passwordauthentication|permitrootlogin|maxauthtries) '
+```
+
+`sshd -t` checks the syntax before anything changes, `reload` applies the new settings without closing existing sessions, and `sshd -T` prints the values the server now uses.
+
+:::warning
+Keep your current SSH session open and log in from a second terminal to confirm that key login still works. If it fails, remove the drop-in file from the first session and reload again. Without a working key, a local desktop or the serial console is the only way back in.
+:::
+
+<a href={sshdHardening} target="_blank" rel="noopener noreferrer">
+  <img src={sshdHardening} alt="Mo62A terminal writing an SSH drop-in file that disables password login, testing the configuration, reloading the service and showing the active values" width="1440" height="900" />
+</a>
+
+To restore password login, delete `/etc/ssh/sshd_config.d/50-local.conf` and reload the service.
+
+## Enable a firewall
+
+No firewall is active on the tested image, so every listening service is reachable from the network. Mo OS includes `nftables`; write a ruleset that keeps SSH and mDNS open, check it, then enable the service so it is applied at every boot.
+
+:::note
+The `ufw` front end is also installed, but the V1.1.0 kernel does not include the `iptables` match modules it needs, so `ufw enable` fails and can leave the board unreachable. Use `nftables` directly as shown here.
+:::
+
+```bash
+sudo tee /etc/nftables.conf <<'EOF'
+#!/usr/sbin/nft -f
+flush ruleset
+table inet filter {
+  chain input {
+    type filter hook input priority 0; policy drop;
+    ct state established,related accept
+    iif lo accept
+    ct state invalid drop
+    ip protocol icmp accept
+    ip6 nexthdr icmpv6 accept
+    tcp dport 22 accept
+    udp dport 5353 accept
+  }
+  chain forward { type filter hook forward priority 0; policy accept; }
+  chain output { type filter hook output priority 0; policy accept; }
+}
+EOF
+sudo nft -c -f /etc/nftables.conf && echo 'ruleset OK'
+sudo systemctl enable --now nftables
+sudo nft list chain inet filter input
+```
+
+`nft -c` checks the file without loading it. The `input` chain drops everything that is not listed: add a `tcp dport` or `udp dport` line for every service you expose, for example `tcp dport 8080 accept` for a web application, then reload with `sudo systemctl reload nftables`. The `udp dport 5353` rule keeps the board answering to `BOARD_HOSTNAME.local`; VNC through an [SSH tunnel](./remote-access.mdx#use-the-desktop-with-vnc) needs no extra rule.
+
+<a href={firewall} target="_blank" rel="noopener noreferrer">
+  <img src={firewall} alt="Mo62A terminal writing an nftables ruleset that allows SSH and mDNS, checking it, enabling the nftables service and listing the active input chain" width="1440" height="900" />
+</a>
+
+Docker adds its own `nat` and `filter` tables for container networking and keeps them when the service restarts; the ruleset above does not remove them. To turn the firewall off, run `sudo systemctl disable --now nftables` and `sudo nft flush ruleset`.
+
+## Keep the system updated
+
+Security fixes for Debian packages arrive through APT. Check for and install updates regularly as described in [Install Debian packages](./using-mo-os.mdx#install-debian-packages), and follow the [release notes](../resource-download/release-notes.mdx) for Mo OS image updates that replace the kernel, firmware and AI runtime.
+
+## Troubleshooting
+
+<div className="mo-troubleshooting-table">
+
+| Symptom | What to check |
+|---|---|
+| `sudo` reports that the user is not in the sudoers file | Add the user to the `sudo` group with `sudo usermod -aG sudo USERNAME` from an administrator account, then log in again. |
+| A new group does not take effect | Group changes apply at the next login. Log out and back in, or start a new SSH session. |
+| SSH refuses the password after hardening | `PasswordAuthentication no` is active. Log in with your key, or remove `/etc/ssh/sshd_config.d/50-local.conf` from a local or serial console and reload the service. |
+| The board is unreachable after `ufw enable` | `ufw` is not supported on this kernel. From the local desktop or serial console, run `sudo ufw disable`, then `sudo iptables -P INPUT ACCEPT` and `sudo iptables -F`. |
+| `sshd -t` reports an error | Fix the drop-in file before reloading; the running server keeps the previous configuration until the reload succeeds. |
+| The board no longer answers to `BOARD_HOSTNAME.local` | The firewall blocks mDNS. Keep `udp dport 5353 accept` in the `input` chain and reload `nftables`. |
+| A service is unreachable after enabling the firewall | Run `sudo nft list chain inet filter input` and add an `accept` rule for the port; compare with `ss -ltnu` to see which ports are listening. |
+
+</div>
+
+## Related pages
+
+- [Remote access](./remote-access.mdx): SSH keys, file transfer and the desktop over VNC.
+- [Secure boot & OP-TEE](../low-level-development/secure-boot.mdx): protecting the boot chain.
+- [Vulnerability reporting](../../security/vulnerability-reporting.mdx): how to report a security issue in Mo OS.

@@ -346,6 +346,8 @@ A compatible UVC camera can be used in place of IMX219. It does not require `ini
 
 ## Troubleshooting
 
+<div className="mo-troubleshooting-table">
+
 | Symptom | What to check |
 |---|---|
 | `edgeai-demo` is not found | Verify that you booted the Mo62A image with the demo and model zoo installed. |
@@ -358,6 +360,8 @@ A compatible UVC camera can be used in place of IMX219. It does not require `ini
 | Model is missing or fails to load | Check `edgeai-demo list` and use an installed compiled model. Review the terminal error and model compatibility. |
 | Video appears but boxes are absent | Check the model task, supported classes, lighting, focus and object size. Try a clearly visible COCO object. |
 | Desktop does not return after an interrupted session | Once the demo has stopped, run `sudo systemctl start lightdm` through SSH or UART. |
+
+</div>
 
 ## Continue with AI development
 

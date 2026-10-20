@@ -97,7 +97,7 @@ ip route
 
 `connected` confirms that NetworkManager activated the interface. Check the address, subnet, route and DNS separately. A link-local address alone does not provide Internet access. If both Ethernet and Wi-Fi are connected, Linux chooses routes by destination and metric; a successful Internet request does not by itself prove which interface carried it.
 
-The following live terminal shows an active Ethernet link, the default DHCP method and enabled link-local addressing. Account details are hidden by a simplified shell prompt.
+The terminal output below shows an active Ethernet link, the default DHCP method and enabled link-local addressing. The shell prompt is shortened to `$` to hide account and network details.
 
 <a href={ethernetTerminal} target="_blank" rel="noopener noreferrer">
   <img src={ethernetTerminal} alt="Live Mo62A Ethernet check showing an active carrier, DHCP and enabled IPv4 link-local addressing" width="1439" height="899" />
@@ -161,7 +161,7 @@ For enterprise Wi-Fi, obtain the authentication method and required certificates
 
 ### Desktop
 
-The screenshots below show a real connection on the Mo62A XFCE desktop. Network names have been replaced with generic labels for privacy, and the password remains hidden. Select any screenshot to view it at its original size.
+The screenshots below show the connection steps on the Mo62A XFCE desktop. Network names have been replaced with generic labels, and the password is hidden. Select a screenshot to open it at full size.
 
 **1. Select the network.** Click the network icon in the top panel. Under **Wi-Fi Networks**, open **Available networks** if shown, then select your access point. If Wi-Fi is disabled, right-click the network icon and enable it first.
 
@@ -328,15 +328,17 @@ python3 /tmp/mo-ble-gatt-check.py --name "Mo BLE Demo"
 
 Keep only one peripheral with that name in range. The client discovers the peripheral if necessary, connects, waits for service discovery, reads the test characteristic, writes `Mo62A BLE OK`, and reads it again. Success ends with `PASS: read-back matches the written value`. If access is denied in a remote terminal, rerun with `sudo`.
 
-The screenshot shows a real Mo62A-to-Linux-computer test: the connection and services resolve, a value is read, `Mo62A BLE OK` is written, and reading the characteristic again returns the same value. If the example has already run, the initial read may show the previous test value.
+The terminal output below shows a test between Mo62A and a Linux computer: the connection and services resolve, a value is read, `Mo62A BLE OK` is written, and reading the characteristic again returns the same value. If the example has already run, the initial read may show the previous test value.
 
 <a href={bleTerminal} target="_blank" rel="noopener noreferrer">
-  <img src={bleTerminal} alt="Real BLE GATT test on Mo62A showing connected state, resolved services, a write and matching read-back" width="1439" height="899" />
+  <img src={bleTerminal} alt="BLE GATT test on Mo62A showing connected state, resolved services, a write and matching read-back" width="1439" height="899" />
 </a>
 
 **4. Finish the test.** The client disconnects a connection that it opened; an already-connected device stays connected. Use `disconnect DEVICE_ADDRESS` in `bluetoothctl` on Mo62A if needed. Press **Ctrl+C** in the peripheral terminal to stop advertising, unregister the demo service and restore the adapter settings changed by the script. Pairing bonds remain until removed: use the **Remove** action or `bluetoothctl remove DEVICE_ADDRESS` on each device if this was a temporary pairing. If you enabled or unblocked Bluetooth only for this test, restore its previous power/block state afterward.
 
 ## Troubleshooting
+
+<div className="mo-troubleshooting-table">
 
 | Symptom | What to check |
 |---|---|
@@ -349,5 +351,7 @@ The screenshot shows a real Mo62A-to-Linux-computer test: the connection and ser
 | Bluetooth controller is unavailable | Check `systemctl status bluetooth` and `bluetoothctl show`; ensure the radio is powered on and not blocked. |
 | BLE peripheral is not found | Attach the shared antenna, enable advertising/pairing on the peripheral, move it closer and scan for LE devices. |
 | BLE pairs but data is unavailable | Check live connection and service resolution, then use the correct service/characteristic UUIDs, permissions and data format. Pairing does not create a GATT service. |
+
+</div>
 
 For account access and terminal login, return to [First boot](../getting-started/first-boot.mdx).

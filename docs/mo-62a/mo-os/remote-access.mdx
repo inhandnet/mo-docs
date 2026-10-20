@@ -1,9 +1,233 @@
 ---
 title: "Remote access"
-description: "Mo 62A: SSH, VNC and remote access."
+description: "Log in to Mo62A over SSH, set up key login, copy files, use the desktop over VNC and run graphical applications through SSH."
 sidebar_position: 4
 ---
 
-Log in over SSH (see First boot), use VNC for the desktop, and — if InHand decides to build it — a browser-based remote access service.
+import sshLoginAnimation from '@site/static/img/mo-os/mo62a-ssh-login.gif';
+import sshLoginStill from '@site/static/img/mo-os/mo62a-ssh-login.png';
+import sshKeysAnimation from '@site/static/img/mo-os/mo62a-ssh-keys.gif';
+import sshKeysStill from '@site/static/img/mo-os/mo62a-ssh-keys.png';
+import fileTransferAnimation from '@site/static/img/mo-os/mo62a-file-transfer.gif';
+import fileTransferStill from '@site/static/img/mo-os/mo62a-file-transfer.png';
+import vncPassword from '@site/static/img/mo-os/mo62a-vnc-password.png';
+import vncDesktop from '@site/static/img/mo-os/mo62a-vnc-desktop.png';
+import x11Forwarding from '@site/static/img/mo-os/mo62a-x11-forwarding.png';
 
-<ComingSoon />
+You can work on Mo62A from another computer on the same network: log in to a shell, copy files, view the XFCE desktop or open a single graphical application. Every method on this page runs over SSH, so the traffic between your computer and the board is encrypted.
+
+:::info[Tested software]
+This page was tested on **Mo62A image V1.1.0** (built 2026-08-19), with Debian 13 (Trixie) and Linux 6.12.35. The computer side was tested on Ubuntu 24.04 with OpenSSH 9.6 and Remmina. Commands and screen layout can differ in later releases.
+:::
+
+## Choose a method
+
+<div className="mo-method-table">
+
+| Method | Use it to | Needs |
+|---|---|---|
+| [SSH](#log-in-with-ssh) | Run commands in a terminal | An SSH client. Linux, macOS and Windows 10/11 include one. |
+| [File transfer](#transfer-files) | Copy files and directories | `scp`, `sftp` or `rsync`, or a graphical SFTP client |
+| [VNC](#use-the-desktop-with-vnc) | See and control the XFCE desktop | `x11vnc` on the board and a VNC viewer on your computer |
+| [X11 forwarding](#run-one-graphical-application) | Open a single graphical application in a window on your computer | An X server on your computer |
+| [Serial console](../getting-started/first-boot.mdx#serial-console) | Recover the board when the network is not available | A USB-to-UART adapter and the debug UART connector |
+
+</div>
+
+The board runs the OpenSSH server by default. It accepts password and SSH key login on port 22; the `root` account cannot log in with a password. The examples use the account `alice`, the host name `BOARD_HOSTNAME.local` and the screenshots show the test board `mo62a-demo`. Replace them with your own username and the board's host name or IP address. See [Find the board](./network.mdx#find-the-board) if you do not know the address.
+
+## Log in with SSH
+
+From a terminal on your computer, including PowerShell on Windows:
+
+```bash
+ssh alice@BOARD_HOSTNAME.local
+```
+
+If the `.local` name does not resolve, use the board's IP address instead, for example `ssh alice@192.0.2.10`.
+
+On the first connection, SSH shows the board's host key fingerprint and asks whether to continue. Type `yes` to save the key; later connections are checked against it. Then enter your password. Nothing is displayed while you type it.
+
+The recording below shows a first login and two checks on the board. The board prints a short `Debian GNU/Linux 13` banner before the password prompt. The board's network address has been replaced with a documentation example.
+
+<a href={sshLoginAnimation} target="_blank" rel="noopener noreferrer">
+  <picture className="mo-first-boot-animation">
+    <source media="(prefers-reduced-motion: reduce)" srcSet={sshLoginStill} />
+    <img src={sshLoginAnimation} alt="Terminal on a computer logging in to Mo62A over SSH, accepting the host key, entering a password and running hostname and whoami" width="1440" height="900" />
+  </picture>
+</a>
+
+Type `exit` or press **Ctrl+D** to close the session.
+
+:::warning
+If you reinstall the image, the board gets a new host key and SSH refuses to connect with a `REMOTE HOST IDENTIFICATION HAS CHANGED` warning. Remove only the old entry, then connect again and check the new fingerprint:
+
+```bash
+ssh-keygen -R BOARD_HOSTNAME.local
+```
+
+Do this only when you know the board was reinstalled. An unexpected change can mean that you reached a different device.
+:::
+
+## Use SSH keys
+
+Key login is more secure than a password and lets scripts connect without prompting. Run these commands on your computer, not on the board.
+
+**1. Create a key pair.** Accept the default file location. A passphrase protects the private key if your computer is lost; an SSH agent can remember it for the session.
+
+```bash
+ssh-keygen -t ed25519 -C "alice@workstation"
+```
+
+**2. Copy the public key to the board.** Enter your board password one last time:
+
+```bash
+ssh-copy-id alice@BOARD_HOSTNAME.local
+```
+
+Windows does not include `ssh-copy-id`. In PowerShell, use:
+
+```powershell
+type $env:USERPROFILE\.ssh\id_ed25519.pub | ssh alice@BOARD_HOSTNAME.local "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+```
+
+**3. Add a short name.** Append an entry to `~/.ssh/config` on your computer (`%USERPROFILE%\.ssh\config` on Windows):
+
+```text
+Host mo62a
+    HostName BOARD_HOSTNAME.local
+    User alice
+```
+
+Now `ssh mo62a` logs in without a password. The same name works with `scp`, `sftp`, `rsync` and the tunnel commands below.
+
+The recording below creates a key without a passphrase for brevity, installs it, and logs in by key and by the short name. Local paths are shown as `/home/you`.
+
+<a href={sshKeysAnimation} target="_blank" rel="noopener noreferrer">
+  <picture className="mo-first-boot-animation">
+    <source media="(prefers-reduced-motion: reduce)" srcSet={sshKeysStill} />
+    <img src={sshKeysAnimation} alt="Terminal on a computer creating an ed25519 key, copying it to Mo62A with ssh-copy-id, adding a Host entry and logging in without a password" width="1440" height="900" />
+  </picture>
+</a>
+
+After key login works for every account that needs remote access, you can turn off password login on the board. See [Users & security settings](./users-and-security.mdx) and keep a local desktop or serial console available while you change SSH settings.
+
+## Transfer files
+
+The board includes the SFTP server and `rsync`. Run these commands on your computer. The examples use the `mo62a` short name from the previous section; without it, write `alice@BOARD_HOSTNAME.local` instead.
+
+Copy a file to your home directory on the board, and copy a file back:
+
+```bash
+scp notes.txt mo62a:~/
+scp mo62a:/etc/os-release ./mo62a-os-release
+```
+
+Synchronize a directory. `rsync` transfers only files that changed, so it is faster for repeated copies:
+
+```bash
+rsync -av --progress project/ mo62a:~/project/
+```
+
+The trailing `/` on `project/` copies the directory contents. Use `scp -r` for a one-off recursive copy, or `sftp mo62a` for an interactive session with `put`, `get` and `ls`. Graphical clients such as FileZilla or WinSCP also work: choose the **SFTP** protocol, port 22 and your board login.
+
+<a href={fileTransferAnimation} target="_blank" rel="noopener noreferrer">
+  <picture className="mo-first-boot-animation">
+    <source media="(prefers-reduced-motion: reduce)" srcSet={fileTransferStill} />
+    <img src={fileTransferAnimation} alt="Terminal on a computer copying files to and from Mo62A with scp, synchronizing a directory with rsync and listing the result" width="1440" height="900" />
+  </picture>
+</a>
+
+## Use the desktop with VNC
+
+VNC shows the XFCE desktop that is on the HDMI display and passes your keyboard and mouse to it. The steps below share that existing desktop with `x11vnc`. VNC traffic is not encrypted by itself, so the server listens only on the board and your computer reaches it through an SSH tunnel.
+
+These steps were tested with a monitor connected and a user logged in to the desktop.
+
+**1. Install x11vnc on the board.** Use SSH or the desktop terminal:
+
+```bash
+sudo apt update
+sudo apt install x11vnc
+```
+
+**2. Set a VNC password.** Log in as the user who is signed in to the desktop, then run:
+
+```bash
+x11vnc -storepasswd
+```
+
+The password is saved in `~/.vnc/passwd`. VNC uses only the first eight characters, so do not reuse your login password.
+
+**3. Start the server for the current desktop:**
+
+```bash
+x11vnc -display :0 -auth guess -localhost -rfbauth ~/.vnc/passwd -forever -shared
+```
+
+`-localhost` accepts connections only from the board itself, and `-forever` keeps the server running after a viewer disconnects. Leave this command running; press **Ctrl+C** to stop sharing the desktop.
+
+**4. Open a tunnel from your computer.** In a new terminal on your computer:
+
+```bash
+ssh -N -L 5900:localhost:5900 mo62a
+```
+
+The command shows no output while the tunnel is open. Keep it running.
+
+**5. Connect a VNC viewer to `localhost:5900`.** Use a viewer such as Remmina on Linux, or TigerVNC Viewer or RealVNC Viewer on Windows and macOS. Enter the VNC password when prompted.
+
+<a href={vncPassword} target="_blank" rel="noopener noreferrer">
+  <img src={vncPassword} alt="Remmina on a computer asking for the VNC password of the Mo62A desktop connection" width="1200" height="316" />
+</a>
+
+The board's desktop then opens in the viewer. The account name in the panel has been anonymized.
+
+<a href={vncDesktop} target="_blank" rel="noopener noreferrer">
+  <img src={vncDesktop} alt="Mo62A XFCE desktop shown in Remmina on a computer through an SSH tunnel" width="1920" height="1080" />
+</a>
+
+When you finish, close the viewer, press **Ctrl+C** in the tunnel terminal and stop `x11vnc` on the board. If the viewer shows only a black screen, the display may be in power-saving mode; move the mouse in the viewer or wake the monitor.
+
+## Run one graphical application
+
+X11 forwarding opens a single application from the board as a window on your computer, without sharing the whole desktop. Your computer needs an X server: Linux desktops include one, macOS needs XQuartz and Windows needs a separate X server.
+
+```bash
+ssh -X mo62a mousepad
+```
+
+The application runs on Mo62A and only its window is drawn on your computer. Close the window to end the command. The screenshot shows the Mousepad text editor started from a terminal on the computer.
+
+<a href={x11Forwarding} target="_blank" rel="noopener noreferrer">
+  <img src={x11Forwarding} alt="Terminal on a computer running ssh -X to Mo62A, with the Mousepad window from the board displayed next to it" width="1920" height="1080" />
+</a>
+
+Forwarding sends every screen update over the network. It suits occasional tools and settings dialogs; use VNC for longer desktop work or video.
+
+## Access from outside your local network
+
+Do not forward port 22 or 5900 from a router to the board. Exposed SSH and VNC ports are scanned and attacked continuously. To reach the board from another site, connect your computer to the board's network through a VPN, such as your organization's VPN or a WireGuard tunnel, and then use the methods on this page as if you were on the local network.
+
+## Troubleshooting
+
+<div className="mo-troubleshooting-table">
+
+| Symptom | What to check |
+|---|---|
+| The connection times out | SSH reports `Connection timed out` or `No route to host`. Check that the board is powered and connected, and that your computer is on the same network. Try the IP address from the board's desktop or serial console. |
+| The `.local` name does not resolve | SSH reports `Could not resolve hostname`. Use the IP address. `.local` names need mDNS on your computer and network; see [Find the board](./network.mdx#find-the-board). |
+| The connection is refused | SSH reports `Connection refused`. Check the SSH service on the board with `systemctl status ssh --no-pager`. |
+| The host key has changed | SSH reports `REMOTE HOST IDENTIFICATION HAS CHANGED`. If the board was reinstalled, remove the old key with `ssh-keygen -R BOARD_HOSTNAME.local`. Otherwise, check that you reached the right device. |
+| Key login asks for a password | Check that you copied the key for the same username, and that `~/.ssh` is `700` and `~/.ssh/authorized_keys` is `600` on the board. |
+| The VNC viewer cannot connect | Keep the `ssh -L` tunnel and `x11vnc` running, and connect to `localhost:5900`, not to the board's address. |
+| The VNC viewer shows a black screen | Wake the display by moving the mouse in the viewer, and check that a user is logged in to the desktop. |
+| `ssh -X` cannot open a display | The application reports `cannot open display`. Start an X server on your computer and use `ssh -X`. Check that `echo $DISPLAY` shows a value in the forwarded session. |
+
+</div>
+
+## Continue with Mo OS
+
+- [Users & security settings](./users-and-security.mdx): accounts, SSH settings and hardening.
+- [Network](./network.mdx): Ethernet, Wi-Fi and Bluetooth Low Energy.
+- [Using Mo OS](./using-mo-os.mdx): packages, services and safe shutdown.

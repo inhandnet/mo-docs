@@ -485,3 +485,56 @@ a:focus-visible, button:focus-visible, select:focus-visible, .board-table-scroll
   .search-panel {padding: 1rem;}
   .search-tools > span {display: none;}
 }
+/* Troubleshooting tables: keep each symptom on one line where space allows. */
+.mo-troubleshooting-table table {
+  display: table;
+  width: 100%;
+}
+.mo-troubleshooting-table th,
+.mo-troubleshooting-table td {
+  text-align: left;
+  vertical-align: top;
+}
+.mo-troubleshooting-table th:first-child,
+.mo-troubleshooting-table td:first-child {
+  white-space: nowrap;
+}
+@media (max-width: 1279px) {
+  .mo-troubleshooting-table th:first-child,
+  .mo-troubleshooting-table td:first-child {
+    width: 36%;
+    white-space: normal;
+  }
+}
+@media (max-width: 576px) {
+  .mo-troubleshooting-table th,
+  .mo-troubleshooting-table td {
+    padding: 0.65rem;
+    overflow-wrap: anywhere;
+  }
+}
+/* Method tables: keep the short first column on one line. */
+.mo-method-table table {
+  display: table;
+  width: 100%;
+}
+.mo-method-table th,
+.mo-method-table td {
+  text-align: left;
+  vertical-align: top;
+}
+.mo-method-table th:first-child,
+.mo-method-table td:first-child {
+  white-space: nowrap;
+}
+@media (max-width: 576px) {
+  .mo-method-table th,
+  .mo-method-table td {
+    padding: 0.65rem;
+    overflow-wrap: anywhere;
+  }
+  .mo-method-table th:first-child,
+  .mo-method-table td:first-child {
+    white-space: normal;
+  }
+}
