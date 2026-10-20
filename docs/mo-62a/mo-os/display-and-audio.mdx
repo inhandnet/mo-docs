@@ -213,9 +213,9 @@ On the tested hardware, ALSA card 0 is the TLV320AIC3106 analog codec with playb
 |---|---|
 | No image at startup | Confirm the Micro HDMI cable, adapter, monitor power and selected input. Connect the display before power-up, then check `xrandr --current` from SSH or the debug UART. |
 | `HDMI-1` is disconnected | Reseat the cable, remove an unnecessary adapter, try another known-good cable/input and inspect `dmesg` for display or DRM errors. |
-| The desktop mode is unsupported or unstable | Select a mode listed by `xrandr`; restore one with `xrandr --output HDMI-1 --mode MODE --rate RATE`. |
-| The screen becomes black after inactivity | Move the mouse or press a key. Check `xset q`; the supplied image intentionally powers the monitor off after 10 minutes. |
-| The monitor remains black after wake input | From SSH or UART, run `DISPLAY=:0 XAUTHORITY=~/.Xauthority xset dpms force on`, then inspect the desktop session and `/tmp/dpms-wakeup.log`. |
+| Desktop mode unsupported or unstable | Select a mode listed by `xrandr`; restore one with `xrandr --output HDMI-1 --mode MODE --rate RATE`. |
+| Screen goes black after inactivity | Move the mouse or press a key. Check `xset q`; the supplied image intentionally powers the monitor off after 10 minutes. |
+| Monitor stays black after wake input | From SSH or UART, run `DISPLAY=:0 XAUTHORITY=~/.Xauthority xset dpms force on`, then inspect the desktop session and `/tmp/dpms-wakeup.log`. |
 | The XFCE desktop does not start | Check `systemctl status lightdm --no-pager` and `sudo journalctl -u lightdm -b --no-pager`. |
 | No sound from HDMI | Select the HDMI output, unmute both Mo62A and the display, confirm the receiver supports HDMI audio, and try a WAV file with `pw-play --target`. |
 | No sound from the headset | Select the headset output, check mute and volume, reseat the plug and test another CTIA-compatible headset. |

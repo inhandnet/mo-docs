@@ -30,13 +30,13 @@ The flashing tool creates three MBR partitions:
 
 | Partition | Device | File system | Size | Label | Contents |
 |---|---|---|---|---|---|
-| 1 | `/dev/mmcblk1p1` | FAT32 | 255 MiB | `BOOT` | Bootloaders, kernel `Image`, device trees in `ti/`, `extlinux/extlinux.conf`, `sysconfig.txt` |
+| 1 | `/dev/mmcblk1p1` | FAT32 | 255 MiB | `BOOT` | Bootloaders, kernel, device trees, boot menu, `sysconfig.txt` |
 | 2 | `/dev/mmcblk1p2` | swap | 4 GiB | `swap` | Swap space |
-| 3 | `/dev/mmcblk1p3` | ext4 | Rest of the card | `rootfs` | Debian root file system |
+| 3 | `/dev/mmcblk1p3` | ext4 | Remaining space | `rootfs` | Debian root file system |
 
 </div>
 
-`BOOT` is mounted at `/boot/firmware` on the running system, so the boot menu and device trees can be edited from Mo OS. The terminal output below shows the layout on the tested card; `/` is already expanded to the end of the card.
+`BOOT` holds `tiboot3.bin`, `tispl.bin`, `u-boot.img`, the kernel `Image`, the device trees in `ti/` and the boot menu `extlinux/extlinux.conf`. It is mounted at `/boot/firmware` on the running system, so the menu and device trees can be edited from Mo OS. The terminal output below shows the layout on the tested card; `/` is already expanded to the end of the card.
 
 ```bash
 lsblk -o NAME,SIZE,FSTYPE,LABEL,MOUNTPOINT /dev/mmcblk1
@@ -97,9 +97,9 @@ Replace `/dev/sdX` with the card reader's device. A copy of the card boots on an
 
 | Symptom | What to check |
 |---|---|
-| Nothing on the debug UART after power-on | The boot ROM found no bootloader. Re-seat the card until it clicks, check that the `BOOT` partition contains `tiboot3.bin`, `tispl.bin` and `u-boot.img`, and re-flash if in doubt. |
+| Debug UART silent after power-on | The boot ROM found no bootloader. Re-seat the card until it clicks, check that the `BOOT` partition contains `tiboot3.bin`, `tispl.bin` and `u-boot.img`, and re-flash if in doubt. |
 | U-Boot starts but the kernel does not | Check `extlinux/extlinux.conf`: the `default` label must exist, and `Image` and the device tree files it names must be present in `BOOT`. Restore `extlinux.conf.bak` if a change broke the menu. |
-| The board boots but a 40-pin peripheral is missing | Run `bootcfg show`; the default entry may not include the overlay you need. See [Device tree overlays](./device-tree-overlays.mdx). |
+| A 40-pin peripheral is missing | Run `bootcfg show`; the default entry may not include the overlay you need. See [Device tree overlays](./device-tree-overlays.mdx). |
 | The camera is not detected | The current entry is not `microSD-default`. Switch back with `sudo bootcfg switch microSD-default`. |
 | `/` is smaller than the card | The first-boot expansion did not run. Check `/var/log/mo-62a-firstboot-install.log` and run `sudo /usr/local/sbin/mo-62a-auto-resize.sh`. |
 | The file system is reported read-only | Errors on the card remount `/` read-only (`errors=remount-ro`). Reboot; if it repeats, back up your data and replace the card. |
