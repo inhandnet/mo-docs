@@ -5,7 +5,7 @@ export function SpecTable({product}: {product: Product}): ReactNode {
   return (
     <>
       {product.specs.map((group) => (
-        <div key={group.title} className="mo-table-wrap">
+        <div key={group.title} className="mo-table">
           <h3>{group.title}</h3>
           <table className="mo-spec-table">
             <tbody>

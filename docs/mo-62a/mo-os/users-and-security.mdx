@@ -58,8 +58,6 @@ groups bob
 
 Groups that control access to Mo62A hardware and services:
 
-<div className="mo-troubleshooting-table">
-
 | Group | Grants access to |
 |---|---|
 | `sudo` | Administrative commands through `sudo` |
@@ -71,7 +69,6 @@ Groups that control access to Mo62A hardware and services:
 | `i2c`, `gpio` | I²C and GPIO character devices on the 40-pin header |
 | `docker` | The Docker daemon, which is equivalent to root access |
 
-</div>
 
 The AI demos and the TI Edge AI runtime use `/dev/mem`, DMA heaps and the C7x remote processor. On the tested image these need root, so run them with `sudo` or through the supplied `edgeai-demo` launcher. Remove a user with `sudo deluser --remove-home USERNAME`.
 
@@ -159,8 +156,6 @@ Security fixes for Debian packages arrive through APT. Check for and install upd
 
 ## Troubleshooting
 
-<div className="mo-troubleshooting-table">
-
 | Symptom | What to check |
 |---|---|
 | `sudo` says the user is not in sudoers | Add the user to the `sudo` group with `sudo usermod -aG sudo USERNAME` from an administrator account, then log in again. |
@@ -171,7 +166,6 @@ Security fixes for Debian packages arrive through APT. Check for and install upd
 | The `.local` name stops answering | The firewall blocks mDNS. Keep `udp dport 5353 accept` in the `input` chain and reload `nftables`. |
 | A service is blocked by the firewall | Run `sudo nft list chain inet filter input` and add an `accept` rule for the port; compare with `ss -ltnu` to see which ports are listening. |
 
-</div>
 
 ## Related pages
 

@@ -1,9 +1,80 @@
 ---
 title: "Known issues & error reference"
-description: "Mo 62A: Unsupported models and common compile errors."
-sidebar_position: 8
+description: "TIDL 11_02_17_00 limitations on Mo62A, models that do not run, and what the common runtime and compilation errors mean."
+sidebar_position: 6
 ---
 
-import KnownIssues from '@site/docs/_partials/ai/known-issues.mdx';
+This page collects what was found while validating TIDL 11_02_17_00 on Mo62A: accelerator limitations that affect model choice, toolchain behaviour that differs from the TI documentation, and the meaning of the error messages you are most likely to see. Items are updated with each image release.
 
-<KnownIssues board="mo-62a" />
+:::info[Tested software]
+Findings apply to **Mo62A image V1.1.0** (built 2026-08-19) with TIDL 11_02_17_00, edgeai-tidl-tools tag `11_02_17_00` and ONNX Runtime 1.23.0. Where TI's own operator test report is cited, it is `test/reports/Operator_Test_Report_AM62A_8bits.xlsx` in that tag.
+:::
+
+## Accelerator limitations
+
+### 8-bit transcendental operators fail on the C7x
+
+TI's operator test report for AM62A shows a **0 % pass rate in 8-bit mode** for `Sigmoid`, `LeakyRelu`, `Mish`, `Exp`, `Log`, `Tan`, `Acos`, `Asin` and `Asinh`, while the same operators pass in 16-bit mode and on AM68A. The practical consequence: networks that use SiLU activations (`Sigmoid(x) · x`), such as **standard YOLOv8 and YOLO11**, compile cleanly on the PC but fail on the board at the first SiLU layer with `algInit failed with status = 6` on the C7x and `Create state function failed. Return value:-1` on the Arm side.
+
+Use the `lite` variants from the TI model zoo, which replace SiLU with ReLU and are what the image ships (`yolox-nano-lite`, `yolox-s-lite`), or retrain your network with ReLU activations.
+
+### 16-bit inference is not usable on the board
+
+Although the toolchain compiles 16-bit models for AM62A, they did not run on the tested board. Keep models in 8-bit mode; use the `output_feature_16bit_names_list` option only for individual layers, as TI does for the detection heads of the shipped models.
+
+### Convolution padding limit
+
+AM62A rejects convolutions whose padding is larger than the input width (`Conv | Padding greater than input width is not supported for AM62A and AM67A`). Run the model through `tidl_onnx_model_optimizer` (rule `convert_conv_large_pad_to_smaller_kernel`) before compiling; this is how `fpnlite-aspp` in the image was made to run fully on the accelerator. The optimizer changes the network, so deploy the optimized `.onnx` together with its artifacts.
+
+## Toolchain behaviour
+
+| Behaviour | What it means for you |
+|---|---|
+| TFLite `deeplabv3 512x512` import crash | A regression in 11_02_17_00: the importer segfaults on the 3× bilinear upsampling. The model was dropped from the image; the ONNX `deeplabv3lite` models cover the use case. |
+| Other TIDL versions fail | Artifacts are tied to the TIDL version. Recompile with the version in the [version map](../../resource-download/version-map.mdx). |
+| Graph optimization must stay off | Compile and run with `ORT_DISABLE_ALL`. A different setting at inference time crashes (`rc=139`) or splits the network into several subgraphs. |
+| ORT 1.23 tensor validation | The TI execution provider needs `session.disable_input_validation` and `session.disable_output_validation` set to `1`, or inference fails with `GetElementType is not implemented`. The image's runtime wrappers already set them. |
+| Unit tests hang on Python 3.13 | Run the toolchain's test suite with `--no-subprocess`. |
+| Wrong-SoC models report FAILED | The toolchain does not skip models that are not built for AM62A; the failure is expected, not a defect of your setup. |
+| Python wheels and versions | The x86 toolchain ships `onnxruntime_tidl` for Python 3.10 and 3.12, but the TFLite and TVM tools only for 3.10. TI's Arm wheels stop at Python 3.12; Mo OS (Python 3.13) uses wheels built for the image. |
+
+
+## Models that do not run
+
+`/opt/model_zoo/unsupported_models.txt` on the board records the TI model zoo entries that were excluded from the image and why. The current list:
+
+| Reason | Models |
+|---|---|
+| Odd intermediate height (`height/2` is odd) | `TFL-CL-0100-efficientNet-edgeTPU-m`, `TFL-CL-0140-efficientNet-lite4`, `TFL-CL-0170-efficientNet-lite1`, `TFL-CL-0190-efficientNet-edgeTPU-l` |
+| High latency | `ONR-SS-8730-deeplabv3-mobv3-lite-large-cocoseg21-512x512` |
+| Odd input resolution | `TVM-CL-3430-gluoncv-mxnet-xception`, `TFL-CL-0040-InceptionNetV3` |
+| TFLite importer crash in 11_02_17_00 | `TFL-SS-2580-deeplabv3_mobv2-ade20k32-mlperf-512x512` |
+
+
+## Error reference
+
+Errors printed on the Arm side are often only the last link of a chain that started on the C7x. When an inference fails at session creation, read the C7x log first:
+
+```bash
+sudo /opt/vision_apps/vx_app_arm_remote_log.out
+```
+
+| Message | Cause and fix |
+|---|---|
+| `Create state function failed` | Version mismatch between firmware, runtime libraries and artifacts, or artifacts from an older TIDL. Check every version against the [version map](../../resource-download/version-map.mdx) and recompile. |
+| `algInit failed with status = 6` | A layer uses an operator the C7x cannot run in 8-bit mode; see the transcendental operators above. |
+| `algAlloc failed`, `UNSUPPORTED_LAYER` | The artifacts are incomplete (compilation stopped early) or contain an unsupported layer. Check the compilation log for `TIDLRT_invoke` errors. |
+| `Could not load function` | The execution provider library does not match the runtime. Install the matching set. |
+| `user_data_object` type error | `libtivision_apps` does not match the TIDL runtime. Update both together. |
+| Return code `-16` or permission errors | The program is not running as root and cannot open the DMA heap or the remote processor. Use `sudo`. |
+| `Populate OnnxRT Output Params` | A detection model was compiled without `meta_arch_type` and `meta_layers_names_list`. Pass the model's `.prototxt`. |
+| `Reading prototext file failed` | The model's `qparams.prototxt` is in an old format. Compile without `quant_params_proto_path`. |
+| Pipeline frame rate drops to about 5 fps | Two `tiovxmultiscaler` elements compete for the VPAC. Use one hardware scaler per pipeline and software scaling elsewhere. |
+| The pipeline hangs until reboot | A TIOVX process was killed with `kill -9`. Always stop pipelines with `Ctrl+C` (SIGINT). |
+
+
+## Related pages
+
+- [Set up the toolchain](./toolchain.mdx): matching versions and compiling models.
+- [Inference APIs](./inference-apis.mdx): session options that must match the compilation.
+- [Pre-compiled models](./model-hub.mdx): the models verified on this image.

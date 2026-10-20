@@ -221,8 +221,6 @@ On the tested image, a short press of the board's **S1** button opens this deskt
 
 ## Troubleshooting
 
-<div className="mo-troubleshooting-table">
-
 | Symptom | What to check |
 |---|---|
 | A command is not found | Check spelling and `command -v COMMAND`. Search for its package with APT, and confirm the instructions match your image version. |
@@ -232,7 +230,6 @@ On the tested image, a short press of the board's **S1** button opens this deskt
 | The root filesystem is full | Use `df -h /` and `sudo du -xhd1 /var /home 2>/dev/null` to find large areas. Back up and remove only files you recognize. |
 | The desktop is unavailable | Use SSH or the debug UART, check `systemctl status lightdm --no-pager`, and inspect its current-boot journal. |
 
-</div>
 
 ## Continue with Mo OS
 

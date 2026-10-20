@@ -16,8 +16,6 @@ This page was tested on **Mo62A image V1.1.0** (built 2026-08-19) with Docker En
 
 ## What is included
 
-<div className="mo-method-table">
-
 | Component | Package | Notes |
 |---|---|---|
 | Docker Engine 26.1 | `docker.io` | The `docker` service is enabled and starts at boot. |
@@ -25,7 +23,6 @@ This page was tested on **Mo62A image V1.1.0** (built 2026-08-19) with Docker En
 | Buildx | `docker-buildx` | Builds images on the board with `docker buildx`. |
 | containerd | `containerd` | Container runtime used by Docker. |
 
-</div>
 
 Mo62A is an Arm 64-bit (`arm64`, also called `aarch64`) system. Pull images that provide an `arm64` variant; most official images on Docker Hub do. Images built only for `amd64` do not run.
 
@@ -131,8 +128,6 @@ Builds compete with your application for CPU, memory and microSD throughput. For
 
 ## Troubleshooting
 
-<div className="mo-troubleshooting-table">
-
 | Symptom | What to check |
 |---|---|
 | Permission denied on the Docker socket | The message ends with `connect to the Docker daemon socket`. Use `sudo`, or add the user to the `docker` group and log in again. |
@@ -143,7 +138,6 @@ Builds compete with your application for CPU, memory and microSD throughput. For
 | The container cannot open a device | Pass it with `--device` and check the owning group with `ls -l /dev/DEVICE`; confirm the device exists in the current boot entry. |
 | The root file system fills up | Remove unused images and containers with `sudo docker system prune`, and keep large data in a bind mount you can manage. |
 
-</div>
 
 ## Related pages
 
