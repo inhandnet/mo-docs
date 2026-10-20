@@ -1,80 +1,97 @@
 ---
 title: "Known issues & error reference"
-description: "TIDL 11_02_17_00 limitations on Mo62A, models that do not run, and what the common runtime and compilation errors mean."
+description: "Version-specific AM62A operator evidence, local unresolved failures and diagnostic checks without chip-wide conclusions."
 sidebar_position: 6
 ---
 
-This page collects what was found while validating TIDL 11_02_17_00 on Mo62A: accelerator limitations that affect model choice, toolchain behaviour that differs from the TI documentation, and the meaning of the error messages you are most likely to see. Items are updated with each image release.
+import compiler from '@site/static/img/application-development/ai/mo62a-compiler-review.png';
 
-:::info[Tested software]
-Findings apply to **Mo62A image V1.1.0** (built 2026-08-19) with TIDL 11_02_17_00, edgeai-tidl-tools tag `11_02_17_00` and ONNX Runtime 1.23.0. Where TI's own operator test report is cited, it is `test/reports/Operator_Test_Report_AM62A_8bits.xlsx` in that tag.
+Separate TI's supported-operator constraints, results from a specific test suite, and failures observed locally. None should silently replace the others.
+
+:::info[Version scope]
+The source review uses `edgeai-tidl-tools` tag `11_02_17_00` and the AM62A SDK 11.01.07.05 guide. Local experiments used the V1.1.0 development installation with TI ONNX Runtime 1.23.0. Earlier-SDK forum answers provide context, not proof of current Mo62A results.
 :::
 
-## Accelerator limitations
+## Read the operator reports carefully
 
-### 8-bit transcendental operators fail on the C7x
+The tag's [8-bit report](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/test/reports/Operator_Test_Report_AM62A_8bits.xlsx) and [16-bit report](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/test/reports/Operator_Test_Report_AM62A_16bits.xlsx) identify AM62A, SDK 11.01.07.05 and TIDL tools/firmware `REL.TIDL.11.02.17.00` on their `Versions` sheets. Selected `Summary` results:
 
-TI's operator test report for AM62A shows a **0 % pass rate in 8-bit mode** for `Sigmoid`, `LeakyRelu`, `Mish`, `Exp`, `Log`, `Tan`, `Acos`, `Asin` and `Asinh`, while the same operators pass in 16-bit mode and on AM68A. The practical consequence: networks that use SiLU activations (`Sigmoid(x) · x`), such as **standard YOLOv8 and YOLO11**, compile cleanly on the PC but fail on the board at the first SiLU layer with `algInit failed with status = 6` on the C7x and `Create state function failed. Return value:-1` on the Arm side.
+| Operator cases | 8-bit target pass / total | 16-bit target pass / total |
+|---|---|---|
+| Sigmoid | 0 / 22 | 22 / 22 |
+| LeakyRelu | 0 / 32 | 32 / 32 |
+| Acos, Asin, Asinh, Exp, Log, Mish (each) | 0 / 22 | 22 / 22 |
+| Tan | 0 / 22 | 8 / 22 |
 
-Use the `lite` variants from the TI model zoo, which replace SiLU with ReLU and are what the image ships (`yolox-nano-lite`, `yolox-s-lite`), or retrain your network with ReLU activations.
+These are test-case counts, not permanent operator-wide verdicts:
 
-### 16-bit inference is not usable on the board
+- `Tan` does not pass all 16-bit cases.
+- 8-bit `Sigmoid` also has 0/22 host passes, not “correct on the PC, fails only on the board.”
+- `TargetPass` does not alone prove acceleration: 16-bit `ConvTranspose` has 2116 target passes but zero TIDL offloads.
 
-Although the toolchain compiles 16-bit models for AM62A, they did not run on the tested board. Keep models in 8-bit mode; use the `output_feature_16bit_names_list` option only for individual layers, as TI does for the detection heads of the shipped models.
+The same tag's [operator table](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/operators.md) lists Sigmoid and LeakyRelu subject to constraints. It explicitly excludes 16-bit deconvolution on AM62A. Check graph attributes, precision, offload and accuracy when a support entry and a test result appear to disagree.
 
-### Convolution padding limit
+## 16-bit and YOLO conclusions
 
-AM62A rejects convolutions whose padding is larger than the input width (`Conv | Padding greater than input width is not supported for AM62A and AM67A`). Run the model through `tidl_onnx_model_optimizer` (rule `convert_conv_large_pad_to_smaller_kernel`) before compiling; this is how `fpnlite-aspp` in the image was made to run fully on the accelerator. The optimizer changes the network, so deploy the optimized `.onnx` together with its artifacts.
+AM62A is not categorically limited to 8-bit inference. TI confirms up to 16-bit quantization in [this E2E answer](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1407278/sk-am62a-lp-model-maker-sdk-9-2-and-10-compatible). This does not guarantee every 16-bit graph works or constitute a new Mo62A 16-bit validation.
 
-## Toolchain behaviour
+Do not infer that every YOLOv8/YOLO11 graph must fail from one operator report. TI's [AM62A YOLO discussion](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1443278/sk-am62a-lp-how-to-run-yolov8-v11-in-this-board) covers version-specific configurations, architecture changes, retraining and detection-head metadata. It is not blanket certification for arbitrary exports. The [local YOLO page](./tutorial-yolo.mdx) claims only the supplied YOLOX-Lite deployment tested here.
 
-| Behaviour | What it means for you |
-|---|---|
-| TFLite `deeplabv3 512x512` import crash | A regression in 11_02_17_00: the importer segfaults on the 3× bilinear upsampling. The model was dropped from the image; the ONNX `deeplabv3lite` models cover the use case. |
-| Other TIDL versions fail | Artifacts are tied to the TIDL version. Recompile with the version in the [version map](../../resource-download/version-map.mdx). |
-| Graph optimization must stay off | Compile and run with `ORT_DISABLE_ALL`. A different setting at inference time crashes (`rc=139`) or splits the network into several subgraphs. |
-| ORT 1.23 tensor validation | The TI execution provider needs `session.disable_input_validation` and `session.disable_output_validation` set to `1`, or inference fails with `GetElementType is not implemented`. The image's runtime wrappers already set them. |
-| Unit tests hang on Python 3.13 | Run the toolchain's test suite with `--no-subprocess`. |
-| Wrong-SoC models report FAILED | The toolchain does not skip models that are not built for AM62A; the failure is expected, not a defect of your setup. |
-| Python wheels and versions | The x86 toolchain ships `onnxruntime_tidl` for Python 3.10 and 3.12, but the TFLite and TVM tools only for 3.10. TI's Arm wheels stop at Python 3.12; Mo OS (Python 3.13) uses wheels built for the image. |
+## Compiler constraints and local observations
 
+| Evidence | What it supports | What it does not establish |
+|---|---|---|
+| TI: convolution padding greater than input width | This configuration is constrained on AM62A | Every graph with convolution fails |
+| Local custom ResNet18 experiment | Diagnostics despite artifacts; board run did not finish | Proven root cause or permanent ResNet restriction |
+| Local excluded-model manifest | Particular image entries were excluded | Entire architecture families are unsupported |
+| Host success banner | One stage reported success | Correct target outputs, accuracy or stability |
 
-## Models that do not run
+Graph rewrites can change numerics. Retain the optimized graph with its own artifacts and revalidate outputs. Do not combine one graph with artifacts compiled from another.
 
-`/opt/model_zoo/unsupported_models.txt` on the board records the TI model zoo entries that were excluded from the image and why. The current list:
+<a href={compiler} target="_blank" rel="noopener noreferrer">
+  <img src={compiler} alt="Actual host experiment showing diagnostic errors together with artifact names; no successful deployment is claimed" width="1440" height="900" />
+</a>
 
-| Reason | Models |
-|---|---|
-| Odd intermediate height (`height/2` is odd) | `TFL-CL-0100-efficientNet-edgeTPU-m`, `TFL-CL-0140-efficientNet-lite4`, `TFL-CL-0170-efficientNet-lite1`, `TFL-CL-0190-efficientNet-edgeTPU-l` |
-| High latency | `ONR-SS-8730-deeplabv3-mobv3-lite-large-cocoseg21-512x512` |
-| Odd input resolution | `TVM-CL-3430-gluoncv-mxnet-xception`, `TFL-CL-0040-InceptionNetV3` |
-| TFLite importer crash in 11_02_17_00 | `TFL-SS-2580-deeplabv3_mobv2-ade20k32-mlperf-512x512` |
+The failed custom experiment required stopping its process and rebooting before a supplied model was rerun successfully. Its root cause remains unresolved; this is not a TI-confirmed defect.
 
+## Inspect the excluded-model record
 
-## Error reference
+```bash
+cat /opt/model_zoo/unsupported_models.txt
+```
 
-Errors printed on the Arm side are often only the last link of a chain that started on the C7x. When an inference fails at session creation, read the C7x log first:
+The installed file records individual TFLite/TVM exclusions, a high-latency segmentation model and an importer failure. Some reasons concern performance, not inability to execute. It is an image-maintenance record, not TI's universal compatibility list.
+
+## Diagnose errors in context
+
+Preserve the compiler/application logs, model/artifact checksums, version manifest and target log. If installed, the remote-log utility provides firmware messages:
 
 ```bash
 sudo /opt/vision_apps/vx_app_arm_remote_log.out
 ```
 
-| Message | Cause and fix |
+Stop viewing with Ctrl+C. See [TI's debugging guide](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/debugging.md) for model, layer and runtime diagnostics.
+
+| Symptom | Checks, not a unique diagnosis |
 |---|---|
-| `Create state function failed` | Version mismatch between firmware, runtime libraries and artifacts, or artifacts from an older TIDL. Check every version against the [version map](../../resource-download/version-map.mdx) and recompile. |
-| `algInit failed with status = 6` | A layer uses an operator the C7x cannot run in 8-bit mode; see the transcendental operators above. |
-| `algAlloc failed`, `UNSUPPORTED_LAYER` | The artifacts are incomplete (compilation stopped early) or contain an unsupported layer. Check the compilation log for `TIDLRT_invoke` errors. |
-| `Could not load function` | The execution provider library does not match the runtime. Install the matching set. |
-| `user_data_object` type error | `libtivision_apps` does not match the TIDL runtime. Update both together. |
-| Return code `-16` or permission errors | The program is not running as root and cannot open the DMA heap or the remote processor. Use `sudo`. |
-| `Populate OnnxRT Output Params` | A detection model was compiled without `meta_arch_type` and `meta_layers_names_list`. Pass the model's `.prototxt`. |
-| `Reading prototext file failed` | The model's `qparams.prototxt` is in an old format. Compile without `quant_params_proto_path`. |
-| Pipeline frame rate drops to about 5 fps | Two `tiovxmultiscaler` elements compete for the VPAC. Use one hardware scaler per pipeline and software scaling elsewhere. |
-| The pipeline hangs until reboot | A TIOVX process was killed with `kill -9`. Always stop pipelines with `Ctrl+C` (SIGINT). |
+| `Create state function failed`, `algInit failed` | Preceding target errors, compatible versions, model integrity, operator constraints, runtime memory and concurrent users |
+| `algAlloc failed` | Allocation diagnostics and resource use; not automatically an unsupported operator |
+| Missing symbol / `Could not load function` | Loaded library paths and ABI compatibility; retain the exact symbol/error |
+| `user_data_object` type error | Object type expectations and integrated TIOVX/TIDL libraries |
+| Permission denied | Named device/file and service identity; use appropriate access controls, not world-writable devices |
+| Numeric return code such as `-16` | API and accompanying log; this does not uniquely mean “not root” |
+| Unexpected tensor type/shape | Actual tensors, metadata and TI wrapper's I/O requirements |
+| Detection metadata/prototext error | Path, format, graph/head correspondence and compiler options |
+| Lower FPS or stalled pipeline | Caps, queueing, resource sharing and logs; no single scaler or signal-related cause is implied |
 
+TI's [AM62A dataflows](https://software-dl.ti.com/processor-sdk-linux/esd/AM62AX/11_01_07_05/exports/docs/edgeai/edgeai_dataflows.html) include multiple scaler elements. “Two scaler elements always conflict” is not a valid general rule.
 
-## Related pages
+## Runtime settings and recovery
 
-- [Set up the toolchain](./toolchain.mdx): matching versions and compiling models.
-- [Inference APIs](./inference-apis.mdx): session options that must match the compilation.
-- [Pre-compiled models](./model-hub.mdx): the models verified on this image.
+The pinned [ONNX wrapper](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/runtimes/tidl_wrapper/python/onnxrt/onnxrt_wrapper.py) sets TI-specific I/O validation options for ONNX Runtime 1.23.0. Follow the [Python example](./inference-apis.mdx), including explicit tensor checks. These options are not a general fix for unrelated errors.
+
+Keep graph optimization consistent with artifacts. CPU fallback needs a CPU implementation; lower offload is not itself failed inference.
+
+Stop applications gracefully to release resources. If an experiment stalls, preserve diagnostics, stop that experiment and check a known-good model. Do not reset remote processors or replace firmware as a generic fix: the shared resources may serve other applications.
+
+In a separate [AM62A SDK 9.2 E2E case](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1451931/processor-sdk-am62a-using-the-am62a-chip-development-board-for-ai-model-development-i-encountered-a-runtime-issue-and-seek-assistance), TI explains that incomplete shutdown can leave remote resources allocated and recommends explicit cleanup in signal handling. Ctrl+C is not a guarantee of cleanup in an arbitrary program. That older case supports checking resource state; it does not establish the cause of our local ResNet18 failure.

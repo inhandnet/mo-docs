@@ -74,3 +74,9 @@ Keep the board, image, model bytes, artifacts, input, resolution and threshold f
 Do not convert `1000 / latency_ms` into claimed end-to-end video FPS: it ignores the rest of the pipeline. Do not compare the all-zero timing input with a published accuracy benchmark, and do not infer energy efficiency from CPU utilization.
 
 For accuracy, use labeled data that represents the intended deployment and compare the same preprocessing, class mapping and postprocessing before and after quantization. For power, measure at a stated electrical boundary with a suitable meter and record what peripherals are included.
+
+## TI cross-check
+
+The [AM62A performance guide](https://software-dl.ti.com/processor-sdk-linux/esd/AM62AX/11_01_07_05/exports/docs/edgeai/measure_perf.html) describes SDK performance tools. TI's [AM62A E2E answer](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1293166/processor-sdk-am62a-measuring-ai-hardware-performance) distinguishes core/resource utilization from AI performance. These references explain measurement boundaries; they are not the source of the Mo62A numbers above.
+
+The downloadable timing script is retained unchanged with its original JSON measurements. The separate [Python smoke test](./inference-apis.mdx) follows the newer wrapper's explicit I/O-validation settings; do not silently treat two different scripts as the same benchmark configuration.

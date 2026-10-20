@@ -4,8 +4,21 @@ description: "Mo 62A: Image, TI SDK, TIDL and ONNX Runtime versions."
 sidebar_position: 2
 ---
 
-Compile models with the TIDL tools version that matches the image on your board.
+import runtime from '@site/static/img/application-development/ai/mo62a-runtime-inventory.png';
 
-<VersionMap />
+Use a compatible image, target stack and host toolchain. Do not require unrelated component version numbers to be identical.
 
-<ComingSoon />
+| Item | Audited Mo62A reference | Boundary |
+|---|---|---|
+| Local image identity | V1.1.0 | `mo-version` reports build field `2026-08-19`; this is not the release publication date |
+| TI base compatibility | AM62A Linux SDK 11.01.07.05 | Mo OS is a Debian integration, not the untouched TI image |
+| TIDL tools / target integration | `11_02_17_00` | Use corresponding firmware and libraries, not an isolated wheel upgrade |
+| ONNX Runtime | TI 1.23.0 | Generic upstream wheels do not include TI providers |
+
+TI's [pinned compatibility table](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/sdk_version_compatibility_table.md) lists this backward-compatible patch for AM62A SDK 11.01.07.05. The [setup notes](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/scripts/setup/README.md) require corresponding target component updates. Do not run the updater blindly on Mo OS.
+
+<a href={runtime} target="_blank" rel="noopener noreferrer">
+  <img src={runtime} alt="Actual Mo62A runtime inventory showing TI ONNX Runtime 1.23.0 and its execution providers" width="1440" height="900" />
+</a>
+
+The inventory proves module availability, not success for every model. Retain firmware/library and artifact checksums with deployment records. If an incompatible change requires recompilation, rerun correctness, accuracy and stability checks before replacing a known-good model. See [Set up the toolchain](../application-development/ai/toolchain.mdx) and [Benchmarks](../application-development/ai/benchmarks.mdx).

@@ -1,22 +1,27 @@
 ---
 title: "Inference APIs"
-description: "Run a compiled model on the Mo62A C7x accelerator from Python with ONNX Runtime, from C/C++ with the on-board Edge AI SDK, or in a GStreamer pipeline, with tested code and measured latency."
+description: "Use the verified supplied-model Python and C/C++ paths, with runtime compatibility, input checks and video-pipeline boundaries."
 sidebar_position: 4
 ---
 
-Three ways to run a model that is already compiled for the C7x accelerator: the Python ONNX Runtime API, the C/C++ SDK installed in the image, and the GStreamer-based demo applications. All three use the same model directory layout and the same TIDL runtime underneath, so a model compiled once runs with any of them.
+import smoke from '@site/static/img/application-development/ai/mo62a-python-smoke.png';
+import cpp from '@site/static/img/application-development/ai/mo62a-cpp-smoke.png';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+This page covers Python ONNX Runtime, the image's C/C++ SDK and GStreamer-based applications. Sharing a model-directory convention does not make all runtimes interchangeable: the graph, compiled artifacts, runtime and application metadata must agree. TI documents these boundaries in the [pinned runtime overview](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/README.md).
 
 :::info[Tested software]
-This page was tested on **Mo62A image V1.1.0** (built 2026-08-19) with TIDL 11_02_17_00, ONNX Runtime 1.23.0 (TI build) and the on-board Edge AI SDK. The examples use the YOLOX-nano model from `/opt/model_zoo`. Latency figures are from one run on the test board and are not guaranteed values.
+Local evidence comes from the V1.1.0 development installation with TIDL `11_02_17_00`, TI ONNX Runtime 1.23.0 and the on-board Edge AI SDK. The examples use the supplied YOLOX-nano model. The image's `2026-08-19` build field is not its GitHub release date.
 :::
 
 ## Model directory layout
 
-Every compiled model is a directory with the original network and the TIDL **artifacts** produced by the toolchain on a PC. The models shipped in `/opt/model_zoo` follow this layout, and your own models should too:
+The supplied application bundles follow this convention, consistent with [TI's AM62A deployment guide](https://software-dl.ti.com/processor-sdk-linux/esd/AM62AX/11_01_07_05/exports/docs/edgeai/inference_models.html#dnn-directory-structure):
 
 ```text
 MODEL_DIR/
 ├── param.yaml          # task type, pre- and post-processing parameters
+├── dataset.yaml        # class/label mapping where required
 ├── model/              # the ONNX or TFLite network
 │   └── NAME.onnx
 └── artifacts/          # TIDL compilation output for this TIDL version
@@ -24,15 +29,15 @@ MODEL_DIR/
     └── ...
 ```
 
-The artifacts are tied to the TIDL version of the image. Models compiled for another version fail at session creation; see [Known issues](./known-issues.mdx).
+Runtime-specific files can differ. Check the target SoC and the documented compatible software combination; a similar directory name alone does not establish compatibility. See [Set up the toolchain](./toolchain.mdx).
 
-## Root access
+## Device access
 
-The TIDL runtime opens `/dev/dma_heap`, `/dev/mem` and the C7x remote processor, which the tested image allows only for root. Run inference programs with `sudo` or as a service running as root. Without it, session creation fails with a permission error or return code `-16`.
+The local DMA-heap nodes are root-only, so these smoke tests use `sudo`. This is an installation-specific permission choice, not proof that every TIDL deployment must run as root. For a service, identify the required devices and grant controlled access. Do not use world-writable permissions or interpret a numeric `-16` as a unique permission diagnosis.
 
 ## Python: ONNX Runtime with the TIDL execution provider
 
-The TI build of ONNX Runtime adds `TIDLExecutionProvider`. Create the session with the model file, point the provider at the `artifacts` directory and disable graph optimizations, which must stay off because the artifacts were compiled against the unoptimized graph:
+Download <a href={useBaseUrl('/downloads/ai/infer-yolox-nano.py')} download>infer-yolox-nano.py</a>. It checks the TI provider, the expected static input, output shapes and finite values over three calls. Its core session setup is:
 
 ```python
 import numpy as np
@@ -41,6 +46,8 @@ import onnxruntime as ort
 model_dir = "/opt/model_zoo/ONR-OD-8200-yolox-nano-lite-mmdet-coco-416x416"
 options = ort.SessionOptions()
 options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_DISABLE_ALL
+options.add_session_config_entry("session.disable_input_validation", "1")
+options.add_session_config_entry("session.disable_output_validation", "1")
 
 session = ort.InferenceSession(
     f"{model_dir}/model/yolox_nano_lite_416x416_20220214_model.onnx",
@@ -50,22 +57,29 @@ session = ort.InferenceSession(
 )
 
 inp = session.get_inputs()[0]
-print(inp.name, inp.shape, inp.type)        # inputNet_IN [1, 3, 416, 416] tensor(uint8)
+assert inp.shape == [1, 3, 416, 416] and inp.type == "tensor(uint8)"
+print(inp.name, inp.shape, inp.type)
 
 frame = np.zeros([1, 3, 416, 416], dtype=np.uint8)   # NCHW, RGB, 0-255
 dets, labels = session.run(None, {inp.name: frame})
 print(dets.shape, labels.shape)              # (200, 5) (200,)
 ```
 
-Run it with `sudo python3 infer.py`. The runtime prints `Final number of subgraphs created are : 1, - Offloaded Nodes - 329, Total Nodes - 329` when every layer runs on the accelerator. On the test board this model takes about **10.5 ms** per inference after the first call.
+The I/O options follow the [TI 1.23 wrapper](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/runtimes/tidl_wrapper/python/onnxrt/onnxrt_wrapper.py), which accounts for TIDL tensor changes. They do not excuse checking your own inputs and outputs. Graph optimization must remain consistent with the artifacts.
+
+Run the complete download with `sudo python3 infer-yolox-nano.py`. This supplied model reports 329/329 offloaded nodes in one subgraph. The three completed blank-input calls below are a smoke test, not a detection-accuracy or performance result:
+
+<a href={smoke} target="_blank" rel="noopener noreferrer">
+  <img src={smoke} alt="Actual Mo62A execution of the downloadable Python smoke test: full offload, three finite-output calls and normal system state afterward" width="1440" height="900" />
+</a>
 
 Notes:
 
-- The model expects the input type listed by `get_inputs()`; the `lite` models in the model zoo take `uint8` and perform normalization inside the network. Check `param.yaml` (`preprocess:` section) for the expected resolution, channel order and mean/scale of other models.
-- Keep `CPUExecutionProvider` in the list: layers that TIDL does not support run on the Arm cores.
-- The first `run()` after session creation is slow because the C7x loads the network; measure after a warm-up call.
+- This specific model takes NCHW `uint8` input. Read each model's `param.yaml` and tensor metadata; do not infer type, normalization or channel order from “lite” in its name.
+- Keep `CPUExecutionProvider` available for supported CPU operations. It cannot execute a custom operator without an implementation.
+- Separate session creation, first-call and warmed-up measurements. See [Benchmarks](./benchmarks.mdx) for raw timing data.
 
-Python ONNX Runtime, the TFLite runtime with the TIDL delegate and the DLR runtime are installed system-wide in the image; `python3 -c "import onnxruntime"` works without a virtual environment.
+An installed module is not a validated inference path. Do not replace the image's TI runtime with a generic ONNX Runtime wheel.
 
 ## C/C++: the on-board Edge AI SDK
 
@@ -80,16 +94,26 @@ The image installs a C/C++ SDK so inference programs compile on the board withou
 | Examples and guide | `/usr/share/edgeai-cpp-examples/` |
 
 
-`find_package(EdgeAI)` provides everything a program needs. The `hello_inference` example loads a model directory, runs one inference and prints the output tensors:
+The image-specific `find_package(EdgeAI)` configuration exposes `EdgeAI::edgeai`; additional application dependencies remain your responsibility. The supplied `hello_inference` example loads a model directory, runs inference and prints output tensors:
 
 ```bash
-cp -r /usr/share/edgeai-cpp-examples/hello_inference ~/hello_inference
-cd ~/hello_inference && mkdir build && cd build
-cmake .. && make
-sudo ./hello_inference -m /opt/model_zoo/ONR-OD-8200-yolox-nano-lite-mmdet-coco-416x416
+cpp_demo_dir=$(mktemp -d /tmp/mo62a-hello-inference.XXXXXX)
+cp -a /usr/share/edgeai-cpp-examples/hello_inference/. "$cpp_demo_dir/"
+cmake -S "$cpp_demo_dir" -B "$cpp_demo_dir/build"
+cmake --build "$cpp_demo_dir/build" --parallel 2
+sudo "$cpp_demo_dir/build/hello_inference" \
+  -m /opt/model_zoo/ONR-OD-8200-yolox-nano-lite-mmdet-coco-416x416
 ```
 
-On the test board the build takes under a minute, and the run reports `Offloaded Nodes - 329, Total Nodes - 329` followed by the two output tensors (`dets`, 1000 floats; `labels`, 200 integers). Its `CMakeLists.txt` is the template for your own program:
+The audit rebuilt this example in a new temporary directory and reran it successfully: 329/329 offloaded nodes, `dets` with 1000 `float32` elements and `labels` with 200 `int64` elements. This validates a blank-input example, not detection accuracy or every possible application.
+
+<a href={cpp} target="_blank" rel="noopener noreferrer">
+  <img src={cpp} alt="Actual rebuilt Mo62A C++ example, resolved ONNX/YAML libraries, full node offload and two output tensors" width="1440" height="900" />
+</a>
+
+Configuration emitted a CMake warning that `/opt/ti/edgeai/lib` could hide the system `libyaml-cpp.so.0.8`. `ldd` resolved the executable's YAML and ONNX libraries under that TI directory, and this run passed. The warning is not claimed fixed; inspect actual library resolution when changing the SDK or application dependencies.
+
+The minimal linking pattern is:
 
 ```cmake
 cmake_minimum_required(VERSION 3.16)
@@ -104,18 +128,18 @@ The API is TI's `edgeai-dl-inferer` (`#include <ti_dl_inferer.h>`): create a `DL
 
 ## GStreamer pipelines
 
-For video, the fastest path is a GStreamer pipeline in which the TI plugins handle capture, scaling, inference and overlay with zero-copy buffers between the ISP, the C7x and the display. The `edgeai-demo` launcher and the `edgeai-gst-apps` Python and C++ applications in `/opt/edgeai-gst-apps/` build such pipelines from a YAML configuration that names the model directory, the input (camera or video file) and the output. [Run your first NPU demo](../../getting-started/first-npu-demo.mdx) shows them in use; `/opt/edgeai-gst-apps/configs/` contains the configuration files to copy for your own setup.
+The launcher and `edgeai-gst-apps` build video applications from YAML input/model/output settings. The tested Python/C++ paths combine GStreamer, inference and application-side processing. They must not be described as universally zero-copy or guaranteed fastest. [TI's sample-app guide](https://software-dl.ti.com/processor-sdk-linux/esd/AM62AX/11_01_07_05/exports/docs/edgeai/sample_apps.html) distinguishes these from OpTIFlow. [Run your first NPU demo](../../getting-started/first-npu-demo.mdx) documents the actual Mo62A pipelines and development-environment changes.
 
 ## Troubleshooting
 
 | Symptom | What to check |
 |---|---|
-| `Create state function failed -1` | The artifacts were compiled for another TIDL version. Recompile them with the toolchain version in the [version map](../../resource-download/version-map.mdx). |
-| Permission error or return code `-16` | Run the program with `sudo`; the runtime needs the DMA heap and remote processor devices. |
+| `Create state function failed -1` | Read preceding target diagnostics; check versions, model integrity, operators, memory and shared-resource state. |
+| Permission error | Check the named device and process identity; numeric codes alone do not establish a permissions fault. |
 | `Unexpected input data type` | Match the type reported by `get_inputs()`; many models take `uint8`, not `float32`. |
-| Fewer offloaded than total nodes | Unsupported layers run on the CPU. Check the compilation log and [Known issues](./known-issues.mdx). |
-| The first inference takes seconds | Normal: the network is loaded onto the C7x on the first call. Warm up before measuring. |
-| Two camera pipelines conflict | The VPAC has one scaler path; stop the other pipeline (`Ctrl+C`, not `kill -9`) before starting a new one. |
+| Fewer offloaded than total nodes | Inspect CPU operations and runtime support, then validate correctness and timing. |
+| Slow initialization or first call | Measure initialization separately; investigate stalls instead of assuming all delays are normal. |
+| Concurrent pipelines conflict | Inspect resource ownership, caps and queues; stop the other test gracefully to isolate the issue. |
 
 
 ## Related pages

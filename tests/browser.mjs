@@ -868,6 +868,11 @@ try {
         assert.equal(report.samples_ms.length, 100);
         const mean = report.samples_ms.reduce((sum, value) => sum + value, 0) / 100;
         assert.ok(Math.abs(mean - report.mean_ms) < 1e-9);
+        const sorted = [...report.samples_ms].sort((a, b) => a - b);
+        assert.ok(Math.abs((sorted[49] + sorted[50]) / 2 - report.median_ms) < 1e-9);
+        assert.ok(Math.abs(sorted[94] + (sorted[95] - sorted[94]) * 0.05 - report.p95_ms) < 1e-9);
+        assert.equal(sorted[0], report.min_ms);
+        assert.equal(sorted[99], report.max_ms);
         assert.ok(/^[a-f0-9]{64}$/.test(report.model_sha256));
       }
 
@@ -895,16 +900,16 @@ try {
       }
 
       for (const [slug, headings, images, phrases] of [
-        ['overview', ['Three things to know first', 'The software stack', 'What happens during an inference', 'Subgraph partitioning', 'Versions must match', 'Where to go next'],
-          ['ai-stack-overview', 'ai-inference-flow', 'ai-subgraph', 'ai-version-matrix'], ['C7x DSP', 'TIDL 11_02_17_00', 'Offloaded Nodes - 329']],
-        ['model-hub', ['Models in the image', 'Run a model', 'Models that are not included', 'Add more models', 'Related pages'],
-          [], ['ONR-OD-8200-yolox-nano-lite-mmdet-coco-416x416', '10.5 ms', 'unsupported_models.txt']],
-        ['toolchain', ['Match the toolchain to your image', 'Install edgeai-tidl-tools on a PC', 'What the compiler does', 'Use the on-board SDK instead', 'Upgrade notes', 'Related pages'],
-          ['ai-compile'], ['--branch 11_02_17_00', 'setup_env.sh AM62A', 'TIDLRT_invoke failed']],
-        ['inference-apis', ['Model directory layout', 'Root access', 'Python: ONNX Runtime with the TIDL execution provider', 'C/C++: the on-board Edge AI SDK', 'GStreamer pipelines', 'Troubleshooting', 'Related pages'],
-          [], ['TIDLExecutionProvider', 'find_package(EdgeAI REQUIRED)', 'hello_inference']],
-        ['known-issues', ['Accelerator limitations', 'Toolchain behaviour', 'Models that do not run', 'Error reference', 'Related pages'],
-          [], ['Create state function failed', 'tidl_onnx_model_optimizer', 'ORT_DISABLE_ALL']],
+        ['overview', ['Three things to know first', 'The software stack', 'Initialization and repeated inference', 'Subgraph partitioning', 'Compatible versions, not identical version strings', 'Actual board inventory', 'Where to go next'],
+          ['ai-stack-overview', 'ai-inference-flow', 'ai-subgraph', 'ai-version-matrix', 'mo62a-runtime-inventory'], ['C7x DSP', 'TIDL 11_02_17_00', 'Offloaded Nodes - 329', 'not traces']],
+        ['model-hub', ['Models in the image', 'Auditable timing results', 'Run a model', 'Models that are not included', 'Add more models', 'Related pages'],
+          ['mo62a-model-inventory', 'mo62a-benchmark'], ['ONR-OD-8200-yolox-nano-lite-mmdet-coco-416x416', '10.900 ms', 'unsupported_models.txt']],
+        ['toolchain', ['Select a compatible combination', 'Prepare an isolated x86 environment', 'Exercise one upstream reference model', 'What compilation produces', 'Calibration and precision', 'Application builds and upgrades'],
+          ['ai-compile', 'mo62a-compiler-review'], ['--branch 11_02_17_00', 'setup_env.sh AM62A', 'Python 3.10', 'not sufficient proof']],
+        ['inference-apis', ['Model directory layout', 'Device access', 'Python: ONNX Runtime with the TIDL execution provider', 'C/C++: the on-board Edge AI SDK', 'GStreamer pipelines', 'Troubleshooting', 'Related pages'],
+          ['mo62a-python-smoke', 'mo62a-cpp-smoke'], ['TIDLExecutionProvider', 'find_package(EdgeAI REQUIRED)', 'hello_inference', 'session.disable_input_validation']],
+        ['known-issues', ['Read the operator reports carefully', '16-bit and YOLO conclusions', 'Compiler constraints and local observations', 'Inspect the excluded-model record', 'Diagnose errors in context', 'Runtime settings and recovery'],
+          ['mo62a-compiler-review'], ['Create state function failed', '8 / 22', 'not categorically limited', 'zero TIDL offloads']],
       ]) {
         await page.goto(url + board + '/application-development/ai/' + slug + '/', {waitUntil: 'networkidle'});
         const body = page.locator('.theme-doc-markdown');
@@ -914,7 +919,7 @@ try {
           const screenshot = body.locator(`img[src*="${file}"]`);
           assert.equal(await screenshot.count(), 1);
           await screenshot.evaluate(image => image.decode());
-          assert.ok(await screenshot.evaluate(image => image.naturalWidth >= 2400), slug + ' diagram resolution');
+          assert.ok(await screenshot.evaluate((image, min) => image.naturalWidth >= min, file.startsWith('ai-') ? 2400 : 1440), slug + ' media resolution');
           assert.ok(await screenshot.getAttribute('alt'));
           assert.equal(await screenshot.evaluate(image => image.closest('a')?.target), '_blank');
         }
@@ -922,6 +927,18 @@ try {
         for (const phrase of phrases) assert.ok(text.includes(phrase), 'Missing ' + slug + ' guidance: ' + phrase);
         assert.ok(!/10\.5\.\d+\.\d+/.test(text));
         assert.ok(!text.includes('Coming soon'), slug + ' must not be a placeholder');
+        assert.doesNotMatch(text, /the C7x is the only unit|16-bit inference is not usable|Almost every failure|all carry the TIDL version/);
+        if (slug !== 'model-hub') {
+          assert.ok(await body.locator('a[href*="software-dl.ti.com"], a[href*="github.com/TexasInstruments/"]').count() > 0, slug + ' must cite primary TI evidence');
+        }
+        if (slug === 'inference-apis') {
+          const response = await page.request.get(url + 'downloads/ai/infer-yolox-nano.py');
+          assert.equal(response.status(), 200);
+          const script = await response.text();
+          assert.ok(script.includes('range(3)'));
+          assert.ok(script.includes('session.disable_output_validation'));
+          assert.ok(script.includes('np.isfinite'));
+        }
         for (const width of [390, 768, 1440, 1920, 2560]) {
           await page.setViewportSize({width, height: 1000});
           if (images.length) await checkDocumentationMedia(page);

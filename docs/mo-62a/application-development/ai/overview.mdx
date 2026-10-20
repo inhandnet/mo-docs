@@ -1,6 +1,6 @@
 ---
 title: "AI overview"
-description: "How AI inference works on Mo62A: the C7x DSP with MMA, the TI software stack from application to accelerator, subgraph partitioning, and the compile-on-PC, run-on-board workflow."
+description: "AM62A heterogeneous inference, CPU fallback, TI runtime paths and version compatibility, with explicit Mo62A verification boundaries."
 sidebar_position: 1
 ---
 
@@ -8,77 +8,85 @@ import stackOverview from '@site/static/img/application-development/ai/ai-stack-
 import inferenceFlow from '@site/static/img/application-development/ai/ai-inference-flow.png';
 import subgraph from '@site/static/img/application-development/ai/ai-subgraph.png';
 import versionMatrix from '@site/static/img/application-development/ai/ai-version-matrix.png';
+import runtime from '@site/static/img/application-development/ai/mo62a-runtime-inventory.png';
 
-Mo62A runs neural networks on the **C7x DSP with its Matrix Multiply Accelerator (MMA)** inside the TI AM62A SoC, rated at 2 TOPS. There is no separate NPU: the C7x is the only unit that executes network layers, and the four Arm Cortex-A53 cores stay free for your application. This page explains the software between your program and that accelerator, so that the other AI pages make sense.
+Mo62A uses the AM62A's C7x DSP and Matrix Multiply Accelerator (MMA) for TIDL-accelerated neural-network inference. The advertised 2 TOPS is a peak hardware capability, not application throughput. Arm Cortex-A53 cores still run application code and can execute network sections through a compatible CPU runtime. They are not guaranteed to remain idle. See [TI's AM62A peak-performance explanation](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1338450/am62a7-how-mma-2-tops-peak-performance-is-computed).
 
-:::info[Tested software]
-Versions and measurements on this page come from **Mo62A image V1.1.0** (built 2026-08-19): TIDL 11_02_17_00, ONNX Runtime 1.23.0 (TI build), TFLite runtime 2.12, DLR 1.13 and the `am62a-c71_0-fw` C7x firmware. Diagrams were drawn from the tested board.
+:::info[Evidence and version scope]
+Local results refer to the Mo62A V1.1.0 development installation with TIDL `11_02_17_00` and TI ONNX Runtime 1.23.0, not a pristine TI EVM image. The `2026-08-19` value reported by `mo-version` is an image build field, not the GitHub release date. The diagrams explain software relationships; they are not traces or proof that every depicted path was tested on Mo62A.
 :::
 
 ## Three things to know first
 
-1. **Models must be compiled before they run.** A network in ONNX or TFLite form is compiled on an x86 PC with TI's `edgeai-tidl-tools` into **artifacts** for the C7x; the board only loads artifacts. See [Set up the toolchain](./toolchain.mdx).
-2. **Firmware, runtime libraries and artifacts form one set.** Artifacts compiled for another TIDL version fail to load, and the error messages do not say why. Match every component to the [version map](../../resource-download/version-map.mdx).
-3. **Layers the accelerator cannot run fall back to the CPU.** The runtime splits the network into subgraphs; a model performs well only when it runs as a single subgraph on the C7x.
+1. For TIDL acceleration, compile models on a matching x86 host, then deploy the graph, artifacts and application metadata together. Ordinary C/C++ applications can still be built on the board.
+2. Use a compatible host/target combination. SDK, TIDL and runtime version numbers need not be identical; changing one component independently can break the integration.
+3. CPU fallback is a runtime capability, not a universal rescue mechanism. An unsupported or custom operator still needs an implementation in the chosen CPU runtime.
 
 ## The software stack
 
 <a href={stackOverview} target="_blank" rel="noopener noreferrer">
-  <img src={stackOverview} alt="Layered diagram of the Mo62A AI stack from applications through inference frameworks, TI backends, TIDL runtime, OpenVX, IPC and firmware down to the C7x DSP and VPAC" width="2640" height="1900" />
+  <img src={stackOverview} alt="Conceptual AM62A stack separating application code, OSRT CPU fallback, TI offload, native TIDL-RT and VPAC vision processing; not a measured call trace" width="2800" height="2380" />
 </a>
 
-From the top:
-
-| Layer | Component | Role |
+| Path | Function | Verification boundary |
 |---|---|---|
-| Application | `edgeai-gst-apps`, `edgeai-demo`, your program | Captures frames, calls the runtime, uses the results |
-| Inference framework | ONNX Runtime, TFLite, DLR | Standard framework APIs; three independent paths |
-| TI backend | `libtidl_onnxrt_EP`, `libtidl_tfl_delegate`, `libdlr` | Decides which layers the C7x runs and hands them over |
-| TIDL runtime | `libvx_tidl_rt.so` | Turns "run this network" into an OpenVX graph |
-| OpenVX / TIOVX | `libtivision_apps.so` | Schedules nodes on the host; also drives the GStreamer camera plugins |
-| IPC | `rpmsg`, `dma_heap` | Commands over a ring buffer, data in shared memory without copies |
-| Firmware | `am62a-c71_0-fw` | TIDL algorithms, MMA kernels and the TIOVX target on the C7x |
-| Hardware | C7x DSP + MMA, VPAC | Network compute; image signal processing, scaling and lens correction |
+| ONNX Runtime + TI execution provider | Dispatches supported subgraphs to TIDL; remaining supported operations can use the CPU provider | Supplied YOLOX models were tested through this path |
+| TFLite + TI delegate | Uses a different model/runtime integration | Installation is not proof every TFLite model passes |
+| TVM runtime | Another TI-supported deployment path | Tag `11_02_17_00` lists TVM 0.18.0; no new Mo62A TVM deployment is claimed |
+| Native TIDL-RT | Runs compatible fully offloaded artifacts without an OSRT frontend | Does not supply OSRT CPU fallback |
+| TIOVX / vision plugins | Connects supported processing nodes and hardware services | Buffer reuse and CPU work depend on the application |
 
+These distinctions follow the [pinned TI runtime overview](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/README.md) and [TIDL-RT guide](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/tidlrt.md). The SDK 11.01 guide also describes the older Neo-AI DLR integration; an installed DLR 1.13 module is not evidence of a validated TVM 0.18.0 pipeline.
 
-The GStreamer TIOVX plugins (`tiovxisp`, `tiovxmultiscaler` and others) use the same OpenVX framework directly, which is why a camera pipeline can feed the accelerator with zero-copy buffers. The VPAC handles RAW-to-RGB conversion, scaling and lens correction in hardware, so the CPU does not touch pixels in a well-built pipeline.
+The VPAC provides vision functions such as ISP and scaling. This does not make an entire GStreamer application zero-copy or CPU-free. TI's [AM62A dataflows](https://software-dl.ti.com/processor-sdk-linux/esd/AM62AX/11_01_07_05/exports/docs/edgeai/edgeai_dataflows.html) distinguish OpTIFlow from Python/C++ applications using `appsink`, OSRT and OpenCV postprocessing.
 
-## What happens during an inference
+## Initialization and repeated inference
 
 <a href={inferenceFlow} target="_blank" rel="noopener noreferrer">
-  <img src={inferenceFlow} alt="Sequence diagram of session creation and per-frame inference across the user program, ONNX Runtime, TIDL execution provider, TIDL runtime, OpenVX and the C7x firmware" width="2480" height="1640" />
+  <img src={inferenceFlow} alt="Conceptual distinction between session initialization and repeated inference, with conditional CPU fallback and explicit timing boundaries" />
 </a>
 
-**Session creation** happens once and is slow (seconds): the execution provider reads `allowedNode.txt` from the artifacts, builds the TIDL subgraph, the runtime constructs the OpenVX graph, and the C7x allocates memory and initializes every layer's kernel. Almost every failure, including version mismatches and unsupported operators, surfaces here as `Create state function failed` on the Arm side while the real cause is in the C7x log.
+Initialization loads the model and artifacts and prepares resources. Repeated calls supply inputs, execute the selected runtime path and return outputs. Initialization and the first call can cost more than warmed-up calls, but there is no universal duration or single point at which every failure occurs. This follows [TI's inference guide](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/model_inference.md), not a function-by-function trace.
 
-**Per-frame inference** is the fast path: the input buffer is filled in shared memory, the graph is scheduled, the C7x executes the network and the output buffer comes back. On the tested board this takes 8 to 55 ms for the shipped models, depending on resolution; see [Pre-compiled models](./model-hub.mdx).
+The [benchmark page](./benchmarks.mdx) measures synchronous `session.run` on two supplied models. It excludes capture, input preparation, display and session creation. It is not a hardware-only C7x timer or end-to-end video FPS.
 
 ## Subgraph partitioning
 
 <a href={subgraph} target="_blank" rel="noopener noreferrer">
-  <img src={subgraph} alt="Diagram of how the TIDL execution provider partitions a network into subgraphs that run on the C7x, with unsupported layers falling back to the Arm CPU" width="2400" height="1400" />
+  <img src={subgraph} alt="Conceptual partitioning between TIDL subgraphs and supported CPU operations; fewer subgraphs alone do not establish correctness or end-to-end speed" width="2880" height="2160" />
 </a>
 
-At compile time the toolchain checks every operator against what the C7x firmware supports and records the result in `allowedNode.txt`. Supported layers are grouped into subgraphs that run on the accelerator; anything else runs in the framework on the CPU, and data crosses between the two for every boundary. One subgraph with all nodes offloaded is the goal, and it is what the runtime reports for the shipped models:
+Offload depends on the particular graph, shapes, attributes and precision. Inspect compilation logs and the partition visualization, not just operator names. The [TI compilation guide](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/model_compilation.md) describes generated network/I/O binaries and runtime visualization.
+
+The two supplied YOLOX models in our benchmark reported:
 
 ```text
 Final number of subgraphs created are : 1, - Offloaded Nodes - 329, Total Nodes - 329
 ```
 
-A network with several subgraphs still works, but each CPU section and each crossing costs time. [Known issues](./known-issues.mdx) lists the operators that AM62A cannot run in 8-bit mode and the rewrites that avoid them.
+This confirms those runs' partitioning; it does not mean preprocessing, application postprocessing or data movement uses no CPU. Multiple subgraphs can be valid. Measure their performance alongside CPU sections, tensor transfers and the rest of the application.
 
-## Versions must match
+## Compatible versions, not identical version strings
 
 <a href={versionMatrix} target="_blank" rel="noopener noreferrer">
-  <img src={versionMatrix} alt="Diagram of the five components that must share one TIDL version: C7x firmware, libtivision_apps, libvx_tidl_rt, the execution provider library and the model artifacts" width="2480" height="1600" />
+  <img src={versionMatrix} alt="Compatibility review of host tools, artifacts and target components using separate manifests rather than identical version strings" width="2400" height="1680" />
 </a>
 
-The C7x firmware, `libtivision_apps`, `libvx_tidl_rt`, the execution provider library and the model artifacts all carry the TIDL version. Mo OS images ship a consistent set; an image update that moves to a new TIDL version therefore requires every deployed model to be recompiled. The [version map](../../resource-download/version-map.mdx) lists the versions per image, and the [release notes](../../resource-download/release-notes.mdx) say when they change.
+TI classifies `11_02_17_00` as a backward-compatible patch for AM62A SDK 11.01.07.05, with corresponding target firmware/library updates. That does not mean untouched older firmware accepts every newer artifact. Use the [pinned compatibility table](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/sdk_version_compatibility_table.md), the image's integration record and regression tests.
+
+An incompatible change can require recompilation. TI explicitly requires it for the SDK 9.2 → 10.0 case in [this AM62A E2E answer](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1407278/sk-am62a-lp-model-maker-sdk-9-2-and-10-compatible); that is not a rule that every patch invalidates every older artifact.
+
+## Actual board inventory
+
+<a href={runtime} target="_blank" rel="noopener noreferrer">
+  <img src={runtime} alt="Actual Mo62A software inventory showing the TI runtime and available providers; an installation check, not proof of every runtime path" width="1440" height="900" />
+</a>
+
+Keep installation evidence separate from conceptual diagrams and successful inference measurements.
 
 ## Where to go next
 
-- [Pre-compiled models](./model-hub.mdx): what is already on the board and how fast it runs.
-- [Inference APIs](./inference-apis.mdx): Python, C/C++ and GStreamer, with tested code.
-- [Set up the toolchain](./toolchain.mdx): compiling your own models on a PC.
-- [Known issues & error reference](./known-issues.mdx): limitations and what the errors mean.
-- Background reading: [AM62A AI software stack](https://github.com/inhandnet/Mo62A/blob/HEAD/doc/AM62A_AI_Stack_ZH.md) in the Mo62A repository (Chinese, with the original diagrams).
+- [Pre-compiled models](./model-hub.mdx): inventory and verification limits.
+- [Inference APIs](./inference-apis.mdx): Python, C/C++ and video integration.
+- [Set up the toolchain](./toolchain.mdx): version-pinned host setup.
+- [Known issues](./known-issues.mdx): operator evidence and diagnostics.

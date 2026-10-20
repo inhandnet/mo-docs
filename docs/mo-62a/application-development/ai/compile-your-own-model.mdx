@@ -10,7 +10,7 @@ import runtime from '@site/static/img/application-development/ai/mo62a-runtime-i
 Compiling for Mo62A means turning a supported model into artifacts for the AM62A C7x runtime. It is not a file-format conversion alone: the exported graph, input processing, calibration data, compiler options and target runtime must agree.
 
 :::warning[Verification status]
-Pre-compiled image models and their inference APIs are verified. A new ResNet18 smoke test for this page created host artifacts but also emitted compiler diagnostics; its board run did not complete normally. That experiment is not an end-to-end pass. No custom-model artifact from it is offered for download, and this page does not claim a validated arbitrary-model recipe.
+The supplied YOLOX baseline and its documented inference APIs are verified. A new ResNet18 smoke test for this page created host artifacts but also emitted compiler diagnostics; its board run did not complete normally. That experiment is not an end-to-end pass. No custom-model artifact from it is offered for download, and this page does not claim a validated arbitrary-model recipe.
 :::
 
 ## Establish a known-good baseline
@@ -49,7 +49,8 @@ Calibration estimates activation ranges for quantized inference. It must exercis
 The pinned [TI basic example](https://github.com/TexasInstruments/edgeai-tidl-tools/tree/11_02_17_00/runtimes/examples/python/basic_example) documents its configuration and command-line interface. After installing the matching environment, its compile command is:
 
 ```bash
-python runtimes/examples/python/basic_example/basic_example.py \
+cd runtimes/examples/python/basic_example
+python3 basic_example.py --config ./config.yaml \
   --compile --models cl-ort-resnet18-v1
 ```
 
@@ -61,7 +62,7 @@ The example's configuration defines the model, runtime, preprocessing and calibr
 |---|---|
 | SoC | AM62A, matching the target board |
 | `tensor_bits` | Intended quantization width, with accuracy measured afterward |
-| `advanced_options:calibration_frames` | Enough actual input calls to finish calibration |
+| `advanced_options:calibration_frames` | Effective selected count and sufficient actual inputs; this tag's basic example adjusts the option to its selected frame count |
 | `artifacts_folder` | New output directory belonging to this exact graph |
 | ONNX graph optimization | Consistent with the compiled graph; use the documented TIDL runtime settings |
 | Mixed precision / detection metadata | Model-specific settings with a recorded reason, not arbitrary copied values |
@@ -92,3 +93,9 @@ Verify copied checksums before loading. Then check:
 If the process stalls, stop that experiment and preserve its log. Confirm a known-good model still runs before attempting another custom artifact. Do not repeatedly restart a remote processor that the ISP or another application is using.
 
 The failed local smoke test required stopping its process and rebooting the test board before the known-good baseline was rerun successfully. The compiler or firmware root cause has not been established; no fix is claimed here.
+
+## TI references and their scope
+
+- [AM62A SDK 11.01.07.05 model guide](https://software-dl.ti.com/processor-sdk-linux/esd/AM62AX/11_01_07_05/exports/docs/edgeai/inference_models.html): host import and complete deployment bundles.
+- [Tag-specific compilation options](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/model_compilation.md) and [detection metadata](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/od_meta_arch.md): use the options for the actual exported graph.
+- [TI E2E: AM62A model compilation diagnostics](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1423887/sk-am62a-lp-issue-with-the-network-compilation-with-edgeai-tensorlab-tidl_e_dataflow_info_null-network-compiler-returned-with-error): a separate case discussing network-compiler failure. It does not diagnose our local ResNet18 experiment.
