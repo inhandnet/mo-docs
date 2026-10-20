@@ -3,6 +3,7 @@ import Link from '@site/src/components/DocumentationLink';
 import {getProduct, type Product} from '@site/src/data/products';
 import {SpecTable} from '@site/src/components/SpecTable';
 import {boards, generatedAt} from '@site/src/data/releases';
+import DocumentationTable from '@site/src/components/DocumentationTable';
 
 // Shows its children only for the given board; used in shared partials (docs/_partials).
 export function Only({board, is, children}: {board: string; is: string | string[]; children: ReactNode}): ReactNode {
@@ -90,8 +91,7 @@ export function BoardDownloads({board}: {board: Product['id']}): ReactNode {
     },
   ];
   return (
-    <div className="mo-table">
-    <table className="mo-spec-table">
+    <DocumentationTable className="mo-spec-table">
       <tbody>
         {rows.map((r) => (
           <tr key={r.item}>
@@ -100,8 +100,7 @@ export function BoardDownloads({board}: {board: Product['id']}): ReactNode {
           </tr>
         ))}
       </tbody>
-    </table>
-    </div>
+    </DocumentationTable>
   );
 }
 
@@ -113,8 +112,7 @@ const VERSION_ROWS = [
 
 export function VersionMap(): ReactNode {
   return (
-    <div className="mo-table">
-      <table className="mo-spec-table">
+      <DocumentationTable className="mo-spec-table">
         <thead>
           <tr>
             <th>Board</th>
@@ -135,7 +133,6 @@ export function VersionMap(): ReactNode {
             </tr>
           ))}
         </tbody>
-      </table>
-    </div>
+      </DocumentationTable>
   );
 }

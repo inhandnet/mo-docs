@@ -8,6 +8,7 @@ import {chromium} from 'playwright';
 import {checkBrand} from './brand.mjs';
 import {releaseFixture} from './fixtures/release.mjs';
 import {latestReleaseApi} from '../src/data/latest-image.mjs';
+import {checkAllTables} from './table-layout.mjs';
 const base = process.env.DOCS_BASE_URL ?? '/';
 const preview = process.env.DOCS_PREVIEW === '1';
 const root = path.resolve(process.env.DOCS_BUILD_DIR ?? 'build');
@@ -846,6 +847,7 @@ try {
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({path: path.join(process.env.QA_SCREENSHOT_DIR, 'desktop.png'), fullPage: true});
   }
+  await checkAllTables(page, root, url);
   assert.deepEqual(errors, [], 'Browser console or resource failures');
   console.log('Mo documentation browser tests passed: ' + base + ', sidebar toggle, both boards, shared MDX, placeholders, downloads, search and mobile.');
 } finally {
