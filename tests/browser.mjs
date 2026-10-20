@@ -416,6 +416,64 @@ try {
       await page.locator('[id="3-pre-configure-the-board-optional"]').waitFor();
       assert.equal(await page.locator('[id="3-pre-configure-the-board-optional"]').count(), 1);
 
+      await page.goto(url + board + '/mo-os/using-mo-os/', {waitUntil: 'networkidle'});
+      const usingMoOsBody = page.locator('.theme-doc-markdown');
+      assert.deepEqual(await usingMoOsBody.locator('h2').allTextContents().then(items => items.map(item => item.replace(/\u200b/g, ''))), [
+        'Use the XFCE desktop',
+        'Identify the software and resources',
+        'Work with files and storage',
+        'Run administrative commands',
+        'Install Debian packages',
+        'Manage services and read logs',
+        'Set time, time zone and synchronization',
+        'Restart and shut down safely',
+        'Troubleshooting checklist',
+        'Continue with Mo OS',
+      ]);
+      assert.equal(await usingMoOsBody.locator('img').count(), 5);
+      for (const [file, width, height] of [
+        ['mo62a-desktop-applications', 1920, 1080],
+        ['mo62a-system', 1440, 900],
+        ['mo62a-services', 1439, 899],
+        ['mo62a-apt-install', 1440, 900],
+        ['mo62a-desktop-shutdown', 1920, 1080],
+      ]) {
+        const screenshot = usingMoOsBody.locator(`img[src*="${file}"]`);
+        assert.equal(await screenshot.count(), 1);
+        await screenshot.evaluate(image => image.decode());
+        assert.deepEqual(await screenshot.evaluate(image => [image.naturalWidth, image.naturalHeight]), [width, height]);
+        assert.ok(await screenshot.getAttribute('alt'));
+        assert.equal(await screenshot.evaluate(image => image.closest('a')?.href), await screenshot.evaluate(image => image.src));
+        assert.equal(await screenshot.evaluate(image => image.closest('a')?.target), '_blank');
+      }
+      const aptAnimation = usingMoOsBody.locator('picture img[src*="mo62a-apt-install"]');
+      assert.equal(await aptAnimation.count(), 1);
+      assert.ok((await aptAnimation.getAttribute('src')).endsWith('.gif'));
+      await page.emulateMedia({reducedMotion: 'reduce'});
+      await page.waitForFunction(() => document.querySelector('.theme-doc-markdown picture img').currentSrc.endsWith('.png'));
+      await aptAnimation.evaluate(image => image.decode());
+      assert.deepEqual(await aptAnimation.evaluate(image => [image.naturalWidth, image.naturalHeight]), [1440, 900]);
+      await page.emulateMedia({reducedMotion: 'no-preference'});
+      await page.waitForFunction(() => {
+        const image = document.querySelector('.theme-doc-markdown picture img');
+        return image.currentSrc === image.src;
+      });
+      const usingMoOsText = await usingMoOsBody.innerText();
+      for (const expected of [
+        'Mo62A image V1.1.0',
+        'mo-version',
+        'sudo apt upgrade --dry-run',
+        'APT can update standard Debian user-space packages',
+        'systemctl --failed --no-pager',
+        'timedatectl set-timezone Region/City',
+        'Use a forced power-off only when the system is unresponsive',
+      ]) assert.ok(usingMoOsText.includes(expected), 'Missing Using Mo OS guidance: ' + expected);
+      assert.ok(!usingMoOsText.includes('sudo apt update && sudo apt upgrade'));
+      await checkDocumentationMedia(page);
+      const usingMoOsHrefs = await usingMoOsBody.locator('a[href]').evaluateAll(links =>
+        [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
+      for (const href of usingMoOsHrefs) assert.equal((await page.request.get(origin + href)).status(), 200, 'Using Mo OS link must resolve: ' + href);
+
       await page.goto(url + board + '/mo-os/network/', {waitUntil: 'networkidle'});
       const networkBody = page.locator('.theme-doc-markdown');
       assert.deepEqual(await networkBody.locator('h2').allTextContents().then(items => items.map(item => item.replace(/\u200b/g, ''))), [

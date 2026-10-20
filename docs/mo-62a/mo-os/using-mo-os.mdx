@@ -1,9 +1,235 @@
 ---
 title: "Using Mo OS"
-description: "Mo 62A: Debian basics, apt and updates."
+description: "Use the Mo62A desktop and terminal, manage Debian packages and services, inspect the system, and shut down safely."
 sidebar_position: 1
 ---
 
-import UsingMoOs from '@site/docs/_partials/mo-os/using-mo-os.mdx';
+import desktopApplications from '@site/static/img/mo-os/mo62a-desktop-applications.png';
+import systemTerminal from '@site/static/img/mo-os/mo62a-system.png';
+import servicesTerminal from '@site/static/img/mo-os/mo62a-services.png';
+import aptInstallAnimation from '@site/static/img/mo-os/mo62a-apt-install.gif';
+import aptInstallStill from '@site/static/img/mo-os/mo62a-apt-install.png';
+import desktopShutdown from '@site/static/img/mo-os/mo62a-desktop-shutdown.png';
 
-<UsingMoOs board="mo-62a" />
+Mo OS is the software environment supplied for Mo62A. It combines Debian GNU/Linux, the XFCE desktop, the Linux kernel and board support, and the TI Edge AI runtime. You can perform the same administration tasks from the local desktop terminal, SSH or the debug UART unless a step specifically needs the graphical desktop.
+
+:::info[Tested software]
+This page was tested on **Mo62A image V1.1.0** (built 2026-08-19), with Debian 13 (Trixie) and Linux 6.12.35. Commands and screen layout can differ in later releases. Check the [release notes](../resource-download/release-notes.mdx) for changes that affect your image.
+:::
+
+## Use the XFCE desktop
+
+After a local login, select **Applications** at the upper-left to open programs and settings. Common starting points are:
+
+- **Terminal Emulator** for commands on Mo62A.
+- **File Manager** for files in your home directory and mounted storage.
+- **Settings** for desktop, display, keyboard, mouse, session and network tools.
+- **Log Out** for switching users, restarting or shutting down.
+
+The bottom panel also provides shortcuts to frequently used applications. The exact menu entries depend on the packages installed in your image.
+
+<a href={desktopApplications} target="_blank" rel="noopener noreferrer">
+  <img src={desktopApplications} alt="Real Mo62A XFCE desktop with the Applications menu open" width="1920" height="1080" />
+</a>
+
+For the initial desktop login, SSH and serial-console steps, see [First boot](../getting-started/first-boot.mdx). Network settings are covered in [Network](./network.mdx), and monitor and sound settings are covered in [Display & audio](./display-and-audio.mdx).
+
+## Identify the software and resources
+
+Record the image, Debian and kernel versions before debugging or reporting a problem:
+
+```bash
+mo-version
+grep '^PRETTY_NAME=' /etc/os-release
+uname -r
+```
+
+Check uptime, memory, mounted filesystems and block devices:
+
+```bash
+uptime -p
+free -h
+df -h
+lsblk -o NAME,SIZE,FSTYPE,MOUNTPOINTS
+```
+
+`free -h` separates currently used memory from cache that Linux can reclaim. `df -h` reports filesystem space; `lsblk` shows the underlying devices and partitions. A nearly full root filesystem can prevent package installation and services from writing data.
+
+The following capture is a real SSH session on the tested image. Resource use and available storage are only a snapshot and will differ on your board. The shell prompt has been simplified to hide account and network details.
+
+<a href={systemTerminal} target="_blank" rel="noopener noreferrer">
+  <img src={systemTerminal} alt="Real Mo62A SSH terminal showing the Mo OS version, Debian release, kernel, uptime, memory and root filesystem usage" width="1440" height="900" />
+</a>
+
+## Work with files and storage
+
+Your personal files belong under your home directory. Use `pwd` to show the current directory and `ls` to inspect it:
+
+```bash
+pwd
+ls -la
+mkdir -p ~/projects
+cp SOURCE_FILE ~/projects/
+```
+
+Quote a path that contains spaces. Add `-i` to `cp`, `mv` or `rm` when you want a prompt before overwriting or deleting a file. Do not edit the boot or root filesystem from another computer while Mo62A is running.
+
+Mo image components and examples can also appear outside your home directory. On the tested image:
+
+- `/opt/model_zoo` points to the installed TI model collection.
+- `/usr/share/edgeai-cpp-examples/` contains the C++ Edge AI examples.
+- `/var/log/` contains persistent or rotated logs for many system services.
+
+Locations can change with an image release. Test for a directory before relying on it in a script, for example `test -d /usr/share/edgeai-cpp-examples`.
+
+For partitions, boot media and backup guidance, see [Storage & boot](../system-configuration/storage-and-boot.mdx).
+
+## Run administrative commands
+
+Your normal account limits accidental changes to the operating system. Prefix a command with `sudo` only when it needs administrator privileges:
+
+```bash
+sudo systemctl status ssh
+```
+
+Enter your Mo62A account password when prompted. Password characters are not displayed. `sudo` runs only that command with elevated privileges; review a downloaded command or script before running it with `sudo`.
+
+Account permissions, password changes, SSH keys and security configuration belong in [Users & security settings](./users-and-security.mdx).
+
+## Install Debian packages
+
+Mo OS uses APT for standard Debian user-space packages. Search and inspect a package before installation:
+
+```bash
+apt search SEARCH_TERM
+apt show PACKAGE_NAME
+```
+
+Refresh the package index, install the package and verify the program:
+
+```bash
+sudo apt update
+sudo apt install PACKAGE_NAME
+PACKAGE_COMMAND --version
+```
+
+The real session below installs `ripgrep` as an example and runs `rg --version`. Replace it with the package you need. The demonstration package was removed from the test board after recording.
+
+<a href={aptInstallAnimation} target="_blank" rel="noopener noreferrer">
+  <picture className="mo-first-boot-animation">
+    <source media="(prefers-reduced-motion: reduce)" srcSet={aptInstallStill} />
+    <img src={aptInstallAnimation} alt="Real Mo62A terminal recording of apt update, installing ripgrep and checking the installed version" width="1440" height="900" />
+  </picture>
+</a>
+
+Remove a package when it is no longer needed:
+
+```bash
+sudo apt remove PACKAGE_NAME
+```
+
+Use `sudo apt purge PACKAGE_NAME` only if you also intend to remove that package's system-wide configuration. Review the proposed changes before confirming either operation.
+
+### Update packages safely
+
+`sudo apt update` refreshes the package lists; it does not install upgrades. Inspect available Debian package upgrades first:
+
+```bash
+apt list --upgradable
+sudo apt upgrade --dry-run
+```
+
+:::caution[Debian packages are not a complete Mo platform update]
+APT can update standard Debian user-space packages. It does not replace the complete Mo BSP, custom kernel and device tree, TI firmware, or the validated Edge AI software stack as one tested unit. Back up important data, read the Mo [release notes](../resource-download/release-notes.mdx), and review the package list before upgrading. Re-test camera, media and AI pipelines after relevant library changes. Use a published Mo OS image when you need a complete platform update.
+:::
+
+Avoid an unattended full upgrade on a production device unless you have tested the resulting package set and have a recovery plan.
+
+## Manage services and read logs
+
+Mo OS uses systemd. Check failed services and inspect one service without opening a pager:
+
+```bash
+systemctl --failed --no-pager
+systemctl status SERVICE_NAME --no-pager
+```
+
+Read messages from the current boot, then follow new messages if needed:
+
+```bash
+sudo journalctl -u SERVICE_NAME -b -n 100 --no-pager
+sudo journalctl -u SERVICE_NAME -f
+```
+
+Press **Ctrl+C** to stop following the log. To act on a service:
+
+```bash
+sudo systemctl restart SERVICE_NAME
+sudo systemctl enable --now SERVICE_NAME
+sudo systemctl disable --now SERVICE_NAME
+```
+
+Restarting or stopping a network, login or remote-access service can disconnect your session. Check the service name and keep a local desktop or serial console available when changing a service needed for remote access.
+
+This real session shows no failed units at that moment, confirms three services are active, then inspects `s1-powerkey` and its current-boot log. Timestamps, process IDs and resource use change on every boot.
+
+<a href={servicesTerminal} target="_blank" rel="noopener noreferrer">
+  <img src={servicesTerminal} alt="Real Mo62A SSH terminal checking failed systemd units, active services and the s1-powerkey journal" width="1439" height="899" />
+</a>
+
+## Set time, time zone and synchronization
+
+Correct time is required for TLS certificates, package repositories and useful logs. Inspect the clock and network synchronization:
+
+```bash
+timedatectl
+```
+
+Choose a time zone from the system list and enable network time synchronization:
+
+```bash
+timedatectl list-timezones
+sudo timedatectl set-timezone Region/City
+sudo timedatectl set-ntp true
+timedatectl
+```
+
+Replace `Region/City` with a listed value such as `Asia/Shanghai`. Network synchronization needs a working network path to a time source and may take a short time after boot. Confirm that `System clock synchronized` becomes `yes`; setting NTP to active alone does not prove that synchronization has completed.
+
+## Restart and shut down safely
+
+Save open work before restarting or shutting down. From a terminal, run:
+
+```bash
+sudo systemctl reboot
+sudo systemctl poweroff
+```
+
+Run only the command you intend to use. After `poweroff`, wait for shutdown to complete before disconnecting USB-C power or removing the microSD card.
+
+On the XFCE desktop, select **Applications → Log Out**, then choose **Restart** or **Shut Down**. The screenshot comes from the real Mo62A desktop; the account name in the dialog title was anonymized.
+
+<a href={desktopShutdown} target="_blank" rel="noopener noreferrer">
+  <img src={desktopShutdown} alt="Real Mo62A XFCE logout dialog with Restart and Shut Down actions and an anonymized account name" width="1920" height="1080" />
+</a>
+
+On the tested image, a short press of the board's **S1** button opens this desktop shutdown dialog. Holding S1 for about five seconds requests an operating-system shutdown; holding it for about seven seconds can force a hardware power-off. Use a forced power-off only when the system is unresponsive, because it can lose unwritten data or damage a filesystem. The S1 timing behavior is defined by the supplied image and board hardware and can vary with a later release.
+
+## Troubleshooting checklist
+
+| Symptom | Checks |
+|---|---|
+| A command is not found | Check spelling and `command -v COMMAND`. Search for its package with APT, and confirm the instructions match your image version. |
+| APT cannot download packages | Check address, route, DNS and system time. Continue with [Network](./network.mdx). |
+| APT reports locks in use | Wait for the active package operation to finish. Do not delete lock files or interrupt package configuration. |
+| A service does not start | Run `systemctl status SERVICE_NAME --no-pager` and `sudo journalctl -u SERVICE_NAME -b --no-pager`, then address the first relevant error. |
+| The root filesystem is full | Use `df -h /` and `sudo du -xhd1 /var /home 2>/dev/null` to find large areas. Back up and remove only files you recognize. |
+| The desktop is unavailable | Use SSH or the debug UART, check `systemctl status lightdm --no-pager`, and inspect its current-boot journal. |
+
+## Continue with Mo OS
+
+- [Network](./network.mdx): Ethernet, Wi-Fi and Bluetooth Low Energy.
+- [Display & audio](./display-and-audio.mdx): monitor modes and sound devices.
+- [Remote access](./remote-access.mdx): SSH, file transfer and remote desktop access.
+- [Users & security settings](./users-and-security.mdx): accounts, credentials, permissions and hardening.
+- [Application development](../application-development/index.mdx): cameras, peripherals and AI applications.

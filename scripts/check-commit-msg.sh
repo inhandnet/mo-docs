@@ -25,6 +25,7 @@ INTERNAL_RE='(^|[^0-9])(10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}|172\.(1[6-9]|2[0-
 HEADER_RE="^(${TYPES})(\\(${SCOPE_RE}\\))?!?: (.+)$"
 
 allow_autosquash=0
+require_bilingual=0
 failures=0
 
 err() { printf '  - %s\n' "$*" >&2; }
@@ -102,6 +103,22 @@ check_one() {
     problems+=("the message contains internal information (private IP address or internal domain)")
   fi
 
+  if (( require_bilingual )); then
+    local markers en_count zh_count en_text zh_text field_count
+    markers=$(printf '%s\n' "$msg" | grep -c '^Message:$' || true)
+    en_count=$(printf '%s\n' "$msg" | grep -c '^  en: .\+' || true)
+    zh_count=$(printf '%s\n' "$msg" | grep -c '^  zh: .\+' || true)
+    field_count=$(printf '%s\n' "$msg" | sed -n '/^Message:$/,$p' | grep -c '^  [a-z][a-z]*:' || true)
+    en_text=$(printf '%s\n' "$msg" | sed -n 's/^  en: //p')
+    zh_text=$(printf '%s\n' "$msg" | sed -n 's/^  zh: //p')
+    if (( markers != 1 || en_count != 1 || zh_count != 1 || field_count != 2 )); then
+      problems+=("add one final Message block with exactly '  en:' and '  zh:' fields")
+    else
+      [[ $en_text =~ [A-Za-z] ]] || problems+=("Message.en must contain English text")
+      printf '%s\n' "$zh_text" | grep -Pq '[\x{4e00}-\x{9fff}]' || problems+=("Message.zh must contain Chinese text")
+    fi
+  fi
+
   if (( ${#problems[@]} )); then
     failures=$((failures + 1))
     printf '\n✗ %s\n    %s\n' "$label" "$header" >&2
@@ -123,13 +140,29 @@ case $1 in
   --file)
     [[ $# -ge 2 && -r $2 ]] || usage
     file=$2; shift 2
-    [[ ${1:-} == --allow-autosquash ]] && allow_autosquash=1
+    while [[ $# -gt 0 ]]; do
+      case $1 in
+        --allow-autosquash) allow_autosquash=1 ;;
+        --require-bilingual) require_bilingual=1 ;;
+        *) usage ;;
+      esac
+      shift
+    done
     check_one "commit message" "$(clean_message < "$file")"
     ;;
   --revs)
     shift
     [[ $# -ge 1 ]] || usage
-    mapfile -t commits < <(git rev-list --no-merges --reverse "$@")
+    rev_args=()
+    for arg in "$@"; do
+      if [[ $arg == --require-bilingual ]]; then
+        require_bilingual=1
+      else
+        rev_args+=("$arg")
+      fi
+    done
+    (( ${#rev_args[@]} )) || usage
+    mapfile -t commits < <(git rev-list --no-merges --reverse "${rev_args[@]}")
     for c in "${commits[@]}"; do
       check_one "commit ${c:0:12}" "$(git log -1 --format=%B "$c")"
     done
