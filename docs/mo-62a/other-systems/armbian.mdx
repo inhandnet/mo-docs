@@ -1,9 +1,67 @@
 ---
 title: "Armbian"
-description: "Mo 62A: Community Debian / Ubuntu builds."
+description: "Distinguish the Armbian image-writing tool from an Armbian operating system."
 sidebar_position: 1
 ---
 
-Running Armbian on the board.
+import customImage from '@site/static/img/getting-started/armbian-imager-use-custom-image.png';
+import systemInfo from '@site/static/img/mo-os/mo62a-system.png';
 
-<ComingSoon />
+## Current validation status
+
+Armbian Imager has been used to write the Mo62A MoOS image. An Armbian
+operating-system image has not been boot-tested on Mo62A in this documentation
+validation. These are separate claims: the name of the writing tool does not
+identify the operating system on the card.
+
+| Item | What is established | What is not established |
+| --- | --- | --- |
+| Armbian Imager | The local/custom-image workflow is documented for writing MoOS | Inclusion of Mo62A in an Armbian OS support list |
+| MoOS | A Debian-based Mo62A system with the board's boot files, kernel and TI components | An Armbian distribution or a generic ARM64 image |
+| Armbian OS | Upstream documentation is available | A verified Mo62A image, board configuration or peripheral test result |
+
+## Write MoOS with Armbian Imager
+
+Use [Install the OS](../getting-started/install-os.mdx) for the complete tested
+procedure and the Mo62A image download. Select the downloaded MoOS file as a
+custom image, confirm the removable card by capacity and device identity, and
+wait for writing and verification to finish. Writing erases the selected card;
+back up its contents first.
+
+<a href={customImage} target="_blank" rel="noreferrer"><img src={customImage} alt="Real Armbian Imager custom-image entry point used in the MoOS installation guide" /></a>
+
+Existing installation capture: the **Use Custom Image** entry point in Armbian
+Imager. This is not an Armbian OS boot test.
+
+Upstream documents support for local/custom images and write verification in
+[Writing the image](https://docs.armbian.com/getting-started/writing-the-image/).
+Those tool features do not supply the Mo62A-specific bootloader or drivers.
+
+## Identify the running system
+
+On an existing board, inspect its identity without changing storage:
+
+```bash
+cat /etc/os-release
+uname -r
+tr -d '\0' < /proc/device-tree/model
+printf '\n'
+```
+
+<a href={systemInfo} target="_blank" rel="noreferrer"><img src={systemInfo} alt="Mo62A terminal displaying the MoOS system and kernel identity" /></a>
+
+Real MoOS system inspection from the MoOS guide, not evidence of Armbian OS
+compatibility.
+
+## Before evaluating an Armbian OS image
+
+Obtain a release that explicitly identifies Mo62A, its board revision and its
+maintainer. Record the image URL, checksum, bootloader, kernel and device tree.
+A similarly named TI development board or a generic ARM64 root filesystem is
+not a substitute for this information.
+
+Use a separate test card and retain a known-working MoOS card. Validation would
+need to cover cold boot and recovery, storage, Ethernet, wireless, display,
+camera, GPIO and the TI inference stack separately. No Mo62A Armbian image or
+installation command is supplied here because that validation has not been
+completed.

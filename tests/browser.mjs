@@ -979,9 +979,25 @@ try {
     await checkDocumentationMedia(page);
     await page.goto(url + board + '/resource-download/', {waitUntil: 'networkidle'});
     assert.equal(await page.locator('.theme-doc-markdown a[href="' + portal + '/software#os-images"]').count(), 1);
-    await page.goto(url + board + '/other-systems/armbian/', {waitUntil: 'networkidle'});
-    assert.ok((await page.locator('.mo-stub').innerText()).includes('Coming soon.'));
-    assert.doesNotMatch(await page.locator('.mo-stub').innerText(), /\bP[0-3]\b|Existing material/);
+    if (board === 'mo-62a') {
+      for (const slug of ['armbian', 'torizon']) {
+        await page.goto(url + board + '/other-systems/' + slug + '/', {waitUntil: 'networkidle'});
+        const body = page.locator('.theme-doc-markdown');
+        const text = await body.innerText();
+        assert.ok(text.includes('Current validation status'));
+        assert.ok(!text.includes('Coming soon'));
+        assert.equal(await body.locator('img').count(), 2);
+        if (slug === 'armbian') assert.ok(text.includes('not been boot-tested'));
+        else assert.ok(text.includes('not a Torizon test'));
+        await checkDocumentationMedia(page);
+        const hrefs = await body.locator('a[href]').evaluateAll(links => [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
+        for (const href of hrefs) assert.equal((await page.request.get(origin + href)).status(), 200, href);
+      }
+    } else {
+      await page.goto(url + board + '/other-systems/armbian/', {waitUntil: 'networkidle'});
+      assert.ok((await page.locator('.mo-stub').innerText()).includes('Coming soon.'));
+      assert.doesNotMatch(await page.locator('.mo-stub').innerText(), /\bP[0-3]\b|Existing material/);
+    }
   }
 
   await page.goto(url + 'mo-62a/', {waitUntil: 'networkidle'});
