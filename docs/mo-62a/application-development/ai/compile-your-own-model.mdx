@@ -1,9 +1,94 @@
 ---
 title: "Compile your own model"
-description: "Mo 62A: Compile an ONNX model and deploy it."
+description: "Plan ONNX export, calibration, TIDL compilation and board validation, with explicit acceptance checks and current verification limits."
 sidebar_position: 4
 ---
 
-Compile an ONNX model with edgeai-tidl-tools and deploy it to the board.
+import compiler from '@site/static/img/application-development/ai/mo62a-compiler-review.png';
+import runtime from '@site/static/img/application-development/ai/mo62a-runtime-inventory.png';
 
-<ComingSoon />
+Compiling for Mo62A means turning a supported model into artifacts for the AM62A C7x runtime. It is not a file-format conversion alone: the exported graph, input processing, calibration data, compiler options and target runtime must agree.
+
+:::warning[Verification status]
+Pre-compiled image models and their inference APIs are verified. A new ResNet18 smoke test for this page created host artifacts but also emitted compiler diagnostics; its board run did not complete normally. That experiment is not an end-to-end pass. No custom-model artifact from it is offered for download, and this page does not claim a validated arbitrary-model recipe.
+:::
+
+## Establish a known-good baseline
+
+First run a [pre-compiled model](./model-hub.mdx) on the board. Record `mo-version`, the kernel and the runtime. The installed runtime can be checked directly:
+
+```bash
+python3 -c "import onnxruntime as o; print(o.__version__); print(o.get_available_providers())"
+```
+
+<a href={runtime} target="_blank" rel="noopener noreferrer">
+  <img src={runtime} alt="Live Mo62A runtime inventory showing the installed TI ONNX Runtime and its execution providers" width="1440" height="900" />
+</a>
+
+Module import is more useful than relying only on Python package metadata: a vendor-installed module can import successfully even when `importlib.metadata` does not find a wheel record. A provider listed on the board is not evidence that host compilation should run there.
+
+Follow [Set up the toolchain](./toolchain.mdx) for the matching x86 host tools. The V1.1.0 validation line uses tag `11_02_17_00` and AM62A, not another SoC's artifacts.
+
+## Prepare the model and inputs
+
+| Item | Record before compiling |
+|---|---|
+| Export | Framework/exporter version, model revision and license, ONNX opset and checksum |
+| Inputs | Names, fixed shapes, data types, batch size and channel layout |
+| Preprocessing | Resize/crop/letterbox behavior, RGB/BGR order, normalization and padding |
+| Outputs | Tensor meaning, class order, coordinate format and postprocessing |
+| Calibration | Representative samples processed exactly like inference inputs |
+| Reference | Floating-point outputs and task metrics on an independent validation set |
+
+Check the ONNX model on the CPU before introducing TIDL. Resolve dynamic dimensions deliberately; changing an exported shape is not automatically equivalent to re-exporting the network correctly. Review the [known operator limitations](./known-issues.mdx).
+
+Calibration estimates activation ranges for quantized inference. It must exercise relevant scenes and input values. Repeating a single image can test plumbing, but it cannot establish acceptable accuracy. Keep calibration and evaluation data distinct when reporting accuracy.
+
+## Use the matching TI example as the starting point
+
+The pinned [TI basic example](https://github.com/TexasInstruments/edgeai-tidl-tools/tree/11_02_17_00/runtimes/examples/python/basic_example) documents its configuration and command-line interface. After installing the matching environment, its compile command is:
+
+```bash
+python runtimes/examples/python/basic_example/basic_example.py \
+  --compile --models cl-ort-resnet18-v1
+```
+
+This is the upstream reference command, not a claim that this exact command completed the failed local experiment described above. Start with one model, preserve the full log, and use a separate work copy/output directory so an experiment cannot overwrite known-good artifacts.
+
+The example's configuration defines the model, runtime, preprocessing and calibration inputs. For a custom detection model, any metadata describing detection heads must match that export; copying a YOLOX or SSD metadata file to a different network is not a valid conversion.
+
+| Option or setting | What to verify |
+|---|---|
+| SoC | AM62A, matching the target board |
+| `tensor_bits` | Intended quantization width, with accuracy measured afterward |
+| `advanced_options:calibration_frames` | Enough actual input calls to finish calibration |
+| `artifacts_folder` | New output directory belonging to this exact graph |
+| ONNX graph optimization | Consistent with the compiled graph; use the documented TIDL runtime settings |
+| Mixed precision / detection metadata | Model-specific settings with a recorded reason, not arbitrary copied values |
+
+## Inspect every stage
+
+The host capture below is deliberately a counterexample: it reports artifacts and a success banner, but also `Invalid Error Type!`. Do not discard diagnostic lines and publish only the final success string.
+
+<a href={compiler} target="_blank" rel="noopener noreferrer">
+  <img src={compiler} alt="Actual host compilation excerpt containing both generated artifact names and compiler error diagnostics; not a passing deployment result" width="1440" height="900" />
+</a>
+
+Preserve the full compiler log, offloaded-node report and output directory. Investigate error diagnostics before deployment. Network and I/O binaries must both be present, but their existence alone does not validate the result. A process exit code of zero or `Subgraph Compiled Successfully` is insufficient if earlier stages failed.
+
+## Deploy only a complete model bundle
+
+Keep the original graph, artifacts and application metadata together. The [model directory layout](./inference-apis.mdx#model-directory-layout) describes the image's convention. Use a new model name and directory; do not replace a working `/opt/model_zoo` entry while experimenting.
+
+Verify copied checksums before loading. Then check:
+
+1. Session creation and the first inference finish without a stall or runtime error.
+2. The offload report matches the expected partitioning; CPU fallback is accounted for.
+3. Shapes, data types and output values are valid, and results agree with the CPU reference within defined tolerances.
+4. Task accuracy is measured after identical preprocessing and postprocessing.
+5. Repeated runs and a representative sustained workload remain stable.
+6. Performance is measured with the [documented boundaries](./benchmarks.mdx).
+
+If the process stalls, stop that experiment and preserve its log. Confirm a known-good model still runs before attempting another custom artifact. Do not repeatedly restart a remote processor that the ISP or another application is using.
+
+The failed local smoke test required stopping its process and rebooting the test board before the known-good baseline was rerun successfully. The compiler or firmware root cause has not been established; no fix is claimed here.

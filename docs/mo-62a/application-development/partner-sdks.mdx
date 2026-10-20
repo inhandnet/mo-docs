@@ -1,9 +1,57 @@
 ---
 title: "Partner SDKs"
-description: "Mo 62A: Ultralytics, Edge Impulse, ROS 2."
+description: "Distinguish the verified on-board TI APIs from candidate third-party SDK integrations."
 sidebar_position: 4
 ---
 
-Development guides for ecosystem partners: Ultralytics YOLO, Edge Impulse and ROS 2 / micro-ROS. See also [Works with Mo](/works-with-mo).
+import runtime from '@site/static/img/application-development/ai/mo62a-runtime-inventory.png';
 
-<ComingSoon />
+An SDK being available for Linux or Arm does not establish support for this board, image or accelerator. This page separates the verified on-board development paths from integrations that still need board-specific validation.
+
+## Verified development paths
+
+| Path | Evidence | Start here |
+|---|---|---|
+| Python + TI ONNX Runtime | Installed TI runtime, successful compiled-model inference and measured calls | [Inference APIs](./ai/inference-apis.mdx) |
+| On-board C/C++ Edge AI SDK | The supplied `hello_inference` example was built and run | [C/C++ example](./ai/inference-apis.mdx#cc-the-on-board-edge-ai-sdk) |
+| GStreamer + TI vision plugins | IMX219 mmap capture through the ISP to software JPEG | [Camera & video](./camera-and-video.mdx) |
+| Containerized application integration | Docker/Compose and a Node-RED editor were tested | [Partner applications](../application-deployment/partner-applications.mdx) |
+
+Container or editor success does not prove an application's camera, accelerator or real-time integration.
+
+## Inspect the installed environment
+
+<a href={runtime} target="_blank" rel="noopener noreferrer">
+  <img src={runtime} alt="Live Mo62A software inventory: TI ONNX Runtime and OpenCV are present, while ros2 and Ultralytics are not found in the tested environment" width="1440" height="900" />
+</a>
+
+Use module imports and executable discovery to inspect your installation:
+
+```bash
+python3 -c "import onnxruntime as o; print(o.__version__); print(o.get_available_providers())"
+python3 -c "import cv2; print(cv2.__version__)"
+python3 -c "import importlib.util; print(importlib.util.find_spec('ultralytics'))"
+command -v ros2
+```
+
+An importable module may have been installed outside pip; missing wheel metadata alone is not proof that it is absent. Conversely, importing a package is only an installation check, not a passing inference or peripheral test.
+
+## Candidate integrations
+
+| Integration | Status for this documentation | Required validation |
+|---|---|---|
+| Ultralytics | Not installed in the inspected environment; no validated custom export-to-TIDL recipe | Pin package/model/export versions, check the CPU graph, then validate quantization, offload and detection accuracy |
+| Edge Impulse | No board-specific SDK deployment was validated | Export format, build target, input processing, runtime dependencies and measured target output |
+| ROS 2 | No `ros2` command found on the inspected PATH; no distribution/image combination validated | Compatible OS packages or source build, middleware, pub/sub test and hardware-node behavior |
+| micro-ROS | No target firmware, transport or agent/client pair validated | Supported core/RTOS, firmware loading, resource ownership and message exchange |
+| llama.cpp | No `llama-cli` found; no model or speed result validated | Runtime/model revision, memory budget and repeatable CPU inference |
+
+These are evaluation candidates, not a compatibility or partner-endorsement list. The TI YOLOX-Lite demo is not evidence that the Ultralytics Python SDK is installed or that a standard YOLO export is accelerated.
+
+## Keep the working runtime intact
+
+Use an isolated development environment for an SDK experiment. Do not replace the image's TI ONNX Runtime with a generic wheel just because both import as `onnxruntime`: a generic build may not provide `TIDLExecutionProvider`. Record exactly which Python environment and libraries your application uses.
+
+For a completed integration, retain a version manifest, reproducible setup, minimal example, real board output, cleanup instructions and known limitations. Verify acceleration separately from basic CPU execution. For remote services, include authentication and network exposure in the review.
+
+See [Works with Mo](/works-with-mo) for the shared integration directory, and [Real-time cores](../real-time-cores/overview.mdx) before assuming a microcontroller-oriented SDK can use an on-chip core.

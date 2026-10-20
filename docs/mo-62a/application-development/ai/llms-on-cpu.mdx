@@ -1,9 +1,50 @@
 ---
 title: "LLMs on CPU"
-description: "Mo 62A: Small language models with llama.cpp."
+description: "Current verification status and memory checks for CPU language-model experiments on Mo62A."
 sidebar_position: 9
 ---
 
-Small language models with llama.cpp, with measured tokens/s.
+import runtime from '@site/static/img/application-development/ai/mo62a-runtime-inventory.png';
 
-<ComingSoon />
+No language model or llama.cpp release has been validated for this page. There are no measured tokens/s results, recommended model downloads or claims of C7x acceleration for an LLM.
+
+## What the test image contains
+
+The inventory below shows the existing TI vision runtime, while `llama-cli` was not found on the test board's command path. This is an observation about this installation, not proof that llama.cpp cannot be built for Mo62A.
+
+<a href={runtime} target="_blank" rel="noopener noreferrer">
+  <img src={runtime} alt="Live Mo62A inventory showing no llama-cli on PATH and the system's available RAM and swap at capture time" width="1440" height="900" />
+</a>
+
+Check your own system without installing anything:
+
+```bash
+command -v llama-cli
+free -h
+uname -m
+```
+
+`free` reports Linux-visible memory, not the board's fitted DRAM capacity. Reserved firmware memory and current applications affect what is available. The screenshot's 1.3 GiB total and 826 MiB available describe that moment, not a guaranteed budget. Swap is not equivalent to RAM for inference performance.
+
+## Plan an experiment
+
+The upstream [llama.cpp build guide](https://github.com/ggml-org/llama.cpp/blob/master/docs/build.md) describes its CPU build. It is an upstream starting point, not a Mo62A-tested installation recipe.
+
+Before selecting a model, account for weights, context/KV cache, runtime buffers and the rest of the OS. Record the exact model revision, quantization, license and required memory; a compressed download size alone does not establish the running memory requirement.
+
+| Check | Record |
+|---|---|
+| Runtime | Exact source commit and build options |
+| Model | Source, revision, checksum, license and quantization |
+| Memory | Available memory before loading, peak use and swap activity |
+| Workload | Prompt, context size, batch/thread settings and generated-token limit |
+| Timing | Model load, prompt processing and token generation separately |
+| Stability | Repeated runs, temperature, frequency and out-of-memory events |
+
+Run any first experiment locally with bounded input and output lengths. Do not expose an unauthenticated model server on the network as part of a basic smoke test. Confirm normal system operation afterward.
+
+## Accelerator boundary
+
+The vision examples in this section use TIDL and compiled model artifacts. That does not demonstrate that llama.cpp, a GGUF file or an arbitrary transformer graph can use the C7x accelerator. CPU inference and a TIDL model deployment are different integration paths.
+
+For currently verified AI functionality, start with [Pre-compiled models](./model-hub.mdx) and [Inference APIs](./inference-apis.mdx). A future LLM result needs the complete configuration and raw measurements above before it can be added to the benchmark table.
