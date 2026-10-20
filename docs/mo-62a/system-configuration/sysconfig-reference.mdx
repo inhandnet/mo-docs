@@ -1,20 +1,142 @@
 ---
 title: "sysconfig.txt reference"
-description: "Mo 62A: All first-boot settings."
+description: "Every setting that Mo62A applies from sysconfig.txt on the first boot: account, root, host name, SSH keys, locale, time zone, Wi-Fi and a static Ethernet address."
 sidebar_position: 3
 ---
 
-`sysconfig.txt` sits on the card's `BOOT` partition. On the first boot the board applies it and then deletes it. Remove the leading `#` to enable a line; the format is `key=value` without quotes.
+`sysconfig.txt` is a plain-text file on the `BOOT` partition of a freshly flashed card. On the first boot, Mo OS reads it, applies every enabled setting and then deletes the file so that no password remains readable on the card. It is the only way to pre-configure a board before it starts; afterwards, use the normal Mo OS tools described in [Users & security settings](../mo-os/users-and-security.mdx) and [Network](../mo-os/network.mdx).
 
-| Key | Meaning |
+:::info[Tested software]
+This page describes the file shipped with **Mo62A image V1.1.0** (built 2026-08-19). The current template is [`bin/sysconfig.txt`](https://github.com/inhandnet/Mo62A/blob/HEAD/bin/sysconfig.txt) in the Mo62A repository.
+:::
+
+## File format
+
+- One setting per line, written as `key=value`. Everything after the first `=` is the value, so a password may contain spaces or symbols. Do not add quotation marks.
+- A line that starts with `#` is ignored. Remove the `#` to enable a setting.
+- Edit the file on any computer: the `BOOT` partition appears as a removable drive after flashing. See [Pre-configure the board](../getting-started/install-os.mdx#3-pre-configure-the-board-optional).
+- Unknown keys are ignored. Spaces before the key or value are removed, and a file saved with Windows line endings is accepted.
+
+## Settings
+
+### Login account
+
+<div className="mo-method-table">
+
+| Key | Default in the template | Meaning |
+|---|---|---|
+| `user_name` | `debian` (enabled) | Account to create. It joins the `sudo` group and can run `sudo` without a password. |
+| `user_password` | `123456` (enabled) | Password for that account. **Change it before the first boot**; the default is public. |
+| `user_realname` | off | Full name shown by the desktop. Defaults to the username. |
+| `user_shell` | off (`bash`) | Login shell: `bash` or `zsh`. An unavailable shell falls back to `bash`. |
+| `user_ssh_key` | off | An OpenSSH public key line, or an `http://`, `https://` or `file://` URL to download one from, installed in the account's `~/.ssh/authorized_keys`. |
+
+</div>
+
+If the account already exists, for example when `sysconfig.txt` is applied to a reused card, the shell and password are updated and the account is kept.
+
+### Root account
+
+<div className="mo-method-table">
+
+| Key | Default | Meaning |
+|---|---|---|
+| `root_password` | off | Sets a password for `root`, for the local console, serial console and `su`. Without it the root account stays locked. It does not enable root login over SSH with a password. |
+| `root_ssh_key` | off | Public key, or a URL to one, that allows root login over SSH with that key. |
+
+</div>
+
+### Host name
+
+<div className="mo-method-table">
+
+| Key | Default | Meaning |
+|---|---|---|
+| `hostname` | off (`Mo62A`) | Host name of the board, also announced as `HOSTNAME.local` on the local network. |
+
+</div>
+
+### Locale and time zone
+
+<div className="mo-method-table">
+
+| Key | Default | Meaning |
+|---|---|---|
+| `locale` | off (`en_US.UTF-8`) | System locale, for example `en_US.UTF-8` or `de_DE.UTF-8`. The locale must be listed in `/etc/locale.gen`. |
+| `timezone` | off (`Etc/UTC`) | Time zone name from the system list, for example `Europe/Berlin` or `Asia/Shanghai`. |
+
+</div>
+
+### Wi-Fi
+
+<div className="mo-method-table">
+
+| Key | Default | Meaning |
+|---|---|---|
+| `wifi_ssid` | off | Network name to join on the first boot. |
+| `wifi_password` | off | Its password. Required when `wifi_ssid` is set; otherwise Wi-Fi is skipped. |
+| `wifi_country` | off (`CN`) | Two-letter regulatory domain, for example `CN`, `US` or `DE`. |
+
+</div>
+
+The connection is saved as a NetworkManager profile named `WiFi-SSID` and reconnects automatically on later boots.
+
+### Static Ethernet address
+
+<div className="mo-method-table">
+
+| Key | Default | Meaning |
+|---|---|---|
+| `static_ip` | off (DHCP) | IPv4 address for the wired port. Setting it switches the port from DHCP to a static address. |
+| `static_mask` | off | Netmask, either a prefix length such as `24` or dotted form such as `255.255.255.0`. |
+| `static_gateway` | off | Default gateway. |
+| `static_dns` | off | DNS server address. |
+
+</div>
+
+## Example
+
+A file that creates a personal account with key login, names the board and sets the time zone:
+
+```ini
+user_name=alice
+user_password=choose-a-strong-password
+user_realname=Alice Example
+user_ssh_key=ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... alice@workstation
+hostname=mo62a-lab
+timezone=Europe/Berlin
+```
+
+## Check what was applied
+
+The first boot writes `/var/log/mo-62a-auto-config.log`. Every line names the setting it applied, and the last line confirms that the file was removed:
+
+```text
+[mo-62a-config] Starting (2026-04-13T19:38:17+00:00); config=/boot/firmware/sysconfig.txt
+[mo-62a-config] Parsed 3 active setting(s)
+[mo-62a-config] Setting hostname to mo62a-demo
+[mo-62a-config] Creating user USERNAME (shell /bin/bash)
+[mo-62a-config] Config applied and /boot/firmware/sysconfig.txt removed (2026-04-13T19:38:18+00:00)
+```
+
+The account name is replaced with `USERNAME` in this excerpt. After the first boot, `ls /boot/firmware/sysconfig.txt` reports that the file no longer exists. To apply a new `sysconfig.txt`, flash the card again; the settings are not re-read on later boots.
+
+## Troubleshooting
+
+<div className="mo-troubleshooting-table">
+
+| Symptom | What to check |
 |---|---|
-| `user_name`, `user_password` | Login user, created with sudo access |
-| `user_realname`, `user_shell` | Full name; `bash` or `zsh` |
-| `root_password` | Optional; root stays locked without it. Does not enable root SSH login |
-| `hostname` | Device name, also `<hostname>.local` over mDNS |
-| `user_ssh_key`, `root_ssh_key` | OpenSSH public key line, or a URL to download it from |
-| `locale`, `timezone` | For example `en_US.UTF-8`, `Europe/Berlin` |
-| `wifi_ssid`, `wifi_password`, `wifi_country` | Connect to Wi-Fi on first boot; country is the 2-letter code |
-| `static_ip`, `static_mask`, `static_gateway`, `static_dns` | Static Ethernet address instead of DHCP |
+| The account was not created | Read `/var/log/mo-62a-auto-config.log`. The file must be on the `BOOT` partition, named exactly `sysconfig.txt`, with `user_name` enabled. |
+| Login with the chosen password fails | Make sure the line had no quotation marks or trailing spaces. Reset the password from the local desktop or serial console with `sudo passwd USERNAME`. |
+| Wi-Fi did not connect | `wifi_password` is required with `wifi_ssid`. Check the SSID spelling and the country code, then connect manually as described in [Network](../mo-os/network.mdx#wi-fi). |
+| The SSH key was not installed | The value must be a complete public key line or a reachable URL. Install it later with `ssh-copy-id`; see [Remote access](../mo-os/remote-access.mdx#use-ssh-keys). |
+| The file is still on the card | The first boot did not complete. Check `/var/log/mo-62a-firstboot-install.log`. |
 
-Source: [bin/sysconfig.txt](https://github.com/inhandnet/Mo62A/blob/HEAD/bin/sysconfig.txt) in the Mo 62A repository.
+</div>
+
+## Related pages
+
+- [Install the OS](../getting-started/install-os.mdx): flashing the image and editing the file.
+- [Storage & boot](./storage-and-boot.mdx): what else happens on the first boot.
+- [Users & security settings](../mo-os/users-and-security.mdx): changing accounts and passwords later.

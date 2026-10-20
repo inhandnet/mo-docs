@@ -619,6 +619,41 @@ try {
         [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
       for (const href of securityHrefs) assert.equal((await page.request.get(origin + href)).status(), 200, 'Users & security link must resolve: ' + href);
 
+      for (const [slug, headings, images, phrases] of [
+        ['storage-and-boot', ['Boot sequence', 'Partition layout', 'What the first boot changes', 'Boot entries', 'Back up and clone the card', 'Troubleshooting', 'Related pages'],
+          ['mo62a-storage', 'mo62a-bootcfg-switch'], ['/dev/mmcblk1p3', '255 MiB', 'sudo bootcfg switch LABEL', 'extlinux.conf.bak']],
+        ['device-tree-overlays', ['Boot entries and overlays', 'Select an entry', 'Add your own entry', 'Build a custom overlay', 'Troubleshooting', 'Related pages'],
+          ['mo62a-bootcfg-verify'], ['microSD-uart5', 'k3-am62a7-mo-62a-exp-periph.dtbo', 'serial@2850000', 'fdtoverlays']],
+        ['sysconfig-reference', ['File format', 'Settings', 'Example', 'Check what was applied', 'Troubleshooting', 'Related pages'],
+          [], ['user_ssh_key', 'static_gateway', 'wifi_country', 'sysconfig.txt removed']],
+      ]) {
+        await page.goto(url + board + '/system-configuration/' + slug + '/', {waitUntil: 'networkidle'});
+        const body = page.locator('.theme-doc-markdown');
+        assert.deepEqual(await body.locator('h2').allTextContents().then(items => items.map(item => item.replace(/\u200b/g, ''))), headings, slug + ' headings');
+        assert.equal(await body.locator('img').count(), images.length, slug + ' image count');
+        for (const file of images) {
+          const screenshot = body.locator(`img[src*="${file}"]`);
+          assert.equal(await screenshot.count(), 1);
+          await screenshot.evaluate(image => image.decode());
+          assert.deepEqual(await screenshot.evaluate(image => [image.naturalWidth, image.naturalHeight]), [1440, 900]);
+          assert.ok(await screenshot.getAttribute('alt'));
+          assert.equal(await screenshot.evaluate(image => image.closest('a')?.target), '_blank');
+        }
+        const text = await body.innerText();
+        for (const phrase of phrases) assert.ok(text.includes(phrase), 'Missing ' + slug + ' guidance: ' + phrase);
+        assert.ok(!/10\.5\.\d+\.\d+/.test(text));
+        assert.ok(!text.includes('Coming soon'), slug + ' must not be a placeholder');
+        for (const width of [390, 768, 1440, 1920, 2560]) {
+          await page.setViewportSize({width, height: 1000});
+          if (images.length) await checkDocumentationMedia(page);
+          assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), slug + ' must not overflow at ' + width);
+        }
+        await page.setViewportSize({width: 1440, height: 1000});
+        const hrefs = await body.locator('a[href]').evaluateAll(links =>
+          [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
+        for (const href of hrefs) assert.equal((await page.request.get(origin + href)).status(), 200, slug + ' link must resolve: ' + href);
+      }
+
       await page.goto(url + board + '/mo-os/network/', {waitUntil: 'networkidle'});
       const networkBody = page.locator('.theme-doc-markdown');
       assert.deepEqual(await networkBody.locator('h2').allTextContents().then(items => items.map(item => item.replace(/\u200b/g, ''))), [
