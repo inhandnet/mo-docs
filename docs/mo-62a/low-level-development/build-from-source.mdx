@@ -1,21 +1,116 @@
 ---
 title: "Build from source"
-description: "Mo 62A: SDK, U-Boot, kernel and root file system."
+description: "Mo62A SDK preparation, real build targets, offline image assembly and the limits of the current build verification."
 sidebar_position: 1
 ---
 
-The Mo 62A SDK is based on **TI Processor SDK Linux RT EdgeAI AM62A 11.01.07.05** and contains U-Boot, the Linux kernel (6.12, TI RT), the build system, cross-compilers and a flash tool.
+import targets from '@site/static/img/low-level-development/mo62a-build-targets.png';
+import options from '@site/static/img/low-level-development/mo62a-image-options.png';
+import cliTests from '@site/static/img/low-level-development/mo62a-cli-tests.png';
+
+## Scope and prerequisites
+
+The SDK contains board-specific U-Boot and Linux sources, TI cross-compilers, firmware, a Debian root filesystem archive and image-assembly scripts. Its base is TI Processor SDK Linux RT EdgeAI AM62A 11.01.07.05; the documented runtime also contains later TI AI component updates. Use the [version map](../resource-download/version-map.mdx), not one SDK number, to identify the complete software set.
+
+This review verified the Makefile targets, both compiler executables, flash-tool help and non-destructive CLI tests. A fresh full SDK build, image assembly and boot of that newly built image were not performed in this documentation pass. The commands below describe the inspected source workflow, not a newly certified reproducible build.
+
+Use a dedicated x86-64 Linux build checkout. The SDK setup script identifies Ubuntu 22.04 LTS as its verified host; using another distribution requires validation. Allow space for Git LFS objects, extracted root filesystems, build outputs and images. The root filesystem's compressed download size is not its required disk space.
 
 ```bash
-git clone https://github.com/inhandnet/Mo62A.git mo-62a
-cd mo-62a
-./setup.sh            # installs host packages, creates the toolchain symlink
-make all_stage        # build U-Boot and the kernel, stage the output
-sudo bash bin/mo-62a-flash.sh
+git clone https://github.com/inhandnet/Mo62A.git mo62a-sdk
+cd mo62a-sdk
+git lfs pull
+git status --short
+git rev-parse HEAD
 ```
 
-The flash tool can write directly to an SD card or create a `.img.zip` for balenaEtcher. To add Debian packages to the image, add them to the rootfs tarball before flashing.
+Keep the source revision with your build record. Do not build over unrelated work or run cleanup commands in a checkout containing changes you need. LFS pointer text is not a rootfs archive, toolchain or firmware binary.
 
-Full instructions: [SDK README](https://github.com/inhandnet/Mo62A#2-environment-setup) — host requirements, signing keys, device-tree overlays, partition layout and known pitfalls.
+## Prepare the host deliberately
 
-<ComingSoon />
+Read `setup.sh` and `bin/setup-package-install.sh` before running them. Setup can install packages, add the user to `dialout`, edit `~/.bashrc` and create or repoint an `/opt` SDK symlink. It is not a read-only environment check. An existing SDK at that path may be used by another project.
+
+```bash
+./setup.sh
+export TI_SDK_PATH="$PWD"
+
+linux-devkit/sysroots/x86_64-arago-linux/usr/bin/aarch64-oe-linux/aarch64-oe-linux-gcc --version
+k3r5-devkit/sysroots/x86_64-arago-linux/usr/bin/arm-oe-eabi/arm-oe-eabi-gcc --version
+```
+
+Both compilers reported GCC 13.4.0 during inspection. The explicit export affects the current shell; executing `./setup.sh` cannot export variables back into its parent shell. Re-login if group membership changed.
+
+The toolchain ELF interpreter expects `/opt/ti-processor-sdk-linux-rt-edgeai-am62a-evm-11.01.07.05`. A missing interpreter can produce “No such file” even when the compiler file exists. Check the intended SDK symlink and LFS objects before replacing the compiler.
+
+## Build and stage the actual targets
+
+| Target | Inspected behaviour | Output location |
+|---|---|---|
+| `make u-boot` | Prepares development signing inputs and builds R5 SPL plus A53 U-Boot | `board-support/u-boot-build/` |
+| `make linux-dtbs` | Applies board configuration and builds selected device trees/overlays | Kernel source tree |
+| `make linux` | Depends on device trees and U-Boot; builds kernel, modules and FIT-related outputs | Kernel tree and `board-support/built-images/` |
+| `make u-boot_stage` | Copies already-built boot artifacts | `board-support/built-images/` |
+| `make linux_stage` | Stages device trees and U-Boot through dependencies, then kernel images | `board-support/built-images/` |
+
+There is no `all_stage` target in the reviewed Makefiles, despite an older README reference. The actual check below returned “No rule to make target 'all_stage'”; no build was started.
+
+<a href={targets} target="_blank" rel="noopener noreferrer">
+  <img src={targets} alt="Actual SDK target inspection, failed lookup of the nonexistent all_stage target, GCC 13.4.0 toolchain versions and board platform settings" width="1440" height="900" />
+</a>
+
+For the combined kernel/U-Boot workflow, use the existing targets in your dedicated checkout:
+
+```bash
+make linux MAKE_JOBS=8
+make linux_stage
+```
+
+Choose a job count appropriate to the host. Staging is a copy step, not a substitute for a successful build. Keep kernel configuration, `Image`, modules, DTBs/overlays and bootloader artifacts from the same build. The flash tool installs modules from the kernel build tree, so a staged `Image` alone is insufficient.
+
+Do not use development/example signing keys as production secrets or infer secure-boot enforcement from a signed filename. See [Secure boot & OP-TEE](./secure-boot.mdx). This page does not provision keys or change OTP state.
+
+## Assemble an offline image
+
+Inspect the actual tool interface before use:
+
+```bash
+bash bin/mo-62a-flash.sh --help
+```
+
+<a href={options} target="_blank" rel="noopener noreferrer">
+  <img src={options} alt="Actual flash-tool help excerpt showing offline image options and the no-write dry-run flag" width="1440" height="900" />
+</a>
+
+Use an actual rootfs archive and a fresh output directory. This example uses the repository's documented base archive; confirm it exists and is not a Git LFS pointer:
+
+```bash
+bash bin/mo-62a-flash.sh --image \
+  --rootfs filesystem/debian-13.5-edgeai-base-arm64.tar.xz \
+  --version V1.1.0 \
+  --output-dir /path/to/new-output \
+  --dry-run
+```
+
+Replace `/path/to/new-output` with your intended directory. The version is local image metadata; it does not make a custom image an official release. `--dry-run` checks arguments, rootfs presence and output collisions. It does not validate archive contents, build dependencies, free space or bootability.
+
+After reviewing the plan and prerequisites, image creation uses the same arguments without `--dry-run`, under `sudo`. That operation creates and mounts a loop-backed disk image, installs modules/apps/drivers/overlays, and compresses the result. It requires working AArch64 emulation/binfmt for applicable chroot builds. It does not select a physical SD card or publish a Release.
+
+Do not reuse an output directory from a failed or concurrent build. Diagnose the processes, mounts and output lock before retrying; do not delete an unknown lock or clear a shared workspace. Use a separate source checkout for concurrent builds.
+
+Direct SD-card writing is a separate, destructive interactive mode. For normal installation, prefer the published image and [Install Mo OS](../getting-started/install-os.mdx). Do not run a raw-device write command until the target device has been positively identified.
+
+## Verification and acceptance
+
+The CLI regression tests operate on temporary fixtures and mock privileged/build operations:
+
+```bash
+python3 -B -m unittest discover -s tests -p 'test_flash_cli.py' -v
+```
+
+<a href={cliTests} target="_blank" rel="noopener noreferrer">
+  <img src={cliTests} alt="Actual non-destructive flash CLI test summary; these tests do not build an image or write a physical SD card" width="1440" height="900" />
+</a>
+
+Before distributing a custom image, verify its partition layout, checksums, boot log, kernel/modules, hardware interfaces, account setup, application runtime and recovery path on a spare card. Record the exact source revision and rootfs hash. A successful mocked CLI test or image archive creation is not a successful board boot.
+
+For further source detail, see the [SDK README](https://github.com/inhandnet/Mo62A#2-environment-setup). Where older prose conflicts with inspected targets or the running image, use the specific corrections and evidence above.

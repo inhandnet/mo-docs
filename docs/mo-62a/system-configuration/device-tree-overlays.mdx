@@ -53,11 +53,11 @@ ls -l /dev/ttyS3
 
 To return to the camera and all-GPIO configuration, run `sudo bootcfg switch microSD-default`.
 
-For a single boot, you can instead choose the entry from the U-Boot menu on the [debug UART](../getting-started/first-boot.mdx#serial-console): press a key while the menu is shown and type the entry number.
+Use `bootcfg` for normal entry selection. Older images may expose a numbered U-Boot menu on the [debug UART](../low-level-development/serial-console.mdx), but the current supplied configuration selects its default directly; do not rely on an interactive menu being displayed.
 
 ## Add your own entry
 
-The menu is a text file. To add an entry, for example one that loads both the camera and the I²C overlay, copy an existing block in `/boot/firmware/extlinux/extlinux.conf`, give it a new `label` and list the overlays separated by spaces:
+The boot configuration is a text file. To add an entry, for example one that loads both the camera and the I²C overlay, copy an existing block in `/boot/firmware/extlinux/extlinux.conf`, give it a new `label` and list the overlays separated by spaces:
 
 ```text
 label microSD-cam-i2c0
@@ -83,7 +83,7 @@ The overlay sources (`.dtso`) and the base device tree live in the Mo62A reposit
 |---|---|
 | No bus device after switching | Run `bootcfg show` to confirm the entry took effect; the switch only applies after the reboot it performs. |
 | The camera stopped working | The current entry is not `microSD-default`, which is the only supplied entry with the camera overlay. Switch back or add an entry that lists both overlays. |
-| No boot after editing `extlinux.conf` | Restore `extlinux.conf.bak` from a computer, or select a supplied entry from the U-Boot menu on the debug UART. |
+| No boot after editing `extlinux.conf` | Shut down, mount the card's `BOOT` partition on a computer, and restore the saved configuration. Do not assume this image displays a recovery menu. |
 | I²C bus numbers changed | With `exp-i2c0` or `exp-audio`, WKUP_I2C0 becomes `/dev/i2c-0` and the on-board buses move up by one. Address buses by their function, not by a fixed number. |
 
 

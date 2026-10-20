@@ -1,9 +1,71 @@
 ---
 title: "Secure boot & OP-TEE"
-description: "Mo 62A: Secure boot, key provisioning and OP-TEE."
+description: "Mo62A read-only OP-TEE evidence, secure-boot validation boundaries and prerequisites for controlled provisioning."
 sidebar_position: 3
 ---
 
-Secure boot, key provisioning and the trusted execution environment.
+import teeState from '@site/static/img/low-level-development/mo62a-tee-console.png';
+import guideCover from '@site/static/img/low-level-development/mo62a-keywriter-cover.png';
 
-<ComingSoon />
+## What has actually been checked
+
+The tested board exposes OP-TEE device nodes and an initialized kernel driver. This does not establish the board's security lifecycle, enrolled keys, authenticated boot policy or protection of an application secret.
+
+| Item | Observation in this review | What it does not prove |
+|---|---|---|
+| OP-TEE driver | Kernel log reports revision 4.6 and an initialized driver | Customer-key secure boot is enforced |
+| TEE nodes | `/dev/tee0` and `/dev/teepriv0` exist and are root-only | A particular trusted application passes its tests |
+| User-space helper | No `tee-supplicant` process was running at the observation time | All OP-TEE services or secure storage are operational |
+| Customer keys / OTP | Not inspected or programmed | Production provisioning or recovery has been qualified |
+| Secure-boot negative tests | Not performed | An altered or unauthorized image is rejected |
+
+<a href={teeState} target="_blank" rel="noopener noreferrer">
+  <img src={teeState} alt="Actual read-only Mo62A capture showing OP-TEE 4.6 initialization, root-only TEE devices and no running tee-supplicant process" width="1440" height="900" />
+</a>
+
+The [OP-TEE client documentation](https://optee.readthedocs.io/en/latest/building/gits/optee_client.html) describes `tee-supplicant` as a normal-world helper for services such as filesystem access. Its absence in this capture is a boundary of the tested environment, not a claim that the kernel driver failed to initialize. No trusted-application, secure-storage or key-isolation test was run.
+
+## Read-only inspection
+
+These commands inspect existing state; they do not enroll keys, replace firmware or invoke a trusted application:
+
+```bash
+sudo ls -l /dev/tee*
+ls /sys/bus/tee/devices
+sudo dmesg | grep -i -E 'optee|op-tee'
+pgrep -x tee-supplicant
+```
+
+`pgrep` returns a nonzero status when no process matches. Do not change device permissions to `0666` or start an unknown helper merely to make a screenshot look successful. Keep full boot logs private until reviewed for sensitive data.
+
+## Provisioning is a separate, controlled operation
+
+:::danger[Do not experiment with OTP on a working board]
+OTP/keywriter operations can make permanent security-state changes and can leave a device unable to boot if the keys, configuration or procedure are wrong. This guide intentionally provides no fuse-programming command. No OTP write, lifecycle transition, key revocation or bootloader replacement was performed for this documentation.
+:::
+
+Before any production provisioning, obtain a Mo62A-specific procedure confirmed for the exact SoC/security variant and board revision. It must cover key ownership, protected key storage, authorized signing, backup/recovery, programming supply requirements, verification and failure handling. Use a designated test unit and explicit authorization for irreversible steps.
+
+The SDK includes multiple boot image variants. A filename containing `hs`, `hs-fs` or a signature is not, by itself, proof of the installed device's lifecycle or enrolled customer key. Do not select or replace `tiboot3.bin` from the filename alone.
+
+Development/example keys and keys present in shared source packages must not be treated as confidential production roots. Never put a production private key, device secret or provisioning credential into a repository, screenshot, issue, log archive or Release.
+
+## Match the reference versions
+
+The public repository contains an [AM62Ax OTP Keywriter guide](https://github.com/inhandnet/Mo62A/blob/master/doc/Secureboot/AM62AX_OTP_Keywriter_User_Guide_11.01.00.pdf). Its filename ends in `11.01.00`, but the document cover identifies itself as v11.01.09, exported August 14, 2025:
+
+<a href={guideCover} target="_blank" rel="noopener noreferrer">
+  <img src={guideCover} alt="Original public AM62Ax OTP Keywriter guide cover identifying v11.01.09, despite the repository filename ending in 11.01.00" width="1132" height="1600" />
+</a>
+
+Verify the document, installer, MCU+ SDK, SoC revision and board-specific programming requirements as a set before using any provisioning tool. An AM62Ax evaluation-board procedure is not automatically a validated Mo62A production procedure. TI's [AM62Ax secure-boot reference](https://software-dl.ti.com/mcu-plus-sdk/esd/AM62AX/latest/exports/docs/api_guide_am62ax/SECURE_BOOT.html) explains the platform concepts; use version-matched guidance for implementation.
+
+The reviewed PDF is 1,432,367 bytes with SHA-256:
+
+```text
+3fcd6cf09c34f0e7e684cbf232f47a7f409d2e738504c6a7c4146be19b9d3c7f
+```
+
+## Acceptance still required
+
+A production security review must define and verify the intended boot chain, authorized-image acceptance, altered-image rejection, update/rollback policy, key custody and recovery path. Those outcomes remain unverified here. See [Users & security](../mo-os/users-and-security.mdx) for normal Linux hardening and [Security](../../security/index.mdx) for shared security guidance.
