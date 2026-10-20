@@ -1,11 +1,100 @@
 ---
 title: "Device tree overlays"
-description: "Mo 62A: 40-pin peripheral mode and camera overlays."
+description: "Enable I²C, UART, SPI, PWM or I²S on the Mo62A 40-pin header, or the CSI camera, by selecting a boot entry that loads the matching device tree overlay."
 sidebar_position: 2
 ---
 
-The Mo 62A boots with all 40-pin header pins as GPIO. To enable I²C, UART, SPI, PWM and I²S on the header, choose the **`microSD-periph`** entry in the U-Boot boot menu, or set `default microSD-periph` in `extlinux/extlinux.conf` on the BOOT partition. This loads `k3-am62a7-mo-62a-exp-periph.dtbo`. The pin mapping is in [Hardware interfaces](../hardware-development/hardware-interfaces.mdx#peripheral-mode-ic-uart-spi-pwm-is).
+import bootVerify from '@site/static/img/system-configuration/mo62a-bootcfg-verify.png';
 
-Camera overlays (for example `k3-am62a7-mo-62a-cam-imx219.dtso`) are in the SDK; see the [SDK README](https://github.com/inhandnet/Mo62A#47-known-dts-and-overlay-issues).
+The pins on the 40-pin header can be plain GPIO or a bus such as I²C, UART or SPI. Which function is active is decided at boot by a **device tree overlay** that U-Boot applies on top of the base device tree. Mo OS ships one overlay per function and one boot entry per overlay, so enabling a bus means selecting a different boot entry and rebooting. No kernel build or `dtc` run is needed.
 
-<ComingSoon />
+:::info[Tested software]
+This page was tested on **Mo62A image V1.1.0** (built 2026-08-19), with Debian 13 (Trixie) and Linux 6.12.35.
+:::
+
+## Boot entries and overlays
+
+Each entry in `extlinux/extlinux.conf` on the `BOOT` partition loads the base device tree `ti/k3-am62a7-mo-62a.dtb` plus the overlay named in its `fdtoverlays` line. The entries supplied with the image:
+
+<div className="mo-method-table">
+
+| Boot entry | Overlay (`ti/`) | Header pins | Linux device |
+|---|---|---|---|
+| `microSD-default` | `k3-am62a7-mo-62a-cam-imx219.dtbo` | All 40-pin GPIO; pins 27 and 28 reserved for the camera I²C | CSI camera `/dev/video-imx219-cam0` |
+| `microSD-i2c0` | `k3-am62a7-mo-62a-exp-i2c0.dtbo` | 3 (SDA), 5 (SCL) | `/dev/i2c-0` (WKUP_I2C0) |
+| `microSD-uart5` | `k3-am62a7-mo-62a-exp-uart5.dtbo` | 8 (TXD), 10 (RXD) | `/dev/ttyS3` (UART5) |
+| `microSD-spi0` | `k3-am62a7-mo-62a-exp-spi0.dtbo` | 19 (MOSI), 21 (MISO), 23 (CLK), 24 (CS0), 26 (CS1) | `spidev` on SPI0 |
+| `microSD-ehrpwm0` | `k3-am62a7-mo-62a-exp-ehrpwm0.dtbo` | 32 (EHRPWM0_B), 33 (EHRPWM0_A) | `/sys/class/pwm/pwmchip0` |
+| `microSD-audio` | `k3-am62a7-mo-62a-exp-audio.dtbo` | 3, 5 (I²C control) and 12, 35, 38, 40 (I²S) | WM8960 audio HAT sound card |
+
+</div>
+
+Only `microSD-default` loads the camera overlay. The peripheral entries boot without the CSI camera, and pins 27 and 28 stay reserved for the camera I²C bus in every entry; do not drive them as GPIO. A combined overlay, `k3-am62a7-mo-62a-exp-periph.dtbo`, is also present in `BOOT/ti/` and enables all of the buses above at once, but it has no boot entry of its own; see [Add your own entry](#add-your-own-entry).
+
+The pin numbers, signal names and GPIO line numbers are in [Hardware interfaces](../hardware-development/hardware-interfaces.mdx#40-pin-header-j9).
+
+## Select an entry
+
+Switch the default entry from Mo OS and reboot:
+
+```bash
+bootcfg list
+sudo bootcfg switch microSD-uart5
+```
+
+`bootcfg switch` asks for confirmation and reboots immediately. After the reboot, confirm the active entry and that the peripheral node is enabled in the live device tree. UART5 is `serial@2850000`; its `status` reads `disabled` in the default entry and `okay` in `microSD-uart5`:
+
+```bash
+bootcfg show
+tr -d '\0' < /proc/device-tree/bus@f0000/serial@2850000/status; echo
+ls -l /dev/ttyS3
+```
+
+<a href={bootVerify} target="_blank" rel="noopener noreferrer">
+  <img src={bootVerify} alt="Mo62A terminal after rebooting into microSD-uart5: bootcfg show reports the entry, the UART5 device tree node is okay and /dev/ttyS3 exists" width="1440" height="900" />
+</a>
+
+To return to the camera and all-GPIO configuration, run `sudo bootcfg switch microSD-default`.
+
+For a single boot, you can instead choose the entry from the U-Boot menu on the [debug UART](../getting-started/first-boot.mdx#serial-console): press a key while the menu is shown and type the entry number.
+
+## Add your own entry
+
+The menu is a text file. To add an entry, for example one that loads both the camera and the I²C overlay, copy an existing block in `/boot/firmware/extlinux/extlinux.conf`, give it a new `label` and list the overlays separated by spaces:
+
+```text
+label microSD-cam-i2c0
+  append console=ttyS2,115200n8 earlycon=ns16550a,mmio32,0x02800000 root=/dev/mmcblk1p3 rw rootfstype=ext4 rootwait loglevel=7
+  kernel /Image
+  fdt    /ti/k3-am62a7-mo-62a.dtb
+  fdtoverlays /ti/k3-am62a7-mo-62a-cam-imx219.dtbo /ti/k3-am62a7-mo-62a-exp-i2c0.dtbo
+```
+
+Then select it with `sudo bootcfg switch microSD-cam-i2c0`. Keep the `append`, `kernel` and `fdt` lines identical to the supplied entries, and combine only overlays that use different pins. Overlays that claim the same pins, such as `exp-i2c0` and `exp-audio`, cannot be loaded together.
+
+:::warning
+A typing error in `extlinux.conf` can stop the board from booting. Keep the original entries in the file, and remember that `bootcfg switch` leaves a copy in `extlinux.conf.bak`. If the board no longer boots, mount the `BOOT` partition on a computer and restore the file.
+:::
+
+## Build a custom overlay
+
+The overlay sources (`.dtso`) and the base device tree live in the Mo62A repository under `board-support/ti-linux-kernel-6.12.35+git-ti-rt/arch/arm64/boot/dts/ti/`. Build them with the kernel's `make linux-dtbs` target, copy the resulting `.dtbo` into `BOOT/ti/` and reference it from a boot entry. See [Build from source](../low-level-development/build-from-source.mdx) and the [SDK README](https://github.com/inhandnet/Mo62A#47-known-dts-and-overlay-issues) for known overlay issues.
+
+## Troubleshooting
+
+<div className="mo-troubleshooting-table">
+
+| Symptom | What to check |
+|---|---|
+| The bus device does not appear after switching | Run `bootcfg show` to confirm the entry took effect; the switch only applies after the reboot it performs. |
+| The camera stopped working | The current entry is not `microSD-default`, which is the only supplied entry with the camera overlay. Switch back or add an entry that lists both overlays. |
+| The board does not boot after editing `extlinux.conf` | Restore `extlinux.conf.bak` from a computer, or select a supplied entry from the U-Boot menu on the debug UART. |
+| I²C bus numbers changed | With `exp-i2c0` or `exp-audio`, WKUP_I2C0 becomes `/dev/i2c-0` and the on-board buses move up by one. Address buses by their function, not by a fixed number. |
+
+</div>
+
+## Related pages
+
+- [Storage & boot](./storage-and-boot.mdx): the `BOOT` partition and `bootcfg`.
+- [Hardware interfaces](../hardware-development/hardware-interfaces.mdx): header pinout and GPIO line numbers.
+- [GPIO & peripherals](../application-development/gpio-and-peripherals.mdx): using the buses from your programs.

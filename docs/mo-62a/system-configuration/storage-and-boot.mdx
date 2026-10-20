@@ -1,27 +1,113 @@
 ---
 title: "Storage & boot"
-description: "Mo 62A: microSD boot, partitions and boot menu."
+description: "How Mo62A boots from the microSD card: partition layout, the first-boot expansion, the boot entries in extlinux.conf and recovery when the board does not start."
 sidebar_position: 1
 ---
 
-The Mo 62A boots from the **microSD card**. Use a 16 GB or larger card, Class 10 / UHS-I (U1) or faster.
+import storageTerminal from '@site/static/img/system-configuration/mo62a-storage.png';
+import bootcfgSwitch from '@site/static/img/system-configuration/mo62a-bootcfg-switch.png';
+
+Mo62A boots from the microSD card. The boot ROM loads the bootloader from the card, U-Boot reads a text menu from the `BOOT` partition, and the Linux kernel mounts the Debian root file system from the same card. This page explains that layout, what the first boot changes, and how to pick a different boot entry.
+
+:::info[Tested software]
+This page was tested on **Mo62A image V1.1.0** (built 2026-08-19), with Debian 13 (Trixie) and Linux 6.12.35, on a 32 GB microSD card. Sizes shown in the examples depend on the card.
+:::
+
+## Boot sequence
+
+1. The boot ROM in the AM62A SoC is strapped to boot from the microSD card (MMC1, 4-bit) with Ethernet as the fallback. There is no on-board eMMC or flash, so the card must be present.
+2. The boot ROM loads `tiboot3.bin`, then `tispl.bin` and `u-boot.img`, from the `BOOT` partition.
+3. U-Boot reads `extlinux/extlinux.conf`, shows the boot menu on the debug UART for a few seconds, and loads the kernel `Image`, the base device tree and any overlay listed in the selected entry.
+4. The kernel mounts the third partition as `/` and systemd starts Mo OS.
+
+Boot progress is printed on the [debug UART](../getting-started/first-boot.mdx#serial-console) at 115200 baud. Nothing appears on HDMI until the kernel has started.
 
 ## Partition layout
 
-| Partition | File system | Size | Label | Contents |
-|---|---|---|---|---|
-| 1 | FAT32 | 256 MiB | `BOOT` | Bootloaders, kernel, device trees, `extlinux/extlinux.conf`, `sysconfig.txt` |
-| 2 | ext4 | Rest of the card | `rootfs` | Debian root file system |
+The flashing tool creates three MBR partitions:
 
-The root file system grows to fill the card on the first boot.
+<div className="mo-method-table">
 
-## Boot menu
+| Partition | Device | File system | Size | Label | Contents |
+|---|---|---|---|---|---|
+| 1 | `/dev/mmcblk1p1` | FAT32 | 255 MiB | `BOOT` | Bootloaders, kernel `Image`, device trees in `ti/`, `extlinux/extlinux.conf`, `sysconfig.txt` |
+| 2 | `/dev/mmcblk1p2` | swap | 4 GiB | `swap` | Swap space |
+| 3 | `/dev/mmcblk1p3` | ext4 | Rest of the card | `rootfs` | Debian root file system |
 
-U-Boot reads `extlinux/extlinux.conf` and shows a menu with two entries:
+</div>
 
-- `microSD` (default) — all 40-pin header pins are GPIO.
-- `microSD-periph` — enables I²C, UART, SPI, PWM and I²S on the header. See [Hardware interfaces](../hardware-development/hardware-interfaces.mdx#peripheral-mode-ic-uart-spi-pwm-is).
+`BOOT` is mounted at `/boot/firmware` on the running system, so the boot menu and device trees can be edited from Mo OS. The terminal output below shows the layout on the tested card; `/` is already expanded to the end of the card.
+
+```bash
+lsblk -o NAME,SIZE,FSTYPE,LABEL,MOUNTPOINT /dev/mmcblk1
+df -h / /boot/firmware
+swapon --show
+```
+
+<a href={storageTerminal} target="_blank" rel="noopener noreferrer">
+  <img src={storageTerminal} alt="Mo62A terminal listing the three microSD partitions with lsblk, the free space with df and the active swap partition" width="1440" height="900" />
+</a>
+
+## What the first boot changes
+
+On the first boot, before the login screen appears, Mo OS runs `mo-62a-firstboot-install.service` once. It:
+
+1. installs the packages bundled with the image that are not part of the base system;
+2. grows the root partition to the end of the card and expands the ext4 file system online, so a 32 GB card gives about 25 GB for `/`;
+3. applies `sysconfig.txt` from the `BOOT` partition and then deletes it, so no password stays readable on the card.
+
+The logs are `/var/log/mo-62a-firstboot-install.log` and `/var/log/mo-62a-auto-config.log`. The settings themselves are described in [sysconfig.txt reference](./sysconfig-reference.mdx).
+
+## Boot entries
+
+`extlinux/extlinux.conf` on the `BOOT` partition contains one `label` per boot entry and a `default` line that selects the entry U-Boot loads when nobody chooses from the menu. Every entry loads the same kernel and base device tree; they differ only in the device tree overlay that enables peripherals on the 40-pin header or the CSI camera.
+
+List the entries and the current default with the `bootcfg` tool:
+
+```bash
+bootcfg list
+bootcfg show
+```
+
+To make another entry the default, run `sudo bootcfg switch LABEL`. The tool backs up `extlinux.conf` to `extlinux.conf.bak`, asks for confirmation and reboots immediately.
+
+<a href={bootcfgSwitch} target="_blank" rel="noopener noreferrer">
+  <img src={bootcfgSwitch} alt="Mo62A terminal listing the boot entries with bootcfg, then switching the default to microSD-uart5 and rebooting" width="1440" height="900" />
+</a>
+
+The entries supplied with the image and the pins they use are listed in [Device tree overlays](./device-tree-overlays.mdx). You can also pick an entry for a single boot from the U-Boot menu on the debug UART, or edit the `default` line in `extlinux.conf` with a text editor on any computer that can read the `BOOT` partition.
+
+:::note
+The CSI camera overlay is part of the `microSD-default` entry only. Peripheral entries such as `microSD-uart5` or `microSD-spi0` boot without the camera.
+:::
+
+## Back up and clone the card
+
+The whole card can be copied as an image from a computer. Shut the board down first, move the card to a card reader, and use the same tool you flashed with, or on Linux:
+
+```bash
+sudo dd if=/dev/sdX of=mo62a-backup.img bs=4M status=progress conv=fsync
+```
+
+Replace `/dev/sdX` with the card reader's device. A copy of the card boots on another Mo62A with the same host name, accounts and SSH host keys. For a fresh identity, flash the image again and use `sysconfig.txt`.
 
 ## Troubleshooting
 
-If the board does not boot: re-seat the card until it clicks, try another card, and re-flash. Watch the [serial console](../hardware-development/hardware-interfaces.mdx#debug-uart-j4) to see where the boot stops.
+<div className="mo-troubleshooting-table">
+
+| Symptom | What to check |
+|---|---|
+| Nothing on the debug UART after power-on | The boot ROM found no bootloader. Re-seat the card until it clicks, check that the `BOOT` partition contains `tiboot3.bin`, `tispl.bin` and `u-boot.img`, and re-flash if in doubt. |
+| U-Boot starts but the kernel does not | Check `extlinux/extlinux.conf`: the `default` label must exist, and `Image` and the device tree files it names must be present in `BOOT`. Restore `extlinux.conf.bak` if a change broke the menu. |
+| The board boots but a 40-pin peripheral is missing | Run `bootcfg show`; the default entry may not include the overlay you need. See [Device tree overlays](./device-tree-overlays.mdx). |
+| The camera is not detected | The current entry is not `microSD-default`. Switch back with `sudo bootcfg switch microSD-default`. |
+| `/` is smaller than the card | The first-boot expansion did not run. Check `/var/log/mo-62a-firstboot-install.log` and run `sudo /usr/local/sbin/mo-62a-auto-resize.sh`. |
+| The file system is reported read-only | Errors on the card remount `/` read-only (`errors=remount-ro`). Reboot; if it repeats, back up your data and replace the card. |
+
+</div>
+
+## Related pages
+
+- [Device tree overlays](./device-tree-overlays.mdx): the entries and overlays supplied with the image.
+- [sysconfig.txt reference](./sysconfig-reference.mdx): every first-boot setting.
+- [Install the OS](../getting-started/install-os.mdx): flashing the image.
