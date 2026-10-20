@@ -619,6 +619,29 @@ try {
       for (const href of securityHrefs) assert.equal((await page.request.get(origin + href)).status(), 200, 'Users & security link must resolve: ' + href);
 
       for (const [slug, imageCount, phrases] of [
+        ['certifications', 2, ['not a finding that the product is uncertified', 'No verified', 'October 20, 2026']],
+        ['declarations', 1, ['No signed Mo62A', 'not a regulatory declaration', 'Do not generate a signature']],
+        ['integration-notes', 2, ['not a declaration', 'Do not select antenna gain', 'manufacturing use']],
+        ['regulatory-and-safety', 2, ['No verified Mo62A-specific', 'not a coin-cell holder', 'not a safety test report']],
+      ]) {
+        await page.goto(url + board + '/compliance/' + slug + '/', {waitUntil: 'networkidle'});
+        const article = page.locator('.theme-doc-markdown');
+        assert.equal(await article.locator('img').count(), imageCount, slug);
+        await checkDocumentationMedia(page);
+        const text = await article.innerText();
+        for (const phrase of phrases) {
+          const searchable = text + await article.locator('img').evaluateAll(images => images.map(image => image.alt).join(' '));
+          assert.ok(searchable.includes(phrase), slug + ': ' + phrase);
+        }
+        assert.ok(!text.includes('Coming soon'));
+        assert.ok(!text.includes('the on-board Wi-Fi is a pre-certified module'));
+        assert.ok(!/10\.5\.\d+\.\d+/.test(text));
+        const localLinks = await article.locator('a[href]').evaluateAll(links =>
+          [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
+        for (const href of localLinks) assert.equal((await page.request.get(origin + href)).status(), 200, href);
+      }
+
+      for (const [slug, imageCount, phrases] of [
         ['overview', 2, ['product specifications', 'not application benchmark results', 'No measured 25 W']],
         ['hardware-interfaces', 3, ['40-pin header (J6)', 'fan connector as J1', 'not a CR1220', '23000000.pwm', '23010000.pwm']],
         ['power-and-thermal', 2, ['51709', '9990 RPM', 'not measurements', 'not a thermal qualification']],

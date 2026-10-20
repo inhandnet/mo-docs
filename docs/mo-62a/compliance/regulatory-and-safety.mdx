@@ -1,9 +1,53 @@
 ---
 title: "Regulatory & safety information"
-description: "Mo 62A: Safe use, RoHS / REACH, WEEE, batteries."
+description: "Mo62A bench handling, published ratings, battery connector precautions and missing environmental-compliance documents."
 sidebar_position: 4
 ---
 
-Safe use, RoHS / REACH, WEEE and battery information.
+import ratings from '@site/static/img/compliance/mo62a-ratings.png';
+import connectors from '@site/static/img/hardware-development/mo62a-connectors-v11.png';
 
-<ComingSoon />
+## Published ratings and their limits
+
+The [Mo62A datasheet](https://cdn.shopify.com/s/files/1/0369/9536/7051/files/Mo_62A__V1.0_e7e46c7c-d546-41ad-bf9d-0308dbf8e339.pdf) lists 5 V / 5 A USB-C input, a 25 W maximum rating, an operating range of 0–50 °C and a storage range of −20–70 °C. The source page is shown unchanged below.
+
+<a href={ratings} target="_blank" rel="noopener noreferrer">
+  <img src={ratings} alt="Original datasheet page showing Mo62A input, maximum-power, cooling and environmental ratings; it is not a safety test report" width="1273" height="1800" />
+</a>
+
+These specifications are not evidence of electrical-safety certification, ingress protection or qualification of a finished enclosure. No humidity, condensation, flammability or outdoor-use rating has been established by this documentation review.
+
+## Bench handling
+
+- Shut down and disconnect power before connecting or moving GPIO jumpers, HATs, camera ribbons, a fan or a backup battery.
+- Keep the exposed PCB on a stable, nonconductive surface; prevent loose metal or conductive tools from contacting powered circuits.
+- Use 3.3 V logic on header signal pins. Power/ground pins are not GPIO, and a mechanically fitting connector does not guarantee a matching pinout.
+- Use a suitable power supply and cable. Do not back-power the board through a USB-UART adapter or connect competing supplies.
+- Keep cooling paths clear. Allow hot components to cool before handling them; fan blades and exposed wiring also need protection in an enclosure.
+- Stop using damaged cables, connectors or batteries. Do not improvise an electrical repair while the board is powered.
+
+For the actual connector and pin assignments, use [Hardware interfaces](../hardware-development/hardware-interfaces.mdx). For supply troubleshooting and sensor readings, use [Power & thermal](../hardware-development/power-and-thermal.mdx).
+
+## RTC battery connection
+
+The schematics show a two-pin SH1.0 battery connector J2, not a coin-cell holder: pin 1 is GND and pin 2 is VBAT. Obtain the approved battery assembly and confirm polarity, voltage and connector before attaching it; do not choose a bare cell solely from an older accessory description.
+
+<a href={connectors} target="_blank" rel="noopener noreferrer">
+  <img src={connectors} alt="Original schematic sheet 17 with the RTC battery connector J2 at the lower right; pin 1 is ground and pin 2 is VBAT" width="2200" height="1556" />
+</a>
+
+Battery retention, charging behaviour and a specific replacement battery assembly were not validated in this review. Do not attempt to charge a primary cell or short its terminals. Keep small batteries away from children and use the battery supplier's handling and disposal instructions.
+
+## Environmental and disposal documentation
+
+| Topic | Available evidence in this documentation |
+|---|---|
+| RoHS | No verified Mo62A-specific declaration linked |
+| REACH / substances | No verified Mo62A-specific declaration or material statement linked |
+| WEEE / collection | No model-specific collection instructions or registration details verified |
+| Battery compliance and transport | No approved battery assembly or associated documentation verified |
+| Finished-product safety | No matching regulatory safety test report available here |
+
+Request the applicable documents for the exact model and market from InHand. Use appropriate local collection channels for electronics and batteries; obtain destination-specific instructions from the supplier or local authority. This page does not determine the legal obligations for a particular deployment.
+
+See [Declarations & test reports](./declarations.mdx) for the evidence checklist. Do not turn a missing document into an unsupported “compliant” or “non-compliant” statement.
