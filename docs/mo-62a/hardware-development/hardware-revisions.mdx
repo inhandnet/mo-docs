@@ -1,16 +1,52 @@
 ---
 title: "Hardware revisions"
-description: "Mo 62A: Differences between board revisions."
+description: "Identify a Mo62A board and distinguish schematic filenames, title blocks and unverified hardware changes."
 sidebar_position: 6
 ---
 
-| Revision | Schematic |
-|---|---|
-| V1.1 | [MO_62A_S_MB_V11-260426.pdf](https://github.com/inhandnet/Mo62A/blob/HEAD/doc/Schematic/MO_62A_S_MB_V11-260426.pdf) |
-| V1.0 | [MO_62A_sch_V1.0-260203.pdf](https://github.com/inhandnet/Mo62A/blob/HEAD/doc/Schematic/MO_62A_sch_V1.0-260203.pdf) |
+import schematicV10 from '@site/static/img/hardware-development/mo62a-schematic-v10.png';
+import schematicV11 from '@site/static/img/hardware-development/mo62a-schematic-v11.png';
 
-The revision is printed on the board next to the SoC (for example `Mo_62A_P_MB_V1.0`).
+## Identify the board, not just the software
 
-What changed between hardware revisions, and how to identify yours.
+Record the PCB silkscreen revision, ordered SKU/memory option and any assembly label before selecting design files. Photograph the marking on your own board; an example product photograph or a Linux model string is not proof of the exact assembled revision.
 
-<ComingSoon />
+`uname -r` and `/etc/os-release` describe software. The device-tree model and an RTC driver name also do not uniquely identify a hardware revision.
+
+## Published schematic identifiers
+
+Two files are available from [Schematics](./schematics.mdx), with checked sizes and SHA-256 hashes:
+
+| Filename identifier | First-sheet title block | Interpretation |
+|---|---|---|
+| `V1.0-260203` | Rev V1.0; April 1, 2026 | Filename suffix and title-block date differ |
+| `V11-260426` | Rev V1.0; April 27, 2026 | Filename suggests V1.1, but the first-sheet revision label was not updated |
+
+The following images preserve the original labels. Open them to inspect the lower-right title blocks.
+
+### V1.0-named file
+
+<a href={schematicV10} target="_blank" rel="noopener noreferrer">
+  <img src={schematicV10} alt="First sheet of MO_62A_sch_V1.0-260203.pdf, showing Rev V1.0 and an April 1, 2026 title-block date" width="1800" height="1273" />
+</a>
+
+### V1.1-named file
+
+<a href={schematicV11} target="_blank" rel="noopener noreferrer">
+  <img src={schematicV11} alt="First sheet of MO_62A_S_MB_V11-260426.pdf, whose title block still says Rev V1.0 with an April 27, 2026 date" width="1800" height="1273" />
+</a>
+
+## What is not established
+
+No authoritative engineering change notice, assembly/BOM change list or revision-to-serial mapping was found in the reviewed public material. Consequently, this page does not claim that every difference between the two PDFs is fitted on every board, or that accessories and images are interchangeable across all revisions.
+
+The V1.1-named PDF has local change annotations on some sheets, but those annotations are not a complete release history. Connector references also conflict with the older SDK README: both PDFs identify the expansion header as J6 and the fan as J1. Use [Hardware interfaces](./hardware-interfaces.mdx) and verify the actual connector and pin 1.
+
+## Before a revision-dependent change
+
+1. Record the physical board and assembly identification.
+2. Keep the exact schematic file and its hash, not just a moving branch URL.
+3. Ask InHand to confirm the matching schematic/BOM, engineering changes and any required software or accessory restrictions.
+4. Revalidate the affected interface, power or mechanical fit on the target revision.
+
+For enclosure manufacture, also obtain the toleranced mechanical package; the public [dimension drawing](./mechanical.mdx) explicitly excludes production use.

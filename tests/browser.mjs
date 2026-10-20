@@ -618,6 +618,44 @@ try {
         [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
       for (const href of securityHrefs) assert.equal((await page.request.get(origin + href)).status(), 200, 'Users & security link must resolve: ' + href);
 
+      for (const [slug, imageCount, phrases] of [
+        ['overview', 2, ['product specifications', 'not application benchmark results', 'No measured 25 W']],
+        ['hardware-interfaces', 3, ['40-pin header (J6)', 'fan connector as J1', 'not a CR1220', '23000000.pwm', '23010000.pwm']],
+        ['power-and-thermal', 2, ['51709', '9990 RPM', 'not measurements', 'not a thermal qualification']],
+        ['mechanical', 2, ['85 × 56 mm', 'must not be used for manufacturing', 'No verified public STEP']],
+        ['schematics', 2, ['1,130,181', '1,058,114', 'Git LFS', 'April 27, 2026']],
+        ['hardware-revisions', 2, ['April 1, 2026', 'April 27, 2026', 'No authoritative engineering change']],
+      ]) {
+        await page.goto(url + board + '/hardware-development/' + slug + '/', {waitUntil: 'networkidle'});
+        const article = page.locator('.theme-doc-markdown');
+        assert.equal(await article.locator('img').count(), imageCount, slug);
+        await checkDocumentationMedia(page);
+        const text = await article.innerText();
+        for (const phrase of phrases) assert.ok(text.includes(phrase), slug + ': ' + phrase);
+        assert.ok(!text.includes('Coming soon'));
+        assert.ok(!/10\.5\.\d+\.\d+/.test(text));
+        const localLinks = await article.locator('a[href]').evaluateAll(links =>
+          [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
+        for (const href of localLinks) {
+          const response = await page.request.get(origin + href);
+          assert.equal(response.status(), 200, href);
+          const target = new URL(href, origin);
+          if (target.hash && response.headers()['content-type']?.includes('text/html')) {
+            assert.ok((await response.text()).includes(`id="${decodeURIComponent(target.hash.slice(1))}"`), href);
+          }
+        }
+        if (slug === 'hardware-interfaces') {
+          const rows = article.locator('table').first().locator('tbody tr');
+          assert.equal(await rows.count(), 40);
+          for (let pin = 1; pin <= 40; pin++) {
+            assert.equal(await rows.nth(pin - 1).locator('td').first().innerText(), String(pin));
+          }
+          assert.ok((await rows.nth(31).innerText()).includes('EHRPWM0 B'));
+          assert.ok((await rows.nth(32).innerText()).includes('EHRPWM0 A'));
+          for (const pin of [27, 28]) assert.ok((await rows.nth(pin - 1).innerText()).includes('Reserved'));
+        }
+      }
+
       for (const [slug, headings, images, phrases] of [
         ['storage-and-boot', ['Boot sequence', 'Partition layout', 'What the first boot changes', 'Boot entries', 'Back up and clone the card', 'Troubleshooting', 'Related pages'],
           ['mo62a-storage', 'mo62a-bootcfg-switch'], ['/dev/mmcblk1p3', '255 MiB', 'sudo bootcfg switch LABEL', 'extlinux.conf.bak']],

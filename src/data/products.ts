@@ -82,7 +82,7 @@ export const products: Product[] = [
       {
         title: 'Raspberry Pi form factor, industrial AI core',
         subtitle: '85 × 56 mm with a 40-pin HAT-compatible header.',
-        body: 'Fits mainstream SBC enclosures and works with HAT expansion boards — PoE, relays, sensors, displays — so prototyping hardware is never the blocker. The header uses 3.3 V logic.',
+        body: 'A 40-pin header exposes 3.3 V signals for expansion. Verify each HAT’s pin mapping, power needs and driver support; a similar footprint does not guarantee electrical or enclosure compatibility.',
         image: '/img/products/mo-62a/form-factor.jpg',
       },
       {
@@ -100,7 +100,7 @@ export const products: Product[] = [
       {
         title: 'Secure by design',
         subtitle: 'Protect firmware, models and data on unattended devices.',
-        body: 'Secure boot, Arm TrustZone, OP-TEE trusted execution and a hardware AES-256 crypto accelerator — essential when your AI model is your IP.',
+        body: 'The SoC provides security building blocks, but production protection depends on device configuration, key management and validation. Board secure-boot provisioning has not been validated in these guides.',
         image: '/img/products/mo-62a/security.jpg',
       },
       {
@@ -127,7 +127,7 @@ export const products: Product[] = [
           {label: 'Expansion', value: '40-pin header: GPIO / I²C / SPI / UART / PWM / PCM, 3.3 V logic'},
           {label: 'Debug', value: '1 × TTL UART console (115200 8N1)'},
           {label: 'Fan', value: '1 × 4-pin fan header'},
-          {label: 'RTC', value: 'Yes, with battery backup'},
+          {label: 'RTC', value: 'External RTC and battery connector; battery retention not tested'},
         ],
       },
       {
@@ -142,7 +142,7 @@ export const products: Product[] = [
         title: 'Power & mechanical',
         rows: [
           {label: 'Power input', value: 'USB Type-C, 5 V / 5 A'},
-          {label: 'Power consumption', value: '25 W max'},
+          {label: 'Power consumption', value: '25 W maximum rating (not measured workload power)'},
           {label: 'Dimensions / weight', value: '85 × 56 mm, 47 g'},
           {label: 'Operating temperature', value: '0 – 50 °C'},
         ],
@@ -153,7 +153,7 @@ export const products: Product[] = [
           {label: 'Operating system', value: 'Debian 13 (Trixie), Linux kernel 6.12'},
           {label: 'AI runtime', value: 'TI TIDL with ONNX Runtime / TFLite'},
           {label: 'Development', value: 'Python, C/C++, OpenCV, GStreamer, NumPy, apt'},
-          {label: 'Security', value: 'Secure boot, Arm TrustZone, OP-TEE, hardware AES-256'},
+          {label: 'Security', value: 'SoC security capabilities; board secure-boot provisioning not validated'},
         ],
       },
     ],

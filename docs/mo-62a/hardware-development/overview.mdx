@@ -1,21 +1,46 @@
 ---
 title: "Overview & specifications"
-description: "Mo 62A specifications."
+description: "Mo62A hardware specifications, source documents and the boundary between product capabilities and tested workflows."
 sidebar_position: 1
 ---
 
-The Mo 62A is built on the **TI AM62A74** vision processor: four Arm Cortex-A53 cores at 1.4 GHz, a Cortex-R5F real-time core, and a C7x DSP with a Matrix Multiply Accelerator that delivers **2 TOPS** of AI inference. An on-chip ISP with VPAC handles WDR, lens distortion correction and RGB-IR before frames reach your model.
+import blockDiagram from '@site/static/img/hardware-development/mo62a-schematic-v11.png';
+
+Mo62A is built on the TI AM62A74 vision processor, with four Arm Cortex-A53 cores at up to 1.4 GHz and a C7x DSP with Matrix Multiply Accelerator rated at 2 TOPS. These are product specifications, not application benchmark results. See [AI benchmarks](../application-development/ai/benchmarks.mdx) for measured inference times and [Real-time cores](../real-time-cores/overview.mdx) for the actual remote-processor ownership.
 
 ![Mo 62A board](/img/boards/mo-62a.png)
 
 <BoardSpecs board="mo-62a" />
 
-## Mo 62A vs Mo 68A
+## Design reference and validation scope
 
-Mo 62A is the entry board: one camera, lower power, on-board Wi-Fi. For two cameras, 4K60 video, USB 3.0 or PCIe, use the [Mo 68A](../../mo-68a/hardware-development/overview.mdx). Full table: [Compare the boards](/hardware#compare).
+The original block diagram below is sheet 1 of the published V1.1-named schematic. It is a design reference, not a checklist of enabled or validated features. Its `RJ45+PoE` label does not establish bare-board PoE support. The older V1.0-named file also shows an optional eMMC block; that is not evidence of an installed device. The tested system boots from microSD.
+
+<a href={blockDiagram} target="_blank" rel="noopener noreferrer">
+  <img src={blockDiagram} alt="Original Mo62A schematic block diagram showing the AM62A74, memory, camera, display, network, USB and expansion connections" width="1800" height="1273" />
+</a>
+
+| Area | Evidence available | Boundary |
+|---|---|---|
+| Linux system | [First boot](../getting-started/first-boot.mdx) and [system information](../mo-os/using-mo-os.mdx) | Results apply to the documented image and development board |
+| AI inference | [Python/C++ APIs](../application-development/ai/inference-apis.mdx), sample models and measured runs | A 2 TOPS rating is not model FPS |
+| Camera | [IMX219 JPEG capture](../application-development/camera-and-video.mdx) | CPU JPEG encode after TI ISP; hardware encode not qualified |
+| Expansion | [GPIO, UART5 and PWM loopbacks](../application-development/gpio-and-peripherals.mdx) | No blanket HAT, SPI or external I²C certification |
+| Power and cooling | Product ratings and [read-only sensor capture](./power-and-thermal.mdx) | No measured 25 W draw or environmental qualification |
+| Secure boot and custom RTOS | SoC/SDK capabilities and preparation guidance | No board key provisioning or custom RTOS application validated |
+
+Memory capacity is an ordered hardware option; the 2/4/8 GB choices do not mean every board has 8 GB. Confirm the purchased SKU and use `free -h` to inspect memory visible to Linux; reservations mean this is not a direct reading of fitted DRAM capacity.
+
+## Integration references
+
+- [Hardware interfaces](./hardware-interfaces.mdx): physical pins, voltage, Linux mapping and connector-reference discrepancies.
+- [Power & thermal](./power-and-thermal.mdx): supply ratings and live sensor readings.
+- [Mechanical](./mechanical.mdx): published dimensions and the explicit production-use limitation.
+- [Schematics](./schematics.mdx) and [hardware revisions](./hardware-revisions.mdx): verified downloads and identification limits.
+- [Compare the boards](/hardware#compare): product-level comparison; verify the target board's own tested workflows before migration.
 
 ## Downloads
 
-- [Datasheet (PDF)](https://cdn.shopify.com/s/files/1/0369/9536/7051/files/Mo_62A__V1.0_e7e46c7c-d546-41ad-bf9d-0308dbf8e339.pdf)
+- [Datasheet (PDF, Chinese)](https://cdn.shopify.com/s/files/1/0369/9536/7051/files/Mo_62A__V1.0_e7e46c7c-d546-41ad-bf9d-0308dbf8e339.pdf)
 - [Schematics](./schematics.mdx)
 - [OS images](/software#os-images)

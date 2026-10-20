@@ -1,115 +1,134 @@
 ---
 title: "Hardware interfaces"
-description: "Mo 62A: 40-pin header, camera, display, fan and debug connectors."
+description: "Mo62A physical pins, Linux GPIO mapping, connector references and verified peripheral modes."
 sidebar_position: 2
 ---
 
-:::note[Source]
-Pinout from the [Mo 62A SDK README](https://github.com/inhandnet/Mo62A#7-hardware-reference), schematic Rev V1.0.
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import interfaces from '@site/static/img/hardware-development/mo62a-interfaces.png';
+import connectors from '@site/static/img/hardware-development/mo62a-connectors-v11.png';
+
+Use physical pin numbers when wiring and SoC controller names when programming. A Raspberry Pi-style label such as `GPIO17` is not Linux GPIO line 17 on Mo62A.
+
+:::warning[Disconnect power before wiring]
+Header signals use 3.3 V logic. Do not apply 5 V to a GPIO, connect two outputs together, or assume that a mechanically compatible HAT has compatible signals and software. Locate physical pin 1 on your board before connecting anything.
 :::
 
-## 40-pin header (J9)
+## 40-pin header (J6)
 
-The header uses **3.3 V logic**. Do not connect 5 V signals to GPIO pins. Mechanically it matches Raspberry Pi HATs; check each HAT's voltage requirements before you connect it.
+Both published [schematics](./schematics.mdx), sheet 17, identify the expansion header as J6 and the fan connector as J1. The older SDK README calls them J9 and J6 respectively. This page follows the schematic references; also check the `USER EXPN` marking, connector shape and pin-1 indication on your actual board. Do not select a connector by a conflicting reference alone.
 
-All signal pins are GPIO by default. Pins 27 and 28 are reserved for the camera I²C bus and cannot be used as GPIO.
+<a href={useBaseUrl('/img/hardware-development/mo62a-40pin-reference.svg')} target="_blank" rel="noopener noreferrer">
+  <img src={useBaseUrl('/img/hardware-development/mo62a-40pin-reference.svg')} alt="Mo62A physical-pin reference: 40 pins, SoC GPIO signals, alternate functions, reserved camera I2C pins and the three verified loopbacks; not a physical orientation drawing" width="1360" height="1580" />
+</a>
 
-| Pin | Name        | Default Function        | gpiochip  | Line | Optional Function    |
-|-----|-------------|-------------------------|-----------|------|----------------------|
-|  1  | 3V3         | 3.3 V power             | —         | —    | —                    |
-|  2  | 5V          | 5 V power               | —         | —    | —                    |
-|  3  | GPIO2       | GPIO (MCU\_GPIO0\_20)   | gpiochip0 | 20   | WKUP\_I2C0\_SDA      |
-|  4  | 5V          | 5 V power               | —         | —    | —                    |
-|  5  | GPIO3       | GPIO (MCU\_GPIO0\_19)   | gpiochip0 | 19   | WKUP\_I2C0\_SCL      |
-|  6  | GND         | Ground                  | —         | —    | —                    |
-|  7  | GPIO4       | GPIO (GPIO0\_39)        | gpiochip1 | 39   | —                    |
-|  8  | GPIO14      | GPIO (GPIO1\_25)        | gpiochip2 | 25   | UART5\_TXD           |
-|  9  | GND         | Ground                  | —         | —    | —                    |
-| 10  | GPIO15      | GPIO (GPIO1\_24)        | gpiochip2 | 24   | UART5\_RXD           |
-| 11  | GPIO17      | GPIO (GPIO1\_23)        | gpiochip2 | 23   | —                    |
-| 12  | GPIO18      | GPIO (GPIO1\_0)         | gpiochip2 |  0   | MCASP2\_ACLKX        |
-| 13  | GPIO27      | GPIO (GPIO0\_42)        | gpiochip1 | 42   | —                    |
-| 14  | GND         | Ground                  | —         | —    | —                    |
-| 15  | GPIO22      | GPIO (GPIO1\_22)        | gpiochip2 | 22   | —                    |
-| 16  | GPIO23      | GPIO (GPIO0\_38)        | gpiochip1 | 38   | —                    |
-| 17  | 3V3         | 3.3 V power             | —         | —    | —                    |
-| 18  | GPIO24      | GPIO (GPIO0\_40)        | gpiochip1 | 40   | —                    |
-| 19  | GPIO10      | GPIO (GPIO1\_18)        | gpiochip2 | 18   | SPI0\_D0 (MOSI)      |
-| 20  | GND         | Ground                  | —         | —    | —                    |
-| 21  | GPIO9       | GPIO (GPIO1\_19)        | gpiochip2 | 19   | SPI0\_D1 (MISO)      |
-| 22  | GPIO25      | GPIO (GPIO0\_14)        | gpiochip1 | 14   | —                    |
-| 23  | GPIO11      | GPIO (GPIO1\_17)        | gpiochip2 | 17   | SPI0\_CLK            |
-| 24  | GPIO8       | GPIO (GPIO1\_15)        | gpiochip2 | 15   | SPI0\_CS0            |
-| 25  | GND         | Ground                  | —         | —    | —                    |
-| 26  | GPIO7       | GPIO (GPIO1\_16)        | gpiochip2 | 16   | SPI0\_CS1            |
-| 27  | I2C2\_SDA   | I2C2 SDA (`i2c-2`)     | —         | —    | (camera bus, fixed)  |
-| 28  | I2C2\_SCL   | I2C2 SCL (`i2c-2`)     | —         | —    | (camera bus, fixed)  |
-| 29  | GPIO5       | GPIO (GPIO0\_36)        | gpiochip1 | 36   | —                    |
-| 30  | GND         | Ground                  | —         | —    | —                    |
-| 31  | GPIO6       | GPIO (GPIO0\_33)        | gpiochip1 | 33   | —                    |
-| 32  | GPIO12      | GPIO (GPIO1\_14)        | gpiochip2 | 14   | EHRPWM0\_B           |
-| 33  | GPIO13      | GPIO (GPIO1\_13)        | gpiochip2 | 13   | EHRPWM0\_A           |
-| 34  | GND         | Ground                  | —         | —    | —                    |
-| 35  | GPIO19      | GPIO (GPIO0\_91)        | gpiochip1 | 91   | MCASP2\_AFSX         |
-| 36  | GPIO16      | GPIO (GPIO1\_9)         | gpiochip2 |  9   | EHRPWM1\_A           |
-| 37  | GPIO26      | GPIO (GPIO0\_41)        | gpiochip1 | 41   | —                    |
-| 38  | GPIO20      | GPIO (GPIO1\_5)         | gpiochip2 |  5   | MCASP2\_AXR0         |
-| 39  | GND         | Ground                  | —         | —    | —                    |
-| 40  | GPIO21      | GPIO (GPIO1\_2)         | gpiochip2 |  2   | MCASP2\_AXR1         |
+The illustration is a logical pin reference, not a board photograph or an orientation guide. The table below applies to the tested `microSD-default` configuration. Pins 27/28 remain reserved for camera I²C; power and ground pins are not GPIO. A peripheral overlay takes ownership of its associated signal pins.
 
-`gpiochip0` = MCU domain GPIO, `gpiochip1` = `main_gpio0` (GPIO0_x), `gpiochip2` = `main_gpio1` (GPIO1_x).
+| Physical pin | Power or SoC signal | GPIO chip / offset | Alternate function |
+|---|---|---|---|
+| 1 | 3.3 V | — | Power |
+| 2 | 5 V | — | Power |
+| 3 | `MCU_GPIO0_20` | `gpiochip0` / 20 | WKUP_I2C0 SDA |
+| 4 | 5 V | — | Power |
+| 5 | `MCU_GPIO0_19` | `gpiochip0` / 19 | WKUP_I2C0 SCL |
+| 6 | GND | — | Ground |
+| 7 | `GPIO0_39` | `gpiochip1` / 39 | GPIO |
+| 8 | `GPIO1_25` | `gpiochip2` / 25 | UART5 TX |
+| 9 | GND | — | Ground |
+| 10 | `GPIO1_24` | `gpiochip2` / 24 | UART5 RX |
+| 11 | `GPIO1_23` | `gpiochip2` / 23 | GPIO |
+| 12 | `GPIO1_0` | `gpiochip2` / 0 | MCASP2 ACLKX |
+| 13 | `GPIO0_42` | `gpiochip1` / 42 | GPIO |
+| 14 | GND | — | Ground |
+| 15 | `GPIO1_22` | `gpiochip2` / 22 | GPIO |
+| 16 | `GPIO0_38` | `gpiochip1` / 38 | GPIO |
+| 17 | 3.3 V | — | Power |
+| 18 | `GPIO0_40` | `gpiochip1` / 40 | GPIO |
+| 19 | `GPIO1_18` | `gpiochip2` / 18 | SPI0 MOSI |
+| 20 | GND | — | Ground |
+| 21 | `GPIO1_19` | `gpiochip2` / 19 | SPI0 MISO |
+| 22 | `GPIO0_14` | `gpiochip1` / 14 | GPIO |
+| 23 | `GPIO1_17` | `gpiochip2` / 17 | SPI0 CLK |
+| 24 | `GPIO1_15` | `gpiochip2` / 15 | SPI0 CS0 |
+| 25 | GND | — | Ground |
+| 26 | `GPIO1_16` | `gpiochip2` / 16 | SPI0 CS1 |
+| 27 | I2C2 SDA | Reserved | Camera bus |
+| 28 | I2C2 SCL | Reserved | Camera bus |
+| 29 | `GPIO0_36` | `gpiochip1` / 36 | GPIO |
+| 30 | GND | — | Ground |
+| 31 | `GPIO0_33` | `gpiochip1` / 33 | GPIO |
+| 32 | `GPIO1_14` | `gpiochip2` / 14 | EHRPWM0 B |
+| 33 | `GPIO1_13` | `gpiochip2` / 13 | EHRPWM0 A |
+| 34 | GND | — | Ground |
+| 35 | `GPIO0_91` | `gpiochip1` / 91 | MCASP2 AFSX |
+| 36 | `GPIO1_9` | `gpiochip2` / 9 | EHRPWM1 A; controller shared with fan |
+| 37 | `GPIO0_41` | `gpiochip1` / 41 | GPIO |
+| 38 | `GPIO1_5` | `gpiochip2` / 5 | MCASP2 AXR0 |
+| 39 | GND | — | Ground |
+| 40 | `GPIO1_2` | `gpiochip2` / 2 | MCASP2 AXR1 |
 
-### GPIO from the command line
-
-The image ships with libgpiod v2. The `-c` option selects the chip.
+On the tested image, `gpiochip0` is `4201000.gpio` (MCU GPIO0), `gpiochip1` is `600000.gpio` (main GPIO0), and `gpiochip2` is `601000.gpio` (main GPIO1). Confirm the names on another image instead of assuming chip indices are stable.
 
 ```bash
-gpiodetect                                 # list GPIO chips
-gpioget -c gpiochip2 23                    # read pin 11
-gpioset --hold-period=2s -c gpiochip1 39=1 # drive pin 7 high for 2 s
-gpiomon -c gpiochip2 23                    # watch edges on pin 11
+bootcfg show
+sudo gpiodetect
+sudo gpioinfo -c gpiochip2
 ```
 
-### Peripheral mode: I²C, UART, SPI, PWM, I²S
+<a href={interfaces} target="_blank" rel="noopener noreferrer">
+  <img src={interfaces} alt="Live Mo62A inspection showing the default boot entry, GPIO controller names, three RTC devices and ttyS2 console configuration" width="1440" height="900" />
+</a>
 
-To use the alternate functions, choose the **`microSD-periph`** entry in the U-Boot boot menu, or set `default microSD-periph` in `/boot/extlinux/extlinux.conf` (BOOT partition). This loads the `k3-am62a7-mo-62a-exp-periph.dtbo` overlay.
+For driven GPIO, edge monitoring and cleanup, use the tested [GPIO & peripherals](../application-development/gpio-and-peripherals.mdx) procedures. In libgpiod v2, `gpioset --hold-period=2s` specifies a minimum hold period; it does not by itself mean that the process exits after two seconds. A GPIO output is held while the request remains open.
 
-| Interface | Pins | Linux device |
+## Select a peripheral function
+
+Choose a supplied entry with `bootcfg`; changing the default reboots the board. Confirm the live device-tree status after reboot. Do not enable the audio overlay with the GPIO/PWM loopback jumpers still attached.
+
+| Function | Physical pins | Boot entry | Verification boundary |
+|---|---|---|---|
+| GPIO | Unreserved signal pins | `microSD-default` | Three pairs tested in both directions |
+| UART5 | 8 TX, 10 RX | `microSD-uart5` | `/dev/ttyS3`; 115200 8N1 loopback passed |
+| EHRPWM0 | 33 A, 32 B | `microSD-ehrpwm0` | Pin 33 measured at 50 Hz / 25%; pin 32 not measured |
+| WKUP_I2C0 | 3 SDA, 5 SCL | `microSD-i2c0` | No external I²C peripheral tested in this review |
+| SPI0 | 19, 21, 23, 24, 26 | `microSD-spi0` | No SPI loopback tested in this review |
+| MCASP2 audio | 12, 35, 38, 40; 3/5 control | `microSD-audio` | Requires the matching WM8960 hardware and driver |
+
+The combined `exp-periph` overlay is present in the SDK but is not a supplied `microSD-periph` boot entry in the tested image. Follow [Device tree overlays](../system-configuration/device-tree-overlays.mdx) for the supported entries, pin conflicts and recovery.
+
+Resolve PWM controllers through `/sys/class/pwm/pwmchip*/device`: EHRPWM0 is `23000000.pwm`; the fan uses `23010000.pwm`. Do not hard-code `pwmchip0`. Header pin 36 shares the fan's EHRPWM1 controller, so it is not an independent, already-tested PWM output.
+
+## Camera, fan and debug UART
+
+The CSI camera connector JP1 is a 22-pin, 0.5 mm FPC connector. The tested sensor is IMX219. Disconnect power before handling the ribbon and use the [camera connection guide and JPEG capture test](../application-development/camera-and-video.mdx).
+
+Sheet 17 of the V1.1-named schematic is reproduced below without altering its labels. Open the image or full PDF to inspect pin numbers.
+
+<a href={connectors} target="_blank" rel="noopener noreferrer">
+  <img src={connectors} alt="Original schematic sheet 17 showing J6 expansion, J1 fan, J4 debug UART and J2 RTC battery connectors" width="2200" height="1556" />
+</a>
+
+| Connector | Schematic pin assignment | Use |
 |---|---|---|
-| I²C (WKUP_I2C0) | 3 (SDA), 5 (SCL) | `/dev/i2c-0` |
-| UART5 | 8 (TXD), 10 (RXD) | `/dev/ttyS3` |
-| SPI0 | 19 (MOSI), 21 (MISO), 23 (CLK), 24 (CS0), 26 (CS1) | `/sys/bus/spi/devices/spi0.*` (no `spidev` node by default) |
-| PWM (EHRPWM0) | 33 (A), 32 (B) | `/sys/class/pwm/pwmchip0/pwm0`, `pwm1` |
-| I²S (MCASP2) | 12, 35, 38, 40 | No sound card bound by default |
+| J1 fan, SH1.0-4p | 1: 5 V; 2: PWM; 3: GND; 4: tachometer | Use a matching fan and cable; do not rely on wire colours |
+| J4 debug, SH1.0-3p | 1: board RX; 2: GND; 3: board TX | 3.3 V TTL USB-UART; 115200 baud, 8N1 |
+| J2 RTC battery, SH1.0-2p | 1: GND; 2: VBAT | Verify approved battery type and plug polarity before connecting |
 
-In peripheral mode the I²C bus numbers shift: `i2c-0` = header pins 3/5, `i2c-3` = camera bus.
+The debug UART is `ttyS2`, not the header's UART5 `/dev/ttyS3`. Cross adapter TX to board RX and adapter RX to board TX, and connect ground. Do not connect an RS-232 voltage interface or use the adapter's power wire to power the board. See [First boot](../getting-started/first-boot.mdx#serial-console).
 
-## Camera (JP1)
-
-22-pin, 0.5 mm FPC connector with the Raspberry Pi camera pinout, 4-lane MIPI CSI-2. The Sony IMX219 is supported out of the box; see [Display, video & camera](../application-development/camera-and-video.mdx).
-
-## Fan (J6)
-
-4-pin SH1.0 connector for a 5 V PWM fan, with tachometer feedback.
-
-## Debug UART (J4)
-
-3-pin SH1.0 connector. 115200 baud, 8N1. The kernel console is `ttyS2`.
-
-| Pin | Signal |
-|---|---|
-| 1 | UART0_RXD |
-| 2 | GND |
-| 3 | UART0_TXD |
+J2 is a battery connector, not a CR1220 coin-cell holder. The schematic labels the external RTC as PCF85263ATL; Linux reports the compatible driver name `pcf85363`. Driver naming alone does not establish a board revision. Battery retention was not tested in this review.
 
 ## Other connectors
 
-| Connector | Details |
-|---|---|
-| Power | USB Type-C, 5 V |
-| Ethernet | Gigabit (TI DP83867 PHY) |
-| USB | 4 × USB 2.0 Type-A through a USB2514 hub |
-| Display | micro HDMI (SiI9022A RGB-to-HDMI transmitter) |
-| Audio | 3.5 mm headset jack (TLV320AIC3106 codec) |
-| Wi-Fi / BT antenna | U.FL connector |
-| RTC battery | CR1220 coin cell holder |
+| Interface | Board connection | Integration note |
+|---|---|---|
+| Power | USB Type-C, 5 V | See [Power & thermal](./power-and-thermal.mdx) |
+| Ethernet | Gigabit RJ45, DP83867 PHY | Do not infer bare-board PoE support from a block-diagram label |
+| USB | Four USB 2.0 Type-A ports through a hub | Share the upstream link and power budget |
+| Display | micro HDMI through SiI9022A | Use the tested [display setup](../mo-os/display-and-audio.mdx) |
+| Audio | 3.5 mm jack with TLV320AIC3106 | Distinct from an optional header audio HAT |
+| Antenna | U.FL-style RF connector | Fit the correct antenna and provide enclosure clearance |
+
+## Sources and checks
+
+The physical-pin mapping was cross-checked against the [SDK README](https://github.com/inhandnet/Mo62A#7-hardware-reference), the per-pad device-tree definitions, the individual overlays and the published schematics. The diagram's logical mapping was checked for all 40 pins. Only the GPIO, UART5 and pin-33 PWM loopbacks linked above are electrical tests; the remaining entries are design references.

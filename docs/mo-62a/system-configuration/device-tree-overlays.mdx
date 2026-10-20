@@ -18,17 +18,17 @@ Each entry in `extlinux/extlinux.conf` on the `BOOT` partition loads the base de
 
 | Boot entry | Overlay | Linux device | Header pins |
 |---|---|---|---|
-| `microSD-default` | `cam-imx219` | CSI camera | All 40 pins are GPIO; pins 27 and 28 reserved for the camera I²C bus |
+| `microSD-default` | `cam-imx219` | CSI camera | Unreserved signal pins are GPIO; pins 27/28 are camera I²C; power/ground are not GPIO |
 | `microSD-i2c0` | `exp-i2c0` | `/dev/i2c-0` | 3 (SDA), 5 (SCL) — WKUP_I2C0 |
 | `microSD-uart5` | `exp-uart5` | `/dev/ttyS3` | 8 (TXD), 10 (RXD) — UART5 |
 | `microSD-spi0` | `exp-spi0` | SPI0 bus | 19 (MOSI), 21 (MISO), 23 (CLK), 24 (CS0), 26 (CS1) |
-| `microSD-ehrpwm0` | `exp-ehrpwm0` | `pwmchip0` | 33 (EHRPWM0_A), 32 (EHRPWM0_B) |
+| `microSD-ehrpwm0` | `exp-ehrpwm0` | EHRPWM0 at `23000000.pwm` | 33 (EHRPWM0_A), 32 (EHRPWM0_B) |
 | `microSD-audio` | `exp-audio` | WM8960 card | 3, 5 (I²C control); 12, 35, 38, 40 (I²S) |
 
 
 Only `microSD-default` loads the camera overlay. The peripheral entries boot without the CSI camera, and pins 27 and 28 stay reserved for the camera I²C bus in every entry; do not drive them as GPIO. A combined overlay, `k3-am62a7-mo-62a-exp-periph.dtbo`, is also present in `BOOT/ti/` and enables all of the buses above at once, but it has no boot entry of its own; see [Add your own entry](#add-your-own-entry).
 
-The pin numbers, signal names and GPIO line numbers are in [Hardware interfaces](../hardware-development/hardware-interfaces.mdx#40-pin-header-j9).
+The pin numbers, signal names and GPIO line numbers are in [Hardware interfaces](../hardware-development/hardware-interfaces.mdx#40-pin-header-j6).
 
 ## Select an entry
 

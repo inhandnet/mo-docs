@@ -1,18 +1,60 @@
 ---
 title: "Schematics"
-description: "Mo 62A schematic downloads."
+description: "Verified Mo62A schematic downloads, file hashes, source previews and revision-label caveats."
 sidebar_position: 5
 ---
 
-Schematics are published in the Mo 62A GitHub repository:
+import blockDiagram from '@site/static/img/hardware-development/mo62a-schematic-v11.png';
+import connectors from '@site/static/img/hardware-development/mo62a-connectors-v11.png';
 
-| Revision | File |
-|---|---|
-| V1.1 (2026-04-26) | [MO_62A_S_MB_V11-260426.pdf](https://github.com/inhandnet/Mo62A/blob/HEAD/doc/Schematic/MO_62A_S_MB_V11-260426.pdf) |
-| V1.0 (2026-02-03) | [MO_62A_sch_V1.0-260203.pdf](https://github.com/inhandnet/Mo62A/blob/HEAD/doc/Schematic/MO_62A_sch_V1.0-260203.pdf) |
+## Download the published files
 
-The board revision is printed next to the SoC (for example `Mo_62A_P_MB_V1.0`).
+The [Mo62A repository schematic directory](https://github.com/inhandnet/Mo62A/tree/master/doc/Schematic) contains two PDF files. The labels below identify the filenames; they are not a verified hardware change history.
 
-:::note
-The PDFs are stored with Git LFS. Use the **Download raw file** button on GitHub, or `git lfs pull` after cloning.
-:::
+| File identifier | Direct PDF | Size |
+|---|---|---|
+| V11 / 260426 | [MO_62A_S_MB_V11-260426.pdf](https://media.githubusercontent.com/media/inhandnet/Mo62A/master/doc/Schematic/MO_62A_S_MB_V11-260426.pdf) | 1,130,181 bytes |
+| V1.0 / 260203 | [MO_62A_sch_V1.0-260203.pdf](https://media.githubusercontent.com/media/inhandnet/Mo62A/master/doc/Schematic/MO_62A_sch_V1.0-260203.pdf) | 1,058,114 bytes |
+
+The public Git LFS object identifiers matched the reviewed local PDF hashes:
+
+```text
+11aea5b41fe549bc77c8b476fdc14d8d407facbcf6f87f41ca69d9b9bf982ce7  MO_62A_S_MB_V11-260426.pdf
+50defd55bd0c9edeef46dc421bc65c7743482e32a996ee8e3ac560908cc3aeff  MO_62A_sch_V1.0-260203.pdf
+```
+
+These hashes identify the reviewed bytes. A future change at the same branch URL should be reviewed before replacing your controlled design copy.
+
+## Preview and connector references
+
+Sheet 1 of the V1.1-named PDF provides the system block diagram:
+
+<a href={blockDiagram} target="_blank" rel="noopener noreferrer">
+  <img src={blockDiagram} alt="Unmodified first sheet of the V1.1-named Mo62A schematic, including its title block" width="1800" height="1273" />
+</a>
+
+The diagram's `RJ45+PoE` label does not demonstrate bare-board PoE support. The older V1.0-named PDF also shows an optional eMMC block, which is not evidence that the tested board has eMMC fitted.
+
+Sheet 17 provides the expansion, fan, debug and RTC circuits:
+
+<a href={connectors} target="_blank" rel="noopener noreferrer">
+  <img src={connectors} alt="Unmodified sheet 17 of the V1.1-named PDF, with J6 expansion, J1 fan, J4 debug and J2 battery references" width="2200" height="1556" />
+</a>
+
+Use the original PDF for detailed inspection; the previews are not editable design sources. See [Hardware interfaces](./hardware-interfaces.mdx) for the pin mapping and the older README's conflicting connector references.
+
+## Git LFS and download checks
+
+The PDFs use Git LFS. If a checkout contains a short text file beginning with `version https://git-lfs.github.com/spec/v1`, you have the pointer, not the schematic. Use the direct links above, GitHub's raw download, or fetch the LFS objects in your own clone:
+
+```bash
+git lfs pull --include="doc/Schematic/*.pdf"
+file doc/Schematic/*.pdf
+sha256sum doc/Schematic/*.pdf
+```
+
+Verify that the result is a PDF of the expected size and hash before sharing it with an integrator. Do not take a successful download of a pointer file as proof that you received the design.
+
+## Revision caveat
+
+The first-sheet title block in the V1.1-named file still says `Rev V1.0`, and its date is April 27, 2026, while the filename ends in `260426`. The V1.0-named file's first-sheet date is April 1, 2026, not the `260203` filename suffix. Do not silently treat filename suffixes as release dates or title-block labels as an authoritative change list. See [Hardware revisions](./hardware-revisions.mdx) for what can and cannot be identified.
