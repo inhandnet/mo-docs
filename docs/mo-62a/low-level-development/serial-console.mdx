@@ -1,17 +1,70 @@
 ---
 title: "Serial console"
-description: "Mo 62A: Debug UART wiring and settings."
+description: "Mo62A J4 debug UART wiring, host terminal setup, read-only console checks and troubleshooting."
 sidebar_position: 2
 ---
 
-Use a 3.3 V USB-to-TTL adapter on the 3-pin debug UART connector (J4, SH1.0). Settings: **115200 baud, 8N1, no flow control**. The kernel console is `ttyS2`.
+import connectors from '@site/static/img/hardware-development/mo62a-connectors-v11.png';
+import consoleState from '@site/static/img/low-level-development/mo62a-tee-console.png';
 
-| Pin | Signal |
-|---|---|
-| 1 | UART0_RXD |
-| 2 | GND |
-| 3 | UART0_TXD |
+## Connect the debug UART
+
+Use a 3.3 V USB-to-TTL adapter on J4, the three-pin SH1.0 debug connector. This is not the 40-pin header UART5. Shut down and disconnect board power before wiring; locate the connector and physical pin 1 on the actual board.
+
+| J4 pin | Board signal | USB-UART adapter connection |
+|---|---|---|
+| 1 | UART0 RX | Adapter TX |
+| 2 | GND | Adapter GND |
+| 3 | UART0 TX | Adapter RX |
+
+Leave the adapter's power wire disconnected and power Mo62A through its normal supply. Do not use an RS-232-level interface or a 5 V signal output. Wire colours are not a pinout.
+
+<a href={connectors} target="_blank" rel="noopener noreferrer">
+  <img src={connectors} alt="Original schematic sheet 17 showing the three-pin J4 debug circuit in the right-hand section; board RX is pin 1, ground pin 2 and TX pin 3" width="2200" height="1556" />
+</a>
+
+## Open a host terminal
+
+Select the adapter's actual device, preferably its stable `/dev/serial/by-id/` path when available. The example `/dev/ttyUSB0` is not guaranteed on every host.
+
+```bash
+ls -l /dev/serial/by-id/
+minicom -s
+```
+
+In **Serial port setup**, select the device and set 115200 baud, 8 data bits, no parity, 1 stop bit, and both hardware and software flow control off. Save the configuration, then open the terminal, for example:
 
 ```bash
 minicom -D /dev/ttyUSB0 -b 115200
 ```
+
+The command selects a device and baud rate; confirm the other settings in minicom rather than assuming a previous profile is correct. On hosts that restrict serial devices, use the appropriate group membership and re-login; do not make the device world-writable.
+
+Open the terminal before powering on to capture the boot sequence. Avoid typing while collecting an uninterrupted boot log. The current source has changed autoboot/menu behaviour, so do not assume an older interactive menu or countdown is present. For normal overlay selection from a running system, use [Device tree overlays](../system-configuration/device-tree-overlays.mdx).
+
+## Confirm Linux console state
+
+From an existing local or SSH session, the following checks do not consume serial input or change its settings:
+
+```bash
+tr ' ' '\n' < /proc/cmdline | grep '^console='
+systemctl is-active serial-getty@ttyS2.service
+```
+
+<a href={consoleState} target="_blank" rel="noopener noreferrer">
+  <img src={consoleState} alt="Live read-only system capture showing console=ttyS2,115200n8 and an active serial-getty; the later TEE lines are separate system checks" width="1440" height="900" />
+</a>
+
+The tested image reported `console=ttyS2,115200n8` and an active getty. This capture was obtained over SSH and is not a newly recorded USB-UART boot trace or electrical loopback test. The [UART5 loopback](../application-development/gpio-and-peripherals.mdx) uses a different UART and does not validate J4.
+
+## Troubleshooting and log sharing
+
+| Symptom | Check |
+|---|---|
+| No output at all | Correct host adapter, common ground, crossed TX/RX, J4 pin numbering and board supply |
+| Garbled characters | 115200 8N1, 3.3 V signalling, stable power and cable quality |
+| Output appears but input does not work | Adapter TX to board RX, flow control disabled and no competing serial application |
+| Linux boots but no login prompt | Confirm the `ttyS2` console argument and `serial-getty@ttyS2.service` state |
+| Host permission denied | Adapter-device ownership and group access; re-login after group changes |
+
+Keep raw logs private until reviewed. Remove account names if needed, passwords, tokens, network identifiers and confidential application output before attaching a log to a public issue. Never record a password-entry session for documentation.

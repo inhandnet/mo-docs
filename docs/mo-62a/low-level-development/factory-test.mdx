@@ -1,7 +1,60 @@
 ---
-title: "Factory test"
-description: "Mo 62A: Factory test tools and procedure."
+title: "Factory test and customer checks"
+description: "Separate Mo62A internal production tooling from safe customer diagnostics and the documented functional tests."
 sidebar_position: 5
 ---
 
-The factory test procedure is documented in the repository: [Factory_TEST.md](https://github.com/inhandnet/Mo62A/blob/HEAD/Factory_TEST.md).
+import checks from '@site/static/img/low-level-development/mo62a-customer-checks.png';
+import gpioProof from '@site/static/img/application-development/mo62a-gpio-loopback.png';
+
+## Production tooling is not a customer self-test package
+
+The SDK's factory interface reference describes production-line tooling and states that the factory software is not intended for customer distribution. This page does not provide that package, an installation recipe, EEPROM identity commands or a production acceptance certificate.
+
+Factory functions can alter serial/MAC/model data, change peripheral ownership, stop services or require dedicated fixtures. Do not run them on a deployed board or reuse another unit's identity. Manufacturing operators should use the authorized procedure, assigned unit data and controlled test environment supplied for their production line.
+
+## Start with read-only customer checks
+
+These commands inspect the running system without repartitioning storage, changing EEPROM identity or taking control of a peripheral:
+
+```bash
+uname -r
+getconf LONG_BIT
+nproc
+bootcfg show
+lsblk -o NAME,SIZE,TYPE,FSTYPE
+lsusb
+systemctl is-active lightdm
+```
+
+<a href={checks} target="_blank" rel="noopener noreferrer">
+  <img src={checks} alt="Actual customer-check capture showing kernel 6.12.35, a 64-bit system with four CPUs, the default boot entry, three microSD partitions, USB devices and an active desktop" width="1440" height="900" />
+</a>
+
+The capture confirms enumeration and service state on the documented development board. It does not prove storage endurance, USB throughput, all connector contacts, environmental reliability or factory acceptance. A headless image may intentionally have no active desktop service.
+
+## Run only the relevant functional test
+
+| Area | Documented procedure | Boundary |
+|---|---|---|
+| Boot and storage | [First boot](../getting-started/first-boot.mdx) and [Storage & boot](../system-configuration/storage-and-boot.mdx) | Read layout; do not run a destructive disk test |
+| Network | [Network](../mo-os/network.mdx) | Use a known network; review identifiers before sharing logs |
+| Display/audio | [Display & audio](../mo-os/display-and-audio.mdx) | Requires the appropriate display or audio connection |
+| Camera | [Camera & video](../application-development/camera-and-video.mdx) | Tested IMX219 JPEG pipeline; review captured images for privacy |
+| GPIO / UART / PWM | [GPIO & peripherals](../application-development/gpio-and-peripherals.mdx) | Only the documented jumpers and boot entries; restore resources afterward |
+| AI | [Benchmarks](../application-development/ai/benchmarks.mdx) | Tested models and timing method; not an accuracy or power qualification |
+| Cooling | [Power & thermal](../hardware-development/power-and-thermal.mdx) | Read sensor/fan state; do not disable cooling for an unattended test |
+
+For example, the documented GPIO procedure exercised three pairs in both directions:
+
+<a href={gpioProof} target="_blank" rel="noopener noreferrer">
+  <img src={gpioProof} alt="Previously captured real GPIO loopback result from the documented customer procedure, not a complete production-line test" width="1440" height="900" />
+</a>
+
+Disconnect power before changing wiring and read the procedure's prerequisites. A test that needs an unconnected fixture should be recorded as not run, not passed. In this review, the three GPIO pairs, UART5 and pin-33 PWM passed; external I²C and SPI, RTC battery retention and the J4 debug electrical loopback were not tested.
+
+## Report a failure safely
+
+Record image/source version, board revision, exact wiring, peripherals, expected result, actual result and whether it reproduces after a normal restart. Use logs and images from the failing test, not an unrelated successful example.
+
+Keep factory identities, credentials, customer data and unreviewed camera frames out of public tickets and screenshots. Share any requested serial-number or manufacturing information only through the agreed private support channel. These checks help diagnosis; they do not replace a controlled production test specification.

@@ -7,7 +7,7 @@ sidebar_position: 1
 import storageTerminal from '@site/static/img/system-configuration/mo62a-storage.png';
 import bootcfgSwitch from '@site/static/img/system-configuration/mo62a-bootcfg-switch.png';
 
-Mo62A boots from the microSD card. The boot ROM loads the bootloader from the card, U-Boot reads a text menu from the `BOOT` partition, and the Linux kernel mounts the Debian root file system from the same card. This page explains that layout, what the first boot changes, and how to pick a different boot entry.
+Mo62A boots from the microSD card. The boot ROM starts the bootloader chain from the card, U-Boot reads a text configuration from the `BOOT` partition, and the Linux kernel mounts the Debian root file system from the same card. This page explains that layout, what the first boot changes, and how to pick a different boot entry.
 
 :::info[Tested software]
 This page was tested on **Mo62A image V1.1.0** (built 2026-08-19), with Debian 13 (Trixie) and Linux 6.12.35, on a 32 GB microSD card. Sizes shown in the examples depend on the card.
@@ -16,8 +16,8 @@ This page was tested on **Mo62A image V1.1.0** (built 2026-08-19), with Debian 1
 ## Boot sequence
 
 1. The boot ROM in the AM62A SoC is strapped to boot from the microSD card (MMC1, 4-bit) with Ethernet as the fallback. There is no on-board eMMC or flash, so the card must be present.
-2. The boot ROM loads `tiboot3.bin`, then `tispl.bin` and `u-boot.img`, from the `BOOT` partition.
-3. U-Boot reads `extlinux/extlinux.conf`, shows the boot menu on the debug UART for a few seconds, and loads the kernel `Image`, the base device tree and any overlay listed in the selected entry.
+2. The boot ROM loads `tiboot3.bin` to start the SPL boot chain, which continues with `tispl.bin` and `u-boot.img` from the `BOOT` partition.
+3. U-Boot reads `extlinux/extlinux.conf` and loads the kernel `Image`, base device tree and overlays for the selected default entry. The current supplied configuration does not request an interactive menu; do not assume a countdown or numbered menu appears on the debug UART.
 4. The kernel mounts the third partition as `/` and systemd starts Mo OS.
 
 Boot progress is printed on the [debug UART](../getting-started/first-boot.mdx#serial-console) at 115200 baud. Nothing appears on HDMI until the kernel has started.
@@ -57,7 +57,7 @@ The logs are `/var/log/mo-62a-firstboot-install.log` and `/var/log/mo-62a-auto-c
 
 ## Boot entries
 
-`extlinux/extlinux.conf` on the `BOOT` partition contains one `label` per boot entry and a `default` line that selects the entry U-Boot loads when nobody chooses from the menu. Every entry loads the same kernel and base device tree; they differ only in the device tree overlay that enables peripherals on the 40-pin header or the CSI camera.
+`extlinux/extlinux.conf` on the `BOOT` partition contains one `label` per boot entry and a `default` line that selects the entry U-Boot loads automatically. Every entry loads the same kernel and base device tree; they differ only in the device tree overlay that enables peripherals on the 40-pin header or the CSI camera.
 
 List the entries and the current default with the `bootcfg` tool:
 
@@ -72,7 +72,7 @@ To make another entry the default, run `sudo bootcfg switch LABEL`. The tool bac
   <img src={bootcfgSwitch} alt="Mo62A terminal listing the boot entries with bootcfg, then switching the default to microSD-uart5 and rebooting" width="1440" height="900" />
 </a>
 
-The entries supplied with the image and the pins they use are listed in [Device tree overlays](./device-tree-overlays.mdx). You can also pick an entry for a single boot from the U-Boot menu on the debug UART, or edit the `default` line in `extlinux.conf` with a text editor on any computer that can read the `BOOT` partition.
+The entries supplied with the image and the pins they use are listed in [Device tree overlays](./device-tree-overlays.mdx). Use `bootcfg` from a running system, or edit the `default` line with a text editor on a computer that can read the `BOOT` partition. Older images may present an interactive U-Boot menu; the current configuration must not be documented as always doing so.
 
 :::note
 The CSI camera overlay is part of the `microSD-default` entry only. Peripheral entries such as `microSD-uart5` or `microSD-spi0` boot without the camera.
