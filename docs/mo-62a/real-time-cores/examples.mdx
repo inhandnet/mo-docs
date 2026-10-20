@@ -1,9 +1,49 @@
 ---
-title: "Examples"
-description: "Mo 62A: Motor control, CAN, encoders, micro-ROS."
+title: "Inspection examples and validation status"
+description: "Read-only examples for remote processor discovery and the status of proposed real-time applications."
 sidebar_position: 4
 ---
 
-Motor control, CAN, encoders, micro-ROS.
+import cores from '@site/static/img/real-time-cores/mo62a-cores.png';
+import channels from '@site/static/img/real-time-cores/mo62a-rpmsg.png';
 
-<ComingSoon />
+The examples verified for this section inspect the firmware already running in the image. They do not replace firmware or establish a real-time control application.
+
+## Example 1: inventory the processors
+
+Run the [remoteproc inventory](./overview.mdx#identify-the-processors). Match hardware names, then record each state and firmware attribute:
+
+<a href={cores} target="_blank" rel="noopener noreferrer">
+  <img src={cores} alt="Successful read-only remoteproc inventory on the Mo62A test board" width="1440" height="900" />
+</a>
+
+Expected result on the tested installation: C7x and MCU R5F report `running`; wakeup R5F reports `attached`. Exact instance numbering can differ. This confirms discovery and current state, not firmware correctness or real-time timing.
+
+## Example 2: inspect the communication interfaces
+
+Run the [RPMsg listing and ownership checks](./rpmsg.mdx). They enumerate the existing channels without sending messages:
+
+<a href={channels} target="_blank" rel="noopener noreferrer">
+  <img src={channels} alt="Successful enumeration of existing RPMsg channels and protected device nodes on Mo62A" width="1440" height="900" />
+</a>
+
+Expected result: channel names, control devices and endpoints can be associated with their processor through sysfs. Do not interpret a visible device file as a passing request/reply test.
+
+## Application status
+
+| Example | Status | Needed to validate it |
+|---|---|---|
+| Remoteproc / firmware inventory | Read-only inspection verified | Repeat after an image or firmware update |
+| RPMsg discovery and parent mapping | Read-only inspection verified | A documented firmware protocol for message exchange |
+| Custom Zephyr / FreeRTOS firmware | Not validated | Board target, toolchain, resource layout, build/load/recovery procedure |
+| Motor or encoder control | Not validated | External circuit, electrical limits, pin ownership, safe control behavior and timing measurements |
+| CAN application | Not validated | Confirmed controller/transceiver wiring, firmware and bus-level tests |
+| micro-ROS agent/client | Not validated | Supported RTOS/core, transport, agent version and message exchange |
+
+Linux [GPIO/UART/PWM loopbacks](../application-development/gpio-and-peripherals.mdx) are available now, but are not R5F firmware examples. They do not validate a motor driver, encoder input or real-time deadline.
+
+## What to include with a new example
+
+Keep the source revision, compiler version, build instructions, board/firmware versions, wiring and expected output together. Add explicit resource ownership, a bounded test, failure behavior and restoration steps. Preserve a real capture of the application result and record what it does not test.
+
+For anything that drives external equipment, establish a safe inactive state and test the interface before connecting the load. These documentation checks intentionally do not energize or control external machinery.

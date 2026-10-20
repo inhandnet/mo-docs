@@ -1,9 +1,85 @@
 ---
 title: "Inter-core communication (RPMsg)"
-description: "Mo 62A: Exchange messages between Linux and the R5F."
+description: "Inspect RPMsg channels and map Linux device nodes to remote processors without sending unknown messages."
 sidebar_position: 3
 ---
 
-Exchange messages between Linux and the R5F.
+import channels from '@site/static/img/real-time-cores/mo62a-rpmsg.png';
+import ownership from '@site/static/img/real-time-cores/mo62a-rpmsg-ownership.png';
 
-<ComingSoon />
+RPMsg is a messaging bus between processors; it does not define the application payload. A userspace node can belong to an existing system service rather than a free echo channel. The [Linux RPMsg documentation](https://docs.kernel.org/staging/rpmsg.html) describes channel names, local/remote addresses and the need to restrict access to sensitive firmware interfaces.
+
+:::info[Verified scope]
+Channel and device discovery were tested on Mo62A V1.1.0. No custom endpoint was created, no driver was rebound and no arbitrary payload was sent to the running firmware. A Linux-to-custom-R5F request/reply example is not yet validated.
+:::
+
+## Inspect channels and device permissions
+
+```bash
+ls /sys/bus/rpmsg/devices
+ls -l /dev/rpmsg*
+```
+
+<a href={channels} target="_blank" rel="noopener noreferrer">
+  <img src={channels} alt="Live Mo62A RPMsg channel listing and root-only character-device permissions" width="1440" height="900" />
+</a>
+
+The inspected system exposes `rpmsg_chrdev`, control, name-service and `ti.ipc4.ping-pong` channel names. The name is not a complete payload specification, and its presence does not prove that a particular userspace sample is compatible.
+
+| Item | Meaning |
+|---|---|
+| `/sys/bus/rpmsg/devices/` | Discovered bus channels and their sysfs attributes |
+| `name`, `src`, `dst` | Channel name and endpoint addressing information |
+| `/dev/rpmsg_ctrlN` | Control interface used with the appropriate userspace/kernel API |
+| `/dev/rpmsgN` | Character endpoint associated with a channel |
+
+The test nodes are root-only. Do not use `chmod 666` to bypass that boundary or publish them to an unrestricted container.
+
+## Map a node to its owner
+
+Resolve each character endpoint's parent:
+
+```bash
+for endpoint in /sys/class/rpmsg/rpmsg[0-9]*; do
+  printf '%s\n' "${endpoint##*/}"
+  readlink -f "$endpoint/device"
+done
+```
+
+<a href={ownership} target="_blank" rel="noopener noreferrer">
+  <img src={ownership} alt="Actual RPMsg endpoint parent paths mapping nodes to MCU R5F, wakeup R5F and C7x; sample executables are not found on PATH" width="1440" height="900" />
+</a>
+
+The parent path contains the owning `remoteproc` instance and its hardware node. On this boot, the listed endpoints span all three remote processors. Do not hard-code `rpmsg0` as “the R5F port,” and do not infer ownership solely from `virtio0`.
+
+Inspect a specific channel's readable attributes after locating it:
+
+```bash
+for channel in /sys/bus/rpmsg/devices/*; do
+  printf '\n%s\n' "${channel##*/}"
+  for field in name src dst; do
+    if [ -r "$channel/$field" ]; then
+      printf '  %s: ' "$field"
+      cat "$channel/$field"
+    fi
+  done
+done
+```
+
+## What a working exchange requires
+
+Agree on the firmware service, endpoint name/address, payload format, byte order, maximum length, response semantics and timeout. The Linux application and remote firmware must implement the same protocol and account for endpoint teardown or processor restart.
+
+Do not test an unknown endpoint by writing arbitrary text with `echo`. Sending bytes can invoke a system service or leave a reader waiting indefinitely. The sample names `rpmsg_char_simple` and `rpmsg_char_zerocopy` were not found on the inspected PATH; that is not a successful test or proof that the corresponding libraries are absent.
+
+## Troubleshooting without changing ownership
+
+| Observation | Safe next check |
+|---|---|
+| No RPMsg nodes | Read remoteproc state, kernel messages and channel announcements; check the intended firmware version |
+| Permission denied | Confirm the expected service and access policy before granting access |
+| Device numbering differs | Resolve sysfs parent paths and hardware names again |
+| Channel exists but application has no response | Confirm the protocol and endpoint addresses; use a bounded timeout rather than repeated writes |
+| AI or camera fails after a firmware experiment | Preserve logs and restore the documented system baseline; do not stop additional cores speculatively |
+
+See [Overview](./overview.mdx) for current processor ownership and [RTOS preparation](./getting-started.mdx) for the prerequisites for a custom firmware pair.

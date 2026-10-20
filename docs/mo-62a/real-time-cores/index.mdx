@@ -1,12 +1,17 @@
 ---
 title: "Real-time cores (R5F) \u2014 Mo 62A"
 sidebar_label: "Real-time cores (R5F)"
-description: "Mo 62A: Use the Cortex-R5F real-time core alongside Linux."
+description: "Inspect Mo62A remote processors and understand the prerequisites for custom real-time firmware."
 sidebar_position: 0
 ---
 
 import DocCardList from '@theme/DocCardList';
 
-Use the Cortex-R5F real-time core alongside Linux.
+Start by identifying the remote processors and the firmware already using them. This section verifies read-only discovery; custom RTOS firmware and application-level RPMsg exchange remain unvalidated.
+
+- [Overview](./overview.mdx): processor identities, current state and firmware ownership.
+- [RTOS preparation](./getting-started.mdx): prerequisites before choosing or loading a board target.
+- [Inter-core communication](./rpmsg.mdx): inspect channels and map endpoint ownership.
+- [Inspection examples](./examples.mdx): verified checks and unvalidated application examples.
 
 <DocCardList />
