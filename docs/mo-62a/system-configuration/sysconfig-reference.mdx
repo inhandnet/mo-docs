@@ -21,8 +21,6 @@ This page describes the file shipped with **Mo62A image V1.1.0** (built 2026-08-
 
 ### Login account
 
-<div className="mo-method-table mo-cols-3">
-
 | Key | Default | Meaning |
 |---|---|---|
 | `user_name` | `debian` (enabled) | Account to create. It joins the `sudo` group and can run `sudo` without a password. |
@@ -31,45 +29,33 @@ This page describes the file shipped with **Mo62A image V1.1.0** (built 2026-08-
 | `user_shell` | off (`bash`) | Login shell: `bash` or `zsh`. An unavailable shell falls back to `bash`. |
 | `user_ssh_key` | off | An OpenSSH public key line, or an `http://`, `https://` or `file://` URL to download one from, installed in the account's `~/.ssh/authorized_keys`. |
 
-</div>
 
 If the account already exists, for example when `sysconfig.txt` is applied to a reused card, the shell and password are updated and the account is kept.
 
 ### Root account
-
-<div className="mo-method-table mo-cols-3">
 
 | Key | Default | Meaning |
 |---|---|---|
 | `root_password` | off | Sets a password for `root`, for the local console, serial console and `su`. Without it the root account stays locked. It does not enable root login over SSH with a password. |
 | `root_ssh_key` | off | Public key, or a URL to one, that allows root login over SSH with that key. |
 
-</div>
 
 ### Host name
-
-<div className="mo-method-table mo-cols-3">
 
 | Key | Default | Meaning |
 |---|---|---|
 | `hostname` | off (`Mo62A`) | Host name of the board, also announced as `HOSTNAME.local` on the local network. |
 
-</div>
 
 ### Locale and time zone
-
-<div className="mo-method-table mo-cols-3">
 
 | Key | Default | Meaning |
 |---|---|---|
 | `locale` | off (`en_US.UTF-8`) | System locale, for example `en_US.UTF-8` or `de_DE.UTF-8`. The locale must be listed in `/etc/locale.gen`. |
 | `timezone` | off (`Etc/UTC`) | Time zone name from the system list, for example `Europe/Berlin` or `Asia/Shanghai`. |
 
-</div>
 
 ### Wi-Fi
-
-<div className="mo-method-table mo-cols-3">
 
 | Key | Default | Meaning |
 |---|---|---|
@@ -77,13 +63,10 @@ If the account already exists, for example when `sysconfig.txt` is applied to a 
 | `wifi_password` | off | Its password. Required when `wifi_ssid` is set; otherwise Wi-Fi is skipped. |
 | `wifi_country` | off (`CN`) | Two-letter regulatory domain, for example `CN`, `US` or `DE`. |
 
-</div>
 
 The connection is saved as a NetworkManager profile named `WiFi-SSID` and reconnects automatically on later boots.
 
 ### Static Ethernet address
-
-<div className="mo-method-table mo-cols-3">
 
 | Key | Default | Meaning |
 |---|---|---|
@@ -92,7 +75,6 @@ The connection is saved as a NetworkManager profile named `WiFi-SSID` and reconn
 | `static_gateway` | off | Default gateway. |
 | `static_dns` | off | DNS server address. |
 
-</div>
 
 ## Example
 
@@ -123,8 +105,6 @@ The account name is replaced with `USERNAME` in this excerpt. After the first bo
 
 ## Troubleshooting
 
-<div className="mo-troubleshooting-table">
-
 | Symptom | What to check |
 |---|---|
 | The account was not created | Read `/var/log/mo-62a-auto-config.log`. The file must be on the `BOOT` partition, named exactly `sysconfig.txt`, with `user_name` enabled. |
@@ -133,7 +113,6 @@ The account name is replaced with `USERNAME` in this excerpt. After the first bo
 | The SSH key was not installed | The value must be a complete public key line or a reachable URL. Install it later with `ssh-copy-id`; see [Remote access](../mo-os/remote-access.mdx#use-ssh-keys). |
 | The file is still on the card | The first boot did not complete. Check `/var/log/mo-62a-firstboot-install.log`. |
 
-</div>
 
 ## Related pages
 

@@ -90,6 +90,7 @@ export function BoardDownloads({board}: {board: Product['id']}): ReactNode {
     },
   ];
   return (
+    <div className="mo-table">
     <table className="mo-spec-table">
       <tbody>
         {rows.map((r) => (
@@ -100,6 +101,7 @@ export function BoardDownloads({board}: {board: Product['id']}): ReactNode {
         ))}
       </tbody>
     </table>
+    </div>
   );
 }
 
@@ -111,7 +113,7 @@ const VERSION_ROWS = [
 
 export function VersionMap(): ReactNode {
   return (
-    <div className="mo-table-wrap">
+    <div className="mo-table">
       <table className="mo-spec-table">
         <thead>
           <tr>

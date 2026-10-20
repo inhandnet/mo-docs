@@ -1,9 +1,125 @@
 ---
 title: "Inference APIs"
-description: "Mo 62A: Python, C++, GStreamer and ONNX Runtime."
-sidebar_position: 6
+description: "Run a compiled model on the Mo62A C7x accelerator from Python with ONNX Runtime, from C/C++ with the on-board Edge AI SDK, or in a GStreamer pipeline, with tested code and measured latency."
+sidebar_position: 4
 ---
 
-Python, C++, GStreamer pipelines and ONNX Runtime.
+Three ways to run a model that is already compiled for the C7x accelerator: the Python ONNX Runtime API, the C/C++ SDK installed in the image, and the GStreamer-based demo applications. All three use the same model directory layout and the same TIDL runtime underneath, so a model compiled once runs with any of them.
 
-<ComingSoon />
+:::info[Tested software]
+This page was tested on **Mo62A image V1.1.0** (built 2026-08-19) with TIDL 11_02_17_00, ONNX Runtime 1.23.0 (TI build) and the on-board Edge AI SDK. The examples use the YOLOX-nano model from `/opt/model_zoo`. Latency figures are from one run on the test board and are not guaranteed values.
+:::
+
+## Model directory layout
+
+Every compiled model is a directory with the original network and the TIDL **artifacts** produced by the toolchain on a PC. The models shipped in `/opt/model_zoo` follow this layout, and your own models should too:
+
+```text
+MODEL_DIR/
+├── param.yaml          # task type, pre- and post-processing parameters
+├── model/              # the ONNX or TFLite network
+│   └── NAME.onnx
+└── artifacts/          # TIDL compilation output for this TIDL version
+    ├── allowedNode.txt
+    └── ...
+```
+
+The artifacts are tied to the TIDL version of the image. Models compiled for another version fail at session creation; see [Known issues](./known-issues.mdx).
+
+## Root access
+
+The TIDL runtime opens `/dev/dma_heap`, `/dev/mem` and the C7x remote processor, which the tested image allows only for root. Run inference programs with `sudo` or as a service running as root. Without it, session creation fails with a permission error or return code `-16`.
+
+## Python: ONNX Runtime with the TIDL execution provider
+
+The TI build of ONNX Runtime adds `TIDLExecutionProvider`. Create the session with the model file, point the provider at the `artifacts` directory and disable graph optimizations, which must stay off because the artifacts were compiled against the unoptimized graph:
+
+```python
+import numpy as np
+import onnxruntime as ort
+
+model_dir = "/opt/model_zoo/ONR-OD-8200-yolox-nano-lite-mmdet-coco-416x416"
+options = ort.SessionOptions()
+options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_DISABLE_ALL
+
+session = ort.InferenceSession(
+    f"{model_dir}/model/yolox_nano_lite_416x416_20220214_model.onnx",
+    sess_options=options,
+    providers=["TIDLExecutionProvider", "CPUExecutionProvider"],
+    provider_options=[{"artifacts_folder": f"{model_dir}/artifacts"}, {}],
+)
+
+inp = session.get_inputs()[0]
+print(inp.name, inp.shape, inp.type)        # inputNet_IN [1, 3, 416, 416] tensor(uint8)
+
+frame = np.zeros([1, 3, 416, 416], dtype=np.uint8)   # NCHW, RGB, 0-255
+dets, labels = session.run(None, {inp.name: frame})
+print(dets.shape, labels.shape)              # (200, 5) (200,)
+```
+
+Run it with `sudo python3 infer.py`. The runtime prints `Final number of subgraphs created are : 1, - Offloaded Nodes - 329, Total Nodes - 329` when every layer runs on the accelerator. On the test board this model takes about **10.5 ms** per inference after the first call.
+
+Notes:
+
+- The model expects the input type listed by `get_inputs()`; the `lite` models in the model zoo take `uint8` and perform normalization inside the network. Check `param.yaml` (`preprocess:` section) for the expected resolution, channel order and mean/scale of other models.
+- Keep `CPUExecutionProvider` in the list: layers that TIDL does not support run on the Arm cores.
+- The first `run()` after session creation is slow because the C7x loads the network; measure after a warm-up call.
+
+Python ONNX Runtime, the TFLite runtime with the TIDL delegate and the DLR runtime are installed system-wide in the image; `python3 -c "import onnxruntime"` works without a virtual environment.
+
+## C/C++: the on-board Edge AI SDK
+
+The image installs a C/C++ SDK so inference programs compile on the board without cross-compilation:
+
+| Item | Location |
+|---|---|
+| Headers | `/usr/include/edgeai/` |
+| Static libraries | `/usr/lib/edgeai/` |
+| CMake package | `/usr/lib/cmake/EdgeAI/EdgeAIConfig.cmake` |
+| TI runtime libraries | `/opt/ti/edgeai/lib/` |
+| Examples and guide | `/usr/share/edgeai-cpp-examples/` |
+
+
+`find_package(EdgeAI)` provides everything a program needs. The `hello_inference` example loads a model directory, runs one inference and prints the output tensors:
+
+```bash
+cp -r /usr/share/edgeai-cpp-examples/hello_inference ~/hello_inference
+cd ~/hello_inference && mkdir build && cd build
+cmake .. && make
+sudo ./hello_inference -m /opt/model_zoo/ONR-OD-8200-yolox-nano-lite-mmdet-coco-416x416
+```
+
+On the test board the build takes under a minute, and the run reports `Offloaded Nodes - 329, Total Nodes - 329` followed by the two output tensors (`dets`, 1000 floats; `labels`, 200 integers). Its `CMakeLists.txt` is the template for your own program:
+
+```cmake
+cmake_minimum_required(VERSION 3.16)
+project(my_infer CXX)
+set(CMAKE_CXX_STANDARD 17)
+find_package(EdgeAI REQUIRED)
+add_executable(my_infer main.cpp)
+target_link_libraries(my_infer PRIVATE EdgeAI::edgeai)
+```
+
+The API is TI's `edgeai-dl-inferer` (`#include <ti_dl_inferer.h>`): create a `DLInferer` from the model directory, fill its input buffers, call `run()` and read the outputs. `app_edgeai` in the same directory is the complete camera-to-HDMI application, and `DEV_GUIDE.md` documents the SDK in detail.
+
+## GStreamer pipelines
+
+For video, the fastest path is a GStreamer pipeline in which the TI plugins handle capture, scaling, inference and overlay with zero-copy buffers between the ISP, the C7x and the display. The `edgeai-demo` launcher and the `edgeai-gst-apps` Python and C++ applications in `/opt/edgeai-gst-apps/` build such pipelines from a YAML configuration that names the model directory, the input (camera or video file) and the output. [Run your first NPU demo](../../getting-started/first-npu-demo.mdx) shows them in use; `/opt/edgeai-gst-apps/configs/` contains the configuration files to copy for your own setup.
+
+## Troubleshooting
+
+| Symptom | What to check |
+|---|---|
+| `Create state function failed -1` | The artifacts were compiled for another TIDL version. Recompile them with the toolchain version in the [version map](../../resource-download/version-map.mdx). |
+| Permission error or return code `-16` | Run the program with `sudo`; the runtime needs the DMA heap and remote processor devices. |
+| `Unexpected input data type` | Match the type reported by `get_inputs()`; many models take `uint8`, not `float32`. |
+| Fewer offloaded than total nodes | Unsupported layers run on the CPU. Check the compilation log and [Known issues](./known-issues.mdx). |
+| The first inference takes seconds | Normal: the network is loaded onto the C7x on the first call. Warm up before measuring. |
+| Two camera pipelines conflict | The VPAC has one scaler path; stop the other pipeline (`Ctrl+C`, not `kill -9`) before starting a new one. |
+
+
+## Related pages
+
+- [Pre-compiled models](./model-hub.mdx): what is in `/opt/model_zoo`.
+- [Set up the toolchain](./toolchain.mdx): compiling models on a PC.
+- [Known issues & error reference](./known-issues.mdx).

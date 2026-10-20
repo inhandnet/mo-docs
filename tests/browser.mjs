@@ -108,13 +108,12 @@ try {
   for (const width of [390, 768, 1024, 1280, 1440]) {
     await page.setViewportSize({width, height: 1000});
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Homepage overflow at ' + width);
-    assert.equal(await acceleratorLabel.evaluate(node => getComputedStyle(node).whiteSpace), 'nowrap');
-    assert.ok(await acceleratorLabel.evaluate(node => node.scrollWidth <= node.clientWidth), 'AI accelerator must remain on one line at ' + width);
+    assert.ok(await acceleratorLabel.evaluate(node => node.scrollWidth <= node.clientWidth), 'AI accelerator cell must not overflow at ' + width);
     await checkBrand(page, width);
   }
 
   await page.goto(url + 'mo-62a/getting-started/preparation/', {waitUntil: 'networkidle'});
-  const preparation = page.locator('.mo-preparation-tables');
+  const preparation = page.locator('.theme-doc-markdown');
   assert.equal(await preparation.getByRole('heading', {name: /^Required items/}).count(), 1);
   assert.equal(await preparation.getByRole('heading', {name: /^Connection and access/}).count(), 1);
   assert.equal(await preparation.getByRole('heading', {name: /^Optional accessories/}).count(), 1);
@@ -146,7 +145,7 @@ try {
   }
 
   await page.goto(url + 'mo-68a/getting-started/preparation/', {waitUntil: 'networkidle'});
-  const mo68Preparation = page.locator('.mo-preparation-tables');
+  const mo68Preparation = page.locator('.theme-doc-markdown');
   assert.equal(await mo68Preparation.locator('table').count(), 3);
   assert.deepEqual(await mo68Preparation.locator('thead th:nth-child(2)').allTextContents(), ['Notes', 'Notes', 'Notes']);
   assert.deepEqual(await mo68Preparation.locator('table').nth(0).locator('tbody td:first-child').allTextContents(), [
@@ -384,7 +383,7 @@ try {
       const networkLinks = firstBootBody.getByRole('link', {name: 'Network', exact: true});
       assert.ok(await networkLinks.count() >= 1);
       for (const link of await networkLinks.all()) assert.equal(await link.getAttribute('href'), base + board + '/mo-os/network/');
-      const accessTable = firstBootBody.locator('.mo-first-boot-access-table table');
+      const accessTable = firstBootBody.locator('.mo-table table').first();
       assert.equal(await accessTable.count(), 1);
       assert.deepEqual(await accessTable.locator('tr > :first-child').allTextContents(), [
         'Access method', 'Ethernet / SSH', 'Local desktop', 'Serial console',
@@ -398,8 +397,7 @@ try {
         await page.setViewportSize({width, height: 1000});
         assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'First boot must not overflow at ' + width);
         for (const cell of await accessTable.locator('tr > :first-child').all()) {
-          assert.equal(await cell.evaluate(node => getComputedStyle(node).whiteSpace), 'nowrap');
-          assert.ok(await cell.evaluate(node => node.scrollWidth <= node.clientWidth), 'First-boot access method must remain on one line at ' + width);
+          assert.ok(await cell.evaluate(node => node.scrollWidth <= node.clientWidth), 'First-boot access cell must not overflow at ' + width);
         }
         const edges = await firstBootBody.evaluate(body => {
           const rect = body.getBoundingClientRect();
@@ -679,6 +677,45 @@ try {
         for (const width of [390, 768, 1440, 1920, 2560]) {
           await page.setViewportSize({width, height: 1000});
           await checkDocumentationMedia(page);
+          assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), slug + ' must not overflow at ' + width);
+        }
+        await page.setViewportSize({width: 1440, height: 1000});
+        const hrefs = await body.locator('a[href]').evaluateAll(links =>
+          [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
+        for (const href of hrefs) assert.equal((await page.request.get(origin + href)).status(), 200, slug + ' link must resolve: ' + href);
+      }
+
+      for (const [slug, headings, images, phrases] of [
+        ['overview', ['Three things to know first', 'The software stack', 'What happens during an inference', 'Subgraph partitioning', 'Versions must match', 'Where to go next'],
+          ['ai-stack-overview', 'ai-inference-flow', 'ai-subgraph', 'ai-version-matrix'], ['C7x DSP', 'TIDL 11_02_17_00', 'Offloaded Nodes - 329']],
+        ['model-hub', ['Models in the image', 'Run a model', 'Models that are not included', 'Add more models', 'Related pages'],
+          [], ['ONR-OD-8200-yolox-nano-lite-mmdet-coco-416x416', '10.5 ms', 'unsupported_models.txt']],
+        ['toolchain', ['Match the toolchain to your image', 'Install edgeai-tidl-tools on a PC', 'What the compiler does', 'Use the on-board SDK instead', 'Upgrade notes', 'Related pages'],
+          ['ai-compile'], ['--branch 11_02_17_00', 'setup_env.sh AM62A', 'TIDLRT_invoke failed']],
+        ['inference-apis', ['Model directory layout', 'Root access', 'Python: ONNX Runtime with the TIDL execution provider', 'C/C++: the on-board Edge AI SDK', 'GStreamer pipelines', 'Troubleshooting', 'Related pages'],
+          [], ['TIDLExecutionProvider', 'find_package(EdgeAI REQUIRED)', 'hello_inference']],
+        ['known-issues', ['Accelerator limitations', 'Toolchain behaviour', 'Models that do not run', 'Error reference', 'Related pages'],
+          [], ['Create state function failed', 'tidl_onnx_model_optimizer', 'ORT_DISABLE_ALL']],
+      ]) {
+        await page.goto(url + board + '/application-development/ai/' + slug + '/', {waitUntil: 'networkidle'});
+        const body = page.locator('.theme-doc-markdown');
+        assert.deepEqual(await body.locator('h2').allTextContents().then(items => items.map(item => item.replace(/\u200b/g, ''))), headings, slug + ' headings');
+        assert.equal(await body.locator('img').count(), images.length, slug + ' image count');
+        for (const file of images) {
+          const screenshot = body.locator(`img[src*="${file}"]`);
+          assert.equal(await screenshot.count(), 1);
+          await screenshot.evaluate(image => image.decode());
+          assert.ok(await screenshot.evaluate(image => image.naturalWidth >= 2400), slug + ' diagram resolution');
+          assert.ok(await screenshot.getAttribute('alt'));
+          assert.equal(await screenshot.evaluate(image => image.closest('a')?.target), '_blank');
+        }
+        const text = await body.innerText();
+        for (const phrase of phrases) assert.ok(text.includes(phrase), 'Missing ' + slug + ' guidance: ' + phrase);
+        assert.ok(!/10\.5\.\d+\.\d+/.test(text));
+        assert.ok(!text.includes('Coming soon'), slug + ' must not be a placeholder');
+        for (const width of [390, 768, 1440, 1920, 2560]) {
+          await page.setViewportSize({width, height: 1000});
+          if (images.length) await checkDocumentationMedia(page);
           assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1), slug + ' must not overflow at ' + width);
         }
         await page.setViewportSize({width: 1440, height: 1000});

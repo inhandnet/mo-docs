@@ -16,8 +16,6 @@ This page was tested on **Mo62A image V1.1.0** (built 2026-08-19), with Debian 1
 
 Each entry in `extlinux/extlinux.conf` on the `BOOT` partition loads the base device tree `ti/k3-am62a7-mo-62a.dtb` plus the overlay named in its `fdtoverlays` line. The overlay files are `ti/k3-am62a7-mo-62a-NAME.dtbo`; the table shows the `NAME` part. The entries supplied with the image:
 
-<div className="mo-method-table mo-cols-4">
-
 | Boot entry | Overlay | Linux device | Header pins |
 |---|---|---|---|
 | `microSD-default` | `cam-imx219` | CSI camera | All 40 pins are GPIO; pins 27 and 28 reserved for the camera I²C bus |
@@ -27,7 +25,6 @@ Each entry in `extlinux/extlinux.conf` on the `BOOT` partition loads the base de
 | `microSD-ehrpwm0` | `exp-ehrpwm0` | `pwmchip0` | 33 (EHRPWM0_A), 32 (EHRPWM0_B) |
 | `microSD-audio` | `exp-audio` | WM8960 card | 3, 5 (I²C control); 12, 35, 38, 40 (I²S) |
 
-</div>
 
 Only `microSD-default` loads the camera overlay. The peripheral entries boot without the CSI camera, and pins 27 and 28 stay reserved for the camera I²C bus in every entry; do not drive them as GPIO. A combined overlay, `k3-am62a7-mo-62a-exp-periph.dtbo`, is also present in `BOOT/ti/` and enables all of the buses above at once, but it has no boot entry of its own; see [Add your own entry](#add-your-own-entry).
 
@@ -82,8 +79,6 @@ The overlay sources (`.dtso`) and the base device tree live in the Mo62A reposit
 
 ## Troubleshooting
 
-<div className="mo-troubleshooting-table">
-
 | Symptom | What to check |
 |---|---|
 | No bus device after switching | Run `bootcfg show` to confirm the entry took effect; the switch only applies after the reboot it performs. |
@@ -91,7 +86,6 @@ The overlay sources (`.dtso`) and the base device tree live in the Mo62A reposit
 | No boot after editing `extlinux.conf` | Restore `extlinux.conf.bak` from a computer, or select a supplied entry from the U-Boot menu on the debug UART. |
 | I²C bus numbers changed | With `exp-i2c0` or `exp-audio`, WKUP_I2C0 becomes `/dev/i2c-0` and the on-board buses move up by one. Address buses by their function, not by a fixed number. |
 
-</div>
 
 ## Related pages
 

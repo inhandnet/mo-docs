@@ -26,15 +26,12 @@ Boot progress is printed on the [debug UART](../getting-started/first-boot.mdx#s
 
 The flashing tool creates three MBR partitions:
 
-<div className="mo-method-table">
-
 | Partition | Device | File system | Size | Label | Contents |
 |---|---|---|---|---|---|
 | 1 | `/dev/mmcblk1p1` | FAT32 | 255 MiB | `BOOT` | Bootloaders, kernel, device trees, boot menu, `sysconfig.txt` |
 | 2 | `/dev/mmcblk1p2` | swap | 4 GiB | `swap` | Swap space |
 | 3 | `/dev/mmcblk1p3` | ext4 | Remaining space | `rootfs` | Debian root file system |
 
-</div>
 
 `BOOT` holds `tiboot3.bin`, `tispl.bin`, `u-boot.img`, the kernel `Image`, the device trees in `ti/` and the boot menu `extlinux/extlinux.conf`. It is mounted at `/boot/firmware` on the running system, so the menu and device trees can be edited from Mo OS. The terminal output below shows the layout on the tested card; `/` is already expanded to the end of the card.
 
@@ -93,8 +90,6 @@ Replace `/dev/sdX` with the card reader's device. A copy of the card boots on an
 
 ## Troubleshooting
 
-<div className="mo-troubleshooting-table">
-
 | Symptom | What to check |
 |---|---|
 | Debug UART silent after power-on | The boot ROM found no bootloader. Re-seat the card until it clicks, check that the `BOOT` partition contains `tiboot3.bin`, `tispl.bin` and `u-boot.img`, and re-flash if in doubt. |
@@ -104,7 +99,6 @@ Replace `/dev/sdX` with the card reader's device. A copy of the card boots on an
 | `/` is smaller than the card | The first-boot expansion did not run. Check `/var/log/mo-62a-firstboot-install.log` and run `sudo /usr/local/sbin/mo-62a-auto-resize.sh`. |
 | The file system is reported read-only | Errors on the card remount `/` read-only (`errors=remount-ro`). Reboot; if it repeats, back up your data and replace the card. |
 
-</div>
 
 ## Related pages
 

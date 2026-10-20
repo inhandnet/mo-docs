@@ -22,8 +22,6 @@ This page was tested on **Mo62A image V1.1.0** (built 2026-08-19), with Debian 1
 
 ## Choose a method
 
-<div className="mo-method-table">
-
 | Method | Use it to | Needs |
 |---|---|---|
 | [SSH](#log-in-with-ssh) | Run commands in a terminal | An SSH client. Linux, macOS and Windows 10/11 include one. |
@@ -32,7 +30,6 @@ This page was tested on **Mo62A image V1.1.0** (built 2026-08-19), with Debian 1
 | [X11 forwarding](#run-one-graphical-application) | Open a single graphical application in a window on your computer | An X server on your computer |
 | [Serial console](../getting-started/first-boot.mdx#serial-console) | Recover the board when the network is not available | A USB-to-UART adapter and the debug UART connector |
 
-</div>
 
 The board runs the OpenSSH server by default. It accepts password and SSH key login on port 22; the `root` account cannot log in with a password. The examples use the account `alice`, the host name `BOARD_HOSTNAME.local` and the screenshots show the test board `mo62a-demo`. Replace them with your own username and the board's host name or IP address. See [Find the board](./network.mdx#find-the-board) if you do not know the address.
 
@@ -211,8 +208,6 @@ Do not forward port 22 or 5900 from a router to the board. Exposed SSH and VNC p
 
 ## Troubleshooting
 
-<div className="mo-troubleshooting-table">
-
 | Symptom | What to check |
 |---|---|
 | The connection times out | SSH reports `Connection timed out` or `No route to host`. Check that the board is powered and connected, and that your computer is on the same network. Try the IP address from the board's desktop or serial console. |
@@ -224,7 +219,6 @@ Do not forward port 22 or 5900 from a router to the board. Exposed SSH and VNC p
 | The VNC viewer shows a black screen | Wake the display by moving the mouse in the viewer, and check that a user is logged in to the desktop. |
 | `ssh -X` cannot open a display | The application reports `cannot open display`. Start an X server on your computer and use `ssh -X`. Check that `echo $DISPLAY` shows a value in the forwarded session. |
 
-</div>
 
 ## Continue with Mo OS
 

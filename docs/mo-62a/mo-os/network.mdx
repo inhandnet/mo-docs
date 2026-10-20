@@ -338,8 +338,6 @@ The terminal output below shows a test between Mo62A and a Linux computer: the c
 
 ## Troubleshooting
 
-<div className="mo-troubleshooting-table">
-
 | Symptom | What to check |
 |---|---|
 | Ethernet has no carrier | Check the RJ45 cable, switch port and link indicator. Use `nmcli device status` and `nmcli -f WIRED-PROPERTIES.CARRIER device show end0`. |
@@ -352,6 +350,5 @@ The terminal output below shows a test between Mo62A and a Linux computer: the c
 | BLE peripheral is not found | Attach the shared antenna, enable advertising/pairing on the peripheral, move it closer and scan for LE devices. |
 | BLE pairs but data is unavailable | Check live connection and service resolution, then use the correct service/characteristic UUIDs, permissions and data format. Pairing does not create a GATT service. |
 
-</div>
 
 For account access and terminal login, return to [First boot](../getting-started/first-boot.mdx).
