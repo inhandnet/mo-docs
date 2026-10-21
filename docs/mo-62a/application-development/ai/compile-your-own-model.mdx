@@ -116,10 +116,10 @@ For the eight fixed frames, CPU and quantized person counts matched; the two box
 First stop other inference applications and confirm a [known-good model](./inference-apis.mdx) still works. Do not update board software for this tutorial. On the board, create a new user-owned directory:
 
 ```bash
-mkdir -p "$HOME/mo62a-zone-demo"
+mkdir "$HOME/mo62a-zone-demo"
 ```
 
-On the host, substitute your SSH username and reachable board address:
+If that directory already exists, stop and choose a new project name throughout the remaining commands; do not merge new artifacts into an older deployment. On the host, substitute your SSH username and reachable board address:
 
 ```bash
 scp -r work/bundle work/evaluation work/host-images \
