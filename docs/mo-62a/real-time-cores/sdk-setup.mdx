@@ -1,0 +1,114 @@
+---
+title: "SDK setup"
+description: "Install the TI MCU+ SDK 11.01.00.16, TI Arm Clang and SysConfig on an x86 Linux host for Mo62A R5F firmware."
+sidebar_position: 2
+---
+
+import install from '@site/static/img/real-time-cores/mo62a-rt-sdk-install.png';
+
+R5F firmware is cross-compiled on an x86-64 Linux host. The board image does not contain the SDK or compiler, and nothing needs to be installed on the board for this step.
+
+## Versions
+
+Use the exact tool versions that the SDK release was tested with. They are listed in the SDK's [download page](https://software-dl.ti.com/mcu-plus-sdk/esd/AM62AX/11_01_00_16/exports/docs/api_guide_am62ax/SDK_DOWNLOAD_PAGE.html), its release notes, and the `imports.mak` file in the installed SDK:
+
+| Component | Version | Installer (from ti.com) | Size |
+|---|---|---|---|
+| MCU+ SDK for AM62Ax | 11.01.00.16 | `mcu_plus_sdk_am62ax_11_01_00_16-linux-x64-installer.run` | 236024909 bytes |
+| TI Arm Clang compiler | 4.0.1.LTS | `ti_cgt_armllvm_4.0.1.LTS_linux-x64_installer.bin` | 215898693 bytes |
+| SysConfig | 1.24.0 (build 4150) | `sysconfig-1.24.0_4150-setup.run` | 168809214 bytes |
+
+Download links:
+
+- SDK: [MCU-PLUS-SDK-AM62A 11.01.00.16](https://dr-download.ti.com/software-development/software-development-kit-sdk/MD-b4i0McWpWx/11.01.00.16/mcu_plus_sdk_am62ax_11_01_00_16-linux-x64-installer.run)
+- Compiler: [ARM-CGT-CLANG 4.0.1.LTS](https://www.ti.com/tool/download/ARM-CGT-CLANG/4.0.1.LTS)
+- SysConfig: [SYSCONFIG 1.24.0.4150](https://www.ti.com/tool/download/SYSCONFIG/1.24.0.4150)
+
+Check each download against the SHA-256 published on its ti.com page before installing. The files used for this section matched:
+
+```text
+07c2f526505c0881dd9e7b57809f8b0c98983a7b9c182180dc97c88d8724cefe  mcu_plus_sdk_am62ax_11_01_00_16-linux-x64-installer.run
+a7b34001e30f60c5dba219dca45f531512ee390b0946ad862df2d291ccea395f  ti_cgt_armllvm_4.0.1.LTS_linux-x64_installer.bin
+a636a502bc82ec74a7a8a136440af603d2050e3094743280bbc37a0dd5ecb8e2  sysconfig-1.24.0_4150-setup.run
+```
+
+The C7x compiler, GCC for AArch64 and Code Composer Studio are only needed for C7x/A53 targets or JTAG debugging, which this section does not use.
+
+## Install
+
+TI expects all tools in `${HOME}/ti`; the SDK makefiles look for them there by default. On a clean Ubuntu 22.04 system, these packages are enough for everything in this section:
+
+```bash
+sudo apt install make python3 openssl patch
+```
+
+TI's full list also includes `mono-runtime`, `device-tree-compiler` and Python modules for flashing; you need those only for boot-loader images, A53 builds and UART flashing, which this section does not use.
+
+Then run the three installers in unattended mode:
+
+```bash
+mkdir -p ~/ti
+chmod +x mcu_plus_sdk_am62ax_11_01_00_16-linux-x64-installer.run \
+         ti_cgt_armllvm_4.0.1.LTS_linux-x64_installer.bin \
+         sysconfig-1.24.0_4150-setup.run
+./mcu_plus_sdk_am62ax_11_01_00_16-linux-x64-installer.run --mode unattended --prefix ~/ti
+./ti_cgt_armllvm_4.0.1.LTS_linux-x64_installer.bin --mode unattended --prefix ~/ti
+./sysconfig-1.24.0_4150-setup.run --mode unattended --prefix ~/ti/sysconfig_1.24.0
+```
+
+The SDK and compiler create their own versioned folders under the prefix; SysConfig installs directly into the folder you name, which must be `sysconfig_1.24.0` for the SDK to find it:
+
+```bash
+ls ~/ti
+```
+
+```text
+mcu_plus_sdk_am62ax_11_01_00_16  sysconfig_1.24.0  ti-cgt-armllvm_4.0.1.LTS
+```
+
+<a href={install} target="_blank" rel="noopener noreferrer">
+  <img src={install} alt="Host terminal in a clean Ubuntu 22.04 container showing the three installed TI tools, the compiler version and the versions expected by the SDK" width="1440" height="900" />
+</a>
+
+## Check the tool paths
+
+`imports.mak` at the SDK root sets the versions and, on Linux, `TOOLS_PATH ?= $(HOME)/ti`:
+
+```bash
+cd ~/ti/mcu_plus_sdk_am62ax_11_01_00_16
+grep -E '^(CGT_ARMLLVM_VERSION|SYSCONFIG_VERSION)' imports.mak
+```
+
+```text
+CGT_ARMLLVM_VERSION=4.0.1.LTS
+SYSCONFIG_VERSION=1.24.0
+```
+
+Install into `~/ti` as shown so that these defaults apply. Then confirm the compiler runs:
+
+```bash
+~/ti/ti-cgt-armllvm_4.0.1.LTS/bin/tiarmclang --version
+```
+
+```text
+TI Arm Clang Compiler 4.0.1.LTS
+Target: arm-ti-none-eabi
+Thread model: posix
+InstalledDir: /home/dev/ti/ti-cgt-armllvm_4.0.1.LTS/bin
+```
+
+This whole page, from the installers to the builds on the next pages, was repeated in a fresh Ubuntu 22.04 container with only the four packages above. The host used for the screenshots runs Ubuntu 24.04.
+
+## Where things are in the SDK
+
+| Path | Contents |
+|---|---|
+| `examples/drivers/ipc/ipc_rpmsg_echo_linux/` | The Linux echo example that the image runs on the MCU R5F |
+| `examples/hello_world/am62ax-sk/mcu-r5fss0-0_freertos/` | Minimal FreeRTOS project; prints to a UART and has no Linux resource table |
+| `source/kernel/dpl/` | Driver Porting Layer: tasks, clocks, semaphores, debug log |
+| `source/drivers/ipc_rpmsg/`, `source/drivers/ipc_notify/` | RPMsg and IPC notify drivers |
+| `docs/api_guide_am62ax/` | Offline copy of the TI user guide |
+
+Each example has one folder per core and OS, for example `am62ax-sk/mcu-r5fss0-0_freertos/ti-arm-clang/`. Use the `mcu-r5fss0-0` folders; `r5fss0-0` is the wakeup (DM) R5F.
+
+Next: [Build and run firmware](./getting-started.mdx).

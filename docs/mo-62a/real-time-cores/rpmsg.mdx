@@ -1,85 +1,123 @@
 ---
-title: "Inter-core communication (RPMsg)"
-description: "Inspect RPMsg channels and map Linux device nodes to remote processors without sending unknown messages."
-sidebar_position: 3
+title: "Linux communication (RPMsg)"
+description: "Exchange messages between a Linux program and MCU R5F firmware on Mo62A with ti-rpmsg-char, and measure the round trip."
+sidebar_position: 4
 ---
 
-import channels from '@site/static/img/real-time-cores/mo62a-rpmsg.png';
-import ownership from '@site/static/img/real-time-cores/mo62a-rpmsg-ownership.png';
+import rpmsg from '@site/static/img/real-time-cores/mo62a-rt-rpmsg.png';
 
-RPMsg is a messaging bus between processors; it does not define the application payload. A userspace node can belong to an existing system service rather than a free echo channel. The [Linux RPMsg documentation](https://docs.kernel.org/staging/rpmsg.html) describes channel names, local/remote addresses and the need to restrict access to sensitive firmware interfaces.
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
-:::info[Verified scope]
-Channel and device discovery were tested on Mo62A V1.1.0. No custom endpoint was created, no driver was rebound and no arbitrary payload was sent to the running firmware. A Linux-to-custom-R5F request/reply example is not yet validated.
+RPMsg carries messages between Linux and a remote core over shared-memory buffers (VRINGs) and a hardware mailbox interrupt. It defines addressing, not your payload: the two sides agree on an endpoint number and a message format. In TI's terms the R5F endpoint is a server port and the Linux program a client ([IPC guide](https://software-dl.ti.com/mcu-plus-sdk/esd/AM62AX/11_01_00_16/exports/docs/api_guide_am62ax/IPC_GUIDE.html)).
+
+:::info[Tested]
+Everything on this page was run on Mo62A image V1.1.0 against the TI `ipc_rpmsg_echo_linux` firmware on endpoint 14: the copy shipped in the image, and the rebuild from [Build and run firmware](./getting-started.mdx), which is what the screenshot shows.
 :::
 
-## Inspect channels and device permissions
+## How Linux user space reaches the R5F
+
+| Layer | On Mo62A |
+|---|---|
+| Kernel | `rpmsg_char` driver creates `/dev/rpmsg_ctrlN` per core and a `/dev/rpmsgN` per endpoint you open |
+| Library | TI `ti-rpmsg-char` 0.6.9: `/opt/ti/edgeai/lib/libti_rpmsg_char.so` (headers are not installed) |
+| Firmware | Announces `rpmsg_chrdev` on endpoint 14 and replies on the sender's endpoint |
+
+The library finds the right control device for a core, creates a local endpoint, and gives you a file descriptor that you `write()` to and `read()` from. Each message is at most 512 bytes in total, including the RPMsg header, so keep payloads at or below 496 bytes.
+
+Device nodes are root-only on the image. Run the programs below with `sudo` rather than relaxing the permissions on `/dev/rpmsg*`.
+
+## Get the library headers
+
+The library in the image matches TI tag `0.6.9`. Fetch the same source on the board (or copy it from a host) to get `ti_rpmsg_char.h`, `rproc_id.h` and the example program:
 
 ```bash
-ls /sys/bus/rpmsg/devices
-ls -l /dev/rpmsg*
+git clone --branch 0.6.9 --depth 1 https://git.ti.com/git/rpmsg/ti-rpmsg-char.git
+cd ti-rpmsg-char
 ```
 
-<a href={channels} target="_blank" rel="noopener noreferrer">
-  <img src={channels} alt="Live Mo62A RPMsg channel listing and root-only character-device permissions" width="1440" height="900" />
-</a>
+`rproc_id.h` names the cores. On AM62A the MCU R5F is `R5F_MCU0_0` (`0`) and the C7x is `DSP_C71_0` (`8`).
 
-The inspected system exposes `rpmsg_chrdev`, control, name-service and `ti.ipc4.ping-pong` channel names. The name is not a complete payload specification, and its presence does not prove that a particular userspace sample is compatible.
+## Exchange messages
 
-| Item | Meaning |
-|---|---|
-| `/sys/bus/rpmsg/devices/` | Discovered bus channels and their sysfs attributes |
-| `name`, `src`, `dst` | Channel name and endpoint addressing information |
-| `/dev/rpmsg_ctrlN` | Control interface used with the appropriate userspace/kernel API |
-| `/dev/rpmsgN` | Character endpoint associated with a channel |
-
-The test nodes are root-only. Do not use `chmod 666` to bypass that boundary or publish them to an unrestricted container.
-
-## Map a node to its owner
-
-Resolve each character endpoint's parent:
+Build TI's example on the board with the preinstalled GCC and run it against the MCU R5F:
 
 ```bash
-for endpoint in /sys/class/rpmsg/rpmsg[0-9]*; do
-  printf '%s\n' "${endpoint##*/}"
-  readlink -f "$endpoint/device"
+gcc -O2 -Iinclude examples/rpmsg_char_simple.c -o rpmsg_char_simple \
+    -L/opt/ti/edgeai/lib -lti_rpmsg_char -Wl,-rpath,/opt/ti/edgeai/lib -lpthread
+sudo ./rpmsg_char_simple -r 0 -n 10
+```
+
+<a href={rpmsg} target="_blank" rel="noopener noreferrer">
+  <img src={rpmsg} alt="SSH session on Mo62A listing the MCU R5F RPMsg channels, a passing rpmsg_char_simple run and 1000 matched messages from rpmsg_echo_latency" width="1440" height="900" />
+</a>
+
+```text
+Sending message #9: hello there 9!
+Received message #9: round trip delay(usecs) = 35160
+hello there 9!
+
+Communicated 10 messages successfully on rpmsg-char-0-3288
+
+TEST STATUS: PASSED
+```
+
+`-p` selects the remote endpoint (default 14) and `-n` the message count.
+
+:::note
+The delay printed by `rpmsg_char_simple` is the difference of the `tv_nsec` fields only. It is in nanoseconds despite the `usecs` label, and is wrong whenever the second changes between send and receive. The line above therefore means about 35 µs. Use the program in the next section for measurements.
+:::
+
+## Measure the round trip
+
+<a href={useBaseUrl('/downloads/real-time-cores/rpmsg_echo_latency.c')} download><code>rpmsg_echo_latency.c</code></a> sends numbered messages, waits for each reply with a 1 s timeout, checks that the reply matches, and reports the distribution of full `CLOCK_MONOTONIC` round-trip times. Build it in the `ti-rpmsg-char` folder:
+
+```bash
+gcc -O2 -Wall -Iinclude rpmsg_echo_latency.c -o rpmsg_echo_latency \
+    -L/opt/ti/edgeai/lib -lti_rpmsg_char -Wl,-rpath,/opt/ti/edgeai/lib
+sudo ./rpmsg_echo_latency 0 1000      # rproc id, message count [, endpoint]
+```
+
+Result on the test board with Linux otherwise idle:
+
+```text
+rproc 0, remote port 14, local port 1025, 1000 messages
+round trip us: min 29.2 median 33.5 avg 34.7 p99 59.7 max 124.5
+RESULT: PASS 1000/1000 replies matched
+```
+
+Longer runs of 10000 messages, idle and with all four Cortex-A53 cores kept busy by four shell loops (`timeout 60 sh -c 'while :; do :; done' &`, four times):
+
+| Linux load | Messages matched | Median | p99 | Max |
+|---|---|---|---|---|
+| Idle | 10000/10000 | 37.9 µs | 100.9 µs | 1988.4 µs |
+| 4 busy loops | 10000/10000 | 35.1 µs | 485.6 µs | 6306.1 µs |
+
+This is the time from a Linux `write()` to the matching `read()`, including two kernel crossings and Linux scheduling. It is not the R5F's response time: the median hardly changes under load, while the tail grows with Linux scheduling. Ordinary-priority loops already raise the maximum to several milliseconds. Design the protocol so that the R5F never waits on Linux inside a time-critical loop.
+
+A wrong endpoint fails cleanly instead of hanging:
+
+```text
+$ sudo ./rpmsg_echo_latency 0 3 99
+cannot open rproc 0 port 99
+```
+
+## Find which core owns an endpoint
+
+`/dev/rpmsgN` numbers are assigned in creation order. Resolve the owner through sysfs instead of assuming a number:
+
+```bash
+for e in /sys/class/rpmsg/rpmsg[0-9]*; do
+  printf '%s  %s\n' "${e##*/}" "$(readlink -f "$e/device")"
 done
 ```
 
-<a href={ownership} target="_blank" rel="noopener noreferrer">
-  <img src={ownership} alt="Actual RPMsg endpoint parent paths mapping nodes to MCU R5F, wakeup R5F and C7x; sample executables are not found on PATH" width="1440" height="900" />
-</a>
+A path containing `79000000.r5f` belongs to the MCU R5F; `78000000.r5f` and `7e000000.dsp` belong to the Device Manager and the C7x. The C7x also answers on endpoint 14 (`-r 8`), but its firmware serves the AI stack; do not use it as a test target while AI applications run.
 
-The parent path contains the owning `remoteproc` instance and its hardware node. On this boot, the listed endpoints span all three remote processors. Do not hard-code `rpmsg0` as “the R5F port,” and do not infer ownership solely from `virtio0`.
+## Designing your own protocol
 
-Inspect a specific channel's readable attributes after locating it:
+- Fix the endpoint number and announce it from the firmware with `RPMessage_announce()` after `RPMessage_waitForLinuxReady()`.
+- Put a command ID and a length or version field at the start of every payload; reply on the sender's endpoint with a status.
+- Use a timeout on every Linux read, as `rpmsg_echo_latency.c` does with `poll()`, and handle the core being restarted: the endpoint disappears and must be reopened.
+- For data larger than one message, place it in a shared buffer agreed between both sides and send only its offset.
 
-```bash
-for channel in /sys/bus/rpmsg/devices/*; do
-  printf '\n%s\n' "${channel##*/}"
-  for field in name src dst; do
-    if [ -r "$channel/$field" ]; then
-      printf '  %s: ' "$field"
-      cat "$channel/$field"
-    fi
-  done
-done
-```
-
-## What a working exchange requires
-
-Agree on the firmware service, endpoint name/address, payload format, byte order, maximum length, response semantics and timeout. The Linux application and remote firmware must implement the same protocol and account for endpoint teardown or processor restart.
-
-Do not test an unknown endpoint by writing arbitrary text with `echo`. Sending bytes can invoke a system service or leave a reader waiting indefinitely. The sample names `rpmsg_char_simple` and `rpmsg_char_zerocopy` were not found on the inspected PATH; that is not a successful test or proof that the corresponding libraries are absent.
-
-## Troubleshooting without changing ownership
-
-| Observation | Safe next check |
-|---|---|
-| No RPMsg nodes | Read remoteproc state, kernel messages and channel announcements; check the intended firmware version |
-| Permission denied | Confirm the expected service and access policy before granting access |
-| Device numbering differs | Resolve sysfs parent paths and hardware names again |
-| Channel exists but application has no response | Confirm the protocol and endpoint addresses; use a bounded timeout rather than repeated writes |
-| AI or camera fails after a firmware experiment | Preserve logs and restore the documented system baseline; do not stop additional cores speculatively |
-
-See [Overview](./overview.mdx) for current processor ownership and [RTOS preparation](./getting-started.mdx) for the prerequisites for a custom firmware pair.
+The [MCU console](./mcu-console.mdx) applies this to a small text-command protocol on endpoint 15.

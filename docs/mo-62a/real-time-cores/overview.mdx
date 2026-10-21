@@ -1,65 +1,108 @@
 ---
 title: "Overview"
-description: "Identify Mo62A remote processors, their current firmware ownership and the limits of real-time application support."
+description: "The Mo62A remote processors, which one is available for your firmware, and the memory layout it must use."
 sidebar_position: 1
 ---
 
-import cores from '@site/static/img/real-time-cores/mo62a-cores.png';
-import firmware from '@site/static/img/real-time-cores/mo62a-firmware.png';
+import cores from '@site/static/img/real-time-cores/mo62a-rt-cores.png';
 
-Mo62A uses heterogeneous processors alongside the Linux application cores. Some remote processors are already running firmware needed by the image; their presence is not an invitation to replace that firmware with an arbitrary RTOS example.
+AM62A combines Linux application cores with three remote processors. Linux manages two of them through the [remoteproc framework](https://docs.kernel.org/staging/remoteproc.html); the third is started by the boot loader and must keep running.
 
-:::info[Verified scope]
-The observations below are read-only checks on image V1.1.0 with Linux 6.12.35 and `microSD-default`. No custom R5F firmware, Zephyr image, FreeRTOS application or Linux-to-custom-firmware message exchange was validated for this section.
-:::
+## Which core can you use
 
-## Identify the processors
+| Core | Linux node | State on V1.1.0 | Role | Available for your firmware |
+|---|---|---|---|---|
+| MCU R5F (`mcu-r5fss0-0`) | `79000000.r5f` | `running` | Runs the TI IPC echo example (`am62a-mcu-r5f0_0-fw`) | Yes; this section uses it |
+| Wakeup R5F (`r5fss0-0`, DM R5) | `78000000.r5f` | `attached` | Device Manager firmware: resource and power management for the whole SoC | No |
+| C7x DSP (`c75ss0-0`) | `7e000000.dsp` | `running` | AI and vision firmware (`am62a-c71_0-fw`) | No; replacing it stops the [AI runtime](../application-development/ai/overview.mdx) |
 
-Read the name, state and firmware attributes:
+The wakeup R5F reports `attached` and firmware `unknown` because the boot loader started it before Linux. TI states that the DM R5 must be started by the boot loader and cannot be loaded from Linux or CCS. Do not stop it.
+
+The MCU R5F firmware shipped in the image is the TI example `ipc_rpmsg_echo_linux`: its log reports `REL.MCUSDK.K3.11.01.00.03+`, and it announces the same two endpoints as the SDK source. That makes it the natural starting point for your own firmware.
+
+On the test board no process had a `/dev/rpmsg*` device open and no system service referred to RPMsg. With the [MCU console](./mcu-console.mdx) firmware loaded instead, the C7x [AI benchmark](../application-development/ai/benchmarks.mdx) still offloaded all 329 nodes. The process `vx_app_arm_remote_log.out` from the AI stack reads remote-core log memory through `/dev/mem`; it is not an RPMsg user.
+
+## Inspect the processors
+
+List every remote processor with its hardware name, state and firmware:
 
 ```bash
 for r in /sys/class/remoteproc/remoteproc*; do
-  printf '\n%s\n' "${r##*/}"
-  for field in name state firmware; do
-    printf '  %s: ' "$field"
-    cat "$r/$field"
-  done
+  printf '%s  %-14s %-9s %s\n' "${r##*/}" "$(cat $r/name)" "$(cat $r/state)" "$(cat $r/firmware)"
 done
 ```
 
+Output on the test board:
+
+```text
+remoteproc0  7e000000.dsp   running   am62a-c71_0-fw
+remoteproc1  79000000.r5f   running   am62a-mcu-r5f0_0-fw
+remoteproc2  78000000.r5f   attached  unknown
+```
+
+Always select a core by its `name`, not by its `remoteprocN` number. The numbering follows probe order and is not guaranteed across kernels or device-tree changes. The rest of this section finds the MCU R5F like this:
+
+```bash
+MCU=$(grep -l '^79000000.r5f$' /sys/class/remoteproc/remoteproc*/name | xargs dirname)
+echo "$MCU"
+```
+
 <a href={cores} target="_blank" rel="noopener noreferrer">
-  <img src={cores} alt="Live Mo62A remoteproc inventory showing C7x, MCU R5F and wakeup R5F states without changing firmware" width="1440" height="900" />
+  <img src={cores} alt="SSH session on Mo62A listing the three remote processors, the firmware links, the checksum of the image MCU R5F firmware and its trace log" width="1440" height="900" />
 </a>
 
-| Hardware identity | Observed state | Interpretation |
-|---|---|---|
-| `7e000000.dsp` | `running` | C7x DSP using `am62a-c71_0-fw`; used by the image's AI/vision stack |
-| `79000000.r5f` | `running` | MCU-domain R5F using `am62a-mcu-r5f0_0-fw` |
-| `78000000.r5f` | `attached` | Wakeup-domain R5F already started outside Linux remoteproc; firmware attribute shows `unknown` |
+## Firmware files
 
-The names correspond to the AM62A device-tree nodes. Match those names rather than assuming that `remoteproc0`, `remoteproc1` or a virtio number always identifies the same core.
+Linux loads `/lib/firmware/<firmware name>` when the core starts. In the image these names are symbolic links:
 
-For an attached processor, `unknown` does not mean that it has no firmware. The kernel deliberately uses that string when Linux attached to a processor started by another entity and does not know the loaded image. See the [kernel remoteproc interface](https://docs.kernel.org/staging/remoteproc.html) for the framework.
+```bash
+ls -l /lib/firmware/am62a-*fw
+sha256sum /opt/ti/firmware/am62a-mcu-r5f0_0-fw
+```
 
-## Firmware belongs to the running system
+```text
+/lib/firmware/am62a-c71_0-fw -> /opt/ti/firmware/am62a-c71_0-fw
+/lib/firmware/am62a-mcu-r5f0_0-fw -> /opt/ti/firmware/am62a-mcu-r5f0_0-fw
+29228716885522642ba205e9b1256f33d08b32512699c0fbedf2bc1bfb502a4c  /opt/ti/firmware/am62a-mcu-r5f0_0-fw
+```
 
-The inspected image resolves the C7x and MCU R5F firmware links into `/opt/ti/firmware/`:
+Record this checksum before you change anything; [Recovery](./examples.mdx#restore-the-original-firmware) uses it to confirm that the original file is back. The firmware prints its version to the [trace log](./getting-started.mdx#read-the-firmware-log):
 
-<a href={firmware} target="_blank" rel="noopener noreferrer">
-  <img src={firmware} alt="Live firmware symlink, ELF identification and SHA-256 inspection for the installed Mo62A C7x and MCU R5F images" width="1440" height="900" />
-</a>
+```text
+[mcu-r5f0-0]     0.000495s : [IPC RPMSG ECHO] Version: REL.MCUSDK.K3.11.01.00.03+ (Jun 16 2025 08:51:33):
+```
 
-Neither an ELF file nor a running state proves that an RTOS development kit is ready for an application. The memory map, resource table, mailboxes, peripherals, firmware services and Linux drivers must agree.
+## Shared memory layout
 
-:::warning
-Do not stop a processor, write a new firmware name or overwrite these files while using AI, the ISP or other firmware-dependent services. Stopping a system-owned core can disrupt more than the terminal running the command. This section intentionally provides no generic stop/load/start recipe.
-:::
+Firmware for a remote core runs from DDR regions that Linux reserves in the device tree. The Mo62A device tree uses the same layout as the TI AM62A starter kit (`am62ax-sk`), so the SDK linker files work without changes:
 
-## Choose the appropriate development path
+| Address range | Size | Use (TI MCU+ SDK memory map) | Mo62A reserved-memory node |
+|---|---|---|---|
+| `0x9B800000`–`0x9B8FFFFF` | 1 MiB | IPC VRING between Linux and MCU R5F | `r5f-dma-memory@9b800000` |
+| `0x9B900000`–`0x9B9003FF` | 1 KiB | Resource table read by Linux | `r5f-dma-memory@9b900000` |
+| `0x9B900400`–`0x9B9FFFFF` | about 1 MiB | Trace log buffer | same node |
+| `0x9BA00000`–`0x9C7FFFFF` | 14 MiB | MCU R5F code and data | same node |
+| `0xA0000000`–`0xA0FFFFFF` | 16 MiB | IPC VRING between remote cores | `ipc-memories@a0000000` |
 
-- For Linux GPIO, UART and PWM applications, use [GPIO & peripherals](../application-development/gpio-and-peripherals.mdx).
-- For AI inference and camera processing, use the existing [AI runtime](../application-development/ai/overview.mdx) and [camera pipeline](../application-development/camera-and-video.mdx).
-- For a custom real-time application, first complete the [RTOS preparation checklist](./getting-started.mdx).
-- For Linux-side channel discovery, continue to [Inter-core communication](./rpmsg.mdx).
+Check the reserved regions on your board:
 
-Real-time latency, custom firmware boot, motor control, CAN, encoder handling and micro-ROS remain separate validation tasks. No timing or functional-safety guarantee is established by these inspection commands.
+```bash
+for n in /proc/device-tree/reserved-memory/*@9b*; do
+  printf '%s  ' "${n##*/}"; xxd -p "$n/reg" | tr -d '\n'; echo
+done
+```
+
+```text
+r5f-dma-memory@9b800000  000000009b8000000000000000100000
+r5f-dma-memory@9b900000  000000009b9000000000000000f00000
+```
+
+Each value is a 64-bit start address followed by a 64-bit size. If you change the device tree, or the firmware's `linker.cmd`, keep the two in agreement: firmware linked outside its reserved region can overwrite Linux or another core's memory even if it loads.
+
+## Limits to keep in mind
+
+- Linux to R5F messages are limited to 512 bytes, with 256 buffers per VRING; pass larger data through shared memory and send its offset.
+- MCU-domain peripherals belong to the MCU R5F by default. Using a main-domain peripheral (GPIO, I2C, SPI, UART) from the MCU R5F requires removing it from the Linux device tree first; see [TI: accessing main domain peripherals from MCU](https://software-dl.ti.com/mcu-plus-sdk/esd/AM62AX/11_01_00_16/exports/docs/api_guide_am62ax/MAIN_DOMAIN_PERIPHERAL_FROM_MCU.html). That path has not been tested on Mo62A.
+- A remote core does not make Linux deterministic. Put the time-critical loop in the R5F firmware and exchange only commands and results with Linux.
+
+Next: [SDK setup](./sdk-setup.mdx).

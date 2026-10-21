@@ -1,0 +1,180 @@
+---
+title: "MCU console"
+description: "Add a small FreeRTOS command console to the Mo62A MCU R5F and use it from an SSH session or the desktop terminal."
+sidebar_position: 5
+---
+
+import ssh from '@site/static/img/real-time-cores/mo62a-rt-console-ssh.png';
+import desktop from '@site/static/img/real-time-cores/mo62a-rt-console-desktop.png';
+import build from '@site/static/img/real-time-cores/mo62a-rt-build-console.png';
+
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+The MCU console is a minimal example of your own code on the MCU R5F: a FreeRTOS task that answers text commands, and a Linux command, `mcu-console`, to type them. Use it from an SSH session or from a terminal on the Mo62A desktop.
+
+```text
+$ sudo mcu-console
+Connected to 79000000.r5f console on /dev/rpmsg5. Type 'help', or 'exit' to quit.
+mcu> version
+Mo62A MCU console, REL.MCUSDK.K3.11.01.00.16+, built Oct 21 2026 13:52:25, 800000000 Hz
+mcu> tasks
+task                 state prio stack_free
+MO62A_CONSOLE        run      8       5776
+IDLE                 ready    0       3816
+Tmr Svc              block   31        720
+LPM_MCU_SUSPEND      block    8      65128
+RPMESSAGE_PING       block    8      64200
+RPMESSAGE_CHAR_PING  block    8      64200
+mcu> exit
+```
+
+## Use the console
+
+The console needs the console firmware on the MCU R5F; [Try it without building](#try-it-without-building) installs it. Then use whichever access method you prefer.
+
+### SSH
+
+Connect from your computer as described in [First boot](../getting-started/first-boot.mdx#ssh), then run `sudo mcu-console`. The commands and replies below were recorded over SSH:
+
+<a href={ssh} target="_blank" rel="noopener noreferrer">
+  <img src={ssh} alt="SSH session on Mo62A using mcu-console interactively and with a single command against the MCU R5F console firmware" width="1440" height="900" />
+</a>
+
+### Local desktop
+
+On the HDMI desktop, open a terminal from the Applications menu and run the same commands:
+
+<a href={desktop} target="_blank" rel="noopener noreferrer">
+  <img src={desktop} alt="Mo62A XFCE desktop on HDMI with a local terminal running mcu-console against the MCU R5F console firmware" width="1920" height="1080" />
+</a>
+
+## Commands
+
+| Command | Reply |
+|---|---|
+| `help` | List of commands |
+| `version` | SDK version, build date and time, R5F clock |
+| `uptime` | Time since the firmware started |
+| `load` | Total R5F CPU load measured by FreeRTOS |
+| `tasks` | FreeRTOS tasks with state, priority and unused stack in bytes |
+| `echo <text>` | Returns `<text>` |
+
+Anything else returns `unknown command '<name>', try help`. Each reply fits in one RPMsg message, at most 496 bytes.
+
+## How it works
+
+The console is added to the TI `ipc_rpmsg_echo_linux` example rather than replacing it, so the echo endpoints and TI's graceful shutdown keep working:
+
+| Side | Part | Role |
+|---|---|---|
+| R5F | `mo62a_console.c` | Creates endpoint 15, announces it to Linux as `rpmsg_chrdev`, and runs a task that reads one command, builds the reply and sends it back |
+| R5F | `ipc_rpmsg_echo.c` | Unchanged TI code plus one call to `mo62a_console_start()` after Linux is ready |
+| R5F | `example.syscfg` | IPC with the DM R5F and the C7x set to `NONE`, so the firmware talks to Linux only; see [Known issues](./examples.mdx#the-ti-echo-example-hangs-after-repeated-reloads) |
+| Linux | kernel `rpmsg_char` | Creates a `/dev/rpmsgN` device for the announced endpoint |
+| Linux | `mcu-console` | Python script: finds the device of endpoint 15 on `79000000.r5f`, writes the command, waits up to 1 s for the reply |
+
+The console task waits for messages with a 100 ms timeout so that it notices when Linux stops the core, and then exits. No library or compiler is needed on the board.
+
+## Try it without building
+
+Download the prebuilt firmware and the Linux command. The firmware was built from the source below with the [SDK setup](./sdk-setup.mdx) tool versions.
+
+- <a href={useBaseUrl('/downloads/real-time-cores/mo62a-mcu-console.out')} download>mo62a-mcu-console.out</a> (59316 bytes) and its <a href={useBaseUrl('/downloads/real-time-cores/mo62a-mcu-console.out.sha256')} download>SHA-256</a>
+- <a href={useBaseUrl('/downloads/real-time-cores/mcu-console.py')} download>mcu-console.py</a>, installed on the board as `mcu-console`
+
+Copy both to the board, then install and load them:
+
+```bash
+sha256sum mo62a-mcu-console.out    # b74622b86f0a237ae103791df5d7f20f0d6a45ee2ca46127b83b2aa9f18ea693
+sudo install -m 0644 mo62a-mcu-console.out /lib/firmware/
+sudo install -m 0755 mcu-console.py /usr/local/bin/mcu-console
+
+MCU=$(grep -l '^79000000.r5f$' /sys/class/remoteproc/remoteproc*/name | xargs dirname)
+echo stop | sudo tee "$MCU/state"
+echo -n mo62a-mcu-console.out | sudo tee "$MCU/firmware"
+echo start | sudo tee "$MCU/state"
+
+sudo mcu-console version
+```
+
+The kernel log shows the extra channel for endpoint 15 (`0xf`):
+
+```text
+remoteproc remoteproc1: Booting fw image mo62a-mcu-console.out, size 59316
+remoteproc remoteproc1: remote processor 79000000.r5f is now up
+virtio_rpmsg_bus virtio0: creating channel ti.ipc4.ping-pong addr 0xd
+virtio_rpmsg_bus virtio0: creating channel rpmsg_chrdev addr 0xe
+virtio_rpmsg_bus virtio0: creating channel rpmsg_chrdev addr 0xf
+```
+
+and the firmware log reports the console:
+
+```text
+[mcu-r5f0-0]     0.017495s : [MO62A CONSOLE] ready at end point 15
+```
+
+Run single commands from scripts by passing them as arguments:
+
+```bash
+sudo mcu-console load
+sudo mcu-console echo hello from Linux
+```
+
+```text
+cpu load 0.03 %
+hello from Linux
+```
+
+## Build it yourself
+
+Get <a href={useBaseUrl('/downloads/real-time-cores/mo62a_mcu_console.diff')} download>mo62a_mcu_console.diff</a> (it also contains <a href={useBaseUrl('/downloads/real-time-cores/mo62a_console.c')} download>mo62a_console.c</a>). On the host, copy the TI example and apply it:
+
+```bash
+cd ~/ti/mcu_plus_sdk_am62ax_11_01_00_16/examples/drivers/ipc
+cp -r ipc_rpmsg_echo_linux mo62a_mcu_console
+cd mo62a_mcu_console
+patch -p1 < ~/Downloads/mo62a_mcu_console.diff
+
+cd ~/ti/mcu_plus_sdk_am62ax_11_01_00_16
+make -s -C examples/drivers/ipc/mo62a_mcu_console/am62ax-sk/mcu-r5fss0-0_freertos/ti-arm-clang \
+     all PROFILE=release
+```
+
+```text
+patching file am62ax-sk/mcu-r5fss0-0_freertos/example.syscfg
+patching file am62ax-sk/mcu-r5fss0-0_freertos/ti-arm-clang/makefile
+patching file ipc_rpmsg_echo.c
+patching file mo62a_console.c
+```
+
+The patch adds `mo62a_console.c` to the makefile, renames the output to `mo62a_mcu_console`, adds two lines to `ipc_rpmsg_echo.c`, and disables IPC with the DM R5F and C7x in `example.syscfg`. The firmware for Linux is `ipc_rpmsg_echo.mcu-r5f0_0.release.strip.out` in the `ti-arm-clang` folder; copy it to the board as `mo62a-mcu-console.out` and load it as above. Your build has a different build time and therefore a different checksum.
+
+<a href={build} target="_blank" rel="noopener noreferrer">
+  <img src={build} alt="Host terminal copying the TI example, applying the MCU console patch and building the firmware" width="1440" height="900" />
+</a>
+
+## Add a command
+
+Commands are matched in `console_execute()`. To add one, compare the command word and write the reply into `out`:
+
+```c
+else if (strcmp(line, "ticks") == 0)
+{
+    snprintf(out, size, "%u ticks", (unsigned)ClockP_getTicks());
+}
+```
+
+Use the SDK's Driver Porting Layer (`ClockP`, `TaskP`, `SemaphoreP`) or FreeRTOS calls that the SDK configuration enables. For example, `xPortGetFreeHeapSize()` does not link: the SDK builds FreeRTOS with `heap_3`, which uses the C library allocator.
+
+Rebuild, copy and reload the firmware. Keep each reply under 496 bytes, and keep slow work out of the console task if your firmware also has time-critical tasks: give those a higher priority than the console (`CONSOLE_TASK_PRI` is 8).
+
+## Tested on Mo62A
+
+- All six commands, interactive mode and single-command mode, over SSH and in a terminal on the Mo62A desktop.
+- Without `sudo` the command stops with `/dev/rpmsg5: permission denied, run with sudo`.
+- The TI echo endpoint 14 keeps working: 1000/1000 messages matched with [`rpmsg_echo_latency`](./rpmsg.mdx#measure-the-round-trip) while the console firmware ran.
+- 30 consecutive stop, load and start cycles of the console firmware: 30/30 reached the receive loop and passed an echo test.
+- `echo stop` completes in about 0.1 s and the state becomes `offline`; `mcu-console` then reports `MCU console not found`. After `echo start` the console answers again.
+- With the console firmware on the MCU R5F, the C7x AI [benchmark](../application-development/ai/benchmarks.mdx) still offloaded 329/329 nodes, median 10.84 ms over 100 runs.
+
+To return to the image firmware, follow [Restore the original firmware](./examples.mdx#restore-the-original-firmware).
