@@ -4,24 +4,15 @@ description: "Distinguish the Mo62A Debian image workflow from TI's Yocto SDK an
 sidebar_position: 4
 ---
 
-import targets from '@site/static/img/low-level-development/mo62a-build-targets.png';
-import systemState from '@site/static/img/mo-os/mo62a-system.png';
-
 ## Current support boundary
 
 The documented Mo OS image is Debian-based. No validated Mo62A-specific Yocto layer set, BitBake machine configuration, build manifest and boot-tested image were established in this review. Do not treat the SDK's `YOCTO_MACHINE=am62axx-evm` setting as a complete Mo62A Yocto BSP.
 
-<a href={systemState} target="_blank" rel="noopener noreferrer">
-  <img src={systemState} alt="Existing real Mo62A system-information capture showing the Debian-based software environment documented by this site" width="1440" height="900" />
-</a>
+The [software and resource capture](../mo-os/using-mo-os.mdx#identify-the-software-and-resources) in Using Mo OS shows the Debian-based environment that this site documents.
 
 ## Why Yocto names appear in the SDK
 
-The TI SDK includes OpenEmbedded/Arago-derived toolchains, sysroots, manifests and firmware. Its `Rules.make` retains `am62axx-evm` as a platform-related build variable, while the U-Boot board defconfigs are Mo62A-specific:
-
-<a href={targets} target="_blank" rel="noopener noreferrer">
-  <img src={targets} alt="Actual SDK source inspection showing YOCTO_MACHINE am62axx-evm alongside the Mo62A U-Boot defconfigs; this is not a BitBake build result" width="1440" height="900" />
-</a>
+The TI SDK includes OpenEmbedded/Arago-derived toolchains, sysroots, manifests and firmware. Its `Rules.make` retains `am62axx-evm` as a platform-related build variable, while the U-Boot board defconfigs are Mo62A-specific. The [SDK target inspection](./build-from-source.mdx#build-and-stage-the-actual-targets) in Build from source shows both settings; it is a source inspection, not a BitBake build result.
 
 TI's [Processor SDK 11.01.07.05 Yocto build guide](https://software-dl.ti.com/processor-sdk-linux/esd/AM62AX/11_01_07_05/exports/docs/linux/Overview_Building_the_SDK.html) describes its upstream layer setup and `am62axx-evm` image build. That target is the TI platform reference, not a demonstrated drop-in image for Mo62A.
 

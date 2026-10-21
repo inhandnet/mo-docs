@@ -623,15 +623,15 @@ try {
 
       for (const [slug, imageCount, phrases] of [
         ['build-from-source', 3, ['There is no all_stage target', 'not performed', 'make linux MAKE_JOBS=8', '--dry-run']],
-        ['serial-console', 2, ['J4', "adapter's power wire disconnected", 'not a newly recorded USB-UART boot trace']],
+        ['serial-console', 1, ['J4', "adapter's power wire disconnected", 'not a newly recorded USB-UART boot trace', 'original schematic sheet 17']],
         ['secure-boot', 2, ['No OTP write', 'tee-supplicant', 'v11.01.09', '11.01.00']],
-        ['yocto', 2, ['No validated Mo62A-specific', 'a complete Mo62A Yocto BSP', 'am62axx-evm']],
-        ['factory-test', 2, ['not intended for customer distribution', 'read-only customer checks', 'not passed']],
+        ['yocto', 0, ['No validated Mo62A-specific', 'a complete Mo62A Yocto BSP', 'am62axx-evm', 'SDK target inspection']],
+        ['factory-test', 1, ['not intended for customer distribution', 'read-only customer checks', 'not passed', 'recorded result']],
       ]) {
         await page.goto(url + board + '/low-level-development/' + slug + '/', {waitUntil: 'networkidle'});
         const article = page.locator('.theme-doc-markdown');
         assert.equal(await article.locator('img').count(), imageCount, slug);
-        await checkDocumentationMedia(page);
+        if (imageCount > 0) await checkDocumentationMedia(page);
         const text = await article.innerText();
         for (const phrase of phrases) assert.ok(text.includes(phrase), slug + ': ' + phrase);
         assert.ok(!text.includes('Coming soon'));

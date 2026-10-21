@@ -4,8 +4,7 @@ description: "Mo62A J4 debug UART wiring, host terminal setup, read-only console
 sidebar_position: 2
 ---
 
-import connectors from '@site/static/img/hardware-development/mo62a-connectors-v11.png';
-import consoleState from '@site/static/img/low-level-development/mo62a-tee-console.png';
+import consoleState from '@site/static/img/low-level-development/mo62a-serial-console-state.png';
 
 ## Connect the debug UART
 
@@ -19,9 +18,7 @@ Use a 3.3 V USB-to-TTL adapter on J4, the three-pin SH1.0 debug connector. This 
 
 Leave the adapter's power wire disconnected and power Mo62A through its normal supply. Do not use an RS-232-level interface or a 5 V signal output. Wire colours are not a pinout.
 
-<a href={connectors} target="_blank" rel="noopener noreferrer">
-  <img src={connectors} alt="Original schematic sheet 17 showing the three-pin J4 debug circuit in the right-hand section; board RX is pin 1, ground pin 2 and TX pin 3" width="2200" height="1556" />
-</a>
+The J4 circuit is on the right-hand side of the [original schematic sheet 17](../hardware-development/schematics.mdx#connector-circuits-sheet-17); the [connector table](../hardware-development/hardware-interfaces.mdx#locate-the-board-features) gives its board position.
 
 ## Open a host terminal
 
@@ -52,7 +49,7 @@ systemctl is-active serial-getty@ttyS2.service
 ```
 
 <a href={consoleState} target="_blank" rel="noopener noreferrer">
-  <img src={consoleState} alt="Live read-only system capture showing console=ttyS2,115200n8 and an active serial-getty; the later TEE lines are separate system checks" width="1440" height="900" />
+  <img src={consoleState} alt="Live read-only system capture showing the default boot entry, console=ttyS2,115200n8 and an active serial-getty" width="1440" height="262" />
 </a>
 
 The tested image reported `console=ttyS2,115200n8` and an active getty. This capture was obtained over SSH and is not a newly recorded USB-UART boot trace or electrical loopback test. The [UART5 loopback](../application-development/gpio-and-peripherals.mdx) uses a different UART and does not validate J4.
