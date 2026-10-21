@@ -56,10 +56,23 @@ test('release workflow keeps tag publication separate from master deployment', a
   assert.match(masterBuild, /branches:\s*\[master\]/);
 });
 
-test('changelogs start after the newest final release, not after a candidate', () => {
-  const previous = findPreviousVersion('V1.0.1-rc2', 'origin/master');
-  assert.match(previous, /^V\d+\.\d+\.\d+$/);
-  assert.notEqual(previous, 'V1.0.1-rc1');
+test('changelogs start after the newest final release, not after a candidate', async () => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), 'mo-docs-tags-'));
+  const run = (...args) => execFileSync('git', args, {cwd: repo, stdio: 'pipe'});
+  run('init', '-q');
+  run('-c', 'user.name=t', '-c', 'user.email=t@example.invalid', 'commit', '-q', '--allow-empty', '-m', 'docs: first');
+  run('-c', 'user.name=t', '-c', 'user.email=t@example.invalid', 'tag', '-a', 'V1.0.0', '-m', 'V1.0.0');
+  run('-c', 'user.name=t', '-c', 'user.email=t@example.invalid', 'commit', '-q', '--allow-empty', '-m', 'docs: second');
+  run('-c', 'user.name=t', '-c', 'user.email=t@example.invalid', 'tag', '-a', 'V1.0.1-rc1', '-m', 'V1.0.1-rc1');
+  const cwd = process.cwd();
+  process.chdir(repo);
+  try {
+    assert.equal(findPreviousVersion('V1.0.1-rc2', 'HEAD'), 'V1.0.0');
+    assert.equal(findPreviousVersion('V1.0.1', 'HEAD'), 'V1.0.0');
+  } finally {
+    process.chdir(cwd);
+    await fs.rm(repo, {recursive: true, force: true});
+  }
 });
 
 test('legacy Message.en / Message.zh-CN paragraphs are still read', () => {
