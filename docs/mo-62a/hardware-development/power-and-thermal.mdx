@@ -5,11 +5,10 @@ sidebar_position: 3
 ---
 
 import thermal from '@site/static/img/hardware-development/mo62a-thermal.png';
-import connectors from '@site/static/img/hardware-development/mo62a-connectors-v11.png';
 
 ## Power supply and measurement boundary
 
-These are published product ratings from the [Mo62A datasheet](https://cdn.shopify.com/s/files/1/0369/9536/7051/files/Mo_62A__V1.0_e7e46c7c-d546-41ad-bf9d-0308dbf8e339.pdf), not measurements from the documentation test bench.
+These are published product ratings from page 5 of the English Mo62A Datasheet V1.0 in the [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO62A), not measurements from the documentation test bench.
 
 | Item | Published value | Interpretation |
 |---|---|---|
@@ -18,7 +17,7 @@ These are published product ratings from the [Mo62A datasheet](https://cdn.shopi
 | Maximum consumption | 25 W | Datasheet ceiling; no idle, peak or workload power measurement published here |
 | Operating temperature | 0–50 °C | Product operating range; not the same quantity as an internal SoC sensor reading |
 
-Include USB devices, camera, fan and any HAT when sizing the supply. Header pins 2/4 are connected to the 5 V rail; they are not a separate power budget. Do not connect competing power supplies through the header and USB-C. The board has no PoE power circuit of its own. Power over Ethernet needs a 4-pin PoE HAT on header J5, which then feeds the 5 V rail through header pins 2/4; see [Hardware interfaces](./hardware-interfaces.mdx#other-connectors).
+Include USB devices, camera, fan and any HAT when sizing the supply. J6 pins 2/4 are connected to the 5 V rail; they are not a separate power budget. Do not connect competing power supplies through the header and USB-C. The board has no on-board PoE PD/power converter: J5 exposes transformer taps, not regulated 5 V. PoE operation requires a matching external PD/converter and its approved 5 V/ground connection to J6; see [Hardware interfaces](./hardware-interfaces.mdx#other-connectors).
 
 For an intermittent reset, first test with the recommended supply and a suitable short cable, remove nonessential peripherals after shutting down, and collect the serial boot log. Voltage-drop and power-consumption tests require external measurement equipment; no such readings were collected for this page.
 
@@ -28,9 +27,7 @@ Use cooling appropriate to the workload and enclosure. Keep airflow unobstructed
 
 The schematics identify the 5 V PWM fan connector as J1, SH1.0-4p: pin 1 is 5 V, pin 2 PWM, pin 3 GND and pin 4 tachometer. The older README calls this connector J6; check the actual connector and cable against the schematic.
 
-<a href={connectors} target="_blank" rel="noopener noreferrer">
-  <img src={connectors} alt="Original Mo62A schematic sheet 17, including the J1 fan power, PWM and tachometer circuit in the lower-left section" width="2200" height="1556" />
-</a>
+Locate J1 in the [connector map](./hardware-interfaces.mdx#locate-the-board-features) and consult the [original fan circuit on sheet 17](./schematics.mdx#connector-circuits-sheet-17) before choosing a cable.
 
 Do not write raw PWM sysfs values to experiment with cooling. The fan uses EHRPWM1 at `23010000.pwm`; header pin 36 also has an EHRPWM1 alternate function. Controller indices can change when another overlay is enabled. The [header PWM test](../application-development/gpio-and-peripherals.mdx) uses EHRPWM0 at `23000000.pwm`, not the fan controller.
 

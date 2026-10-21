@@ -4,7 +4,6 @@ description: "Download the Mo62A assembly STEP model, verify its checksum and us
 sidebar_position: 4
 ---
 
-import mechanical from '@site/static/img/hardware-development/mo62a-mechanical.png';
 import assemblyIso from '@site/static/img/hardware-development/mo62a-step-isometric.png';
 import assemblyTop from '@site/static/img/hardware-development/mo62a-step-top.png';
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -52,15 +51,11 @@ In the file's coordinate system, the full assembly has an axis-aligned bounding 
 
 ## Published dimensions
 
-The [Mo62A datasheet (Chinese PDF)](https://cdn.shopify.com/s/files/1/0369/9536/7051/files/Mo_62A__V1.0_e7e46c7c-d546-41ad-bf9d-0308dbf8e339.pdf) lists an 85 × 56 mm board and a mass of 47 g. Page 3 contains the front, side and connector views reproduced below.
+The English Mo62A Datasheet V1.0, available through the [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO62A), gives the nominal dimensions on page 3 and mass on page 5. The values below are source references, not measurements taken from the STEP model or a physical sample.
 
 :::warning[Reference only, not a production drawing]
 The source explicitly states that all dimensions are approximate, for reference only, and must not be used for manufacturing. Dimensions can change without notice. This page does not replace a revision-controlled mechanical drawing with tolerances.
 :::
-
-<a href={mechanical} target="_blank" rel="noopener noreferrer">
-  <img src={mechanical} alt="Unmodified page 3 of the Mo62A datasheet: approximate 85 by 56 mm board, mounting and connector views, with the original Chinese prohibition on using these dimensions for manufacturing" width="1273" height="1800" />
-</a>
 
 | Item | Published reference | Use |
 |---|---|---|
@@ -68,13 +63,11 @@ The source explicitly states that all dimensions are approximate, for reference 
 | Mass | 47 g | Product specification; accessories are separate |
 | Mounting-hole centres | Approximately 58 × 49 mm in the drawing | Confirm against the actual revision and a toleranced drawing |
 | Hole diameter | Approximately 2.5 mm in the drawing | Do not infer an approved screw size or tightening torque |
-| Connector and component heights | Shown as reference dimensions on page 3 | Do not derive enclosure tooling from the raster image |
+| Connector positions and selected dimensions | Reference front, side and interface views on page 3 | Not a complete height or keep-out specification; confirm against the revision-matched mechanical package |
 
 ## Enclosure and cable clearance
 
-![Mo62A board photograph for connector placement reference](/img/boards/mo-62a.png)
-
-Use the photograph to recognise connector locations, not to measure them. A similar board footprint does not guarantee that a case made for another 85 × 56 mm board fits. Check all of the following on the board revision and accessories you will actually ship:
+Use the [interface map](./hardware-interfaces.mdx#locate-the-board-features) to identify connectors and the STEP views above for nominal component placement. A similar board footprint does not guarantee that a case made for another 85 × 56 mm board fits. Check all of the following on the board revision and accessories you will actually ship:
 
 - micro HDMI, stacked USB and Ethernet plug bodies, cable bends and strain relief.
 - USB-C power plug, microSD insertion/removal and access to controls.

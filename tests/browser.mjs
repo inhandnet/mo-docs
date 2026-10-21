@@ -651,13 +651,13 @@ try {
       for (const [slug, imageCount, phrases] of [
         ['certifications', 2, ['not a finding that the product is uncertified', 'No verified', 'October 20, 2026']],
         ['declarations', 1, ['No signed Mo62A', 'not a regulatory declaration', 'Do not generate a signature']],
-        ['integration-notes', 2, ['not a declaration', 'Do not select antenna gain', 'manufacturing use']],
-        ['regulatory-and-safety', 2, ['No verified Mo62A-specific', 'not a coin-cell holder', 'not a safety test report']],
+        ['integration-notes', 0, ['not a declaration', 'Do not select antenna gain', 'manufacturing use']],
+        ['regulatory-and-safety', 1, ['No verified Mo62A-specific', 'not a coin-cell holder', 'not a safety test report']],
       ]) {
         await page.goto(url + board + '/compliance/' + slug + '/', {waitUntil: 'networkidle'});
         const article = page.locator('.theme-doc-markdown');
         assert.equal(await article.locator('img').count(), imageCount, slug);
-        await checkDocumentationMedia(page);
+        if (imageCount > 0) await checkDocumentationMedia(page);
         const text = await article.innerText();
         for (const phrase of phrases) {
           const searchable = text + await article.locator('img').evaluateAll(images => images.map(image => image.alt).join(' '));
@@ -672,17 +672,17 @@ try {
       }
 
       for (const [slug, imageCount, phrases] of [
-        ['overview', 2, ['product specifications', 'not application benchmark results', 'No measured 25 W']],
-        ['hardware-interfaces', 5, ['40-pin header (J6)', 'fan connector as J1', 'not a CR1220', '23000000.pwm', '23010000.pwm', 'Locate the board features', 'pin 1 is below pin 2', 'pin 39 is below pin 40']],
-        ['power-and-thermal', 2, ['51709', '9990 RPM', 'not measurements', 'not a thermal qualification']],
-        ['mechanical', 4, ['85 × 56 mm', 'must not be used for manufacturing', 'Download the assembly STEP model', '89.28 × 58.00 × 21.66 mm']],
-        ['schematics', 2, ['1,130,181', '1,058,114', 'Git LFS', 'April 27, 2026']],
-        ['hardware-revisions', 2, ['April 1, 2026', 'April 27, 2026', 'No authoritative engineering change']],
+        ['overview', 1, ['product specifications', 'not application benchmark results', 'No measured 25 W']],
+        ['hardware-interfaces', 3, ['40-pin header (J6)', 'fan connector as J1', 'not a CR1220', '23000000.pwm', '23010000.pwm', 'Locate the board features', 'Pin 1 is below pin 2', 'Pin 39 is below pin 40', 'not an orthographic drawing', 'Numbers run clockwise']],
+        ['power-and-thermal', 1, ['51709', '9990 RPM', 'not measurements', 'not a thermal qualification']],
+        ['mechanical', 2, ['85 × 56 mm', 'must not be used for manufacturing', 'Download the assembly STEP model', '89.28 × 58.00 × 21.66 mm']],
+        ['schematics', 2, ['1,130,181', '1,058,114', 'Git LFS', 'April 27, 2026', 'viewer pages 7 and 8 contain sheets 8 and 7', 'Find a module in the schematic', 'CSI camera path', 'I²C control and EEPROM']],
+        ['hardware-revisions', 0, ['April 1, 2026', 'April 27, 2026', 'No authoritative engineering change', 'Read the physical markings', 'Keep the identifiers separate', 'Match the design files', 'Can software read the hardware revision?', 'Record a board for integration or support']],
       ]) {
         await page.goto(url + board + '/hardware-development/' + slug + '/', {waitUntil: 'networkidle'});
         const article = page.locator('.theme-doc-markdown');
         assert.equal(await article.locator('img').count(), imageCount, slug);
-        await checkDocumentationMedia(page);
+        if (imageCount > 0) await checkDocumentationMedia(page);
         const text = await article.innerText();
         for (const phrase of phrases) assert.ok(text.includes(phrase), slug + ': ' + phrase);
         assert.ok(!text.includes('Coming soon'));
@@ -698,7 +698,19 @@ try {
           }
         }
         if (slug === 'hardware-interfaces') {
-          const rows = article.locator('table').first().locator('tbody tr');
+          const pinTable = article.locator('table').filter({has: page.getByRole('columnheader', {name: 'Physical pin', exact: true})});
+          assert.equal(await pinTable.count(), 1);
+          const rows = pinTable.locator('tbody tr');
+          assert.equal(await article.locator('img[src*="mo62a-connectors-numbered.svg"]').count(), 1);
+          assert.equal(await article.locator('img[src*="mo62a-j6-orientation.svg"]').count(), 1);
+          const markers = article.locator('table').filter({has: page.getByRole('columnheader', {name: 'Marker', exact: true})}).locator('tbody tr');
+          assert.equal(await markers.count(), 14);
+          for (let marker = 1; marker <= 14; marker++) {
+            assert.equal(await markers.nth(marker - 1).locator('td').first().innerText(), String(marker).padStart(2, '0'));
+          }
+          assert.ok(await article.locator('img[src*="mo62a-j6-orientation.svg"]').evaluate(img =>
+            Boolean(img.compareDocumentPosition(document.getElementById('40-pin-header-j6')) & Node.DOCUMENT_POSITION_PRECEDING)));
+          assert.equal(await article.locator('img[src*="mo62a-board-top"], img[src*="mo62a-interface-photo"]').count(), 0);
           assert.equal(await rows.count(), 40);
           for (let pin = 1; pin <= 40; pin++) {
             assert.equal(await rows.nth(pin - 1).locator('td').first().innerText(), String(pin));
