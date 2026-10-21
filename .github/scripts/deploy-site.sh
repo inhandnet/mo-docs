@@ -29,7 +29,10 @@ fi
 
 dist=$(dirname "$archive")
 (cd "$dist" && sha256sum -c --ignore-missing SHA256SUMS)
-tar -tzf "$archive" | grep -Eq '^(\./)?index\.html$' || {
+# Read the whole listing first: `grep -q` closing the pipe early would make
+# tar fail under pipefail even though the archive is fine.
+names=$(tar -tzf "$archive")
+printf '%s\n' "$names" | grep -Eq '^(\./)?index\.html$' || {
   echo "archive root must contain index.html" >&2; exit 1
 }
 
