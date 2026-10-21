@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1840 1640" width="1840" height="1640" role="img" aria-labelledby="title desc">
+  <title id="title">Mo62A hardware blocks — English schematic reference</title>
+  <desc id="desc">English reference redrawn from sheet 1 of MO_62A_S_MB_V11-260426.pdf. It reproduces the source block connections, not a verified bill of materials. Consult the original PDF. J5 exposes Ethernet transformer taps and requires an external PoE powered-device circuit. The EEPROM part labels differ between sheets 1 and 17.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/></marker>
+    <style>
+      svg { max-width: 100%; height: auto; background: #fff; }
+      text { font-family: Arial, Helvetica, sans-serif; fill: #172b42; }
+      .heading { font-size: 34px; font-weight: 700; }
+      .notice { font-size: 24px; font-weight: 700; }
+      .node { fill: #edf5eb; stroke: #5c7d57; stroke-width: 2; rx: 8; }
+      .port { fill: #fff2e9; stroke: #a76e48; stroke-width: 2; rx: 8; }
+      .soc { fill: #e7f0fd; stroke: #59799f; stroke-width: 2; rx: 10; }
+      .name { font-size: 25px; font-weight: 700; text-anchor: middle; }
+      .detail { font-size: 23px; text-anchor: middle; }
+      .small { font-size: 20px; text-anchor: middle; }
+      .wire { fill: none; stroke: #334155; stroke-width: 2; marker-end: url(#arrow); }
+      .both { marker-start: url(#arrow); }
+      .signal { font-size: 19px; text-anchor: middle; paint-order: stroke; stroke: #fff; stroke-width: 7; stroke-linejoin: round; }
+      .note { font-size: 21px; }
+    </style>
+  </defs>
+  <rect width="1840" height="1640" fill="#fff"/>
+  <text x="40" y="52" class="heading">Mo62A hardware blocks — English reference</text>
+  <rect x="40" y="80" width="1760" height="62" rx="8" fill="#fff5da" stroke="#b38027" stroke-width="2"/>
+  <text x="62" y="119" class="notice">English reference redrawn from schematic sheet 1; consult original PDF.</text>
+
+  <!-- Central processor label is reproduced from the source, not a BOM claim. -->
+  <rect x="595" y="170" width="200" height="1210" class="soc"/>
+  <text x="695" y="752" class="name">AM62A74</text>
+  <text x="695" y="788" class="small">Source label</text>
+
+  <!-- Left-hand blocks. Arrow directions follow schematic sheet 1. -->
+  <rect x="50" y="180" width="265" height="100" class="port"/>
+  <text x="182.5" y="212" class="name">USB Type-C</text>
+  <text x="182.5" y="240" class="detail">Power input</text>
+  <text x="182.5" y="267" class="detail">USB 2.0</text>
+  <path d="M315 230H595" class="wire both"/><text x="455" y="236" class="signal">USB0</text>
+
+  <rect x="50" y="330" width="265" height="100" class="node"/>
+  <text x="182.5" y="370" class="name">PMIC</text>
+  <text x="182.5" y="405" class="detail">TPS65931211</text>
+  <path d="M315 380H595" class="wire both"/><text x="455" y="386" class="signal">SoC_I2C0</text>
+  <rect x="85" y="470" width="195" height="60" class="port"/>
+  <text x="182.5" y="508" class="detail">Power button</text>
+  <path d="M182.5 470V430" class="wire"/>
+
+  <rect x="50" y="570" width="265" height="100" class="node"/>
+  <text x="182.5" y="611" class="name">LPDDR4</text>
+  <text x="182.5" y="647" class="detail">32-bit data bus</text>
+  <path d="M315 620H595" class="wire both"/><text x="455" y="626" class="signal">DQ32</text>
+
+  <rect x="50" y="720" width="265" height="280" class="port"/>
+  <text x="182.5" y="806" class="name">40-pin header</text>
+  <text x="182.5" y="848" class="detail">GPIO / I2S / PWM</text>
+  <text x="182.5" y="885" class="detail">SPI / UART / I2C</text>
+  <text x="182.5" y="934" class="small">Muxed functions</text>
+  <path d="M315 750H595" class="wire both"/><text x="455" y="756" class="signal">SOC_I2C2</text>
+  <path d="M315 785H595" class="wire both"/><text x="455" y="791" class="signal">WUKP_I2C0 [1]</text>
+  <path d="M315 820H595" class="wire both"/><text x="455" y="826" class="signal">SOC_UART5 × 2w</text>
+  <path d="M315 855H595" class="wire both"/><text x="455" y="861" class="signal">SOC_SPI00</text>
+  <path d="M315 890H595" class="wire both"/><text x="455" y="896" class="signal">PWM × 3 [1]</text>
+  <path d="M315 925H595" class="wire both"/><text x="455" y="931" class="signal">MCASP2</text>
+  <path d="M315 960H595" class="wire both"/><text x="455" y="966" class="signal">GPIOs</text>
+
+  <rect x="50" y="1050" width="265" height="80" class="port"/>
+  <text x="182.5" y="1099" class="name">microSD</text>
+  <path d="M315 1090H595" class="wire both"/><text x="455" y="1096" class="signal">MMC1</text>
+
+  <rect x="50" y="1150" width="265" height="90" class="port"/>
+  <text x="182.5" y="1186" class="name">22-pin FPC</text>
+  <text x="182.5" y="1220" class="detail">CSI connector</text>
+  <path d="M315 1175H595" class="wire"/><text x="455" y="1181" class="signal">CSI0</text>
+  <path d="M315 1215H595" class="wire both"/><text x="455" y="1221" class="signal">SOC_I2C2</text>
+
+  <rect x="50" y="1270" width="265" height="100" class="node"/>
+  <text x="182.5" y="1311" class="name">EEPROM</text>
+  <text x="182.5" y="1347" class="detail">M24M02E [2]</text>
+  <path d="M315 1320H595" class="wire both"/><text x="455" y="1326" class="signal">SoC_I2C0</text>
+
+  <!-- Right-hand peripheral blocks and connectors. -->
+  <rect x="1075" y="180" width="260" height="110" class="node"/>
+  <text x="1205" y="222" class="name">RGB to HDMI</text>
+  <text x="1205" y="260" class="detail">SiI9022ACNU</text>
+  <path d="M795 205H1075" class="wire"/><text x="935" y="211" class="signal">RGB888</text>
+  <path d="M795 235H1075" class="wire"/><text x="935" y="241" class="signal">MCASP0</text>
+  <path d="M795 265H1075" class="wire"/><text x="935" y="271" class="signal">SoC_I2C1</text>
+  <rect x="1510" y="180" width="280" height="110" class="port"/>
+  <text x="1650" y="245" class="name">Micro HDMI</text>
+  <path d="M1335 235H1510" class="wire both"/><text x="1422.5" y="241" class="signal">HDMI</text>
+
+  <rect x="1075" y="330" width="260" height="130" class="node"/>
+  <text x="1205" y="380" class="name">Ethernet PHY</text>
+  <text x="1205" y="420" class="detail">DP83867IR</text>
+  <path d="M795 360H1075" class="wire both"/><text x="935" y="366" class="signal">RGMII1</text>
+  <path d="M795 420H1075" class="wire both"/><text x="935" y="426" class="signal">MDIO</text>
+  <rect x="1510" y="330" width="280" height="130" class="port"/>
+  <text x="1650" y="359" class="name">1 × Gigabit Ethernet</text>
+  <text x="1650" y="389" class="detail">RJ45</text>
+  <text x="1650" y="418" class="small">J5 transformer taps</text>
+  <text x="1650" y="446" class="small">External PoE PD required [3]</text>
+  <path d="M1335 395H1510" class="wire both"/><text x="1422.5" y="401" class="signal">ETH</text>
+
+  <rect x="1075" y="510" width="260" height="100" class="node"/>
+  <text x="1205" y="551" class="name">USB hub</text>
+  <text x="1205" y="587" class="detail">USB2514</text>
+  <path d="M795 560H1075" class="wire both"/><text x="935" y="566" class="signal">USB1</text>
+  <rect x="1510" y="510" width="280" height="100" class="port"/>
+  <text x="1650" y="551" class="name">USB 2.0</text>
+  <text x="1650" y="587" class="detail">4 × Type-A</text>
+  <path d="M1335 560H1510" class="wire both"/><text x="1422.5" y="566" class="signal">USB 2.0</text>
+
+  <rect x="1075" y="650" width="260" height="110" class="node"/>
+  <text x="1205" y="692" class="name">Wi-Fi / BLE</text>
+  <text x="1205" y="731" class="detail">6221A-SRC</text>
+  <path d="M795 685H1075" class="wire both"/><text x="935" y="691" class="signal">MMC2</text>
+  <path d="M795 730H1075" class="wire both"/><text x="935" y="736" class="signal">SoC_UART6 × 4w</text>
+  <rect x="1510" y="650" width="280" height="110" class="port"/>
+  <text x="1650" y="692" class="name">Antenna</text>
+  <text x="1650" y="731" class="detail">1 × U.FL</text>
+  <path d="M1335 705H1510" class="wire both"/><text x="1422.5" y="711" class="signal">ANT</text>
+
+  <rect x="1075" y="800" width="260" height="100" class="node"/>
+  <text x="1205" y="841" class="name">RTC</text>
+  <text x="1205" y="877" class="detail">PCF85263ATL</text>
+  <path d="M795 850H1075" class="wire both"/><text x="935" y="856" class="signal">SOC_I2C0</text>
+  <rect x="1510" y="800" width="280" height="100" class="port"/>
+  <text x="1650" y="841" class="name">Coin-cell battery</text>
+  <text x="1650" y="877" class="detail">Connector</text>
+  <path d="M1335 850H1510" class="wire both"/><text x="1422.5" y="856" class="signal">3 V</text>
+
+  <rect x="1075" y="940" width="260" height="110" class="node"/>
+  <text x="1205" y="982" class="name">Audio codec</text>
+  <text x="1205" y="1021" class="detail">TLV320AIC3106</text>
+  <path d="M795 970H1075" class="wire both"/><text x="935" y="976" class="signal">MCASP1</text>
+  <path d="M795 1020H1075" class="wire both"/><text x="935" y="1026" class="signal">SOC_I2C1</text>
+  <rect x="1510" y="940" width="280" height="110" class="port"/>
+  <text x="1650" y="982" class="name">3.5 mm audio</text>
+  <text x="1650" y="1021" class="detail">Connector</text>
+  <path d="M1335 970H1510" class="wire"/><text x="1422.5" y="976" class="signal">HPL/R</text>
+  <path d="M1510 1020H1335" class="wire"/><text x="1422.5" y="1026" class="signal">MIC</text>
+
+  <rect x="1075" y="1090" width="260" height="110" class="node"/>
+  <text x="1205" y="1132" class="name">Voltage</text>
+  <text x="1205" y="1171" class="detail">Translation</text>
+  <path d="M795 1120H1075" class="wire"/><text x="935" y="1126" class="signal">PWM</text>
+  <path d="M1075 1170H795" class="wire"/><text x="935" y="1176" class="signal">TIMER</text>
+  <rect x="1510" y="1090" width="280" height="110" class="port"/>
+  <text x="1650" y="1132" class="name">Fan</text>
+  <text x="1650" y="1171" class="detail">Connector</text>
+  <path d="M1335 1120H1510" class="wire"/><text x="1422.5" y="1126" class="signal">PWM</text>
+  <path d="M1510 1170H1335" class="wire"/><text x="1422.5" y="1176" class="signal">TACH</text>
+
+  <rect x="1075" y="1240" width="260" height="110" class="node"/>
+  <text x="1205" y="1282" class="name">Voltage</text>
+  <text x="1205" y="1321" class="detail">Isolation [1]</text>
+  <path d="M795 1290H1075" class="wire both"/><text x="935" y="1296" class="signal">SOC_UART0</text>
+  <rect x="1510" y="1240" width="280" height="110" class="port"/>
+  <text x="1650" y="1304" class="name">Debug UART</text>
+  <path d="M1335 1290H1510" class="wire both"/><text x="1422.5" y="1296" class="signal">UART</text>
+
+  <path d="M40 1410H1800" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="40" y="1446" class="note">Source: MO_62A_S_MB_V11-260426.pdf, sheet 1 (title-block revision: V1.0). This is not an original schematic image.</text>
+  <text x="40" y="1480" class="note">[1] Block names, signal labels and arrows follow the source, including WUKP_I2C0, PWM × 3 and Voltage Isolation.</text>
+  <text x="40" y="1513" class="note">These labels do not establish enabled pinmux, simultaneous functions, or galvanic isolation. Consult the detailed sheets and pin table.</text>
+  <text x="40" y="1547" class="note">[2] Sheet 1 labels the EEPROM M24M02E; sheet 17 labels it BL24C02F. The fitted part is not verified by this reference.</text>
+  <text x="40" y="1581" class="note">[3] J5 exposes Ethernet transformer center taps, not 5 V or GPIO. A matching external PoE PD / conversion board is required.</text>
+  <text x="40" y="1614" class="note">PoE requires verified wiring and a regulated 5 V board supply; the source label RJ45+PoE is not a compatibility or certification claim.</text>
+</svg>

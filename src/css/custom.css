@@ -2,7 +2,7 @@
 
 /*
  * Mo developer site theme.
- * Layout and type scale follow raspberrypi.com: Roboto, 18px body text, 30px bold section
+ * Layout and type scale: Roboto, 18px body text, 30px bold section
  * headings, light-weight hero headline, pill-shaped bold buttons, grey and charcoal bands.
  * InHand green (#00a651, as on inhandgo.com) is the brand accent.
  */
@@ -176,7 +176,7 @@
   }
 }
 
-/* Buy: green rectangle like raspberrypi.com's "Buy now" */
+/* Buy: green rectangle */
 .navbar__link.navbar-buy {
   background: var(--mo-buy);
   color: #fff;
@@ -222,7 +222,7 @@
 .button--primary:hover {
   color: #fff;
 }
-/* Dark pill, as raspberrypi.com's "Browse our products" */
+/* Dark pill */
 .button.button--secondary {
   --ifm-button-background-color: var(--mo-button-dark);
   --ifm-button-border-color: var(--mo-button-dark);
@@ -321,7 +321,7 @@
   padding: 0.05rem 0.5rem;
 }
 
-/* ---------- Docs: larger type like raspberrypi.com/documentation ---------- */
+/* ---------- Docs: larger type ---------- */
 
 .theme-doc-markdown h1 {
   font-size: 2.15rem;

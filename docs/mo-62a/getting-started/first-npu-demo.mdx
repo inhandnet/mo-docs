@@ -88,8 +88,10 @@ edgeai-demo status
 For this camera, look for `CAMERA_ID=imx219`, `VIDEO=/dev/video-imx219-cam0` and `SUBDEV=/dev/v4l-imx219-subdev0`. The numbered nodes behind those links may differ between images. The status command reports configuration and discovered devices; the live image in step 4 confirms that useful camera frames reach the display.
 
 <a href={cameraStatus} target="_blank" rel="noopener noreferrer">
-  <img src={cameraStatus} alt="edgeai-demo status showing the initialized IMX219 CSI configuration and no attached USB camera" width="1439" height="899" />
+  <img src={cameraStatus} alt="edgeai-demo status showing the initialized IMX219 CSI configuration and no attached USB camera" width="1440" height="900" />
 </a>
+
+The camera display name can vary between image revisions. Check `CAMERA_ID=imx219`, the device aliases and capture format rather than relying on the descriptive name alone.
 
 ## 3. Choose a camera, model and backend
 

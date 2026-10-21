@@ -1,6 +1,6 @@
 ---
-title: "Raspberry Pi HATs"
-description: "Check a Raspberry Pi HAT against Mo62A pin assignments, overlays and test boundaries."
+title: "40-pin HAT compatibility"
+description: "Check a 40-pin HAT add-on against Mo62A pin assignments, overlays and test boundaries."
 sidebar_position: 2
 ---
 
@@ -9,10 +9,10 @@ import gpioResult from '@site/static/img/application-development/mo62a-gpio-loop
 
 ## A 40-pin connector is not a compatibility guarantee
 
-No complete Raspberry Pi HAT was electrically or mechanically qualified in this
+No complete 40-pin HAT add-on was electrically or mechanically qualified in this
 documentation review. The board exposes a 40-pin header, but signal mapping,
 pin multiplexing, drivers and mounting clearances must be checked for each
-add-on. Raspberry Pi BCM numbers are not Mo62A Linux GPIO offsets.
+add-on. The BCM-style GPIO numbers printed on many HATs are not Mo62A Linux GPIO offsets.
 
 :::warning[Power off before changing the assembly]
 Shut down and disconnect power before fitting a HAT or changing jumpers. Mo62A
@@ -42,8 +42,8 @@ a photograph showing connector orientation.
 
 The complete GPIO controller/offset mapping and schematic are in
 [Hardware interfaces](../hardware-development/hardware-interfaces.mdx).
-Do not install Raspberry Pi overlays or use `raspi-config` as a substitute for
-a matching Mo62A device tree.
+Do not install device-tree overlays or configuration tools written for other
+single-board computers as a substitute for a matching Mo62A device tree.
 
 ## What the existing tests establish
 

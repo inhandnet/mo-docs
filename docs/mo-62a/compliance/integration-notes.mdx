@@ -4,13 +4,11 @@ description: "Information to collect before integrating Mo62A into an OEM produc
 sidebar_position: 3
 ---
 
-import mechanical from '@site/static/img/hardware-development/mo62a-mechanical.png';
-
 ## Start with an identified configuration
 
 This page is an engineering handoff checklist, not a declaration that a finished product is approved for sale. The reviewed materials do not establish the on-board radio's approval conditions, approved antenna list or final-product labelling requirements. Do not assume that a module name proves pre-certification or that a board-level approval would cover every enclosure and peripheral combination.
 
-![Mo62A board photograph for identifying connectors and integration constraints](/img/boards/mo-62a.png)
+Use the [connector map](../hardware-development/hardware-interfaces.mdx#locate-the-board-features) and [mechanical references](../hardware-development/mechanical.mdx) when identifying the configuration below.
 
 Record the following before asking InHand or a qualified compliance reviewer to assess the integrated product:
 
@@ -28,11 +26,7 @@ Do not select antenna gain, separation distance or required label wording from t
 
 ## Mechanical and thermal boundaries
 
-The public dimension drawing is useful for early planning but explicitly excludes manufacturing use:
-
-<a href={mechanical} target="_blank" rel="noopener noreferrer">
-  <img src={mechanical} alt="Original Mo62A dimension reference with the source warning that its approximate dimensions must not be used for manufacturing" width="1273" height="1800" />
-</a>
+The public dimension drawing is useful for early planning but explicitly excludes manufacturing use. Keep the [published dimensions, STEP views and model limitations](../hardware-development/mechanical.mdx#published-dimensions) with the integration record instead of treating a product illustration as a production drawing.
 
 Obtain toleranced CAD for the actual revision before enclosure tooling. Check camera-cable access, header clearance, insulated mounting, plug strain, antenna routing and airflow. See [Mechanical](../hardware-development/mechanical.mdx).
 

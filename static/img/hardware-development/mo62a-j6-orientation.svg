@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="390" viewBox="0 0 1800 390" role="img" aria-labelledby="title description">
+  <title id="title">J6 physical pin orientation</title>
+  <desc id="description">Viewed from the component side, with the USB and Ethernet sockets on the right. The upper row faces the outer board edge and runs from pin 2 at the left to pin 40 at the right. The lower row faces the board centre and runs from pin 1 at the left to pin 39 at the right. This diagram shows physical pin numbers, not GPIO numbers. Disconnect power and check the actual board's pin-1 mark before wiring.</desc>
+  <style>
+    text { font-family: Arial, Helvetica, sans-serif; fill: #17363e; }
+    .heading { font-size: 40px; font-weight: 700; }
+    .note { font-size: 29px; fill: #4b6369; }
+    .row-label { font-size: 29px; font-weight: 700; }
+    .pin circle { fill: white; stroke: #9ebabe; stroke-width: 2; }
+    .pin-number { font-size: 32px; text-anchor: middle; dominant-baseline: central; }
+    .pin-end circle { fill: #087b83; stroke: #087b83; }
+    .pin-end .pin-number { fill: white; font-weight: 700; }
+  </style>
+  <rect width="1800" height="390" fill="white"/>
+  <rect x="2" y="2" width="1796" height="386" rx="18" fill="#f3f8f8" stroke="#d0e2e4" stroke-width="2"/>
+  <text x="36" y="54" class="heading">J6 physical pin orientation</text>
+  <text x="36" y="101" class="note">Component side · USB / Ethernet to the right</text>
+  <text x="36" y="188" class="row-label">Outer edge</text>
+  <text x="36" y="279" class="row-label">Board centre</text>
+  <g id="outer-row" aria-label="Upper row: even physical pins, left to right">
+    <g data-physical-pin="2" class="pin pin-end"><circle cx="350" cy="177" r="29"/><text x="350" y="177" class="pin-number">2</text></g>
+    <g data-physical-pin="4" class="pin"><circle cx="422" cy="177" r="29"/><text x="422" y="177" class="pin-number">4</text></g>
+    <g data-physical-pin="6" class="pin"><circle cx="494" cy="177" r="29"/><text x="494" y="177" class="pin-number">6</text></g>
+    <g data-physical-pin="8" class="pin"><circle cx="566" cy="177" r="29"/><text x="566" y="177" class="pin-number">8</text></g>
+    <g data-physical-pin="10" class="pin"><circle cx="638" cy="177" r="29"/><text x="638" y="177" class="pin-number">10</text></g>
+    <g data-physical-pin="12" class="pin"><circle cx="710" cy="177" r="29"/><text x="710" y="177" class="pin-number">12</text></g>
+    <g data-physical-pin="14" class="pin"><circle cx="782" cy="177" r="29"/><text x="782" y="177" class="pin-number">14</text></g>
+    <g data-physical-pin="16" class="pin"><circle cx="854" cy="177" r="29"/><text x="854" y="177" class="pin-number">16</text></g>
+    <g data-physical-pin="18" class="pin"><circle cx="926" cy="177" r="29"/><text x="926" y="177" class="pin-number">18</text></g>
+    <g data-physical-pin="20" class="pin"><circle cx="998" cy="177" r="29"/><text x="998" y="177" class="pin-number">20</text></g>
+    <g data-physical-pin="22" class="pin"><circle cx="1070" cy="177" r="29"/><text x="1070" y="177" class="pin-number">22</text></g>
+    <g data-physical-pin="24" class="pin"><circle cx="1142" cy="177" r="29"/><text x="1142" y="177" class="pin-number">24</text></g>
+    <g data-physical-pin="26" class="pin"><circle cx="1214" cy="177" r="29"/><text x="1214" y="177" class="pin-number">26</text></g>
+    <g data-physical-pin="28" class="pin"><circle cx="1286" cy="177" r="29"/><text x="1286" y="177" class="pin-number">28</text></g>
+    <g data-physical-pin="30" class="pin"><circle cx="1358" cy="177" r="29"/><text x="1358" y="177" class="pin-number">30</text></g>
+    <g data-physical-pin="32" class="pin"><circle cx="1430" cy="177" r="29"/><text x="1430" y="177" class="pin-number">32</text></g>
+    <g data-physical-pin="34" class="pin"><circle cx="1502" cy="177" r="29"/><text x="1502" y="177" class="pin-number">34</text></g>
+    <g data-physical-pin="36" class="pin"><circle cx="1574" cy="177" r="29"/><text x="1574" y="177" class="pin-number">36</text></g>
+    <g data-physical-pin="38" class="pin"><circle cx="1646" cy="177" r="29"/><text x="1646" y="177" class="pin-number">38</text></g>
+    <g data-physical-pin="40" class="pin pin-end"><circle cx="1718" cy="177" r="29"/><text x="1718" y="177" class="pin-number">40</text></g>
+  </g>
+  <g id="inner-row" aria-label="Lower row: odd physical pins, left to right">
+    <g data-physical-pin="1" class="pin pin-end"><circle cx="350" cy="268" r="29"/><text x="350" y="268" class="pin-number">1</text></g>
+    <g data-physical-pin="3" class="pin"><circle cx="422" cy="268" r="29"/><text x="422" y="268" class="pin-number">3</text></g>
+    <g data-physical-pin="5" class="pin"><circle cx="494" cy="268" r="29"/><text x="494" y="268" class="pin-number">5</text></g>
+    <g data-physical-pin="7" class="pin"><circle cx="566" cy="268" r="29"/><text x="566" y="268" class="pin-number">7</text></g>
+    <g data-physical-pin="9" class="pin"><circle cx="638" cy="268" r="29"/><text x="638" y="268" class="pin-number">9</text></g>
+    <g data-physical-pin="11" class="pin"><circle cx="710" cy="268" r="29"/><text x="710" y="268" class="pin-number">11</text></g>
+    <g data-physical-pin="13" class="pin"><circle cx="782" cy="268" r="29"/><text x="782" y="268" class="pin-number">13</text></g>
+    <g data-physical-pin="15" class="pin"><circle cx="854" cy="268" r="29"/><text x="854" y="268" class="pin-number">15</text></g>
+    <g data-physical-pin="17" class="pin"><circle cx="926" cy="268" r="29"/><text x="926" y="268" class="pin-number">17</text></g>
+    <g data-physical-pin="19" class="pin"><circle cx="998" cy="268" r="29"/><text x="998" y="268" class="pin-number">19</text></g>
+    <g data-physical-pin="21" class="pin"><circle cx="1070" cy="268" r="29"/><text x="1070" y="268" class="pin-number">21</text></g>
+    <g data-physical-pin="23" class="pin"><circle cx="1142" cy="268" r="29"/><text x="1142" y="268" class="pin-number">23</text></g>
+    <g data-physical-pin="25" class="pin"><circle cx="1214" cy="268" r="29"/><text x="1214" y="268" class="pin-number">25</text></g>
+    <g data-physical-pin="27" class="pin"><circle cx="1286" cy="268" r="29"/><text x="1286" y="268" class="pin-number">27</text></g>
+    <g data-physical-pin="29" class="pin"><circle cx="1358" cy="268" r="29"/><text x="1358" y="268" class="pin-number">29</text></g>
+    <g data-physical-pin="31" class="pin"><circle cx="1430" cy="268" r="29"/><text x="1430" y="268" class="pin-number">31</text></g>
+    <g data-physical-pin="33" class="pin"><circle cx="1502" cy="268" r="29"/><text x="1502" y="268" class="pin-number">33</text></g>
+    <g data-physical-pin="35" class="pin"><circle cx="1574" cy="268" r="29"/><text x="1574" y="268" class="pin-number">35</text></g>
+    <g data-physical-pin="37" class="pin"><circle cx="1646" cy="268" r="29"/><text x="1646" y="268" class="pin-number">37</text></g>
+    <g data-physical-pin="39" class="pin pin-end"><circle cx="1718" cy="268" r="29"/><text x="1718" y="268" class="pin-number">39</text></g>
+  </g>
+  <text x="36" y="353" class="note">Power off and check the pin-1 mark on your board before wiring.</text>
+</svg>
