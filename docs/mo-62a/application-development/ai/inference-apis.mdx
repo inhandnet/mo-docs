@@ -1,7 +1,7 @@
 ---
 title: "Inference APIs"
 description: "Use the verified supplied-model Python and C/C++ paths, with runtime compatibility, input checks and video-pipeline boundaries."
-sidebar_position: 4
+sidebar_position: 3
 ---
 
 import smoke from '@site/static/img/application-development/ai/mo62a-python-smoke.png';
@@ -80,6 +80,8 @@ Notes:
 - Separate session creation, first-call and warmed-up measurements. See [Benchmarks](./benchmarks.mdx) for raw timing data.
 
 An installed module is not a validated inference path. Do not replace the image's TI runtime with a generic ONNX Runtime wheel.
+
+For meaningful image/video inputs rather than this blank-input smoke test, use the [new-model walkthrough](./compile-your-own-model.mdx) and [zone-occupancy application](./tutorial-yolo.mdx). That 8210 graph takes float32 RGB 0–255, unlike this supplied nano graph's uint8 input. Its downloadable `model.py` implements preprocessing, output decoding and bundle checks; `logic.py` and `run_video.py` add application events. Do not copy one model's tensor contract into another.
 
 ## C/C++: the on-board Edge AI SDK
 

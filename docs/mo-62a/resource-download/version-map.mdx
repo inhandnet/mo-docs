@@ -10,6 +10,10 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Use this page as the version reference for Mo62A AI tutorials. The model compiler, board Python environment, runtime libraries and firmware have separate identities; they do not all share one version number.
 
+:::warning[Do not assemble the stack from unrelated releases]
+The complete deployment must use one tested compatibility baseline: x86 TIDL tools and runtime, model graph/artifacts, target runtime/provider libraries, C7x firmware and the application/vision integration. A partial update can break inference even when each package imports successfully. Keep a manifest for the whole set, not only a list of top-level Python versions. See the [upstream tracking policy](../application-development/ai/toolchain.mdx#track-upstream-without-changing-the-deployment-baseline) and [controlled upgrade sequence](../application-development/ai/toolchain.mdx#application-builds-and-upgrades).
+:::
+
 :::info[What was inspected]
 The read-only audit on 2026-10-21 inspected the current V1.1.0 development installation. It did not reflash the board, install packages, run TI's target updater or restart a remote processor. This board has development changes, including the video-decoder fixes described in [the first NPU demo](../getting-started/first-npu-demo.mdx#run-the-sample-video-no-camera-required). This inventory is not a pristine V1.1.0 release-image manifest or a compatibility guarantee for every later image.
 :::
@@ -57,6 +61,8 @@ The inspected compiler repository commit is:
 ```text
 d2be7203e5680298d7f54bcbd38e299d1bc22bfd
 ```
+
+Its upstream is the official [TI repository](https://github.com/TexasInstruments/edgeai-tidl-tools). This is a pinned snapshot, not a floating "latest" requirement. For the measured ONNX path, the combination is TIDL `11_02_17_00`, TI ONNX Runtime 1.23.0 and the AM62A `edgeai/11_1` target firmware/libraries from that same TIDL release. The `11_1` SDK compatibility directory and Vision Apps filename `11.1.0` do not indicate an accidental mismatch with TIDL `11.02.17.00`. Verify archive provenance and hashes rather than renaming or replacing components to make their numbers look equal.
 
 TI's [pinned compatibility table](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/sdk_version_compatibility_table.md) lists `11_02_17_00` as a backward-compatible patch for AM62A SDK 11.01.07.05. The [target setup script](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/scripts/setup/update_target.sh) selects AM62A `edgeai/11_1` firmware/libraries and reference OSRT packages. Its Python wheels and NumPy installation steps are not instructions to overwrite this Debian/Python 3.13 integration.
 

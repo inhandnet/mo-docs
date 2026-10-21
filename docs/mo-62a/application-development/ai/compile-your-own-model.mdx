@@ -1,101 +1,155 @@
 ---
 title: "Compile your own model"
-description: "Plan ONNX export, calibration, TIDL compilation and board validation, with explicit acceptance checks and current verification limits."
-sidebar_position: 4
+description: "Download a new TI YOLOX-tiny-lite model, prepare calibration data, compile on x86 and verify a complete AM62A deployment bundle."
+sidebar_position: 5
 ---
 
-import compiler from '@site/static/img/application-development/ai/mo62a-compiler-review.png';
-import runtime from '@site/static/img/application-development/ai/mo62a-runtime-inventory.png';
+import compiler from '@site/static/img/application-development/ai/mo62a-zone-compile.png';
+import bundleCheck from '@site/static/img/application-development/ai/mo62a-zone-bundle.png';
+import boardCompare from '@site/static/img/application-development/ai/mo62a-zone-compare.png';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
-Compiling for Mo62A means turning a supported model into artifacts for the AM62A C7x runtime. It is not a file-format conversion alone: the exported graph, input processing, calibration data, compiler options and target runtime must agree.
+This walkthrough compiles TI's pretrained YOLOX-tiny-lite 8210, a model not included in the tested image's demo inventory. It does not reuse the precompiled 8200/8220 artifacts. You download the original ONNX model, calibrate and compile it on x86, compare outputs and transfer your newly created bundle to Mo62A. Continue to [YOLO: deployment and quantization](./tutorial-yolo.mdx) for the full-video application and business events.
 
-:::warning[Verification status]
-The supplied YOLOX baseline and its documented inference APIs are verified. A new ResNet18 smoke test for this page created host artifacts but also emitted compiler diagnostics; its board run did not complete normally. That experiment is not an end-to-end pass. No custom-model artifact from it is offered for download, and this page does not claim a validated arbitrary-model recipe.
-:::
+First complete [Set up the toolchain](./toolchain.mdx). All commands below run from the extracted `zone-demo` directory unless marked as board commands. Keep the [host compiler, runtime libraries and C7x firmware](./toolchain.mdx#select-a-compatible-combination) on the documented compatibility baseline.
 
-## Establish a known-good baseline
+## Keep architecture and weights matched
 
-First run a [pre-compiled model](./model-hub.mdx) on the board. Record `mo-version`, the kernel and the runtime. The installed runtime can be checked directly:
+The model is TI's already-trained Lite variant, not a renamed standard Ultralytics export. Its existing COCO `person` class needs no training for this demonstration. New business classes may require training; train the matched architecture and weights before ONNX export and TIDL compilation. Replacing an activation is not a lossless conversion or a substitute for training.
 
-```bash
-python3 -c "import onnxruntime as o; print(o.__version__); print(o.get_available_providers())"
-```
+For a different network, record its source/license, training weights, exporter/version, ONNX opset, input/output contract and CPU reference. Do not reuse this example's detection metadata or selected mixed-precision tensor names. See [Known issues](./known-issues.mdx) for operator evidence and validation boundaries.
 
-<a href={runtime} target="_blank" rel="noopener noreferrer">
-  <img src={runtime} alt="Live Mo62A runtime inventory showing the installed TI ONNX Runtime and its execution providers" width="1440" height="900" />
-</a>
+## 1. Download the exact model
 
-Module import is more useful than relying only on Python package metadata: a vendor-installed module can import successfully even when `importlib.metadata` does not find a wheel record. A provider listed on the board is not evidence that host compilation should run there.
-
-Follow [Set up the toolchain](./toolchain.mdx) for the matching x86 host tools. The V1.1.0 development installation uses tag `11_02_17_00` and AM62A, not another SoC's artifacts. Check the [complete target inventory](../../resource-download/version-map.mdx): board Python 3.13.5 and TFLite 2.12.1 are distinct from host Python 3.10 and TI's reference TFLite 2.12.0. Preserve the board packages; host setup does not belong on the target.
-
-## Prepare the model and inputs
-
-| Item | Record before compiling |
-|---|---|
-| Export | Framework/exporter version, model revision and license, ONNX opset and checksum |
-| Inputs | Names, fixed shapes, data types, batch size and channel layout |
-| Preprocessing | Resize/crop/letterbox behavior, RGB/BGR order, normalization and padding |
-| Outputs | Tensor meaning, class order, coordinate format and postprocessing |
-| Calibration | Representative samples processed exactly like inference inputs |
-| Reference | Floating-point outputs and task metrics on an independent validation set |
-
-Check the ONNX model on the CPU before introducing TIDL. Resolve dynamic dimensions deliberately; changing an exported shape is not automatically equivalent to re-exporting the network correctly. Review the [known operator limitations](./known-issues.mdx).
-
-Calibration estimates activation ranges for quantized inference. It must exercise relevant scenes and input values. Repeating a single image can test plumbing, but it cannot establish acceptable accuracy. Keep calibration and evaluation data distinct when reporting accuracy.
-
-## Use the matching TI example as the starting point
-
-The pinned [TI basic example](https://github.com/TexasInstruments/edgeai-tidl-tools/tree/11_02_17_00/runtimes/examples/python/basic_example) documents its configuration and command-line interface. After installing the matching environment, its compile command is:
+On x86:
 
 ```bash
-cd runtimes/examples/python/basic_example
-python3 basic_example.py --config ./config.yaml \
-  --compile --models cl-ort-resnet18-v1
+source ./activate_host.sh ./host
+python -B fetch_model.py --bundle work/bundle
+python -B verify_inputs.py
 ```
 
-This is the upstream reference command, not a claim that this exact command completed the failed local experiment described above. Start with one model, preserve the full log, and use a separate work copy/output directory so an experiment cannot overwrite known-good artifacts.
+`fetch_model.py` downloads the model and its matching `.prototxt` from [TI's 11_02_00 model directory](https://software-dl.ti.com/jacinto7/esd/modelzoo/11_02_00/models/vision/detection/coco/edgeai-mmdet/). The filename is `yolox_tiny_lite_416x416_20220217_model.onnx`. The model-zoo directory version is not the compiler version: this specific source model is compiled here with tools `11_02_17_00`.
 
-The example's configuration defines the model, runtime, preprocessing and calibration inputs. For a custom detection model, any metadata describing detection heads must match that export; copying a YOLOX or SSD metadata file to a different network is not a valid conversion.
-
-| Option or setting | What to verify |
+| Item | Exact contract |
 |---|---|
-| SoC | AM62A, matching the target board |
-| `tensor_bits` | Intended quantization width, with accuracy measured afterward |
-| `advanced_options:calibration_frames` | Effective selected count and sufficient actual inputs; this tag's basic example adjusts the option to its selected frame count |
-| `artifacts_folder` | New output directory belonging to this exact graph |
-| ONNX graph optimization | Consistent with the compiled graph; use the documented TIDL runtime settings |
-| Mixed precision / detection metadata | Model-specific settings with a recorded reason, not arbitrary copied values |
+| Source model | TI model-zoo revision `99f1bd6e434bdde9d26c3b0678ce368e69050ea3`, model ID 8210 |
+| ONNX | IR 7, opset 11, original 418 nodes |
+| Input | `input`, float32, NCHW `[1,3,416,416]` |
+| Preprocessing | RGB values 0–255; aspect-preserving resize; top-left placement in a 416 × 416 canvas padded with 114; no division by 255 |
+| Outputs | `dets[N,5]`: x1, y1, x2, y2, score; `labels[N]`: zero-based COCO class index |
+| Detection metadata | Matching `.prototxt`, `meta_arch_type=6`; person index 0 |
 
-## Inspect every stage
+The downloaded ONNX SHA256 is `c9d2a3fdb21bed079a74029441d83235ddd910c82f1e7b9de5a2a5998bc3eeca`; metadata SHA256 is `bd8d5558af8c982da135579cd84851f9d95382aab6f089df7a49edacb846f142`. The script checks both and refuses to replace an existing mismatched file. The <a href={useBaseUrl('/downloads/ai/zone-demo/sources.json')}>source manifest</a> preserves model and input provenance. Model/tool licenses are separate from the documentation license.
 
-The host capture below is deliberately a counterexample: it reports artifacts and a success banner, but also `Invalid Error Type!`. Do not discard diagnostic lines and publish only the final success string.
+## 2. Prepare separate calibration and evaluation inputs
+
+The archive contains two prepared warehouse clips by domdomegg under CC BY 4.0. Both depict the same site/date: they are separate inputs, not a broad independent accuracy dataset. Keep <a href={useBaseUrl('/downloads/ai/zone-demo/SOURCE.txt')}>SOURCE.txt</a> with them. No third-party endorsement or real restricted area is implied.
+
+```bash
+python -B prepare_inputs.py --video inputs/calibration.mp4 \
+  --count 32 --output work/calibration
+python -B prepare_inputs.py --video inputs/evaluation.mp4 \
+  --count 8 --output work/evaluation
+python -B run_images.py --bundle work/bundle --images work/evaluation \
+  --backend cpu --output work/cpu-images
+```
+
+The frame selector saves lossless PNGs and `inputs.json` with source hash, frame indices, timestamps and per-frame hashes. The CPU step runs the original floating-point graph through `CPUExecutionProvider`, saving raw NPZ tensors and decoded boxes in `results.json`.
+
+Read the data contract before interpreting a result. The application restores coordinates using the actual resize scales; it does not apply a second sigmoid or a different NMS to these already postprocessed outputs. At score ≥0.4, the eight selected frames contain only two detected people in the CPU output, although more small/occluded people are visible. This is an important limitation, not evidence that the warehouse is empty.
+
+## 3. Quantize and compile on x86
+
+Use a new bundle for each changed graph, calibration set or compiler configuration. The script refuses to overwrite an artifact directory.
+
+```bash
+set -o pipefail
+python -B -u compile_model.py --bundle work/bundle \
+  --calibration work/calibration --iterations 3 2>&1 | tee work/compile.log
+python -B inspect_bundle.py --bundle work/bundle
+```
+
+Compilation takes several minutes on the tested host. Keep the full log. The recipe uses:
+
+| Setting | Value and reason |
+|---|---|
+| Target | AM62A, tools `11_02_17_00` |
+| Calibration | 32 actual frames, three iterations, quantization scale type 4 |
+| Base precision | 8 bits |
+| Selected 16-bit outputs | `1033,711,712,713,727,728,743,744,745`; TI's exact model configuration with only its duplicate `728` removed |
+| Detection | Matching meta-architecture 6 metadata; compiler score floor 0.3, top-k 200 |
+| Graph optimization | ONNX Runtime optimization disabled consistently for compilation and execution |
+
+This is mixed precision, not an all-8-bit network. The architecture/weights are unchanged. The selection comes from [TI's exact source-model configuration](https://github.com/TexasInstruments/edgeai-modelzoo/blob/99f1bd6e434bdde9d26c3b0678ce368e69050ea3/models/vision/detection/coco/edgeai-mmdet/yolox_tiny_lite_416x416_20220217_model_config.yaml), not a guessed workaround. Do not generalize these output names to another model. Its published reference accuracy is not a Mo62A measurement or an accuracy result for this footage.
 
 <a href={compiler} target="_blank" rel="noopener noreferrer">
-  <img src={compiler} alt="Actual host compilation excerpt containing both generated artifact names and compiler error diagnostics; not a passing deployment result" width="1440" height="900" />
+  <img src={compiler} alt="Inspection of the saved real compilation log showing 32 calibration frames, three iterations, completion and the retained compiler warnings" width="1440" height="900" />
 </a>
 
-Preserve the full compiler log, offloaded-node report and output directory. Investigate error diagnostics before deployment. Network and I/O binaries must both be present, but their existence alone does not validate the result. A process exit code of zero or `Subgraph Compiled Successfully` is insufficient if earlier stages failed.
+The tested compile completed, but emitted two `Requested output data convert layer is not added ... not optimal` warnings. They are retained in the evidence; no optimization fix is claimed. The pinned TI wrapper also reports disabled runtime I/O validation. The application checks input shape/type, bundle hashes, output shape, finiteness, labels and scores itself. Do not remove those checks.
 
-## Deploy only a complete model bundle
+An artifact directory or success banner alone is not acceptance. Review errors and warnings, then compare host and board outputs. On a compiler failure, stop and retain the log; do not deploy partial artifacts.
 
-Keep the original graph, artifacts and application metadata together. The [model directory layout](./inference-apis.mdx#model-directory-layout) describes the image's convention. Use a new model name and directory; do not replace a working `/opt/model_zoo` entry while experimenting.
+## 4. Inspect the bundle and host outputs
 
-Verify copied checksums before loading. Then check:
+The bundle contains `model/`, `artifacts/` and `bundle.json`. The manifest records the compiler version, precision choices, complete calibration manifest and hashes of each deployable model/artifact file. Do not move only a `.bin` file or mix it with a different ONNX graph.
 
-1. Session creation and the first inference finish without a stall or runtime error.
-2. The offload report matches the expected partitioning; CPU fallback is accounted for.
-3. Shapes, data types and output values are valid, and results agree with the CPU reference within defined tolerances.
-4. Task accuracy is measured after identical preprocessing and postprocessing.
-5. Repeated runs and a representative sustained workload remain stable.
-6. Performance is measured with the [documented boundaries](./benchmarks.mdx).
+```bash
+python -B inspect_bundle.py --bundle work/bundle
+python -B run_images.py --bundle work/bundle --images work/evaluation \
+  --backend tidl --output work/host-images
+python -B compare_detections.py --cpu work/cpu-images/results.json \
+  --quantized work/host-images/results.json --output work/agreement.json
+```
 
-If the process stalls, stop that experiment and preserve its log. Confirm a known-good model still runs before attempting another custom artifact. Do not repeatedly restart a remote processor that the ISP or another application is using.
+Host TIDL is emulation, not Mo62A performance. It can be much slower than the board. The graph presented to the provider reports 326/326 nodes in one TIDL subgraph after its transformations; that count is not the original 418-node ONNX count.
 
-The failed local smoke test required stopping its process and rebooting the test board before the known-good baseline was rerun successfully. The compiler or firmware root cause has not been established; no fix is claimed here.
+<a href={bundleCheck} target="_blank" rel="noopener noreferrer">
+  <img src={bundleCheck} alt="Actual bundle checksum and calibration-record inspection, followed by CPU-versus-quantized detection agreement" width="1440" height="900" />
+</a>
 
-## TI references and their scope
+For the eight fixed frames, CPU and quantized person counts matched; the two box matches had IoU approximately 0.943 and 0.967 at score ≥0.4. Six frames had no detections in either output. These are agreement checks, not ground truth, recall or mAP. They do not excuse visible misses or prove production accuracy.
 
-- [AM62A SDK 11.01.07.05 model guide](https://software-dl.ti.com/processor-sdk-linux/esd/AM62AX/11_01_07_05/exports/docs/edgeai/inference_models.html): host import and complete deployment bundles.
-- [Tag-specific compilation options](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/model_compilation.md) and [detection metadata](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/od_meta_arch.md): use the options for the actual exported graph.
-- [TI E2E: AM62A model compilation diagnostics](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1423887/sk-am62a-lp-issue-with-the-network-compilation-with-edgeai-tensorlab-tidl_e_dataflow_info_null-network-compiler-returned-with-error): a separate case discussing network-compiler failure. It does not diagnose our local ResNet18 experiment.
+## 5. Transfer and verify on Mo62A
+
+First stop other inference applications and confirm a [known-good model](./inference-apis.mdx) still works. Do not update board software for this tutorial. On the board, create a new user-owned directory:
+
+```bash
+mkdir -p "$HOME/mo62a-zone-demo"
+```
+
+On the host, substitute your SSH username and reachable board address:
+
+```bash
+scp -r work/bundle work/evaluation work/host-images \
+  model.py logic.py run_images.py run_video.py inspect_bundle.py zone.json SOURCE.txt \
+  YOUR_USERNAME@BOARD_IP_ADDRESS:mo62a-zone-demo/
+scp inputs/evaluation.mp4 YOUR_USERNAME@BOARD_IP_ADDRESS:mo62a-zone-demo/
+```
+
+In the board's shell:
+
+```bash
+cd "$HOME/mo62a-zone-demo"
+python3 -B inspect_bundle.py --bundle bundle
+python3 -c "import onnxruntime as o; print(o.__version__); print(o.get_available_providers())"
+sudo python3 -B run_images.py --bundle bundle --images evaluation \
+  --backend tidl --compare host-images --output results-images
+```
+
+`--compare` requires both raw output tensors to match host TIDL exactly for every transferred frame. Input and bundle hashes are checked before inference. The target test must finish, not merely create a session.
+
+<a href={boardCompare} target="_blank" rel="noopener noreferrer">
+  <img src={boardCompare} alt="Saved Mo62A test-result inspection showing eight target samples compared against host TIDL outputs" width="1440" height="900" />
+</a>
+
+If the first inference stalls or fails, stop the experiment, retain its log and verify the original baseline. Do not repeatedly reset remote processors, replace packages or reboot without a planned recovery procedure. Then continue to [the complete video application](./tutorial-yolo.mdx) for events, output media and repeated-run acceptance.
+
+## Adapt the recipe to your own project
+
+For new classes, train/export first and verify the floating-point graph against its framework reference. For an existing class, camera placement, input resolution and representative calibration may matter more than changing a business threshold. Never assume a model compiled for another TI SoC is suitable for AM62A.
+
+Before production, use independently labeled, representative data to measure task accuracy before/after quantization; test missing frames, occlusion, lighting, empty scenes and long runs. The example has no certified safety function, identity tracking or automated equipment control.
+
+TI references: [AM62A model guide](https://software-dl.ti.com/processor-sdk-linux/esd/AM62AX/11_01_07_05/exports/docs/edgeai/inference_models.html), [tag-specific compilation options](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/model_compilation.md), [detection metadata](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/od_meta_arch.md), and [E2E compilation-diagnostic example](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1423887/sk-am62a-lp-issue-with-the-network-compilation-with-edgeai-tensorlab-tidl_e_dataflow_info_null-network-compiler-returned-with-error). Forum cases explain specific failures; they are not proof that our graph or an arbitrary custom export is valid.

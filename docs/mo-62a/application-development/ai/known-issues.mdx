@@ -1,7 +1,7 @@
 ---
 title: "Known issues & error reference"
 description: "Version-specific AM62A operator evidence, local unresolved failures and diagnostic checks without chip-wide conclusions."
-sidebar_position: 6
+sidebar_position: 7
 ---
 
 import compiler from '@site/static/img/application-development/ai/mo62a-compiler-review.png';
@@ -18,6 +18,7 @@ The tag's [8-bit report](https://github.com/TexasInstruments/edgeai-tidl-tools/b
 
 | Operator cases | 8-bit target pass / total | 16-bit target pass / total |
 |---|---|---|
+| Relu; HardSwish (each) | 22 / 22 | 22 / 22 |
 | Sigmoid | 0 / 22 | 22 / 22 |
 | LeakyRelu | 0 / 32 | 32 / 32 |
 | Acos, Asin, Asinh, Exp, Log, Mish (each) | 0 / 22 | 22 / 22 |
@@ -29,13 +30,23 @@ These are test-case counts, not permanent operator-wide verdicts:
 - 8-bit `Sigmoid` also has 0/22 host passes, not “correct on the PC, fails only on the board.”
 - `TargetPass` does not alone prove acceleration: 16-bit `ConvTranspose` has 2116 target passes but zero TIDL offloads.
 
+Open `Versions` first, then compare `TIDL Offload`, `Host Inference` and `Target Inference` on the individual operator sheet. Each case records input shapes, data types and attributes. `Failed` does not, by itself, distinguish a graph-creation failure from an output-accuracy failure: the [test framework](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/test/tidl_unit/README.md#evaluation-metrics) also compares numerical outputs against reference outputs. Preserve the corresponding run log before assigning a cause.
+
+Use reports for the selected release, not a different tag's results. A newer tag can temporarily lack reports; for example, the [`11_02_21_00` report README](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_21_00/test/reports/README.md) explicitly says its reports are not yet available. This is not evidence that a failed case has been fixed, and does not change this page's pinned baseline.
+
 The same tag's [operator table](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/operators.md) lists Sigmoid and LeakyRelu subject to constraints. It explicitly excludes 16-bit deconvolution on AM62A. Check graph attributes, precision, offload and accuracy when a support entry and a test result appear to disagree.
 
 ## 16-bit and YOLO conclusions
 
 AM62A is not categorically limited to 8-bit inference. TI confirms up to 16-bit quantization in [this E2E answer](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1407278/sk-am62a-lp-model-maker-sdk-9-2-and-10-compatible). This does not guarantee every 16-bit graph works or constitute a new Mo62A 16-bit validation.
 
-Do not infer that every YOLOv8/YOLO11 graph must fail from one operator report. TI's [AM62A YOLO discussion](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1443278/sk-am62a-lp-how-to-run-yolov8-v11-in-this-board) covers version-specific configurations, architecture changes, retraining and detection-head metadata. It is not blanket certification for arbitrary exports. The [local YOLO page](./tutorial-yolo.mdx) claims only the supplied YOLOX-Lite deployment tested here.
+Do not infer that every YOLOv8/YOLO11 graph must fail from one operator report. TI's [AM62A YOLO discussion](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1443278/sk-am62a-lp-how-to-run-yolov8-v11-in-this-board) covers version-specific configurations, architecture changes, retraining and detection-head metadata. It is not blanket certification for arbitrary exports. The [local YOLO page](./tutorial-yolo.mdx) validates one newly compiled TI YOLOX-tiny-lite 8210 model and an illustrative warehouse application, not arbitrary upstream exports.
+
+### Validate the whole model
+
+An operator test does not validate a complete detector. Check the actual exported graph, compiler fusion, input shapes, precision, target execution and task accuracy. Selecting a 16-bit output can also change adjacent layers' precision; inspect the compiled graph and measured resource use.
+
+Changing an activation function is not a lossless conversion. Prefer a model with matching architecture and trained weights. An architecture change requires training-framework changes and accuracy evaluation before export and compilation; editing generated TIDL binaries is not a training workflow.
 
 ## Compiler constraints and local observations
 
@@ -45,6 +56,7 @@ Do not infer that every YOLOv8/YOLO11 graph must fail from one operator report. 
 | Local custom ResNet18 experiment | Diagnostics despite artifacts; board run did not finish | Proven root cause or permanent ResNet restriction |
 | Local excluded-model manifest | Particular image entries were excluded | Entire architecture families are unsupported |
 | Host success banner | One stage reported success | Correct target outputs, accuracy or stability |
+| New YOLOX-tiny-lite 8210 recipe | 32-frame calibration, raw host/target agreement and three complete video runs | Labeled accuracy, arbitrary-model support or long-duration qualification |
 
 Graph rewrites can change numerics. Retain the optimized graph with its own artifacts and revalidate outputs. Do not combine one graph with artifacts compiled from another.
 
@@ -53,6 +65,8 @@ Graph rewrites can change numerics. Retain the optimized graph with its own arti
 </a>
 
 The failed custom experiment required stopping its process and rebooting before a supplied model was rerun successfully. Its root cause remains unresolved; this is not a TI-confirmed defect.
+
+The separate [successful 8210 compile](./compile-your-own-model.mdx) retains two `Requested output data convert layer is not added ... not optimal` warnings. Host/target outputs and repeated video execution passed despite those diagnostics; no optimization fix is claimed. Do not apply either this result or the earlier failure to all models.
 
 ## Inspect the excluded-model record
 

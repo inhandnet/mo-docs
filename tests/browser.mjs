@@ -830,8 +830,8 @@ try {
       for (const href of peripheralLinks) assert.equal((await page.request.get(origin + href)).status(), 200, href);
 
       for (const [route, images, phrases] of [
-        ['ai/compile-your-own-model', 2, ['not an end-to-end pass', 'Invalid Error Type!', 'No custom-model artifact']],
-        ['ai/tutorial-yolo', 1, ['not passed validation', '8220', 'not a simulation']],
+        ['ai/compile-your-own-model', 3, ['326/326', '32 actual frames', 'not ground truth', 'raw output tensors']],
+        ['ai/tutorial-yolo', 3, ['zone_occupied', 'zone_cleared', '611 frames', 'not real-time 30 fps', 'CC BY 4.0']],
         ['ai/benchmarks', 2, ['10.900 ms', '40.402 ms', 'not guaranteed', 'No power measurement']],
         ['ai/llms-on-cpu', 1, ['No language model', 'no measured tokens/s', 'not proof']],
         ['partner-sdks', 1, ['not a compatibility', 'Ultralytics', 'TIDLExecutionProvider']],
@@ -859,10 +859,11 @@ try {
           const recording = article.locator('video');
           assert.equal(await recording.count(), 1);
           assert.equal(await article.locator('img[src*="mo62a-npu-video-cpp"]').count(), 0);
-          assert.match(await recording.getAttribute('poster'), /mo62a-npu-video-cpp/);
+          assert.equal(await article.locator('img[src*="mo62a-zone-occupied"]').count(), 0);
+          assert.match(await recording.getAttribute('poster'), /mo62a-zone-occupied/);
           await recording.evaluate(video => video.play());
           await page.waitForFunction(() => document.querySelector('.theme-doc-markdown video').currentTime > 0.5);
-          assert.deepEqual(await recording.evaluate(video => [video.videoWidth, video.videoHeight]), [1920, 1080]);
+          assert.deepEqual(await recording.evaluate(video => [video.videoWidth, video.videoHeight]), [1280, 720]);
           await recording.evaluate(video => video.pause());
         }
       }
@@ -930,8 +931,8 @@ try {
           ['ai-stack-overview', 'ai-inference-flow', 'ai-subgraph', 'ai-version-matrix', 'mo62a-stack-v110'], ['C7x DSP', 'TIDL 11_02_17_00', 'Offloaded Nodes - 329', 'not traces', 'Python 3.13.5', '2.12.1']],
         ['model-hub', ['Models in the image', 'Auditable timing results', 'Run a model', 'Models that are not included', 'Add more models', 'Related pages'],
           ['mo62a-model-inventory', 'mo62a-benchmark'], ['ONR-OD-8200-yolox-nano-lite-mmdet-coco-416x416', '10.900 ms', 'unsupported_models.txt']],
-        ['toolchain', ['Select a compatible combination', 'Prepare an isolated x86 environment', 'Exercise one upstream reference model', 'What compilation produces', 'Calibration and precision', 'Application builds and upgrades'],
-          ['ai-compile', 'mo62a-compiler-review'], ['--branch 11_02_17_00', 'setup_env.sh AM62A', 'Python 3.10', 'not sufficient proof']],
+        ['toolchain', ['Select a compatible combination', 'Prepare an isolated x86 environment', 'Reactivate and verify the environment', 'Track upstream without changing the deployment baseline', 'What compilation produces', 'Calibration and precision', 'Application builds and upgrades'],
+          ['ai-compile', 'mo62a-zone-host-setup'], ['11_02_17_00', 'bash setup_host.sh ./host', 'Python 3.10', 'not sufficient proof']],
         ['inference-apis', ['Model directory layout', 'Device access', 'Python: ONNX Runtime with the TIDL execution provider', 'C/C++: the on-board Edge AI SDK', 'GStreamer pipelines', 'Troubleshooting', 'Related pages'],
           ['mo62a-python-smoke', 'mo62a-cpp-smoke'], ['TIDLExecutionProvider', 'find_package(EdgeAI REQUIRED)', 'hello_inference', 'session.disable_input_validation']],
         ['known-issues', ['Read the operator reports carefully', '16-bit and YOLO conclusions', 'Compiler constraints and local observations', 'Inspect the excluded-model record', 'Diagnose errors in context', 'Runtime settings and recovery'],

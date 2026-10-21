@@ -72,6 +72,8 @@ For your own program, pass the model directory to the [Python or C/C++ API](./in
 
 ## Add more models
 
+For a complete tested example, follow [Set up the toolchain](./toolchain.mdx), [Compile your own model](./compile-your-own-model.mdx) and [the warehouse application](./tutorial-yolo.mdx). They download TI YOLOX-tiny-lite 8210, which is not in the inventory above, and create new artifacts from separate calibration footage. The standalone project uses explicit code/configuration and `bundle.json`; it is not automatically a drop-in `edgeai-demo` entry with `param.yaml`.
+
 The [TI AM62A model guide](https://software-dl.ti.com/processor-sdk-linux/esd/AM62AX/11_01_07_05/exports/docs/edgeai/inference_models.html) links to [TI's model zoo](https://github.com/TexasInstruments/edgeai-tensorlab/tree/main/edgeai-modelzoo). Select an AM62A bundle compatible with the target stack and runtime, preserve licenses and metadata, then validate the application. Matching one version string is insufficient. Use a new directory and retain the known-good baseline; see [Compile your own model](./compile-your-own-model.mdx).
 
 ## Related pages
