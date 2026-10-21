@@ -7,16 +7,49 @@ sidebar_position: 2
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import interfaces from '@site/static/img/hardware-development/mo62a-interfaces.png';
 import connectors from '@site/static/img/hardware-development/mo62a-connectors-v11.png';
+import boardLocations from '@site/static/img/hardware-development/mo62a-interface-photo.png';
+import boardTop from '@site/static/img/hardware-development/mo62a-board-top.png';
 
-Use physical pin numbers when wiring and SoC controller names when programming. A Raspberry Pi-style label such as `GPIO17` is not Linux GPIO line 17 on Mo62A.
+Use physical pin numbers when wiring and SoC controller names when programming. A BCM-style HAT label such as `GPIO17` is not Linux GPIO line 17 on Mo62A.
 
 :::warning[Disconnect power before wiring]
 Header signals use 3.3 V logic. Do not apply 5 V to a GPIO, connect two outputs together, or assume that a mechanically compatible HAT has compatible signals and software. Locate physical pin 1 on your board before connecting anything.
 :::
 
+## Locate the board features
+
+This original annotated Mo62A photograph identifies the connectors and controls on the pictured assembly. With the USB and Ethernet sockets on the right, the 40-pin header is along the top edge; S1 and the indicator are on the left edge, and J5 is beside the Ethernet socket. The photograph's PoE HAT label identifies the transformer-tap connection, not an on-board PoE power converter; see [Other connectors](#other-connectors).
+
+<a href={boardLocations} target="_blank" rel="noopener noreferrer">
+  <img src={boardLocations} alt="Original annotated Mo62A photograph locating the 40-pin expansion header, S1 power button, bicolour indicator, CON1 antenna connector, camera FPC, PoE HAT header and external connectors" width="1511" height="1151" />
+</a>
+
+The annotated overview identifies connector locations. Use the explicitly oriented top view below for J6 numbering, and check the pin-1 indication on your own board before wiring. Do not infer orientation from the logical diagram or an underside view.
+
+- **S1:** the photograph locates the power button. A short-press/long-press behaviour test was not performed for this page; do not assume a reset or shutdown action from its label.
+- **Indicator:** the board exposes `/sys/class/leds/red` and `/sys/class/leds/green`. Read `brightness` and `trigger` there to inspect the current software state. Linux names and trigger settings alone do not verify the observed colour or every boot/shutdown indication; see [First boot](../getting-started/first-boot.mdx) for the documented startup sequence.
+- **CON1:** the left-side antenna connector serves the shared Wi-Fi/BLE antenna. Follow [Network](../mo-os/network.mdx#shared-wi-fi-and-ble-antenna) for the connection procedure.
+- **Board identification:** the pictured assembly has its model/revision silkscreen below the expansion header. Check your own marking and assembly label; this reference photograph is not proof of your board revision. See [Hardware revisions](./hardware-revisions.mdx).
+
 ## 40-pin header (J6)
 
 Both published [schematics](./schematics.mdx), sheet 17, identify the expansion header as J6 and the fan connector as J1. The older SDK README calls them J9 and J6 respectively. This page follows the schematic references; also check the `USER EXPN` marking, connector shape and pin-1 indication on your actual board. Do not select a connector by a conflicting reference alone.
+
+### Physical orientation: top view
+
+Orient the board as in this top/component-side reference image: the 40-pin header is at the top and the USB/Ethernet sockets are on the right. Read the columns from left to right:
+
+- The lower row, toward the components and board centre, is **1, 3, 5, …, 39**.
+- The upper row, toward the outside edge, is **2, 4, 6, …, 40**.
+- In the leftmost column, pin 1 is below pin 2. In the rightmost column, pin 39 is below pin 40.
+
+<a href={boardTop} target="_blank" rel="noopener noreferrer">
+  <img src={boardTop} alt="Mo62A top-view orientation reference with J6 at the top and USB and Ethernet on the right: leftmost lower pin 1 and upper pin 2, rightmost lower pin 39 and upper pin 40" width="1474" height="1067" />
+</a>
+
+These directions apply to this top view only. Turning the board over reverses the apparent left/right orientation. Disconnect power and confirm the actual pin-1 marking before attaching jumpers or a HAT.
+
+### Signal reference
 
 <a href={useBaseUrl('/img/hardware-development/mo62a-40pin-reference.svg')} target="_blank" rel="noopener noreferrer">
   <img src={useBaseUrl('/img/hardware-development/mo62a-40pin-reference.svg')} alt="Mo62A physical-pin reference: 40 pins, SoC GPIO signals, alternate functions, reserved camera I2C pins and the three verified loopbacks; not a physical orientation drawing" width="1360" height="1580" />
@@ -123,7 +156,8 @@ J2 is a battery connector, not a CR1220 coin-cell holder. The schematic labels t
 | Interface | Board connection | Integration note |
 |---|---|---|
 | Power | USB Type-C, 5 V | See [Power & thermal](./power-and-thermal.mdx) |
-| Ethernet | Gigabit RJ45, DP83867 PHY | Do not infer bare-board PoE support from a block-diagram label |
+| Ethernet | Gigabit RJ45, DP83867 PHY | Transformer centre taps are brought out on J5 for a PoE HAT |
+| PoE header J5 | 2 × 2, 2.54 mm, next to the RJ45 | Standard 4-pin PoE HAT header: 1 `TR1_TAP`, 2 `TR0_TAP`, 3 `TR3_TAP`, 4 `TR2_TAP` (schematic sheet 18). InHand has run the board from a PoE HAT made for this header; the HAT then supplies 5 V through header pins 2/4. Not repeated in this review; confirm pin 1 against the schematic before fitting a HAT |
 | USB | Four USB 2.0 Type-A ports through a hub | Share the upstream link and power budget |
 | Display | micro HDMI through SiI9022A | Use the tested [display setup](../mo-os/display-and-audio.mdx) |
 | Audio | 3.5 mm jack with TLV320AIC3106 | Distinct from an optional header audio HAT |

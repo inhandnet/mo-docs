@@ -18,7 +18,7 @@ These are published product ratings from the [Mo62A datasheet](https://cdn.shopi
 | Maximum consumption | 25 W | Datasheet ceiling; no idle, peak or workload power measurement published here |
 | Operating temperature | 0–50 °C | Product operating range; not the same quantity as an internal SoC sensor reading |
 
-Include USB devices, camera, fan and any HAT when sizing the supply. Header pins 2/4 are connected to the 5 V rail; they are not a separate power budget. Do not connect competing power supplies through the header and USB-C. A PoE label in a schematic overview is not permission to power the bare board from arbitrary PoE equipment.
+Include USB devices, camera, fan and any HAT when sizing the supply. Header pins 2/4 are connected to the 5 V rail; they are not a separate power budget. Do not connect competing power supplies through the header and USB-C. The board has no PoE power circuit of its own. Power over Ethernet needs a 4-pin PoE HAT on header J5, which then feeds the 5 V rail through header pins 2/4; see [Hardware interfaces](./hardware-interfaces.mdx#other-connectors).
 
 For an intermittent reset, first test with the recommended supply and a suitable short cable, remove nonessential peripherals after shutting down, and collect the serial boot log. Voltage-drop and power-consumption tests require external measurement equipment; no such readings were collected for this page.
 

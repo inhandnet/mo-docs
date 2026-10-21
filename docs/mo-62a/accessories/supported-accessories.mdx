@@ -34,7 +34,7 @@ from the header's 5 V pins.
 ## Camera: use the tested combination
 
 Disconnect power before handling the ribbon. Match its pitch, pin count and
-contact orientation at both ends; do not assume all Raspberry Pi camera cables
+contact orientation at both ends; do not assume all 22-pin or 15-pin CSI camera cables
 fit the Mo62A connector.
 
 <a href={cameraConnection} target="_blank" rel="noreferrer"><img src={cameraConnection} alt="Actual IMX219 ribbon connection used in the Mo62A installation guide" /></a>
@@ -73,14 +73,14 @@ original connector schematic.
 
 ## Cases, PoE and expansion products
 
-No case fit, PoE expansion board or complete Raspberry Pi HAT was qualified in
+No case fit, PoE expansion board or complete 40-pin HAT was qualified in
 this review. The mechanical drawing is approximate and must not be used as a
 production machining drawing. Confirm connector openings, mounting positions,
 underside clearance, ribbon paths and airflow with the actual assembly.
 
 Do not infer bare-board PoE support from a schematic block label. Obtain the
 specific expansion board's documentation and power-path approval before use.
-For header add-ons, continue with [Raspberry Pi HATs](./raspberry-pi-hats.mdx).
+For header add-ons, continue with [40-pin HAT compatibility](./hat-compatibility.mdx).
 
 When reporting a working accessory, include its manufacturer/part number,
 revision, wiring, board revision, image version, overlay, commands and measured

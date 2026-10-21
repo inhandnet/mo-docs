@@ -37,7 +37,7 @@ export const products: Product[] = [
     tops: 2,
     tagline: 'Edge AI, where the camera is.',
     summary:
-      'TI AM62A vision processor with a C7x DSP and matrix accelerator, an on-chip ISP and a Raspberry Pi-sized board. Built for single-camera, low-power vision AI.',
+      'TI AM62A vision processor with a C7x DSP and matrix accelerator, an on-chip ISP and an 85 × 56 mm board with a 40-pin header. Built for single-camera, low-power vision AI.',
     tier: 'Entry · single camera · low power',
     image: '/img/boards/mo-62a.png',
     shopUrl: `${SHOP}/mo-62a-single-board-computer-2-tops-open-source-ai-sbc-for-lightweight-edge-inference`,
@@ -80,7 +80,7 @@ export const products: Product[] = [
         points: ['Hardware WDR', 'Lens distortion correction', 'RGB-IR support'],
       },
       {
-        title: 'Raspberry Pi form factor, industrial AI core',
+        title: '85 × 56 mm form factor, industrial AI core',
         subtitle: '85 × 56 mm with a 40-pin HAT-compatible header.',
         body: 'A 40-pin header exposes 3.3 V signals for expansion. Verify each HAT’s pin mapping, power needs and driver support; a similar footprint does not guarantee electrical or enclosure compatibility.',
         image: '/img/products/mo-62a/form-factor.jpg',
@@ -122,7 +122,7 @@ export const products: Product[] = [
           {label: 'Ethernet', value: '1 × Gigabit Ethernet'},
           {label: 'USB', value: '4 × USB 2.0 Type-A'},
           {label: 'Display', value: '1 × micro HDMI'},
-          {label: 'Camera', value: '1 × 4-lane MIPI CSI-2 (22-pin FPC, Raspberry Pi camera pinout)'},
+          {label: 'Camera', value: '1 × 4-lane MIPI CSI-2 (22-pin FPC, standard CSI camera pinout)'},
           {label: 'Audio', value: '3.5 mm jack; PCM via 40-pin header'},
           {label: 'Expansion', value: '40-pin header: GPIO / I²C / SPI / UART / PWM / PCM, 3.3 V logic'},
           {label: 'Debug', value: '1 × TTL UART console (115200 8N1)'},
@@ -205,7 +205,7 @@ export const products: Product[] = [
         points: ['Hardware WDR', 'Lens distortion correction', 'RGB-IR support', 'DMPAC depth & motion', '4K60 encode / decode'],
       },
       {
-        title: 'Raspberry Pi form factor, industrial AI core',
+        title: '85 × 56 mm form factor, industrial AI core',
         subtitle: '85 × 56 mm with a 40-pin HAT-compatible header.',
         body: 'Fits mainstream SBC enclosures and works with HAT expansion boards — PoE, relays, sensors, displays. The header uses 3.3 V logic.',
         image: '/img/products/mo-68a/form-factor.jpg',
