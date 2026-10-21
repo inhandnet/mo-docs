@@ -776,19 +776,23 @@ try {
 
       await page.goto(url + board + '/application-development/camera-and-video/', {waitUntil: 'networkidle'});
       const camera = page.locator('.theme-doc-markdown');
-      assert.equal(await camera.locator('img').count(), 4);
+      assert.equal(await camera.locator('img').count(), 2);
       await checkDocumentationMedia(page);
-      for (const name of ['discovery', 'devices', 'jpeg']) {
+      for (const name of ['devices', 'jpeg']) {
         const capture = camera.locator(`img[src*="mo62a-camera-${name}"]`);
         assert.equal(await capture.count(), 1);
         assert.deepEqual(await capture.evaluate(image => [image.naturalWidth, image.naturalHeight]), [1440, 900]);
         assert.equal(await capture.evaluate(image => image.closest('a')?.target), '_blank');
       }
-      assert.equal(await camera.locator('picture source[media="(prefers-reduced-motion: reduce)"]').count(), 1);
+      assert.equal(await camera.locator('img[src*="mo62a-csi-connect"]').count(), 0);
+      assert.equal(await camera.locator('a[href$="first-npu-demo/#1-connect-the-imx219-camera"]').count(), 1);
+      assert.ok(await camera.locator('a[href$="first-npu-demo/#2-initialize-and-check-the-camera"]').count() >= 1);
       const cameraText = await camera.innerText();
-      for (const phrase of ['io-mode=2', 'Got EOS', 'not the E5010', 'not revalidated', 'does not implement']) {
+      for (const phrase of ['io-mode=2', 'Got EOS', 'not the E5010', 'not revalidated', 'Inspect capture interfaces and formats', 'Buffer modes and display ownership']) {
         assert.ok(cameraText.includes(phrase), 'Missing camera boundary: ' + phrase);
       }
+      assert.doesNotMatch(await camera.locator('h2').allTextContents().then(items => items.join('\n')), /Connect the camera|Initialize and identify/);
+      assert.doesNotMatch(await camera.locator('pre').allTextContents().then(items => items.join('\n')), /init-imx219|edgeai-demo/);
       assert.ok(!cameraText.includes('Coming soon'));
       assert.ok(!/10\.5\.\d+\.\d+/.test(cameraText));
       const cameraDownload = camera.locator('a[href$="/capture-jpeg-mmap.sh"]');
@@ -827,7 +831,7 @@ try {
 
       for (const [route, images, phrases] of [
         ['ai/compile-your-own-model', 2, ['not an end-to-end pass', 'Invalid Error Type!', 'No custom-model artifact']],
-        ['ai/tutorial-yolo', 2, ['not passed validation', '8220', 'not a simulation']],
+        ['ai/tutorial-yolo', 1, ['not passed validation', '8220', 'not a simulation']],
         ['ai/benchmarks', 2, ['10.900 ms', '40.402 ms', 'not guaranteed', 'No power measurement']],
         ['ai/llms-on-cpu', 1, ['No language model', 'no measured tokens/s', 'not proof']],
         ['partner-sdks', 1, ['not a compatibility', 'Ultralytics', 'TIDLExecutionProvider']],
@@ -854,12 +858,34 @@ try {
         if (route === 'ai/tutorial-yolo') {
           const recording = article.locator('video');
           assert.equal(await recording.count(), 1);
+          assert.equal(await article.locator('img[src*="mo62a-npu-video-cpp"]').count(), 0);
+          assert.match(await recording.getAttribute('poster'), /mo62a-npu-video-cpp/);
           await recording.evaluate(video => video.play());
           await page.waitForFunction(() => document.querySelector('.theme-doc-markdown video').currentTime > 0.5);
           assert.deepEqual(await recording.evaluate(video => [video.videoWidth, video.videoHeight]), [1920, 1080]);
           await recording.evaluate(video => video.pause());
         }
       }
+      await page.goto(url + board + '/resource-download/version-map/', {waitUntil: 'networkidle'});
+      const versionMap = page.locator('.theme-doc-markdown');
+      const versionText = await versionMap.innerText();
+      for (const phrase of ['Measured target versions', 'Host tools are a separate environment',
+        'Firmware and library provenance', 'Repeat the checks on your board', '3.13.5',
+        '2.12.1', '0.18.0', '1.13.0', '2.2.4', '1.26.2', '0.7.0', 'Not installed',
+        'not a pristine', 'not the resident firmware']) {
+        assert.ok(versionText.includes(phrase), 'Missing measured stack boundary: ' + phrase);
+      }
+      assert.equal(await versionMap.locator('img').count(), 2);
+      await checkDocumentationMedia(page);
+      const binaryReport = await page.request.get(url + 'downloads/ai/mo62a-v110-ti-binary-comparison.json');
+      assert.equal(binaryReport.status(), 200);
+      const binaryData = await binaryReport.json();
+      assert.equal(binaryData.comparisons.length, 6);
+      assert.ok(binaryData.comparisons.every(item => item.match && item.board_sha256 === item.ti_sha256));
+      const boardReport = await page.request.get(url + 'downloads/ai/mo62a-v110-stack-inventory.json');
+      assert.equal(boardReport.status(), 200);
+      assert.ok((await boardReport.json()).checks.every(check => check.exit_code === 0));
+
       for (const name of ['nano', 'small']) {
         const response = await page.request.get(url + 'downloads/ai/benchmark-' + name + '.json');
         const report = await response.json();
@@ -901,7 +927,7 @@ try {
 
       for (const [slug, headings, images, phrases] of [
         ['overview', ['Three things to know first', 'The software stack', 'Initialization and repeated inference', 'Subgraph partitioning', 'Compatible versions, not identical version strings', 'Actual board inventory', 'Where to go next'],
-          ['ai-stack-overview', 'ai-inference-flow', 'ai-subgraph', 'ai-version-matrix', 'mo62a-runtime-inventory'], ['C7x DSP', 'TIDL 11_02_17_00', 'Offloaded Nodes - 329', 'not traces']],
+          ['ai-stack-overview', 'ai-inference-flow', 'ai-subgraph', 'ai-version-matrix', 'mo62a-stack-v110'], ['C7x DSP', 'TIDL 11_02_17_00', 'Offloaded Nodes - 329', 'not traces', 'Python 3.13.5', '2.12.1']],
         ['model-hub', ['Models in the image', 'Auditable timing results', 'Run a model', 'Models that are not included', 'Add more models', 'Related pages'],
           ['mo62a-model-inventory', 'mo62a-benchmark'], ['ONR-OD-8200-yolox-nano-lite-mmdet-coco-416x416', '10.900 ms', 'unsupported_models.txt']],
         ['toolchain', ['Select a compatible combination', 'Prepare an isolated x86 environment', 'Exercise one upstream reference model', 'What compilation produces', 'Calibration and precision', 'Application builds and upgrades'],

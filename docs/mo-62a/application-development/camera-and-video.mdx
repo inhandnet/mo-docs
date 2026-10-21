@@ -1,59 +1,32 @@
 ---
 title: "Camera & video"
-description: "Connect an IMX219 camera, inspect the CSI pipeline and capture JPEG frames through the Mo62A ISP."
+description: "Develop camera pipelines on Mo62A: inspect V4L2/media topology, process Bayer through the ISP and capture reproducible JPEG frames without inference."
 sidebar_position: 2
 ---
 
-import csiAnimation from '@site/static/img/getting-started/mo62a-csi-connect.gif';
-import csiStill from '@site/static/img/getting-started/mo62a-csi-connect.png';
-import discovery from '@site/static/img/application-development/mo62a-camera-discovery.png';
 import devices from '@site/static/img/application-development/mo62a-camera-devices.png';
 import jpeg from '@site/static/img/application-development/mo62a-camera-jpeg.png';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-Start with an IMX219 camera on the CSI connector and the default boot entry. The reproducible example below captures 1920 × 1080 frames through the TI ISP and saves JPEG files without taking over the HDMI display.
+This is the application-development reference for camera acquisition and video processing, independent of a neural network. The worked pipeline takes Bayer frames through the TI ISP and saves 1920 × 1080 JPEG files without taking over HDMI. Use it to validate an application's input before adding inference, encoding or network transport.
+
+For first-time hardware preparation, follow [Connect the IMX219 camera](../getting-started/first-npu-demo.mdx#1-connect-the-imx219-camera) and [Initialize and check the camera](../getting-started/first-npu-demo.mdx#2-initialize-and-check-the-camera). Those are the single setup instructions; this page starts with the connected, initialized camera. Stop any running preview or NPU demo before accessing the capture device. Disconnect power before changing the ribbon.
 
 :::info[Tested path]
-This procedure was tested on a Mo62A running image V1.1.0 and Linux 6.12.35. The V4L2 mmap capture path (`io-mode=2`) completed repeatedly with normal end-of-stream and two valid JPEG files. This is a frame-capture test, not a sustained frame-rate benchmark or a certification of every camera or codec.
+This procedure was tested on a V1.1.0 development installation with Linux 6.12.35. The current stack inventory reports GStreamer 1.26.2 and TI plugins 0.7.0; see the [measured version map](../resource-download/version-map.mdx), including development-patch boundaries. The V4L2 mmap capture path (`io-mode=2`) completed repeatedly with normal end-of-stream and two valid JPEG files. This is a frame-capture test, not a sustained frame-rate benchmark or a certification of every camera or codec.
 :::
 
-## Connect the camera
+## Inspect capture interfaces and formats
 
-Shut down the board and disconnect USB-C power before inserting or removing the CSI ribbon. Release the connector latch, insert the matching ribbon squarely in the orientation shown, and close the latch. Do not force a ribbon with a different pitch or contact orientation into the connector.
+Use the camera-enabled `microSD-default` boot entry for this pipeline. Peripheral-test entries do not all include the camera overlay; see [Device tree overlays](../system-configuration/device-tree-overlays.mdx) for selecting an entry. Inspect configuration before changing it; a capture test does not require an otherwise unnecessary reboot.
 
-<picture className="mo-first-boot-animation">
-  <source media="(prefers-reduced-motion: reduce)" srcSet={csiStill} />
-  <img src={csiAnimation} alt="IMX219 ribbon insertion into the Mo62A CSI connector with power disconnected" width="2900" height="1416" />
-</picture>
-
-Reconnect power and log in. Check the selected boot entry:
-
-```bash
-bootcfg show
-```
-
-Use `microSD-default` for this procedure. If a peripheral test selected another entry, run `sudo bootcfg switch microSD-default`, confirm the reboot and reconnect. The supplied GPIO peripheral entries do not all include the camera overlay.
-
-## Initialize and identify the pipeline
-
-Ensure no other application is using the camera, then initialize it:
-
-```bash
-sudo init-imx219
-sudo edgeai-demo status
-```
-
-Initialization configures the media links and sensor format, creates the camera aliases and records the discovered configuration in `/etc/csi-camera/csi-camera.conf`. On the tested board, the capture alias resolves to `/dev/video2`; use the alias in applications because numeric video nodes can change.
+An application needs the capture node, sensor-control node and media-controller topology. The setup procedure creates aliases and records the discovered configuration in `/etc/csi-camera/csi-camera.conf`. On the tested board the capture alias resolves to `/dev/video2`; numeric nodes can change, so use the alias in application configuration.
 
 | Node | Purpose |
 |---|---|
 | `/dev/video-imx219-cam0` | CSI image capture |
 | `/dev/v4l-imx219-subdev0` | IMX219 sensor controls |
 | `/dev/media0` | Media-controller topology on the tested image |
-
-<a href={discovery} target="_blank" rel="noopener noreferrer">
-  <img src={discovery} alt="Live Mo62A terminal showing IMX219 initialization, stable device aliases and Edge AI camera status" width="1440" height="900" />
-</a>
 
 Inspect the actual devices and required plugins:
 
@@ -97,7 +70,7 @@ gst-launch-1.0 \
   multifilesink location=/tmp/camera-capture-01/frame-%02d.jpg max-files=2
 ```
 
-When running this pipeline directly, create a fresh output directory and run `sudo init-imx219` first, then run GStreamer with root permissions as the downloaded script does.
+For direct use, complete the linked camera initialization, create a fresh output directory, and run GStreamer with root permissions as the downloaded script does. The helper repeats initialization internally so each capture uses the intended sensor configuration; it does not launch an AI demo.
 
 | Stage | Work performed |
 |---|---|
@@ -117,30 +90,11 @@ Open the files on the desktop, or copy them to your computer using your own SSH 
 
 To repeat the test, use a new directory such as `/tmp/camera-capture-02`. Stop one capture before starting another.
 
-## Local display preview
+## Buffer modes and display ownership
 
-The test board also contains `imx219-preview.sh`, a helper that sends the ISP output to `kmssink` on HDMI:
+The example deliberately selects V4L2 mmap (`io-mode=2`). Do not change it to DMA-buffer import merely because another example uses that mode: the producer, ISP and downstream elements must agree on buffer allocation and layout. An earlier JPEG experiment using `io-mode=5` stalled on repeated starts; the mmap procedure above completed repeatedly. That observation does not establish a driver root cause or mean every DMA-buffer pipeline fails.
 
-```bash
-sudo imx219-preview.sh
-sudo imx219-preview.sh 30
-sudo env GAIN=232 imx219-preview.sh 5
-```
-
-This helper stops the display manager while it owns the display and attempts to restart it on exit. Save desktop work before running it. It requires an attached display and root access; SSH itself does not show the preview. Check `command -v imx219-preview.sh` before relying on its availability in another image.
-
-The installed helper accepts the following settings:
-
-| Setting | Default | Meaning |
-|---|---|---|
-| First argument | `15` | Frame rate: 5, 8, 10, 15 or 30 fps |
-| `GAIN` | `150` | Sensor analogue gain |
-| `DGAIN` | `256` | Sensor digital gain |
-| `EXPOSURE` | Frame-rate-dependent maximum | Exposure in sensor line units |
-
-Use `sudo v4l2-ctl -d /dev/v4l-imx219-subdev0 --list-ctrls` to inspect current sensor limits. This helper does not implement `WB_R` or `WB_B` environment controls.
-
-The helper uses a different capture mode (`io-mode=5`) from the tested JPEG procedure. HDMI preview was not revalidated for this page. An earlier JPEG experiment with that capture mode stalled on repeated starts; the mmap procedure above completed repeatedly. This observation does not establish a driver root cause or guarantee that every DMA-buffer pipeline fails.
+The saved-file pipeline leaves the desktop available. Replacing the file sink with `kmssink` introduces display ownership and permission requirements; it is not just a change of output filename. The installed `imx219-preview.sh` helper uses that separate path and stops LightDM, but HDMI preview was not revalidated for this page. Use the verified JPEG output to isolate capture problems and [Display & audio](../mo-os/display-and-audio.mdx) for display configuration.
 
 ## Video codecs and streaming
 
@@ -160,7 +114,7 @@ Do not replace `jpegenc` with a hardware codec element and assume the pipeline r
 
 | Symptom | What to check |
 |---|---|
-| IMX219 is not found | Disconnect power before checking the ribbon and latch. Confirm `microSD-default`, then rerun initialization and inspect the media topology. |
+| Capture alias is missing | Complete the linked [camera initialization](../getting-started/first-npu-demo.mdx#2-initialize-and-check-the-camera), confirm a camera-enabled boot entry, and inspect the media topology. |
 | Camera is busy | Stop the application that owns it. `sudo fuser /dev/video-imx219-cam0` identifies users; do not kill unrelated video applications. |
 | Permission denied or missing plugins as a normal user | Run the supplied procedure with `sudo`. Compare root plugin discovery before concluding that a plugin is absent. |
 | Missing DCC files | Check both files under `/opt/imaging/imx219/linear/` and initialize the camera. Do not use tuning files for another sensor. |
@@ -171,6 +125,6 @@ Do not replace `jpegenc` with a hardware codec element and assume the pipeline r
 ## Related pages
 
 - [Device tree overlays](../system-configuration/device-tree-overlays.mdx): camera and peripheral boot entries.
-- [GPIO & peripherals](./gpio-and-peripherals.mdx): restoring the default entry after loopback tests.
+- [Run your first NPU demo](../getting-started/first-npu-demo.mdx): the single connection/initialization walkthrough and ready-made inference applications.
 - [Inference APIs](./ai/inference-apis.mdx): feeding preprocessed input into an AI application.
 - [Display & audio](../mo-os/display-and-audio.mdx): display configuration and ownership.

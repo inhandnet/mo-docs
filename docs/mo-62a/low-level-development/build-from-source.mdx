@@ -12,6 +12,8 @@ import cliTests from '@site/static/img/low-level-development/mo62a-cli-tests.png
 
 The SDK contains board-specific U-Boot and Linux sources, TI cross-compilers, firmware, a Debian root filesystem archive and image-assembly scripts. Its base is TI Processor SDK Linux RT EdgeAI AM62A 11.01.07.05; the documented runtime also contains later TI AI component updates. Use the [version map](../resource-download/version-map.mdx), not one SDK number, to identify the complete software set.
 
+That version map describes the current development board, not the contents of every rootfs archive or new build. The board's selected C7x firmware and five target libraries match TI's `11_02_17_00` AM62A patch, while its Python is 3.13.5 and TFLite is 2.12.1. Audit the actual output image and booted target after building; the SDK folder name or `--version V1.1.0` does not prove that integration was reproduced.
+
 This review verified the Makefile targets, both compiler executables, flash-tool help and non-destructive CLI tests. A fresh full SDK build, image assembly and boot of that newly built image were not performed in this documentation pass. The commands below describe the inspected source workflow, not a newly certified reproducible build.
 
 Use a dedicated x86-64 Linux build checkout. The SDK setup script identifies Ubuntu 22.04 LTS as its verified host; using another distribution requires validation. Allow space for Git LFS objects, extracted root filesystems, build outputs and images. The root filesystem's compressed download size is not its required disk space.

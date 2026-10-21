@@ -11,7 +11,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 This page covers Python ONNX Runtime, the image's C/C++ SDK and GStreamer-based applications. Sharing a model-directory convention does not make all runtimes interchangeable: the graph, compiled artifacts, runtime and application metadata must agree. TI documents these boundaries in the [pinned runtime overview](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/README.md).
 
 :::info[Tested software]
-Local evidence comes from the V1.1.0 development installation with TIDL `11_02_17_00`, TI ONNX Runtime 1.23.0 and the on-board Edge AI SDK. The examples use the supplied YOLOX-nano model. The image's `2026-08-19` build field is not its GitHub release date.
+Local evidence comes from the V1.1.0 development installation with TIDL `11_02_17_00`, TI ONNX Runtime 1.23.0 and the on-board Edge AI SDK. The examples use the supplied YOLOX-nano model. The current board has Python 3.13.5 and NumPy 2.2.4; these are not the x86 compiler environment. The [version map](../../resource-download/version-map.mdx) records the complete target audit. The image's `2026-08-19` build field is not its GitHub release date.
 :::
 
 ## Model directory layout
@@ -95,6 +95,8 @@ The image installs a C/C++ SDK so inference programs compile on the board withou
 
 
 The image-specific `find_package(EdgeAI)` configuration exposes `EdgeAI::edgeai`; additional application dependencies remain your responsibility. The supplied `hello_inference` example loads a model directory, runs inference and prints output tensors:
+
+The installed SDK comment and older source guide still mention ONNX Runtime 1.15. That is stale documentation: the current C/C++ library's `OrtGetApiBase` reports 1.23.0, matching the Python runtime. Use the measured [version map](../../resource-download/version-map.mdx), actual library resolution and model tests, not that comment, when selecting dependencies.
 
 ```bash
 cpp_demo_dir=$(mktemp -d /tmp/mo62a-hello-inference.XXXXXX)
