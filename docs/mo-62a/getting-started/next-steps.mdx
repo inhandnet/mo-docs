@@ -28,6 +28,8 @@ For a concrete starting point, the image's C/C++ SDK provides examples in `/usr/
 
 Check the [version map](../resource-download/version-map.mdx) before replacing the runtime or compiling a model. A model file alone is not a substitute for compatible TIDL artifacts. Some AI development pages are still being expanded; use the existing SDK guide and the references on the toolchain page where a detailed walkthrough is not yet available.
 
+The older source SDK guide mentions ONNX Runtime 1.15; the current board's Python and C/C++ runtimes both report 1.23.0. Use [Inference APIs](../application-development/ai/inference-apis.mdx) and the measured version map for the current runtime baseline, not that older version comment.
+
 When evaluating a change, keep the input, model and resolution fixed. Record the backend and decoder, allow warm-up and compare throughput with CPU load and accelerator activity. The demo's [C/C++ versus Python comparison](./first-npu-demo.mdx#cc-and-python-same-model-same-video) shows one measured example; it is not a performance guarantee for other workloads.
 
 ## Keep a reproducible setup

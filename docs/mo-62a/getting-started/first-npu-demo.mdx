@@ -25,7 +25,7 @@ You can also [run the supplied sample videos](#run-the-sample-video-no-camera-re
 
 Mo62A's AI accelerator is the **C7x DSP with its Matrix Multiply Accelerator (MMA)**. TIDL runs supported model operations on this hardware. Python and C/C++ are two application backends; choosing Python does not mean inference runs only on the CPU.
 
-This page covers the first demonstration. For the software stack and model development, continue to [AI development](../application-development/ai/index.mdx).
+This page covers connecting the camera and running the first AI demonstration. For Bayer/NV12 formats, media topology, ISP tuning files and camera-to-JPEG development without inference, use [Camera & video](../application-development/camera-and-video.mdx). For the software stack and model development, continue to [AI development](../application-development/ai/index.mdx).
 
 | Your starting point | Follow this path |
 |---|---|
@@ -37,11 +37,13 @@ This page covers the first demonstration. For the software stack and model devel
 
 Complete [First boot](./first-boot.mdx), then have the following ready:
 
-- A Mo62A OS image that includes `edgeai-demo`, the TIDL runtime and `/opt/model_zoo/` (v1.1.0 or later).
+- A Mo62A installation that includes `edgeai-demo`, the compatible TIDL runtime and `/opt/model_zoo/`. This walkthrough used a V1.1.0 development installation; a version label alone does not establish the same software or video-decoder fixes.
 - For live capture: a supported IMX219 CSI camera and a ribbon cable compatible with both connectors. These are not needed for the sample-video path.
 - An HDMI monitor connected to the board and powered on. The launcher uses a 1920 × 1080 output canvas.
 - An SSH or debug UART session to control the demo independently of HDMI.
 - For live capture: a well-lit scene containing recognizable objects, such as a cup, bottle, keyboard or mouse. Remove any lens cover and keep the lens clear.
+
+The current test board reports TI ONNX Runtime 1.23.0, GStreamer 1.26.2 and TI GStreamer plugins 0.7.0. See the [measured AI stack version map](../resource-download/version-map.mdx) for firmware/library hashes and the distinction between this development installation and a pristine release image. Do not install the x86 compiler environment on the board to run this demo.
 
 :::note[Save your desktop work]
 The demo uses HDMI directly and stops LightDM to release the display. This ends the current graphical desktop session. Save open work before starting, and run the commands below from SSH or debug UART. When the demo finishes, LightDM restarts and you may need to log into the desktop again.
@@ -351,7 +353,7 @@ A compatible UVC camera can be used in place of IMX219. It does not require `ini
 | `edgeai-demo` is not found | Verify that you booted the Mo62A image with the demo and model zoo installed. |
 | `No IMX219 found` | Power off before checking both ribbon ends and locking bars. Verify that the image enables the IMX219 device-tree overlay. |
 | CSI camera is not initialized | Run `sudo init-imx219`, then `edgeai-demo status` before starting inference. |
-| Video is black or too dark | Remove the lens cover, point the lens toward a well-lit scene and check camera exposure. Use the camera preview procedure to separate camera issues from model issues. |
+| Video is black or too dark | Remove the lens cover and check lighting. Use the tested [JPEG capture](../application-development/camera-and-video.mdx#capture-jpeg-frames) to separate camera issues from model issues before changing inference settings. |
 | No image appears in the SSH window | Video is sent to the board's HDMI monitor. Check the cable, monitor input and display connection. |
 | The desktop terminal disappears | The demo stops LightDM. Control the demo through SSH or UART instead. |
 | Camera or display is busy | Stop the previous preview or demo. Do not run multiple applications using the same camera or HDMI output. |
@@ -364,6 +366,6 @@ A compatible UVC camera can be used in place of IMX219. It does not require `ini
 
 - [AI overview](../application-development/ai/overview.mdx): C7x/MMA, TIDL and the camera-to-inference software stack.
 - [Pre-compiled models](../application-development/ai/model-hub.mdx): installed models, task types and compatibility references.
-- [Camera & video](../application-development/camera-and-video.mdx): camera preview and exposure tuning.
+- [Camera & video](../application-development/camera-and-video.mdx): media topology, Bayer/NV12 formats, ISP tuning and verified camera-to-JPEG capture without inference.
 - [AI development](../application-development/ai/index.mdx): the separate area for toolchain setup, model compilation, inference APIs and application development.
 - [C/C++ SDK example guide](https://github.com/inhandnet/Mo62A/blob/HEAD/board-support/extra-applications/edgeai-cpp/examples/DEV_GUIDE.md): source examples, including the camera-free `hello_inference` program.

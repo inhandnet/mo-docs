@@ -1,24 +1,114 @@
 ---
 title: "Version map"
-description: "Mo 62A: Image, TI SDK, TIDL and ONNX Runtime versions."
+description: "Measured Mo62A V1.1.0 AI stack versions, host/target differences and checks against the exact TI firmware and library archives."
 sidebar_position: 2
 ---
 
-import runtime from '@site/static/img/application-development/ai/mo62a-runtime-inventory.png';
+import runtime from '@site/static/img/application-development/ai/mo62a-stack-v110.png';
+import firmware from '@site/static/img/application-development/ai/mo62a-stack-firmware-v110.png';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
-Use a compatible image, target stack and host toolchain. Do not require unrelated component version numbers to be identical.
+Use this page as the version reference for Mo62A AI tutorials. The model compiler, board Python environment, runtime libraries and firmware have separate identities; they do not all share one version number.
 
-| Item | Audited Mo62A reference | Boundary |
+:::info[What was inspected]
+The read-only audit on 2026-10-21 inspected the current V1.1.0 development installation. It did not reflash the board, install packages, run TI's target updater or restart a remote processor. This board has development changes, including the video-decoder fixes described in [the first NPU demo](../getting-started/first-npu-demo.mdx#run-the-sample-video-no-camera-required). This inventory is not a pristine V1.1.0 release-image manifest or a compatibility guarantee for every later image.
+:::
+
+## Measured target versions
+
+| Component | Current board observation | Evidence and limits |
 |---|---|---|
-| Local image identity | V1.1.0 | `mo-version` reports build field `2026-08-19`; this is not the release publication date |
-| TI base compatibility | AM62A Linux SDK 11.01.07.05 | Mo OS is a Debian integration, not the untouched TI image |
-| TIDL tools / target integration | `11_02_17_00` | Use corresponding firmware and libraries, not an isolated wheel upgrade |
-| ONNX Runtime | TI 1.23.0 | Generic upstream wheels do not include TI providers |
-
-TI's [pinned compatibility table](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/sdk_version_compatibility_table.md) lists this backward-compatible patch for AM62A SDK 11.01.07.05. The [setup notes](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/scripts/setup/README.md) require corresponding target component updates. Do not run the updater blindly on Mo OS.
+| Image identity | V1.1.0 | `mo-version` reports build field `2026-08-19`; this is not the release publication date |
+| Operating system / kernel | Debian 13 / Linux 6.12.35 | Read from the running system; not a TI EVM root filesystem |
+| Board Python | 3.13.5 | `python3 --version`; distinct from the x86 compiler's Python 3.10 |
+| TI ONNX Runtime, Python | 1.23.0 | Imported module exposes TI execution/compilation providers and the CPU provider |
+| TI ONNX Runtime, C/C++ | 1.23.0 | Queried through `OrtGetApiBase`; the application's resolved library points to this build |
+| TFLite Runtime, Python | 2.12.1 | Imported module; not the 2.12.0 wheel listed by the TI host setup |
+| TVM, Python | 0.18.0 | Import verified; no new TVM inference result in this audit |
+| Neo-AI DLR, Python | 1.13.0 | Import verified; separate from the TVM module and its version |
+| Native TIDL-RT Python package | Not installed | `tidlruntime` module not found; native target libraries being present does not install this package |
+| NumPy | 2.2.4 | Imported module; do not force TI's reference NumPy version onto this system |
+| OpenCV | 4.10.0 | Python import and C++ `pkg-config` agree |
+| GStreamer | 1.26.2 | Executable and development package report this version |
+| TI GStreamer plugins | 0.7.0 | Version field of both `ti` and `tiovx`; not the Processor SDK or TIDL version |
+| V4L2 GStreamer plugin | 1.26.2 | Development-patched build; the version string alone does not identify the decoder fixes |
+| C7x firmware and target TIDL libraries | Match `11_02_17_00`, AM62A `edgeai/11_1` | Selected firmware file and five libraries match TI's exact archives by SHA-256; details below |
+| Vision Apps library | Filename suffix `11.1.0` | The bytes match that TIDL patch's AM62A library archive; 11.1.0 is not the TIDL release number |
+| Edge AI application/C++ SDK | Locally integrated application and static archives | No complete immutable source-revision manifest was established; do not invent one from installer defaults or library filenames |
 
 <a href={runtime} target="_blank" rel="noopener noreferrer">
-  <img src={runtime} alt="Actual Mo62A runtime inventory showing TI ONNX Runtime 1.23.0 and its execution providers" width="1440" height="900" />
+  <img src={runtime} alt="Actual V1.1.0 board imports: Python 3.13.5, ONNX Runtime 1.23.0, TFLite 2.12.1, TVM 0.18.0, DLR 1.13.0 and missing tidlruntime; C library API also reports 1.23.0" width="1440" height="900" />
 </a>
 
-The inventory proves module availability, not success for every model. Retain firmware/library and artifact checksums with deployment records. If an incompatible change requires recompilation, rerun correctness, accuracy and stability checks before replacing a known-good model. See [Set up the toolchain](../application-development/ai/toolchain.mdx) and [Benchmarks](../application-development/ai/benchmarks.mdx).
+The current CMake SDK file still contains an old comment naming ONNX Runtime 1.15. The resolved library and its version API report 1.23.0; the comment is not runtime evidence. Likewise, the application install scripts default to `EDGEAI_APP_STACK_11_01_00_00`, but that does not prove every installed application/plugin was built from that unmodified tag. The SDK's static archives and plugin hashes are retained in the <a href={useBaseUrl('/downloads/ai/mo62a-v110-stack-inventory.json')} download>raw board inventory</a>.
+
+## Host tools are a separate environment
+
+| Item | Pinned host/reference value | Relationship to Mo62A |
+|---|---|---|
+| TI base compatibility | AM62A SDK 11.01.07.05 | Compatibility baseline, not a claim that Mo OS is the unmodified SDK image |
+| Model compiler repository | `edgeai-tidl-tools` tag `11_02_17_00` | Pin the repository commit recorded below |
+| Compiler binary release | `11.02.17.00` | AM62A CPU tools; `version.txt` reports `REL.TIDL.11.02.17.00` and its own binary-source commit |
+| x86 setup Python | 3.10 | The pinned setup script's host requirement; do not replace board Python 3.13.5 |
+| TI reference runtimes | ONNX Runtime 1.23.0, TFLite 2.12.0, TVM 0.18.0 | These are not a verbatim inventory of the Debian board packages |
+
+The inspected compiler repository commit is:
+
+```text
+d2be7203e5680298d7f54bcbd38e299d1bc22bfd
+```
+
+TI's [pinned compatibility table](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/sdk_version_compatibility_table.md) lists `11_02_17_00` as a backward-compatible patch for AM62A SDK 11.01.07.05. The [target setup script](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/scripts/setup/update_target.sh) selects AM62A `edgeai/11_1` firmware/libraries and reference OSRT packages. Its Python wheels and NumPy installation steps are not instructions to overwrite this Debian/Python 3.13 integration.
+
+The TFLite 2.12.0 versus 2.12.1 difference is real. Neither matching major/minor numbers nor a successful import proves delegate ABI compatibility or model correctness. Validate a specific TFLite model before claiming that path works. The same installation-versus-inference distinction applies to TVM and DLR. The published [ONNX Python/C++ smoke tests](../application-development/ai/inference-apis.mdx) validate only their stated models and paths.
+
+## Firmware and library provenance
+
+The C7x was running with firmware name `am62a-c71_0-fw`. On this installation, `/lib/firmware/am62a-c71_0-fw` resolves to `/opt/ti/firmware/am62a-c71_0-fw`. Checking only a similarly named file elsewhere could inspect the wrong image.
+
+<a href={firmware} target="_blank" rel="noopener noreferrer">
+  <img src={firmware} alt="Actual GStreamer and TI plugin version fields, running C7x state, selected firmware symlink and full SHA-256 digest" width="1440" height="900" />
+</a>
+
+The selected C7x file and these five installed libraries match the corresponding members of TI's [firmware archive](https://software-dl.ti.com/jacinto7/esd/tidl-tools/11_02_17_00/FIRMWARES/AM62A/edgeai/11_1/firmware.tar.gz) and [target-library archive](https://software-dl.ti.com/jacinto7/esd/tidl-tools/11_02_17_00/FIRMWARES/AM62A/edgeai/11_1/tidl_lib.tar.gz):
+
+- `libtidl_onnxrt_EP.so.1.0`
+- `libtidl_tfl_delegate.so.1.0`
+- `libtidlrt_EP.so.1.0`
+- `libvx_tidl_rt.so.1.0`
+- `libtivision_apps.so.11.1.0`
+
+Download the <a href={useBaseUrl('/downloads/ai/mo62a-v110-ti-binary-comparison.json')} download>six-file comparison, source URLs and complete SHA-256 hashes</a>. The archives were inspected on the host, not installed on the board. This comparison identifies the selected file on disk, not the resident firmware's memory bytes; it does not claim every firmware component, driver or model was validated.
+
+## Repeat the checks on your board
+
+Run these read-only inventory commands on Mo62A, not in the x86 compiler environment:
+
+```bash
+mo-version
+uname -r
+python3 --version
+python3 - <<'PY'
+import importlib
+import importlib.util
+for name in ('onnxruntime', 'tflite_runtime', 'tvm', 'dlr', 'cv2', 'numpy'):
+    try:
+        module = importlib.import_module(name)
+        print(name, getattr(module, '__version__', 'unreported'), module.__file__)
+    except Exception as error:
+        print(name, type(error).__name__, str(error))
+print('tidlruntime installed:', importlib.util.find_spec('tidlruntime') is not None)
+import onnxruntime as ort
+print('providers:', ort.get_available_providers())
+PY
+gst-launch-1.0 --version
+gst-inspect-1.0 tiovx
+gst-inspect-1.0 ti
+readlink -f /lib/firmware/am62a-c71_0-fw
+sha256sum /lib/firmware/am62a-c71_0-fw
+ldd /usr/local/bin/app_edgeai
+```
+
+Check the imported module's path as well as its version: a virtual environment or user-installed wheel can shadow the system package. Missing Python distribution metadata alone does not prove a vendor-installed module is absent. Conversely, seeing `TIDLExecutionProvider` is not proof that a particular graph is fully offloaded.
+
+Keep the exact source revision, image hash, target-library/firmware hashes, model bundle and application configuration with deployment records. Do not upgrade or downgrade the board merely to make version strings equal. For a deliberate stack change, use [Set up the toolchain](../application-development/ai/toolchain.mdx) and repeat correctness, accuracy, stability and [performance checks](../application-development/ai/benchmarks.mdx).

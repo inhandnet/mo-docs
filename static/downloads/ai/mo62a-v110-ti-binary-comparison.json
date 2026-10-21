@@ -1,0 +1,66 @@
+{
+  "captured_at_utc": "2026-10-21T01:26:45.185273+00:00",
+  "scope": "Selected C7x firmware file on disk and five target libraries; not a memory dump or pristine V1.1.0 image manifest",
+  "ti_release": "11_02_17_00",
+  "sdk_path": "AM62A/edgeai/11_1",
+  "archives": [
+    {
+      "url": "https://software-dl.ti.com/jacinto7/esd/tidl-tools/11_02_17_00/FIRMWARES/AM62A/edgeai/11_1/firmware.tar.gz",
+      "sha256": "816f6f792620e222f174a47f865665739f3220e275f84273713cc52a67060012"
+    },
+    {
+      "url": "https://software-dl.ti.com/jacinto7/esd/tidl-tools/11_02_17_00/FIRMWARES/AM62A/edgeai/11_1/tidl_lib.tar.gz",
+      "sha256": "a860044d7ce8807e79b735518784a5ecbb9215f98075aa49bf4cc9ca395fcba0"
+    }
+  ],
+  "comparisons": [
+    {
+      "archive": "firmware.tar.gz",
+      "member": "firmware/ti-ipc/am62axx/dsp_edgeai_c7x_1_release_strip.out",
+      "target_path": "/lib/firmware/am62a-c71_0-fw",
+      "ti_sha256": "2ca70b81e69028cc4b0e08edc5d7bcdca76f67fa39ed66531ca030824837ff57",
+      "board_sha256": "2ca70b81e69028cc4b0e08edc5d7bcdca76f67fa39ed66531ca030824837ff57",
+      "match": true
+    },
+    {
+      "archive": "tidl_lib.tar.gz",
+      "member": "tidl_lib/libvx_tidl_rt.so.1.0",
+      "target_path": "/opt/ti/edgeai/lib/libvx_tidl_rt.so.1.0",
+      "ti_sha256": "9b8ae24fccefc5034b78839c4e6eec963d837cd41db7314fed0715b0e5b2b666",
+      "board_sha256": "9b8ae24fccefc5034b78839c4e6eec963d837cd41db7314fed0715b0e5b2b666",
+      "match": true
+    },
+    {
+      "archive": "tidl_lib.tar.gz",
+      "member": "tidl_lib/libtidlrt_EP.so.1.0",
+      "target_path": "/opt/ti/edgeai/lib/libtidlrt_EP.so.1.0",
+      "ti_sha256": "c39b5c5ced418c6ffd7495965abd25501e3cc8d8fc7093b66145e9040e33c7af",
+      "board_sha256": "c39b5c5ced418c6ffd7495965abd25501e3cc8d8fc7093b66145e9040e33c7af",
+      "match": true
+    },
+    {
+      "archive": "tidl_lib.tar.gz",
+      "member": "tidl_lib/libtidl_tfl_delegate.so.1.0",
+      "target_path": "/opt/ti/edgeai/lib/libtidl_tfl_delegate.so.1.0",
+      "ti_sha256": "b947303ddee9882ceffb9f04ab74830e71a165a936af9d351b0ccc90dd14056b",
+      "board_sha256": "b947303ddee9882ceffb9f04ab74830e71a165a936af9d351b0ccc90dd14056b",
+      "match": true
+    },
+    {
+      "archive": "tidl_lib.tar.gz",
+      "member": "tidl_lib/libtivision_apps.so.11.1.0",
+      "target_path": "/opt/ti/edgeai/lib/libtivision_apps.so.11.1.0",
+      "ti_sha256": "45bc48eee372b38d1fe6216887985f2779c605103de3eba6c920e60c5daf6c4e",
+      "board_sha256": "45bc48eee372b38d1fe6216887985f2779c605103de3eba6c920e60c5daf6c4e",
+      "match": true
+    },
+    {
+      "archive": "tidl_lib.tar.gz",
+      "member": "tidl_lib/libtidl_onnxrt_EP.so.1.0",
+      "target_path": "/opt/ti/edgeai/lib/libtidl_onnxrt_EP.so.1.0",
+      "ti_sha256": "bd2d78a92ea037af4cf2d27fe6aecd7be4650f8bd0f61f79cc67d7d28d7786d7",
+      "board_sha256": "bd2d78a92ea037af4cf2d27fe6aecd7be4650f8bd0f61f79cc67d7d28d7786d7",
+      "match": true
+    }
+  ]
+}

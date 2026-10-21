@@ -27,7 +27,7 @@ python3 -c "import onnxruntime as o; print(o.__version__); print(o.get_available
 
 Module import is more useful than relying only on Python package metadata: a vendor-installed module can import successfully even when `importlib.metadata` does not find a wheel record. A provider listed on the board is not evidence that host compilation should run there.
 
-Follow [Set up the toolchain](./toolchain.mdx) for the matching x86 host tools. The V1.1.0 validation line uses tag `11_02_17_00` and AM62A, not another SoC's artifacts.
+Follow [Set up the toolchain](./toolchain.mdx) for the matching x86 host tools. The V1.1.0 development installation uses tag `11_02_17_00` and AM62A, not another SoC's artifacts. Check the [complete target inventory](../../resource-download/version-map.mdx): board Python 3.13.5 and TFLite 2.12.1 are distinct from host Python 3.10 and TI's reference TFLite 2.12.0. Preserve the board packages; host setup does not belong on the target.
 
 ## Prepare the model and inputs
 

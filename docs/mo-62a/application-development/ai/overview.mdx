@@ -8,7 +8,7 @@ import stackOverview from '@site/static/img/application-development/ai/ai-stack-
 import inferenceFlow from '@site/static/img/application-development/ai/ai-inference-flow.png';
 import subgraph from '@site/static/img/application-development/ai/ai-subgraph.png';
 import versionMatrix from '@site/static/img/application-development/ai/ai-version-matrix.png';
-import runtime from '@site/static/img/application-development/ai/mo62a-runtime-inventory.png';
+import runtime from '@site/static/img/application-development/ai/mo62a-stack-v110.png';
 
 Mo62A uses the AM62A's C7x DSP and Matrix Multiply Accelerator (MMA) for TIDL-accelerated neural-network inference. The advertised 2 TOPS is a peak hardware capability, not application throughput. Arm Cortex-A53 cores still run application code and can execute network sections through a compatible CPU runtime. They are not guaranteed to remain idle. See [TI's AM62A peak-performance explanation](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1338450/am62a7-how-mma-2-tops-peak-performance-is-computed).
 
@@ -31,9 +31,9 @@ Local results refer to the Mo62A V1.1.0 development installation with TIDL `11_0
 | Path | Function | Verification boundary |
 |---|---|---|
 | ONNX Runtime + TI execution provider | Dispatches supported subgraphs to TIDL; remaining supported operations can use the CPU provider | Supplied YOLOX models were tested through this path |
-| TFLite + TI delegate | Uses a different model/runtime integration | Installation is not proof every TFLite model passes |
-| TVM runtime | Another TI-supported deployment path | Tag `11_02_17_00` lists TVM 0.18.0; no new Mo62A TVM deployment is claimed |
-| Native TIDL-RT | Runs compatible fully offloaded artifacts without an OSRT frontend | Does not supply OSRT CPU fallback |
+| TFLite + TI delegate | Uses a different model/runtime integration | Board Python module is 2.12.1; installation is not proof every TFLite model passes |
+| TVM runtime | Another TI-supported deployment path | Board module is 0.18.0; no new Mo62A TVM deployment is claimed |
+| Native TIDL-RT | Runs compatible fully offloaded artifacts without an OSRT frontend | No OSRT CPU fallback; the board's `tidlruntime` Python package is not installed |
 | TIOVX / vision plugins | Connects supported processing nodes and hardware services | Buffer reuse and CPU work depend on the application |
 
 These distinctions follow the [pinned TI runtime overview](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/README.md) and [TIDL-RT guide](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/tidlrt.md). The SDK 11.01 guide also describes the older Neo-AI DLR integration; an installed DLR 1.13 module is not evidence of a validated TVM 0.18.0 pipeline.
@@ -82,7 +82,7 @@ An incompatible change can require recompilation. TI explicitly requires it for 
   <img src={runtime} alt="Actual Mo62A software inventory showing the TI runtime and available providers; an installation check, not proof of every runtime path" width="1440" height="900" />
 </a>
 
-Keep installation evidence separate from conceptual diagrams and successful inference measurements.
+The current board uses Python 3.13.5, not the x86 toolchain's Python 3.10. Its TFLite module is 2.12.1, while TI's reference setup lists 2.12.0. See the [complete measured version map](../../resource-download/version-map.mdx) for all runtime/plugin versions, six firmware/library hash comparisons and read-only checks. Keep installation evidence separate from conceptual diagrams and successful inference measurements; this is a development installation, not a pristine release-image manifest.
 
 ## Where to go next
 

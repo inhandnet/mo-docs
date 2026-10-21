@@ -20,14 +20,18 @@ This integration uses `edgeai-tidl-tools` tag `11_02_17_00`. The instructions fo
 | Target SoC | AM62A | Not AM62x or another accelerator |
 | Host TIDL tools | `11_02_17_00` | Pin the tag and record its commit |
 | TI base SDK compatibility | AM62A Linux SDK 11.01.07.05 | Patch requires corresponding target updates |
-| Runtime versions listed by the tag | ONNX Runtime 1.23.0, TFLite 2.12.0, TVM 0.18.0 | Not all paths were tested on Mo62A |
-| Mo62A test installation | V1.1.0 development environment | Debian integration, not an unmodified TI SDK image |
+| TI reference runtime versions | ONNX Runtime 1.23.0, TFLite 2.12.0, TVM 0.18.0 | Reference packages, not a verbatim inventory of Mo OS |
+| Mo62A test installation | V1.1.0 development environment | Board Python 3.13.5 and TFLite 2.12.1; Debian integration, not an unmodified TI SDK image |
 
 Read the [TI compatibility table](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/sdk_version_compatibility_table.md) with the [target setup notes](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/scripts/setup/README.md). Do not run TI's target updater blindly on Mo OS: it replaces firmware, libraries and runtime components. Preserve the image's tested integration.
+
+The [measured target inventory](../../resource-download/version-map.mdx) confirms Python and C/C++ ONNX Runtime 1.23.0, installed TVM 0.18.0 and the selected C7x firmware plus five libraries matching TI's `11_02_17_00` archives. The board also has DLR 1.13.0 and NumPy 2.2.4, but no `tidlruntime` Python package. These observations do not validate every runtime/model path. In particular, do not assume the board's TFLite 2.12.1 works with a model just because the host reference is 2.12.0.
 
 ## Prepare an isolated x86 environment
 
 The pinned setup script requires Python 3.10; TI's CPU Docker recipe uses Ubuntu 22.04. Use a dedicated virtual environment or review the [Docker instructions](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/scripts/docker/README.md). Docker setup can install system packages and change group membership.
+
+The commands in this section run on the x86 host. They are not instructions to replace the board's Python 3.13.5, NumPy or vendor runtime packages.
 
 With Python 3.10 and its `venv` support available on the host:
 
