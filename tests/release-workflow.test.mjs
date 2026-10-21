@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 import {readRepositoryVersions, validateReleaseVersion} from '../scripts/validate-release-version.mjs';
-import {combinedReleaseNotes, parseCommitMessage, renderChangelog} from '../scripts/generate-changelog.mjs';
+import {combinedReleaseNotes, findPreviousVersion, parseCommitMessage, renderChangelog} from '../scripts/generate-changelog.mjs';
 
 test('release tag uses the exact uppercase V semantic version', () => {
   for (const version of ['V0.1.0', 'V1.0.0', 'V12.34.56']) {
@@ -54,6 +54,36 @@ test('release workflow keeps tag publication separate from master deployment', a
   assert.match(deploy, /StrictHostKeyChecking=yes/);
   assert.match(deploy, /skipping its deployment/);
   assert.match(masterBuild, /branches:\s*\[master\]/);
+});
+
+test('changelogs start after the newest final release, not after a candidate', async () => {
+  const repo = await fs.mkdtemp(path.join(os.tmpdir(), 'mo-docs-tags-'));
+  const run = (...args) => execFileSync('git', args, {cwd: repo, stdio: 'pipe'});
+  run('init', '-q');
+  run('-c', 'user.name=t', '-c', 'user.email=t@example.invalid', 'commit', '-q', '--allow-empty', '-m', 'docs: first');
+  run('-c', 'user.name=t', '-c', 'user.email=t@example.invalid', 'tag', '-a', 'V1.0.0', '-m', 'V1.0.0');
+  run('-c', 'user.name=t', '-c', 'user.email=t@example.invalid', 'commit', '-q', '--allow-empty', '-m', 'docs: second');
+  run('-c', 'user.name=t', '-c', 'user.email=t@example.invalid', 'tag', '-a', 'V1.0.1-rc1', '-m', 'V1.0.1-rc1');
+  const cwd = process.cwd();
+  process.chdir(repo);
+  try {
+    assert.equal(findPreviousVersion('V1.0.1-rc2', 'HEAD'), 'V1.0.0');
+    assert.equal(findPreviousVersion('V1.0.1', 'HEAD'), 'V1.0.0');
+  } finally {
+    process.chdir(cwd);
+    await fs.rm(repo, {recursive: true, force: true});
+  }
+});
+
+test('legacy Message.en / Message.zh-CN paragraphs are still read', () => {
+  const legacy = parseCommitMessage([
+    'docs: verify GPIO and peripheral loopbacks', '',
+    'Message.en:', 'Document tested GPIO, UART5 and PWM loopbacks with real captures.', 'Separate untested paths.', '',
+    'Message.zh-CN:', '记录 GPIO、UART5 与 PWM 回环实测。', '区分未实测路径。', '',
+  ].join('\n'), 'abc123');
+  assert.equal(legacy.en, 'Document tested GPIO, UART5 and PWM loopbacks with real captures. Separate untested paths.');
+  assert.equal(legacy.zh, '记录 GPIO、UART5 与 PWM 回环实测。 区分未实测路径。');
+  assert.throws(() => parseCommitMessage('docs: no message block at all\n\nJust prose.', 'def456'), /exactly one Message block/);
 });
 
 test('bilingual commit messages produce English and Chinese changelogs', () => {
