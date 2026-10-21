@@ -29,7 +29,7 @@ python -B fetch_model.py --bundle work/bundle
 python -B verify_inputs.py
 ```
 
-`fetch_model.py` downloads the model and its matching `.prototxt` from [TI's 11_02_00 model directory](https://software-dl.ti.com/jacinto7/esd/modelzoo/11_02_00/models/vision/detection/coco/edgeai-mmdet/). The filename is `yolox_tiny_lite_416x416_20220217_model.onnx`. The model-zoo directory version is not the compiler version: this specific source model is compiled here with tools `11_02_17_00`.
+`fetch_model.py` downloads the model and its matching `.prototxt` from TI's download server, using the [pinned model-zoo source entry](https://github.com/TexasInstruments/edgeai-modelzoo/tree/99f1bd6e434bdde9d26c3b0678ce368e69050ea3/models/vision/detection/coco/edgeai-mmdet). The filename is `yolox_tiny_lite_416x416_20220217_model.onnx`. The download path's model-zoo version `11_02_00` is not the compiler version: this specific source model is compiled here with tools `11_02_17_00`.
 
 | Item | Exact contract |
 |---|---|
