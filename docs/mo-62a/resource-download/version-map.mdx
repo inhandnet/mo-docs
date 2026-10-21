@@ -33,7 +33,7 @@ The read-only audit on 2026-10-21 inspected the current V1.1.0 development insta
 | TI GStreamer plugins | 0.7.0 | Version field of both `ti` and `tiovx`; not the Processor SDK or TIDL version |
 | V4L2 GStreamer plugin | 1.26.2 | Development-patched build; the version string alone does not identify the decoder fixes |
 | C7x firmware and target TIDL libraries | Match `11_02_17_00`, AM62A `edgeai/11_1` | Selected firmware file and five libraries match TI's exact archives by SHA-256; details below |
-| Vision Apps library | Filename `libtivision_apps.so.11.1.0` | The bytes match that TIDL patch's AM62A library archive; 11.1.0 is not the TIDL release number |
+| Vision Apps library | Filename suffix `11.1.0` | The bytes match that TIDL patch's AM62A library archive; 11.1.0 is not the TIDL release number |
 | Edge AI application/C++ SDK | Locally integrated application and static archives | No complete immutable source-revision manifest was established; do not invent one from installer defaults or library filenames |
 
 <a href={runtime} target="_blank" rel="noopener noreferrer">
@@ -47,10 +47,16 @@ The current CMake SDK file still contains an old comment naming ONNX Runtime 1.1
 | Item | Pinned host/reference value | Relationship to Mo62A |
 |---|---|---|
 | TI base compatibility | AM62A SDK 11.01.07.05 | Compatibility baseline, not a claim that Mo OS is the unmodified SDK image |
-| Model compiler repository | `edgeai-tidl-tools` tag `11_02_17_00` | Repository commit `d2be7203e5680298d7f54bcbd38e299d1bc22bfd` |
+| Model compiler repository | `edgeai-tidl-tools` tag `11_02_17_00` | Pin the repository commit recorded below |
 | Compiler binary release | `REL.TIDL.11.02.17.00` | AM62A CPU tools; `version.txt` has its own binary-source commit, distinct from the repository commit |
 | x86 setup Python | 3.10 | The pinned setup script's host requirement; do not replace board Python 3.13.5 |
 | TI reference runtimes | ONNX Runtime 1.23.0, TFLite 2.12.0, TVM 0.18.0 | These are not a verbatim inventory of the Debian board packages |
+
+The inspected compiler repository commit is:
+
+```text
+d2be7203e5680298d7f54bcbd38e299d1bc22bfd
+```
 
 TI's [pinned compatibility table](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/sdk_version_compatibility_table.md) lists `11_02_17_00` as a backward-compatible patch for AM62A SDK 11.01.07.05. The [target setup script](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/scripts/setup/update_target.sh) selects AM62A `edgeai/11_1` firmware/libraries and reference OSRT packages. Its Python wheels and NumPy installation steps are not instructions to overwrite this Debian/Python 3.13 integration.
 
