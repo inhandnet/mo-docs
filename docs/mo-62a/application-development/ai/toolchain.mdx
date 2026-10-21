@@ -1,97 +1,120 @@
 ---
 title: "Set up the toolchain"
-description: "Prepare the version-pinned x86 TIDL model compiler, preserve a compatible target stack and verify compilation beyond its exit status."
-sidebar_position: 3
+description: "Install an isolated x86 TI compiler and keep the model, runtime and C7x firmware on a tested compatibility baseline."
+sidebar_position: 4
 ---
 
 import compileFlow from '@site/static/img/application-development/ai/ai-compile.png';
-import compiler from '@site/static/img/application-development/ai/mo62a-compiler-review.png';
+import hostSetup from '@site/static/img/application-development/ai/mo62a-zone-host-setup.png';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
-TI's [AM62A model guide](https://software-dl.ti.com/processor-sdk-linux/esd/AM62AX/11_01_07_05/exports/docs/edgeai/inference_models.html#import-custom-models) places TIDL model compilation on an x86 PC or server. The board runs the deployed result. This restriction concerns the model compiler, not ordinary C/C++ application builds on Mo62A.
+This is step 1 of the warehouse zone-occupancy example: install the x86 tools here, [compile a new model bundle](./compile-your-own-model.mdx), then [deploy the business application](./tutorial-yolo.mdx). No GPU, activation replacement or retraining is needed for the model's existing `person` class.
 
-:::warning[Verification status]
-This integration uses `edgeai-tidl-tools` tag `11_02_17_00`. The instructions follow that tag; they do not claim a fresh custom-model deployment passed. A local Python 3.12 ResNet18 experiment produced artifacts with diagnostics and did not finish board inference. Use the upstream Python 3.10 environment and the acceptance checks in [Compile your own model](./compile-your-own-model.mdx).
-:::
+TI's official repository is [TexasInstruments/edgeai-tidl-tools](https://github.com/TexasInstruments/edgeai-tidl-tools), with a plural `tools`. The [AM62A model guide](https://software-dl.ti.com/processor-sdk-linux/esd/AM62AX/11_01_07_05/exports/docs/edgeai/inference_models.html#import-custom-models) places model compilation on an x86 host. The board runs the result; ordinary C/C++ application compilation on Mo62A is a different task.
 
 ## Select a compatible combination
 
-| Component | Reference for this audit | Boundary |
+:::warning[One tested compatibility baseline]
+Treat the x86 compiler, graph, compiled artifacts, target runtime/provider libraries and C7x firmware as one deployment set. Updating one component alone can cause loading or inference failures. Matching only the ONNX Runtime version string is insufficient: the generic PyPI wheel does not contain TI's provider.
+
+Alignment means a tested combination, not an identical number on every component. Do not replace the board's Python or NumPy with the host versions.
+:::
+
+| Component | Pinned baseline | Location |
 |---|---|---|
-| Target SoC | AM62A | Not AM62x or another accelerator |
-| Host TIDL tools | `11_02_17_00` | Pin the tag and record its commit |
-| TI base SDK compatibility | AM62A Linux SDK 11.01.07.05 | Patch requires corresponding target updates |
-| TI reference runtime versions | ONNX Runtime 1.23.0, TFLite 2.12.0, TVM 0.18.0 | Reference packages, not a verbatim inventory of Mo OS |
-| Mo62A test installation | V1.1.0 development environment | Board Python 3.13.5 and TFLite 2.12.1; Debian integration, not an unmodified TI SDK image |
+| TI source | `11_02_17_00`, commit `d2be7203e5680298d7f54bcbd38e299d1bc22bfd` | x86 host |
+| AM62A compiler | `REL.TIDL.11.02.17.00`, commit `6f5289fd1c17cf03ff21caa842c9706a06e11fcc` | x86 host |
+| Host Python / runtime | Python 3.10; TI ONNX Runtime 1.23.0 | Isolated virtual environment |
+| Host data libraries | NumPy 1.23.0, ONNX 1.14.0, OpenCV 4.10.0.84 wheel | Isolated virtual environment |
+| Target | V1.1.0 development installation; Python 3.13.5, TI ONNX Runtime 1.23.0, NumPy 2.2.4, OpenCV 4.10.0 | Mo62A |
+| Target firmware / libraries | Selected C7x firmware and five runtime libraries matched TI's `11_02_17_00` archives | Mo62A |
 
-Read the [TI compatibility table](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/sdk_version_compatibility_table.md) with the [target setup notes](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/scripts/setup/README.md). Do not run TI's target updater blindly on Mo OS: it replaces firmware, libraries and runtime components. Preserve the image's tested integration.
+The [measured version map](../../resource-download/version-map.mdx) records the inventory and binary comparisons. It is not a pristine release-image manifest. TFLite 2.12.1, TVM 0.18.0 and DLR 1.13.0 are also installed on that board, but are not used by this ONNX example; their presence does not validate those paths.
 
-The [measured target inventory](../../resource-download/version-map.mdx) confirms Python and C/C++ ONNX Runtime 1.23.0, installed TVM 0.18.0 and the selected C7x firmware plus five libraries matching TI's `11_02_17_00` archives. The board also has DLR 1.13.0 and NumPy 2.2.4, but no `tidlruntime` Python package. These observations do not validate every runtime/model path. In particular, do not assume the board's TFLite 2.12.1 works with a model just because the host reference is 2.12.0.
+The [TI compatibility table](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/sdk_version_compatibility_table.md) associates this patch with AM62A SDK 11.01.07.05 and corresponding target updates. Do not run TI's target updater blindly on Mo OS: it replaces libraries and firmware. Preserve the tested integration.
 
 ## Prepare an isolated x86 environment
 
-The pinned setup script requires Python 3.10; TI's CPU Docker recipe uses Ubuntu 22.04. Use a dedicated virtual environment or review the [Docker instructions](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/scripts/docker/README.md). Docker setup can install system packages and change group membership.
+TI's CPU Docker recipe uses Ubuntu 22.04 and Python 3.10. This walkthrough was exercised on x86 Ubuntu 24.04.4 with a separately installed Python 3.10.20. That observation is not a claim that TI supports every OS combination. Consult the [TI Docker instructions](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/scripts/docker/README.md) for its reference environment.
 
-The commands in this section run on the x86 host. They are not instructions to replace the board's Python 3.13.5, NumPy or vendor runtime packages.
-
-With Python 3.10 and its `venv` support available on the host:
+Provide Python 3.10 with `venv`, Git, curl, tar, a C++ runtime and TI's required host libraries (`libyaml-cpp` and GLib). On Ubuntu 22.04 an administrator can install prerequisites with:
 
 ```bash
-sudo apt-get install libyaml-cpp-dev libglib2.0-dev python3.10-venv
-git clone --branch 11_02_17_00 --depth 1 \
-  https://github.com/TexasInstruments/edgeai-tidl-tools.git
-cd edgeai-tidl-tools
-python3.10 -m venv .venv
-source .venv/bin/activate
-export SOC=AM62A
-./scripts/setup/setup.sh
-source ./scripts/setup/setup_env.sh AM62A
-git rev-parse HEAD
-python3 --version
-python3 -c "import onnxruntime as o; print(o.__version__); print(o.get_available_providers())"
+sudo apt-get update
+sudo apt-get install git curl tar libyaml-cpp-dev libglib2.0-dev python3.10-venv
 ```
 
-Set `SOC` before setup to avoid downloading tools for every supported SoC. Setup downloads executable tools, runtime packages and example data; review its changes and allow storage for the selected components. CPU tools do not require a GPU. Repository, downloaded binary and model licenses are separate. See the [setup script](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/scripts/setup/setup.sh) and [usage guide](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/scripts/setup/README.md).
+Ubuntu 24.04's default Python is not 3.10. Do not replace its system interpreter or assume the command above provides 3.10 there: provision it separately or use the reference container. If a managed Python omits `ensurepip`, its existing pip must support `--python` to bootstrap only the new virtual environment.
 
-In each new shell, activate the environment and source `setup_env.sh AM62A`. A generic PyPI `onnxruntime` wheel does not include TI's providers.
-
-## Exercise one upstream reference model
-
-From the tool repository:
+Download <a href={useBaseUrl('/downloads/ai/mo62a-zone-demo.tar.gz')} download>the complete source/input archive</a> and <a href={useBaseUrl('/downloads/ai/mo62a-zone-demo.tar.gz.sha256')} download>its checksum</a> into one directory on the x86 host. It includes scripts, two prepared CC BY 4.0 clips, configuration, tests and attribution. It contains no TI tools or model weights.
 
 ```bash
-cd runtimes/examples/python/basic_example
-python3 basic_example.py --config ./config.yaml \
-  --models cl-ort-resnet18-v1 --compile
-python3 basic_example.py --config ./config.yaml \
-  --models cl-ort-resnet18-v1 --infer
+sha256sum -c mo62a-zone-demo.tar.gz.sha256
+tar -xzf mo62a-zone-demo.tar.gz
+cd zone-demo
+bash setup_host.sh ./host
+source ./activate_host.sh ./host
+python -m pip check
 ```
 
-These are upstream reference commands, not the procedure or successful outcome of the failed local experiment. Review compilation before host inference; host emulation is still not a board test. The [basic example](https://github.com/TexasInstruments/edgeai-tidl-tools/tree/11_02_17_00/runtimes/examples/python/basic_example) places artifacts under `runtimes/examples/model-artifacts/`. Selecting only `-r onnxrt` runs multiple configured ONNX models, not one smoke test.
+Use a new directory. Setup refuses to replace an existing `host`. It clones the official source and checks its commit, creates a virtual environment, installs the pinned TI wheel and dependencies, and downloads/checks the AM62A tool archive. It does not use sudo, modify global pip or access the board. Review <a href={useBaseUrl('/downloads/ai/zone-demo/setup_host.sh')}>setup_host.sh</a> and <a href={useBaseUrl('/downloads/ai/zone-demo/requirements-host.txt')}>requirements-host.txt</a> before running downloaded code.
+
+<a href={hostSetup} target="_blank" rel="noopener noreferrer">
+  <img src={hostSetup} alt="Actual inspection of the new x86 environment: TI source, compiler version, Python, execution providers and dependency check" width="1440" height="900" />
+</a>
+
+Activation prints runtime `1.23.0` and requires `TIDLCompilationProvider`. The expected list also contains `TIDLExecutionProvider` and `CPUExecutionProvider`. Listing a provider is an installation check, not evidence that an arbitrary graph will compile or execute.
+
+## Reactivate and verify the environment
+
+In every new x86 shell, enter the extracted `zone-demo` directory:
+
+```bash
+source ./activate_host.sh ./host
+git -C host/edgeai-tidl-tools rev-parse HEAD
+cat host/tidl_tools/version.txt
+python --version
+python -c "import onnxruntime as o; print(o.__file__); print(o.__version__); print(o.get_available_providers())"
+```
+
+The compiler must report `BRANCH=REL.TIDL.11.02.17.00` and the binary commit above. Activation sets `SOC=AM62A`, `TIDL_TOOLS_PATH` and the tool library search path. Do not install generic `onnxruntime` into this environment or install host requirements on the board.
+
+The floating-point reference can use `--backend cpu` in this same TI environment: the application explicitly selects `CPUExecutionProvider`. Training/export packages for other models belong in a separate environment.
+
+## Track upstream without changing the deployment baseline
+
+These commands inspect official upstream state without switching the checked-out source or installing packages:
+
+```bash
+git -C host/edgeai-tidl-tools remote get-url origin
+git -C host/edgeai-tidl-tools fetch origin
+git -C host/edgeai-tidl-tools ls-remote --tags origin
+git -C host/edgeai-tidl-tools describe --tags --exact-match HEAD
+```
+
+The origin should be `https://github.com/TexasInstruments/edgeai-tidl-tools.git`. Keep the tag fixed for this tutorial. Do not routinely run `git pull` and setup in a working environment. Evaluate a new release separately against its AM62A compatibility table, required target updates and regressions.
 
 ## What compilation produces
 
 <a href={compileFlow} target="_blank" rel="noopener noreferrer">
-  <img src={compileFlow} alt="Conceptual workflow: matched x86 compilation, calibration, artifact checks, complete bundle transfer and target validation; not a passing custom-model test" width="2400" height="1680" />
+  <img src={compileFlow} alt="Conceptual workflow from matched x86 calibration and compilation through complete bundle transfer to target validation" width="2400" height="1680" />
 </a>
 
-Compilation analyzes the graph, quantizes/calibrates where required, and prepares accelerator execution and memory layout. Preserve the original or deliberately optimized model, network and I/O binaries, runtime metadata, preprocessing and postprocessing parameters. Filenames depend on the runtime and graph. See [TI's compilation documentation](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/model_compilation.md).
-
-Exit status zero, a success banner, an artifact directory or full offload is not sufficient proof of success. Inspect the entire log, check host outputs against a reference, then validate on the target.
-
-<a href={compiler} target="_blank" rel="noopener noreferrer">
-  <img src={compiler} alt="Actual failed local compilation excerpt showing artifacts alongside diagnostics; a counterexample, not a passing test" width="1440" height="900" />
-</a>
+Keep the original graph, matching detection metadata, network/I/O binaries, runtime metadata, checksums and settings together. An exit status or artifact directory is not sufficient proof of success: inspect diagnostics, compare host outputs, then validate the board using [Compile your own model](./compile-your-own-model.mdx).
 
 ## Calibration and precision
 
-Use representative inputs processed as production inputs. All-zero tensors can test timing, not calibration accuracy. Compare outputs and task metrics on held-out data.
+The example uses 32 frames from a separate clip and three calibration iterations, with 8-bit base quantization and TI's selected 16-bit outputs. It is mixed precision, not an all-8-bit claim. The source architecture and activations are unchanged. Neither 32 frames nor full offload establishes production accuracy.
 
-In this tag, `basic_example.py` adjusts `advanced_options:calibration_frames` to its selected frame count; its example YAML starts with two frames. It still checks available inputs and can reject insufficient input sets. Do not generalize a direct-API failure into “fewer than 20 images always exits successfully without artifacts.” Check the [example code](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/runtimes/examples/python/basic_example/basic_example.py) and effective settings.
-
-8-bit, 16-bit and mixed precision have different support, accuracy and performance tradeoffs. Consult the [quantization guide](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/quantization.md) and [operator evidence](./known-issues.mdx). Do not copy mixed-precision layer names or detection metadata from a different graph.
+See the [quantization guide](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/quantization.md), [compilation options](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/docs/model_compilation.md) and [AM62A operator evidence](./known-issues.mdx). Do not copy tensor names or head metadata to a different graph.
 
 ## Application builds and upgrades
 
-The on-board C/C++ SDK can build an application around a supplied model without the x86 model compiler. See [Inference APIs](./inference-apis.mdx).
+The on-board SDK can build C/C++ applications around an already compiled model; see [Inference APIs](./inference-apis.mdx). For an intentional AI-stack update:
 
-Record host tools, target firmware, libraries, runtimes and model checksums as a set. Recompile where compatibility guidance requires it and rerun accuracy and stability checks. SDK 9.2 artifacts requiring recompilation for SDK 10.0 is a [documented AM62A case](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1407278/sk-am62a-lp-model-maker-sdk-9-2-and-10-compatible), not evidence that all patch updates are incompatible.
+1. Save the known-good model and image/configuration. Record compiler identities, runtime imports, resolved libraries and C7x firmware hashes.
+2. Review AM62A compatibility and integrate target changes as a set. Replacing one library or wheel is not a complete update.
+3. Build a separate host environment and recompile where required. Never mix a new graph with an old artifact directory.
+4. Validate the original baseline, CPU reference, host simulation, target outputs, task accuracy and sustained application behavior before adopting the new set.
+
+Version skew is one possible cause of failure, not a diagnosis established by an error message alone. Incorrect inputs, unsupported graphs and incomplete artifacts need separate checks. TI's [SDK 9.2 to 10.0 E2E case](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1407278/sk-am62a-lp-model-maker-sdk-9-2-and-10-compatible) documents one recompilation requirement, not a rule about every patch.

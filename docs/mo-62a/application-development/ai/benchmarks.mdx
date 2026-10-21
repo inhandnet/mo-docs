@@ -1,7 +1,7 @@
 ---
 title: "Performance & benchmarks"
 description: "Reproduce Mo62A inference-call measurements and distinguish them from video throughput, CPU load and accuracy."
-sidebar_position: 7
+sidebar_position: 8
 ---
 
 import result from '@site/static/img/application-development/ai/mo62a-benchmark.png';
@@ -66,6 +66,22 @@ These measurements used the development board's hardware-decoding fixes describe
 </a>
 
 The <a href={useBaseUrl('/downloads/npu-demo/backend-comparison.json')} download>six-run comparison data</a> records the input checksum, configuration, CPU accounting and temperatures. That experiment recorded approximately 76–85 °C, so it must not be conflated with the shorter, cooler timing runs above. No power measurement was taken.
+
+## Newly compiled warehouse application
+
+The [warehouse tutorial](./tutorial-yolo.mdx) uses a newly calibrated YOLOX-tiny-lite 8210 bundle, not either supplied model above. Three consecutive offline runs processed the same 611-frame, 1280 × 720 clip with one TIDL subgraph and 326/326 nodes offloaded. There was no warm-up discard; the first call is included. These are short repeatability checks, not endurance or labeled accuracy tests.
+
+| Run | Elapsed | Processing rate | Mean call | p95 call |
+|---|---|---|---|---|
+| 1 | 77.620 s | 7.872 fps | 17.616 ms | 17.987 ms |
+| 2 | 78.119 s | 7.821 fps | 17.608 ms | 17.998 ms |
+| 3 | 77.451 s | 7.889 fps | 17.622 ms | 18.022 ms |
+
+The timer covers input checksum calculation, OpenCV software decoding, preprocessing, inference, zone rules, rendering and MJPEG/file output, excluding session creation. No screen capture or large-file transfer ran during these timed loops. The source/output timeline is 30 fps; it is not the measured processing rate. The 17.6 ms call is not a hardware-only MMA timer.
+
+All three runs produced identical per-frame detections and states, with events at 7.367 s and 8.667 s of source time. The original 8200 baseline passed before and after, with the same boot and remote processor running. Thermal readings at those checks were approximately 54–55 °C, not continuous temperature monitoring. No power data was collected. The model visibly misses small/occluded people; output consistency is not a recall or mAP result.
+
+Download the <a href={useBaseUrl('/downloads/ai/zone-demo-evidence.json')}>three-run summaries, host/target checks and agreement record</a>, <a href={useBaseUrl('/downloads/ai/zone-demo-frames.jsonl')}>all 611 first-run frame records</a> and <a href={useBaseUrl('/downloads/ai/zone-demo-events.csv')}>event CSV</a>. Result media and complete source/input licensing are on the tutorial page.
 
 ## Make a fair comparison
 

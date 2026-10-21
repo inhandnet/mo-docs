@@ -30,7 +30,7 @@ Local results refer to the Mo62A V1.1.0 development installation with TIDL `11_0
 
 | Path | Function | Verification boundary |
 |---|---|---|
-| ONNX Runtime + TI execution provider | Dispatches supported subgraphs to TIDL; remaining supported operations can use the CPU provider | Supplied YOLOX models were tested through this path |
+| ONNX Runtime + TI execution provider | Dispatches supported subgraphs to TIDL; remaining supported operations can use the CPU provider | Supplied YOLOX models and a newly compiled 8210 warehouse application were tested |
 | TFLite + TI delegate | Uses a different model/runtime integration | Board Python module is 2.12.1; installation is not proof every TFLite model passes |
 | TVM runtime | Another TI-supported deployment path | Board module is 0.18.0; no new Mo62A TVM deployment is claimed |
 | Native TIDL-RT | Runs compatible fully offloaded artifacts without an OSRT frontend | No OSRT CPU fallback; the board's `tidlruntime` Python package is not installed |
@@ -65,6 +65,8 @@ Final number of subgraphs created are : 1, - Offloaded Nodes - 329, Total Nodes 
 ```
 
 This confirms those runs' partitioning; it does not mean preprocessing, application postprocessing or data movement uses no CPU. Multiple subgraphs can be valid. Measure their performance alongside CPU sections, tensor transfers and the rest of the application.
+
+The separately compiled [YOLOX-tiny-lite 8210 walkthrough](./compile-your-own-model.mdx) reports 326/326 nodes in one TIDL subgraph and checks raw host/target outputs. Its [warehouse application](./tutorial-yolo.mdx) adds CPU-side region rules and event recording. Different graph counts are not interchangeable performance metrics.
 
 ## Compatible versions, not identical version strings
 

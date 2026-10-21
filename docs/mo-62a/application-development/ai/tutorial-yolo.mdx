@@ -1,82 +1,179 @@
 ---
 title: "YOLO: deployment and quantization"
-description: "Run the verified YOLOX-Lite model on Mo62A and understand what remains to validate for a custom quantized YOLO export."
-sidebar_position: 5
+description: "Turn a newly compiled YOLOX-tiny-lite model into a Mo62A warehouse zone-occupancy application with configuration, events and recorded output."
+sidebar_position: 6
 ---
 
-import road from '@site/static/img/getting-started/mo62a-npu-video-cpp.png';
-import people from '@site/static/img/getting-started/mo62a-npu-people-cpp.png';
+import occupied from '@site/static/img/application-development/ai/mo62a-zone-occupied.jpg';
+import cleared from '@site/static/img/application-development/ai/mo62a-zone-cleared.jpg';
+import events from '@site/static/img/application-development/ai/mo62a-zone-events.png';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-The verified deployment route uses the TI YOLOX-Lite models already compiled into the image. This is different from exporting an arbitrary Ultralytics model and quantizing it for AM62A.
+Build a small, inspectable business application: detect the existing COCO `person` class, test each detection against a configurable image region, and write debounced occupancy events for a dashboard or an operator's review queue. The downloadable project includes source, configuration, two licensed input clips and tests.
 
-:::info[Scope]
-Video-file deployment, inference offload and the displayed detections below were tested on Mo62A. A fresh custom-YOLO export-to-quantization-to-deployment tutorial has not passed validation, so no such result is claimed here.
+This is the last stage of the continuous [x86 toolchain](./toolchain.mdx) → [new model compilation and target comparison](./compile-your-own-model.mdx) → board application walkthrough. It uses freshly compiled TI YOLOX-tiny-lite 8210, not the 8200/8220 models supplied with the image. No activation replacement or retraining is needed for this existing class; [architecture and trained weights stay matched](./compile-your-own-model.mdx#keep-architecture-and-weights-matched).
+
+:::warning[Demonstration, not a safety system]
+The warehouse footage is openly licensed third-party material, not a Mo62A customer deployment or an endorsement. The outlined region is illustrative, not a real restricted area. Detection misses are visible, particularly for small or occluded people. Neither a cleared event nor an empty detection list proves that an area is safe or empty. Do not connect this example to machinery or safety interlocks.
 :::
 
-## Choose the verified model
+## 1. Finish the model acceptance steps
 
-| Model | Input | Use in these examples |
-|---|---|---|
-| YOLOX-nano-lite, 8200 | 416 × 416 | Shorter inference-call latency; useful as a runtime baseline |
-| YOLOX-S-Lite, 8220 | 640 × 640 | The road, people and pet demonstrations |
+Before continuing, complete the previous page's CPU check, 32-frame/three-iteration calibration, host TIDL check and eight-frame target comparison. The model uses 8-bit base quantization with selected 16-bit outputs; it is not an all-8-bit result.
 
-List installed models:
+The target comparison passed for both raw output tensors on all eight images. The provider reported one subgraph and 326/326 nodes offloaded. This describes the inference graph, not the whole application: decoding, resize/padding, coordinate restoration, zone rules, drawing and video writing still use the CPU in this implementation.
 
-```bash
-edgeai-demo list
+On the board, the transferred project contains:
+
+```text
+mo62a-zone-demo/
+  bundle/               # original model, fresh artifacts, bundle.json
+  evaluation/           # eight exact PNG inputs and their manifest
+  host-images/          # x86 TIDL reference outputs
+  evaluation.mp4        # new warehouse input, not the first-NPU-demo video
+  model.py  logic.py  run_images.py  run_video.py
+  inspect_bundle.py  zone.json  SOURCE.txt
 ```
 
-Both model directories include the original network, compiled artifacts and `param.yaml`. Keep those files together. Neither the shared name “YOLO” nor a similar input resolution makes another network compatible with these artifacts.
+Use the existing V1.1.0 development stack from the [version map](../../resource-download/version-map.mdx). The [compatible combination](./toolchain.mdx#select-a-compatible-combination) includes host tools, target libraries and C7x firmware. Do not install the x86 requirements on the board or replace its TI ONNX Runtime with a generic wheel. Stop other inference applications before this test.
 
-## Deploy the supplied video example
+## 2. Check the input and configure the region
 
-Follow the tested [sample-video setup](../../getting-started/first-npu-demo.mdx#run-the-sample-video-no-camera-required) to download the input, launcher and configuration. It documents the test environment's decoder changes and the display requirements.
-
-After setup on the board:
+In the board shell:
 
 ```bash
-sudo bash /tmp/mo-npu-video/run-video-demo.sh cpp
+cd "$HOME/mo62a-zone-demo"
+python3 -B inspect_bundle.py --bundle bundle
+printf '%s  %s\n' \
+  fba367bfad48335444a236123afde022c28dd7ed4dce9d9b1422179d295d49c5 \
+  evaluation.mp4 | sha256sum -c -
+cat zone.json
 ```
 
-The configuration selects the 8220 directory and a visualization threshold of 0.4. HDMI shows boxes and class labels; the SSH terminal controls the application, not the video display. Stop the process with **Ctrl+C** before starting another pipeline.
+The supplied configuration is:
 
-<video controls playsInline preload="none" poster={road} width="1920" height="1080" aria-label="Actual Mo62A YOLOX-S-Lite road detection recording">
-  <source src={useBaseUrl('/img/getting-started/mo62a-npu-video-result.mp4')} type="video/mp4" />
-  <a href={useBaseUrl('/img/getting-started/mo62a-npu-video-result.mp4')}>Download the recording</a>.
+```json
+{
+  "schema_version": 1,
+  "zone_id": "demo_aisle",
+  "polygon": [[0.62, 0.55], [0.74, 0.55], [0.74, 0.83], [0.62, 0.83]],
+  "score_threshold": 0.4,
+  "dwell_seconds": 0.5,
+  "clear_seconds": 0.5
+}
+```
+
+Coordinates are normalized to the image: `[0,0]` is the upper left, `[1,1]` the lower right. Vertices must follow the perimeter of a strictly convex polygon. The application uses each person box's bottom-center point, including the boundary, to decide whether that detection is inside. This is an image-space approximation, not a calibrated floor-plane position.
+
+A continuous detection inside for 0.5 seconds emits `zone_occupied`. Once occupied, 0.5 seconds without an inside detection emits `zone_cleared`. These intervals use source-video timestamps, not the slower processing wall clock. There is no person identity or tracking: multiple people can contribute to one zone interval.
+
+The compiler's detection floor is 0.3. The application therefore accepts thresholds from 0.3 through 1.0; lowering a JSON threshold cannot recover boxes already discarded by compiled postprocessing. Raising the threshold may reduce false detections while increasing misses. For a new input, redraw the region and validate both detections and event behavior.
+
+## 3. Run the full video on Mo62A
+
+The example is headless: it requires no HDMI, live camera, IMX219 initialization or display server. Use a new output directory for every run:
+
+```bash
+set -o pipefail
+sudo python3 -B -u run_video.py \
+  --bundle bundle --video evaluation.mp4 --config zone.json \
+  --backend tidl \
+  --credit 'Video: domdomegg / Wikimedia Commons / CC BY 4.0 | Illustrative ROI; no endorsement' \
+  --output results-video-1 2>&1 | tee run-video-1.log
+```
+
+Keep `SOURCE.txt` with the input and any redistributed result. The program checks model/artifact integrity, writes per-frame records, saves actual event frames and prints a final summary. A successful run must report `completed: true` and all 611 frames; session creation alone is not success. Run only one inference instance at a time.
+
+The recording below comes from this application's actual Mo62A output. It is a single video element with a poster, not a second static image layered over a recording. The MP4 was transcoded from the board's MJPEG output without changing its detections or event timing.
+
+<video controls playsInline preload="none" poster={occupied} width="1280" height="720" aria-label="Actual Mo62A YOLOX-tiny-lite warehouse zone-occupancy output, played at source-video speed">
+  <source src={useBaseUrl('/img/application-development/ai/mo62a-zone-result.mp4')} type="video/mp4" />
+  <a href={useBaseUrl('/img/application-development/ai/mo62a-zone-result.mp4')}>Download the result video</a>.
 </video>
 
-This is a recording of board output from the existing demo, not a simulation of a custom model. The road input is the CC0 excerpt credited in [the source tutorial](../../getting-started/first-npu-demo.mdx#run-the-sample-video-no-camera-required).
+Playback is 30 fps because it preserves the source timeline. Processing was approximately 7.8 fps, not real-time 30 fps. The displayed inference-call milliseconds are only one part of that work.
 
-## Check more than one scene
+Short animated event preview (source time 6–10 s, reduced to 8 fps):
 
-The same tutorial supplies a pedestrian input and configuration. Inspect missed detections, occlusion and small objects as well as visible boxes:
-
-<a href={people} target="_blank" rel="noopener noreferrer">
-  <img src={people} alt="Actual Mo62A pedestrian detections with the same 8220 model, illustrating overlapping people and different object scales" width="1920" height="1080" />
+<a href={useBaseUrl('/img/application-development/ai/mo62a-zone-preview.gif')} target="_blank" rel="noopener noreferrer">
+  <img src={useBaseUrl('/img/application-development/ai/mo62a-zone-preview.gif')} alt="A shortened animation of actual board output around the occupied and cleared events, not a live camera stream" width="960" height="540" loading="lazy" />
 </a>
 
-These examples demonstrate object detection, not person identification, tracking, counting or a measured accuracy score. Recording adds work to the system; use [Performance & benchmarks](./benchmarks.mdx) for the separate controlled timing results.
+## 4. Read the business outputs
 
-## Quantize a custom YOLO model
-
-Follow the acceptance stages in [Compile your own model](./compile-your-own-model.mdx). Before attempting conversion, record the exact architecture, weights, exporter version, input shape, opset, preprocessing and output decoder.
-
-| Stage | Required evidence |
+| Output | Purpose |
 |---|---|
-| CPU export check | Correct outputs from the exported ONNX graph using the intended preprocessing |
-| Operator review | AM62A support for this exact graph, not support inferred from another SoC |
-| Calibration | Representative inputs, the required frame count and a complete compiler log |
-| Detection metadata | Head description and postprocessing compatible with this export |
-| Target inference | Successful board loading, expected offload and finite, meaningful outputs |
-| Accuracy evaluation | Task metrics on held-out labeled data before and after quantization |
+| `events.jsonl` | One JSON object per occupied/cleared transition; suitable for ingestion by another application |
+| `events.csv` | The same transitions for tabular review |
+| `frames.jsonl` | Every processed frame's timestamp, detected people, region membership and state |
+| `summary.json` | Completion/failure, versions, input hash, settings, timings and final state |
+| `annotated.avi` | Board-rendered MJPEG video, requiring no hardware encoder |
+| `first-frame.jpg`, `event-0001.jpg`, `event-0002.jpg` | Actual first/event-frame evidence for this run |
 
-TI's YOLOX-Lite networks are not interchangeable with standard YOLOv8/YOLO11 exports. Replacing an activation or another operator to make compilation proceed changes the network; it must be assessed against the trained model and accuracy requirements. Do not relabel a pre-compiled TI demonstration as a successful custom-model conversion.
+Read the results on the board:
 
-Until this complete path is validated for a specific model revision, use the supplied models for integration work and retain custom export/quantization as an explicitly unverified step.
+```bash
+python3 -m json.tool results-video-1/summary.json
+cat results-video-1/events.jsonl
+cat results-video-1/events.csv
+```
 
-## What TI's guidance does and does not establish
+The repeated tests emitted `zone_occupied` at source time 7.367 s, after detection began at 6.867 s, and `zone_cleared` at 8.667 s. The recorded `occupancy_duration_s` is 1.3 s: last confirmed occupancy interval before the clear debounce, not time between emitted events. It does not measure a person's true time in a real-world zone.
 
-The [AM62A model guide](https://software-dl.ti.com/processor-sdk-linux/esd/AM62AX/11_01_07_05/exports/docs/edgeai/inference_models.html) describes host import, preprocessing and detection metadata. In the [AM62A YOLOv8/v11 E2E discussion](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1443278/sk-am62a-lp-how-to-run-yolov8-v11-in-this-board), TI recommends a known working baseline and discusses modified architectures, retraining and export metadata for that case.
+<a href={events} target="_blank" rel="noopener noreferrer">
+  <img src={events} alt="Inspection of actual Mo62A full-video completion, processing speed and two occupancy events" width="1440" height="900" />
+</a>
 
-That thread uses older tool layouts; do not copy its command paths into `11_02_17_00` without checking the pinned sources. Neither the thread title nor a Sigmoid test failure proves every YOLOv8 or YOLO11 export works or fails. Review the [operator evidence](./known-issues.mdx) for this version and validate the specific model.
+The following is the actual cleared-event frame. A cleared state reflects the detector and configured rules, not proof that no person is present:
+
+<a href={cleared} target="_blank" rel="noopener noreferrer">
+  <img src={cleared} alt="Actual Mo62A output at the cleared event with the illustrative region still visible and no claim of physical safety" width="1280" height="720" />
+</a>
+
+For a dashboard, consume event records and attach the corresponding evidence frame for human review. Add your own delivery acknowledgement, duplicate handling, retention/access controls and health status before integration. The sample intentionally has no external alarm destination, cloud credentials or machine-control output.
+
+End of file, decoder failure or application failure must be a separate offline/fault condition. They do not emit a synthetic cleared event. Check `completed`, the process exit status and `last_zone_state`; do not treat absence of new JSON lines as an empty area. A startup failure can exit before any summary exists, so a missing summary must also count as failure.
+
+## 5. Retrieve and inspect the result
+
+On your host:
+
+```bash
+scp -r YOUR_USERNAME@BOARD_IP_ADDRESS:mo62a-zone-demo/results-video-1 .
+scp YOUR_USERNAME@BOARD_IP_ADDRESS:mo62a-zone-demo/SOURCE.txt .
+```
+
+Open `annotated.avi` in a compatible player. For browser playback, transcode on the host without altering the source frame rate:
+
+```bash
+ffmpeg -n -i results-video-1/annotated.avi \
+  -c:v libx264 -crf 22 -pix_fmt yuv420p -movflags +faststart \
+  -an results-video-1.mp4
+```
+
+Inspect both event frames and the full sequence, including misses. Use the original input and timestamps to distinguish detector behavior from a business-rule mistake. A video that merely contains boxes does not establish accuracy.
+
+## 6. Repeat and understand the measurements
+
+The example completed three consecutive full runs, each processing 611 frames with identical event timestamps and detections. The original installed YOLOX baseline was checked before and after; no firmware/package update or reboot was needed for these runs. This is a short repeatability test, not a multi-day endurance qualification.
+
+The measured results and downloadable records are listed in [Performance & benchmarks](./benchmarks.mdx#newly-compiled-warehouse-application). The timed region covers OpenCV decoding, preprocessing, synchronous inference, zone rules, drawing and MJPEG/file output, but excludes session creation. No power measurement or labeled accuracy evaluation was performed. Do not convert inference latency alone into application FPS.
+
+For your deployment:
+
+1. Use a fixed, suitable camera view and independently labeled representative data. The sample camera moves slightly, so its fixed image-space region is illustrative only.
+2. Measure missed/false detections and event precision/recall under occlusion, small-object scale, empty scenes and changing light.
+3. Compare floating-point and quantized outputs, then evaluate complete-model task metrics; numerical agreement alone is insufficient.
+4. Test interrupted streams, restart/recovery, storage limits, concurrent workloads and sustained operation. For live cameras, use actual capture timestamps and a separately tested decode/display pipeline.
+5. Train/export a matched model for classes it does not already know. This example does not detect defects, identify workers or establish PPE compliance.
+
+## Sources, licenses and TI guidance
+
+Both clips are by domdomegg under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/):
+
+- [Loading docks 1](https://commons.wikimedia.org/wiki/File:Amazon_warehouse_BHX4_loading_docks_1.webm), revision 929950166: evaluation/demo input; cropped to 1280 × 720 at x=0, y=300.
+- [Loading docks 2](https://commons.wikimedia.org/wiki/File:Amazon_warehouse_BHX4_loading_docks_2.webm), revision 929950182: calibration input; cropped to 1280 × 720 at x=100, y=250.
+
+Both were converted to constant 30 fps H.264 with audio removed. Result media adds model detections, an illustrative region, timestamps and attribution; the preview is shortened and rescaled. Complete URLs, original/derived hashes and modification notes are in <a href={useBaseUrl('/downloads/ai/zone-demo/SOURCE.txt')}>SOURCE.txt</a> and <a href={useBaseUrl('/downloads/ai/zone-demo/sources.json')}>sources.json</a>. Preserve this attribution when sharing. Copyright permission does not automatically grant trademark, privacy or publicity rights; no affiliation, customer deployment or endorsement is claimed.
+
+The [AM62A model guide](https://software-dl.ti.com/processor-sdk-linux/esd/AM62AX/11_01_07_05/exports/docs/edgeai/inference_models.html) describes host import and model metadata. TI's [YOLO E2E discussion](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1443278/sk-am62a-lp-how-to-run-yolov8-v11-in-this-board) discusses version-specific architecture/training requirements, not universal support for arbitrary exports. Our claims here are limited to the pinned model and measured Mo62A results.
