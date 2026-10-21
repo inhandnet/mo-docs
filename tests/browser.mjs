@@ -903,22 +903,25 @@ try {
         assert.ok(/^[a-f0-9]{64}$/.test(report.model_sha256));
       }
 
-      for (const [slug, phrases] of [
-        ['overview', ['79000000.r5f', '78000000.r5f', 'attached', 'No custom R5F firmware']],
-        ['getting-started', ['no validated Mo62A', 'sha256sum', 'Core ownership']],
-        ['rpmsg', ['No custom endpoint', 'root-only', 'readlink -f']],
-        ['examples', ['not R5F firmware examples', 'Not validated', 'CAN application']],
+      for (const [slug, images, phrases] of [
+        ['overview', [[1440, 900]], ['79000000.r5f', '78000000.r5f', 'attached', '0x9B900000', '29228716885522642ba205e9b1256f33d08b32512699c0fbedf2bc1bfb502a4c']],
+        ['sdk-setup', [[1440, 900]], ['11.01.00.16', '4.0.1.LTS', 'sysconfig_1.24.0', 'a636a502bc82ec74a7a8a136440af603d2050e3094743280bbc37a0dd5ecb8e2']],
+        ['getting-started', [[1440, 900], [1440, 900]], ['ipc_rpmsg_echo.mcu-r5f0_0.release.strip.out', 'Booting fw image', 'trace0', 'fifth start']],
+        ['rpmsg', [[1440, 900]], ['TEST STATUS: PASSED', '1000/1000', 'nanoseconds', '485.6']],
+        ['mcu-console', [[1440, 900], [1920, 1080], [1440, 900]], ['sudo mcu-console', 'b74622b86f0a237ae103791df5d7f20f0d6a45ee2ca46127b83b2aa9f18ea693', '30/30', 'heap_3']],
+        ['examples', [[1440, 900]], ['k3_r5_rproc_stop', 'IpcNotify_syncAll', 'ipc.c75ss0_0', 'Not covered here']],
       ]) {
         await page.goto(url + board + '/real-time-cores/' + slug + '/', {waitUntil: 'networkidle'});
         const article = page.locator('.theme-doc-markdown');
-        assert.equal(await article.locator('img').count(), 2);
+        assert.equal(await article.locator('img').count(), images.length, slug);
         await checkDocumentationMedia(page);
         const text = await article.innerText();
         for (const phrase of phrases) assert.ok(text.includes(phrase), slug + ': ' + phrase);
         assert.ok(!text.includes('Coming soon'));
         assert.ok(!/10\.5\.\d+\.\d+/.test(text));
-        for (const img of await article.locator('img').all()) {
-          assert.deepEqual(await img.evaluate(image => [image.naturalWidth, image.naturalHeight]), [1440, 900]);
+        assert.ok(!text.includes('PENDING'));
+        for (const [index, img] of (await article.locator('img').all()).entries()) {
+          assert.deepEqual(await img.evaluate(image => [image.naturalWidth, image.naturalHeight]), images[index]);
           assert.equal(await img.evaluate(image => image.closest('a')?.target), '_blank');
         }
         const localLinks = await article.locator('a[href]').evaluateAll(links =>

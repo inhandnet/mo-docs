@@ -32,6 +32,7 @@ test('documentation placeholders do not expose planning metadata', async () => {
     if (!file.endsWith('.mdx')) continue;
     const content = await fs.readFile(new URL(file, root), 'utf8');
     assert.doesNotMatch(content, /<ComingSoon\b[^>]*\b(?:priority|source)=/, file);
+    assert.doesNotMatch(content, /PENDING-(?:VERIFY|MEDIA)/, file);
   }
 });
 

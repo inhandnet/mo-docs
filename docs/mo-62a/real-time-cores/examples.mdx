@@ -1,49 +1,119 @@
 ---
-title: "Inspection examples and validation status"
-description: "Read-only examples for remote processor discovery and the status of proposed real-time applications."
-sidebar_position: 4
+title: "Recovery, known issues and status"
+description: "Restore the original Mo62A MCU R5F firmware, avoid the TI echo example reload hang, troubleshoot, and see what has been tested."
+sidebar_position: 6
 ---
 
-import cores from '@site/static/img/real-time-cores/mo62a-cores.png';
-import channels from '@site/static/img/real-time-cores/mo62a-rpmsg.png';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import issue from '@site/static/img/real-time-cores/mo62a-rt-known-issue.png';
 
-The examples verified for this section inspect the firmware already running in the image. They do not replace firmware or establish a real-time control application.
+## Restore the original firmware
 
-## Example 1: inventory the processors
+The image firmware stays in `/opt/ti/firmware/am62a-mcu-r5f0_0-fw` unless you overwrite it. To go back to it:
 
-Run the [remoteproc inventory](./overview.mdx#identify-the-processors). Match hardware names, then record each state and firmware attribute:
+### 1. Reset the boot link
 
-<a href={cores} target="_blank" rel="noopener noreferrer">
-  <img src={cores} alt="Successful read-only remoteproc inventory on the Mo62A test board" width="1440" height="900" />
+If you changed the boot link, point it back:
+
+```bash
+sudo ln -sfn /opt/ti/firmware/am62a-mcu-r5f0_0-fw /lib/firmware/am62a-mcu-r5f0_0-fw
+```
+
+### 2. Load the original firmware
+
+Load it now without rebooting, or reboot and let the core start from the link:
+
+```bash
+MCU=$(grep -l '^79000000.r5f$' /sys/class/remoteproc/remoteproc*/name | xargs dirname)
+echo stop | sudo tee "$MCU/state"
+echo -n am62a-mcu-r5f0_0-fw | sudo tee "$MCU/firmware"
+echo start | sudo tee "$MCU/state"
+```
+
+### 3. Confirm the file and the running version
+
+```bash
+sha256sum "$(readlink -f /lib/firmware/am62a-mcu-r5f0_0-fw)"
+sudo head -1 /sys/kernel/debug/remoteproc/${MCU##*/}/trace0
+```
+
+```text
+29228716885522642ba205e9b1256f33d08b32512699c0fbedf2bc1bfb502a4c  /opt/ti/firmware/am62a-mcu-r5f0_0-fw
+[mcu-r5f0-0]     0.000502s : [IPC RPMSG ECHO] Version: REL.MCUSDK.K3.11.01.00.03+ (Jun 16 2025 08:51:33):
+```
+
+The checksum is the one recorded on image V1.1.0 in [Overview](./overview.mdx#firmware-files). Files you installed, such as `/lib/firmware/mo62a-mcu-console.out` and `/usr/local/bin/mcu-console`, can stay or be removed with `sudo rm`.
+
+## Known issues
+
+### The TI echo example hangs after repeated reloads
+
+Symptom: After the MCU R5F has been started several times since the board booted, a new start shows only the first line in the trace log:
+
+```text
+[mcu-r5f0-0]     0.000487s : [IPC RPMSG ECHO] Version: REL.MCUSDK.K3.11.01.00.03+ (Jun 16 2025 08:51:33):
+```
+
+The RPMsg channels appear but no message is answered, and the next `echo stop` fails after 5 s:
+
+```text
+platform 79000000.r5f: k3_r5_rproc_stop: timeout waiting for rproc completion event
+remoteproc remoteproc1: can't stop rproc: -16
+```
+
+Reproduced over SSH with the stock image firmware and <a href={useBaseUrl('/downloads/real-time-cores/reload-cycle.sh')} download>reload-cycle.sh</a>: the fourth reload, the fifth start since boot, does not reach the receive loop, and the core can no longer be stopped:
+
+<a href={issue} target="_blank" rel="noopener noreferrer">
+  <img src={issue} alt="SSH session on Mo62A: the stock MCU R5F firmware hangs on the fourth reload, echo stop fails with Device or resource busy, the kernel reports can't stop rproc -16 and the trace has only the version line" width="1440" height="900" />
 </a>
 
-Expected result on the tested installation: C7x and MCU R5F report `running`; wakeup R5F reports `attached`. Exact instance numbering can differ. This confirms discovery and current state, not firmware correctness or real-time timing.
+Cause: in three tests, twice with the stock firmware and once with a modified build, the fifth start after a board boot hung; the board boot itself counts as the first start. At start-up, `ipc_rpmsg_echo_linux` calls `IpcNotify_syncAll()`, which sends a sync message through a hardware mailbox to every RTOS core enabled in its SysConfig, here the DM R5F and the C7x. `IpcNotify_sendMsg()` waits for free space in the mailbox FIFO in a loop, and it runs in the highest-priority task (31), so the receive tasks (priority 8) and the shutdown handling cannot run while it waits. The fixed count of successful starts suggests that the other cores do not read the sync messages of a restarted MCU R5F, so the FIFO fills up. We did not read the mailbox registers to confirm this, but removing the sync, as described below, made the problem disappear.
 
-## Example 2: inspect the communication interfaces
+Recovery: The R5F remoteproc driver in this kernel stops the core only after the firmware acknowledges a shutdown request; it has no forced stop. Reboot the board.
 
-Run the [RPMsg listing and ownership checks](./rpmsg.mdx). They enumerate the existing channels without sending messages:
+Avoidance: A firmware that talks only to Linux does not need the sync. Set IPC with the other RTOS cores to `NONE` in the example's `example.syscfg` (SysConfig: TI DRIVERS, IPC):
 
-<a href={channels} target="_blank" rel="noopener noreferrer">
-  <img src={channels} alt="Successful enumeration of existing RPMsg channels and protected device nodes on Mo62A" width="1440" height="900" />
-</a>
+```text
+ipc.r5fss0_0              = "NONE";
+ipc.c75ss0_0              = "NONE";
+```
 
-Expected result: channel names, control devices and endpoints can be associated with their processor through sysfs. Do not interpret a visible device file as a passing request/reply test.
+The [MCU console](./mcu-console.mdx) does this. It then passed 30 consecutive stop, load and start cycles, and the C7x AI benchmark was unaffected. If your firmware really needs IPC with the C7x or DM R5F, it must also handle repeated starts on both sides; that case has not been tested on Mo62A.
 
-## Application status
+The test script is <a href={useBaseUrl('/downloads/real-time-cores/reload-cycle.sh')} download>reload-cycle.sh</a>. Put it next to the `rpmsg_echo_latency` program from [Linux communication](./rpmsg.mdx#measure-the-round-trip) and run `sudo bash reload-cycle.sh <firmware name> <cycles>`; it loads the firmware repeatedly, waits for the "end point 14" log line, and runs an echo test each time. Expect to reboot if you run it with the unmodified TI example.
 
-| Example | Status | Needed to validate it |
-|---|---|---|
-| Remoteproc / firmware inventory | Read-only inspection verified | Repeat after an image or firmware update |
-| RPMsg discovery and parent mapping | Read-only inspection verified | A documented firmware protocol for message exchange |
-| Custom Zephyr / FreeRTOS firmware | Not validated | Board target, toolchain, resource layout, build/load/recovery procedure |
-| Motor or encoder control | Not validated | External circuit, electrical limits, pin ownership, safe control behavior and timing measurements |
-| CAN application | Not validated | Confirmed controller/transceiver wiring, firmware and bus-level tests |
-| micro-ROS agent/client | Not validated | Supported RTOS/core, transport, agent version and message exchange |
+### Other observations
 
-Linux [GPIO/UART/PWM loopbacks](../application-development/gpio-and-peripherals.mdx) are available now, but are not R5F firmware examples. They do not validate a motor driver, encoder input or real-time deadline.
+- The delay printed by TI's `rpmsg_char_simple` example is in nanoseconds although it is labelled `usecs`, and ignores the seconds field. See [Linux communication](./rpmsg.mdx#exchange-messages).
+- SysConfig warns `The device AM62A7-Q1 has been automatically selected` for the SDK examples. The builds are unaffected.
+- `xPortGetFreeHeapSize()` does not link, because the SDK builds FreeRTOS with `heap_3`.
 
-## What to include with a new example
+## Troubleshooting
 
-Keep the source revision, compiler version, build instructions, board/firmware versions, wiring and expected output together. Add explicit resource ownership, a bounded test, failure behavior and restoration steps. Preserve a real capture of the application result and record what it does not test.
+| Observation | Check |
+|---|---|
+| `echo stop` returns `Device or resource busy` | `sudo dmesg` for `timeout waiting for rproc completion event`: the firmware no longer responds, reboot. See the known issue above |
+| `can't change firmware while running` | Stop the core first; the state must be `offline` |
+| `echo start` fails with `No such file or directory`, the core stays `offline` | `sudo dmesg` shows `Direct firmware load for <name> failed with error -2`: the name written to `firmware` must be a file in `/lib/firmware` |
+| Trace stops after the version line | The firmware is blocked before its tasks run; for the TI example see the known issue above |
+| `mcu-console` reports `MCU console not found` | The console firmware is not running, or the core is stopped: `cat $MCU/state $MCU/firmware` |
+| `permission denied` on `/dev/rpmsg*` or `trace0` | Use `sudo`; the device nodes and debugfs are root-only |
+| Reply missing within the timeout | The endpoint number or the firmware protocol does not match; check the channel list in `/sys/bus/rpmsg/devices` |
 
-For anything that drives external equipment, establish a safe inactive state and test the interface before connecting the load. These documentation checks intentionally do not energize or control external machinery.
+## What has been tested
+
+All results are from one Mo62A running image V1.1.0 (Linux 6.12.35 PREEMPT_RT), with MCU+ SDK 11.01.00.16, TI Arm Clang 4.0.1.LTS and SysConfig 1.24.0.
+
+| Item | Result |
+|---|---|
+| SDK, compiler and SysConfig installation | Installer checksums matched ti.com; repeated from scratch in a clean Ubuntu 22.04 container |
+| Build of the TI echo example and the MCU console | Built on Ubuntu 24.04 and in the clean container |
+| Loading firmware from Linux, trace log, kernel log | Tested with the TI echo build and the MCU console |
+| Linux user-space messaging | `rpmsg_char_simple` passed; 1000/1000 messages in `rpmsg_echo_latency` |
+| MCU console commands, single and interactive | Tested |
+| Repeated reloads | TI echo example: hangs on the fifth start after boot (3 of 3 tests). MCU console: 30/30 |
+| Graceful stop and restart | Tested with the MCU console |
+| Firmware at boot through the link, and restoring it | Tested with a reboot in each direction |
+| C7x AI benchmark while custom firmware runs on the MCU R5F | 329/329 nodes offloaded, results unchanged |
+
+Not covered here: JTAG debugging with CCS, low-power modes, using main-domain peripherals or pins from the MCU R5F, the wakeup (DM) R5F, firmware for the C7x, timing guarantees of R5F tasks, and real-time control applications such as motors or CAN. For those, follow the [TI MCU+ SDK user guide](https://software-dl.ti.com/mcu-plus-sdk/esd/AM62AX/11_01_00_16/exports/docs/api_guide_am62ax/index.html) and validate on your hardware.

@@ -1,60 +1,172 @@
 ---
-title: "RTOS preparation and support status"
-description: "What must be established before building or loading custom Zephyr or FreeRTOS firmware on Mo62A."
-sidebar_position: 2
+title: "Build and run firmware"
+description: "Rebuild the TI IPC echo firmware with the MCU+ SDK, load it on the Mo62A MCU R5F from Linux and read its log."
+sidebar_position: 3
 ---
 
-import firmware from '@site/static/img/real-time-cores/mo62a-firmware.png';
-import cores from '@site/static/img/real-time-cores/mo62a-cores.png';
+import build from '@site/static/img/real-time-cores/mo62a-rt-build-echo.png';
+import load from '@site/static/img/real-time-cores/mo62a-rt-load-echo.png';
 
-There is no validated Mo62A Zephyr or custom FreeRTOS build/load tutorial in this documentation yet. A TI evaluation-board target or a processor family name is not automatically a Mo62A board target.
+This page rebuilds the same TI example that the image ships, `ipc_rpmsg_echo_linux`, and loads your build on the MCU R5F. When the log shows your build time, the whole tool chain, from compiler to remoteproc, is working. The [MCU console](./mcu-console.mdx) then adds your own code.
 
-## Preserve a recoverable baseline
+The example is the reference for Linux interworking in the TI guide ([IPC RP Message Linux Echo](https://software-dl.ti.com/mcu-plus-sdk/esd/AM62AX/11_01_00_16/exports/docs/api_guide_am62ax/EXAMPLES_DRIVERS_IPC_RPMESSAGE_LINUX_ECHO.html)). On start-up it waits for Linux, announces two endpoints, and echoes every message it receives:
 
-Before evaluating an RTOS, record the image version, boot entry, remoteproc identities and firmware checksums. The following checks do not write to the processors:
+| Endpoint | Service name announced to Linux | Used by |
+|---|---|---|
+| 13 | `ti.ipc4.ping-pong` | Linux kernel test driver |
+| 14 | `rpmsg_chrdev` | Linux user space through `/dev/rpmsg*` |
+
+It also implements TI's [graceful shutdown](https://software-dl.ti.com/mcu-plus-sdk/esd/AM62AX/11_01_00_16/exports/docs/api_guide_am62ax/GRACEFUL_REMOTECORE_SHUTDOWN.html): when Linux stops the core, the firmware closes its drivers, acknowledges, and halts. Keep that code in your own firmware.
+
+## Build on the host
+
+Build the MCU R5F FreeRTOS project with the SDK makefile:
 
 ```bash
-mo-version
-bootcfg show
-ls -l /lib/firmware/am62a-*fw
-file -L /lib/firmware/am62a-*fw
-sha256sum /lib/firmware/am62a-*fw
+cd ~/ti/mcu_plus_sdk_am62ax_11_01_00_16
+make -s -C examples/drivers/ipc/ipc_rpmsg_echo_linux/am62ax-sk/mcu-r5fss0-0_freertos/ti-arm-clang \
+     all PROFILE=release
 ```
 
-<a href={firmware} target="_blank" rel="noopener noreferrer">
-  <img src={firmware} alt="Read-only identification and checksums of the Mo62A firmware files before any RTOS development" width="1440" height="900" />
+The last lines of the build output:
+
+```text
+Linking: am62ax:mcu-r5fss0-0:freertos:ti-arm-clang ipc_rpmsg_echo_linux.release.out Done !!!
+Boot image: am62ax:mcu-r5fss0-0:freertos:ti-arm-clang .../ipc_rpmsg_echo_linux.release.appimage Done !!!
+Boot image: am62ax:mcu-r5fss0-0:freertos:ti-arm-clang .../ipc_rpmsg_echo_linux.release.appimage.hs_fs Done !!!
+```
+
+SysConfig also prints `The device AM62A7-Q1 has been automatically selected`; the SDK examples name that part number, and the warning does not affect the build.
+
+The `ti-arm-clang` folder now holds several images. For Linux, use `ipc_rpmsg_echo.mcu-r5f0_0.release.strip.out`, a 54 KB ELF file without debug sections:
+
+| File | Size | Use |
+|---|---|---|
+| `ipc_rpmsg_echo.mcu-r5f0_0.release.strip.out` | 54164 bytes | Load from Linux (this page) |
+| `ipc_rpmsg_echo_linux.release.out` | about 515 KB, depends on the install path | Same program with symbols, for CCS debugging |
+| `*.appimage`, `*.rprc` | | TI secondary boot loader flows; not used with Linux |
+
+<a href={build} target="_blank" rel="noopener noreferrer">
+  <img src={build} alt="Host build of the TI ipc_rpmsg_echo_linux example for the MCU R5F, ending with the strip.out and .out firmware files" width="1440" height="900" />
 </a>
 
-The hashes shown identify files from this test installation, not a signed release manifest. A firmware file name alone does not identify its contents or establish the image version.
+`PROFILE=debug` also works and keeps assertions and symbols for CCS debugging. Building an example does not rebuild the SDK libraries; run `make -s libs PROFILE=release` first only if you change library sources.
 
-Keep a known-good boot medium and a documented recovery path. [Storage & boot](../system-configuration/storage-and-boot.mdx) explains the current boot layout; [Serial console](../low-level-development/serial-console.mdx) provides the independent diagnostic connection.
+## Copy the firmware to the board
 
-## Establish the missing prerequisites
+Install the new image under its own name, so the image's default file stays untouched:
 
-| Area | Required before loading an application |
-|---|---|
-| Board target | Exact PCB revision and a maintained board configuration |
-| SDK / RTOS | Supported release, source revision, license and toolchain |
-| Core ownership | Confirmation that the selected core can be repurposed without removing required system services |
-| Memory | Linker layout, reserved-memory regions, vrings, shared buffers and cache policy |
-| Peripherals | Pin mux, clock/reset ownership, interrupt routing and Linux driver conflicts |
-| Firmware interface | Resource table, expected services and RPMsg endpoint protocol |
-| Recovery | Known-good firmware and boot medium, console access and an agreed restoration procedure |
+```bash
+scp examples/drivers/ipc/ipc_rpmsg_echo_linux/am62ax-sk/mcu-r5fss0-0_freertos/ti-arm-clang/ipc_rpmsg_echo.mcu-r5f0_0.release.strip.out \
+    YOUR_USERNAME@BOARD_HOSTNAME.local:/tmp/
+```
 
-Choose these together; an application compiled for the wrong memory layout can interfere with Linux or another processor even if it loads.
+On the board:
 
-## Understand the current state
+```bash
+sudo install -m 0644 /tmp/ipc_rpmsg_echo.mcu-r5f0_0.release.strip.out /lib/firmware/mo62a-mcu-r5f-echo.out
+```
 
-<a href={cores} target="_blank" rel="noopener noreferrer">
-  <img src={cores} alt="The test image already runs remote firmware; the wakeup R5F is attached rather than an unused empty core" width="1440" height="900" />
+## Load it on the MCU R5F
+
+A firmware name can only be changed while the core is stopped. Select the core by name, then stop, switch and start it:
+
+```bash
+MCU=$(grep -l '^79000000.r5f$' /sys/class/remoteproc/remoteproc*/name | xargs dirname)
+echo stop | sudo tee "$MCU/state"
+echo -n mo62a-mcu-r5f-echo.out | sudo tee "$MCU/firmware"
+echo start | sudo tee "$MCU/state"
+cat "$MCU/state" "$MCU/firmware"
+```
+
+```text
+stop
+mo62a-mcu-r5f-echo.out
+start
+running
+mo62a-mcu-r5f-echo.out
+```
+
+`sudo dmesg` shows the core stopping, the new image booting, and the two endpoints that the firmware announces:
+
+```text
+remoteproc remoteproc1: stopped remote processor 79000000.r5f
+remoteproc remoteproc1: powering up 79000000.r5f
+remoteproc remoteproc1: Booting fw image mo62a-mcu-r5f-echo.out, size 54164
+rproc-virtio rproc-virtio.7.auto: assigned reserved memory node r5f-dma-memory@9b800000
+virtio_rpmsg_bus virtio0: rpmsg host is online
+remoteproc remoteproc1: remote processor 79000000.r5f is now up
+virtio_rpmsg_bus virtio0: creating channel ti.ipc4.ping-pong addr 0xd
+virtio_rpmsg_bus virtio0: creating channel rpmsg_chrdev addr 0xe
+```
+
+<a href={load} target="_blank" rel="noopener noreferrer">
+  <img src={load} alt="SSH session on Mo62A stopping the MCU R5F, loading the rebuilt echo firmware, the kernel log of the boot and the firmware trace with the new build time" width="1440" height="900" />
 </a>
 
-The test image has a running MCU R5F and an attached wakeup R5F, not a documented spare core. No device-tree reservation, firmware replacement or core stop/start was performed during this documentation check.
+:::danger[Reload the TI echo example only a few times per boot]
+The unmodified TI example synchronizes with the DM R5F and C7x every time it starts. On Mo62A image V1.1.0 the fifth start of the MCU R5F after a board boot hung in that step in all three of our tests, twice with the stock firmware and once with a modified build. Linux then cannot stop the core and the board must be rebooted. Use it to check your tool chain, then base your own firmware on the [MCU console](./mcu-console.mdx), which removes this synchronization. Details are in [Known issues](./examples.mdx#the-ti-echo-example-hangs-after-repeated-reloads).
+:::
 
-## Acceptance criteria for a future tutorial
+The `firmware` value written here lasts until the next reboot; the board then boots the image default again. To make your firmware the default, see [Make the change persistent](#make-the-change-persistent).
 
-A complete tutorial must show the exact source and build command, reproducible ELF output, a reviewed memory/resource configuration, board boot logs, an application-visible result and restoration of the original system.
+:::warning
+Only operate on `79000000.r5f`. Stopping `78000000.r5f` (Device Manager) or `7e000000.dsp` (C7x, used by AI) disrupts system services; see [Overview](./overview.mdx#which-core-can-you-use).
+:::
 
-If the application uses RPMsg, validate the protocol in both directions with timeouts and error handling. If it uses external I/O, add the physical wiring, voltage limits and measurements. If it makes a real-time claim, measure latency and jitter under a defined Linux workload; a successful boot is not a latency result.
+## Read the firmware log
 
-Until those prerequisites are available, use the [read-only examples](./examples.mdx) or the tested Linux peripheral APIs. Do not try guessed `west` board names, generic FreeRTOS binaries or a stop/load/start sequence copied from another TI board.
+`DebugP_log()` output from the firmware goes to a ring buffer in shared memory that Linux exposes through debugfs. Reading it needs root:
+
+```bash
+sudo cat /sys/kernel/debug/remoteproc/${MCU##*/}/trace0
+```
+
+```text
+[mcu-r5f0-0]     0.000495s : [IPC RPMSG ECHO] Version: REL.MCUSDK.K3.11.01.00.16+ (Oct 21 2026 13:46:57):
+[mcu-r5f0-0]     0.006041s : [IPC RPMSG ECHO] Remote Core waiting for messages at end point 13 ... !!!
+[mcu-r5f0-0]     0.011011s : [IPC RPMSG ECHO] Remote Core waiting for messages at end point 14 ... !!!
+```
+
+The first line shows the SDK version and the time of your build, so you can tell your image from the shipped one (`11.01.00.03`, `Jun 16 2025 08:51:33`). The two "waiting for messages" lines mean the firmware reached its receive loop. The buffer is about 1 MiB and wraps; it is a development aid, not a persistent log. Do not log from interrupt handlers (TI: log calls there have no effect) or on every message in a time-critical path.
+
+## Confirm that Linux can talk to it
+
+When the firmware announces its endpoints, Linux creates RPMsg channels for it. Find the ones that belong to the MCU R5F:
+
+```bash
+for d in /sys/bus/rpmsg/devices/*; do
+  case "$(readlink -f "$d")" in *79000000.r5f*) echo "${d##*/}";; esac
+done
+```
+
+```text
+virtio0.rpmsg_chrdev.-1.14
+virtio0.rpmsg_ctrl.0.0
+virtio0.rpmsg_ns.53.53
+virtio0.ti.ipc4.ping-pong.-1.13
+```
+
+Then run the message test from [Linux communication](./rpmsg.mdx#measure-the-round-trip). With this build it passed 1000/1000 messages, median round trip 38.0 µs.
+
+## Make the change persistent
+
+At boot, Linux starts the MCU R5F with `/lib/firmware/am62a-mcu-r5f0_0-fw`, which in the image is a link to `/opt/ti/firmware/am62a-mcu-r5f0_0-fw`. To boot your firmware by default, point the link at your file. This example uses the [MCU console](./mcu-console.mdx) firmware, which is suitable for repeated reloads:
+
+```bash
+sudo ln -sfn /lib/firmware/mo62a-mcu-console.out /lib/firmware/am62a-mcu-r5f0_0-fw
+sudo reboot
+```
+
+After the reboot `sudo dmesg` shows the size of your image, and the firmware answers:
+
+```text
+remoteproc remoteproc1: Booting fw image am62a-mcu-r5f0_0-fw, size 59316
+```
+
+```text
+$ sudo mcu-console version
+Mo62A MCU console, REL.MCUSDK.K3.11.01.00.16+, built Oct 21 2026 13:52:25, 800000000 Hz
+```
+
+Leave `/opt/ti/firmware/am62a-mcu-r5f0_0-fw` itself unchanged, so that [restoring](./examples.mdx#restore-the-original-firmware) only resets the link. Both directions were tested with a reboot. Image updates may replace these links.
