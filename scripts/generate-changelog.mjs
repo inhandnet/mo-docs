@@ -22,6 +22,13 @@ export function parseCommitMessage(message, hash = '') {
   const match = header.match(headerPattern);
   if (!match) throw new Error(`${hash || 'commit'} has an invalid conventional header`);
   const markers = lines.flatMap((line, index) => line === 'Message:' ? [index] : []);
+  if (markers.length === 0) {
+    // Commits before the Message block convention used "Message.en:" and
+    // "Message.zh-CN:" paragraphs; keep them readable in generated changelogs.
+    const legacy = parseLegacyMessageParagraphs(lines.slice(1));
+    if (!legacy) throw new Error(`${hash || 'commit'} must contain exactly one Message block`);
+    return buildCommit(match, hash, legacy);
+  }
   if (markers.length !== 1) throw new Error(`${hash || 'commit'} must contain exactly one Message block`);
   const fields = [];
   for (const line of lines.slice(markers[0] + 1)) {
@@ -39,6 +46,10 @@ export function parseCommitMessage(message, hash = '') {
     if (!field || values[field[1]]) throw new Error(`${hash || 'commit'} has an invalid Message field`);
     values[field[1]] = field[2].trim();
   }
+  return buildCommit(match, hash, values);
+}
+
+function buildCommit(match, hash, values) {
   if (!/[A-Za-z]/.test(values.en ?? '')) throw new Error(`${hash || 'commit'} Message.en must contain English text`);
   if (!/\p{Script=Han}/u.test(values.zh ?? '')) throw new Error(`${hash || 'commit'} Message.zh must contain Chinese text`);
   return {
@@ -51,6 +62,28 @@ export function parseCommitMessage(message, hash = '') {
     en: values.en,
     zh: values.zh,
   };
+}
+
+// "Message.en:" / "Message.zh-CN:" headings followed by one paragraph each.
+function parseLegacyMessageParagraphs(lines) {
+  const values = {};
+  let current = null;
+  for (const line of lines) {
+    const heading = line.match(/^Message\.(en|zh(?:-CN)?):\s*$/);
+    if (heading) {
+      current = heading[1].startsWith('zh') ? 'zh' : 'en';
+      if (values[current] !== undefined) return null;
+      values[current] = '';
+      continue;
+    }
+    if (current === null) continue;
+    if (line.trim() === '') {
+      if (values[current]) current = null;
+      continue;
+    }
+    values[current] = `${values[current]} ${line.trim()}`.trim();
+  }
+  return values.en && values.zh ? values : null;
 }
 
 export function renderChangelog(version, commits, language) {
@@ -91,10 +124,15 @@ function readCommits(range) {
   return hashes.map(hash => parseCommitMessage(git('show', '-s', '--format=%B', hash), hash));
 }
 
-function findPreviousVersion(version, head) {
+// A changelog always starts after the newest final release: release
+// candidates describe everything since that release, and the final version
+// repeats the candidate history instead of starting after the last candidate.
+const finalVersionPattern = /^V(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+
+export function findPreviousVersion(version, head) {
   return git('tag', '--merged', head, '--list', 'V*', '--sort=-version:refname')
     .split('\n')
-    .find(tag => versionPattern.test(tag) && tag !== version);
+    .find(tag => finalVersionPattern.test(tag) && tag !== version);
 }
 
 export function combinedReleaseNotes(english, chinese) {
