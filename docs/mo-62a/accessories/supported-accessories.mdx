@@ -1,9 +1,87 @@
 ---
 title: "Supported accessories"
-description: "Mo 62A: Official, verified and community-reported accessories."
+description: "Mo62A accessory test evidence, connector requirements and unverified combinations."
 sidebar_position: 1
 ---
 
-Accessories that work with the Mo 62A, in three levels — official, verified and community-reported — each linking to its guide in [Accessories](/accessories).
+import cameraConnection from '@site/static/img/getting-started/mo62a-csi-connect.png';
+import cameraResult from '@site/static/img/application-development/mo62a-camera-jpeg.png';
+import fanState from '@site/static/img/hardware-development/mo62a-thermal.png';
 
-<ComingSoon />
+## Read the validation scope first
+
+This list records evidence from the documented Mo62A setup. An interface being
+present is not a qualification of every product with that connector. Where a
+manufacturer, part number or revision was not recorded, no model-specific
+approval is implied.
+
+| Accessory | Connection | Evidence and limitation |
+| --- | --- | --- |
+| IMX219 camera with matching ribbon | JP1 CSI, 22-pin / 0.5 mm board connector | Repeated 1920 × 1080 JPEG capture through the TI ISP; not all IMX219 modules or cables |
+| Cooling fan fitted to the test board | J1, 5 V PWM, SH1.0-4p | Tachometer and control attributes read; exact fan model and sustained thermal qualification not recorded |
+| HDMI display and cable | micro HDMI | Desktop configuration and audio routing documented; no universal display/EDID compatibility claim |
+| USB keyboard and mouse | USB 2.0 Type-A | Used in the desktop workflow; exact models not qualified as a product family |
+| Wi-Fi antenna | Matching RF plug and antenna specification | Network configuration and association documented; no antenna gain/range qualification |
+| RTC backup battery | J2, SH1.0-2p | Connector assignment verified; approved cell type and power-off retention not verified |
+| USB-UART adapter | J4 debug UART, 3.3 V TTL | Connector and console settings documented; no new adapter electrical test in this review |
+| Header HAT or module | J6, 40-pin | GPIO/UART/PWM loopbacks passed; no complete HAT qualified by those tests |
+
+See [Preparation](../getting-started/preparation.mdx) for power, card and cable
+requirements. The published supply rating is 5 V / 5 A; include connected
+accessories in the power budget. Do not infer a separate current allowance
+from the header's 5 V pins.
+
+## Camera: use the tested combination
+
+Disconnect power before handling the ribbon. Match its pitch, pin count and
+contact orientation at both ends; do not assume all Raspberry Pi camera cables
+fit the Mo62A connector.
+
+<a href={cameraConnection} target="_blank" rel="noreferrer"><img src={cameraConnection} alt="Actual IMX219 ribbon connection used in the Mo62A installation guide" /></a>
+
+The test below used an IMX219 sensor, TI ISP processing and CPU JPEG encoding.
+The capture pipeline completed repeatedly with normal end-of-stream. It did
+not verify hardware video encoding, RTSP, long-duration FPS or other sensors.
+
+<a href={cameraResult} target="_blank" rel="noreferrer"><img src={cameraResult} alt="Real Mo62A JPEG capture result with normal end-of-stream and two 1920 by 1080 JPEG files" /></a>
+
+Follow [Camera & video](../application-development/camera-and-video.mdx) for
+device discovery, the download script and recovery. Use its discovered camera
+aliases instead of assuming a fixed `/dev/videoN` index.
+
+## Fan, battery and debug cables
+
+The published schematics identify J1 as the fan connector, J2 as the battery
+connector and J4 as debug UART. The older README uses different fan/header
+references. Check the schematic, connector shape and physical pin indication,
+not the reference label alone.
+
+| Connector | Pin assignment | Selection check |
+| --- | --- | --- |
+| J1 fan | 1: 5 V; 2: PWM; 3: GND; 4: tachometer | Plug pitch, wiring, voltage and current; never rely only on wire colour |
+| J2 battery | 1: GND; 2: VBAT | Obtain the approved battery type and polarity before connecting |
+| J4 debug UART | 1: board RX; 2: GND; 3: board TX | 3.3 V TTL; cross TX/RX; no RS-232 voltage or adapter power wire |
+
+<a href={fanState} target="_blank" rel="noreferrer"><img src={fanState} alt="Read-only fan and thermal inspection on the Mo62A test setup" /></a>
+
+This existing capture reports 9990 RPM at one instant. It does not certify a
+particular fan model, cooling capacity or safe temperature under every load.
+Use [Power & thermal](../hardware-development/power-and-thermal.mdx) for
+read-only inspection and
+[Hardware interfaces](../hardware-development/hardware-interfaces.mdx) for the
+original connector schematic.
+
+## Cases, PoE and expansion products
+
+No case fit, PoE expansion board or complete Raspberry Pi HAT was qualified in
+this review. The mechanical drawing is approximate and must not be used as a
+production machining drawing. Confirm connector openings, mounting positions,
+underside clearance, ribbon paths and airflow with the actual assembly.
+
+Do not infer bare-board PoE support from a schematic block label. Obtain the
+specific expansion board's documentation and power-path approval before use.
+For header add-ons, continue with [Raspberry Pi HATs](./raspberry-pi-hats.mdx).
+
+When reporting a working accessory, include its manufacturer/part number,
+revision, wiring, board revision, image version, overlay, commands and measured
+results. Keep “reported by a user” separate from a reproduced test.

@@ -1024,6 +1024,17 @@ try {
     await page.goto(url + board + '/resource-download/', {waitUntil: 'networkidle'});
     assert.equal(await page.locator('.theme-doc-markdown a[href="' + portal + '/software#os-images"]').count(), 1);
     if (board === 'mo-62a') {
+      for (const slug of ['supported-accessories', 'raspberry-pi-hats']) {
+        await page.goto(url + board + '/accessories/' + slug + '/', {waitUntil: 'networkidle'});
+        const body = page.locator('.theme-doc-markdown');
+        const text = await body.innerText();
+        assert.ok(!text.includes('Coming soon'));
+        assert.ok(text.includes('No complete Raspberry Pi HAT') || text.includes('No case fit'));
+        assert.equal(await body.locator('img').count(), slug === 'supported-accessories' ? 3 : 2);
+        await checkDocumentationMedia(page);
+        const hrefs = await body.locator('a[href]').evaluateAll(links => [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);
+        for (const href of hrefs) assert.equal((await page.request.get(origin + href)).status(), 200, href);
+      }
       for (const slug of ['armbian', 'torizon']) {
         await page.goto(url + board + '/other-systems/' + slug + '/', {waitUntil: 'networkidle'});
         const body = page.locator('.theme-doc-markdown');
