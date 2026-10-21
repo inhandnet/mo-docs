@@ -2,7 +2,7 @@ import type {ReactNode} from 'react';
 import Link from '@site/src/components/DocumentationLink';
 import {getProduct, type Product} from '@site/src/data/products';
 import {SpecTable} from '@site/src/components/SpecTable';
-import {boards, generatedAt} from '@site/src/data/releases';
+import {boards} from '@site/src/data/releases';
 import DocumentationTable from '@site/src/components/DocumentationTable';
 
 // Shows its children only for the given board; used in shared partials (docs/_partials).
@@ -25,32 +25,27 @@ export function BoardSpecs({board}: {board: Product['id']}): ReactNode {
 }
 
 // Release notes come from scripts/fetch-releases.mjs (GitHub Releases or ChangeLog.md).
+// Release notes live with each image on GitHub Releases; link there directly instead of bundling a snapshot.
 export function ReleaseNotes({board}: {board: Product['id']}): ReactNode {
-  const data = boards[board];
-  if (!data || data.releases.length === 0) {
+  const p = getProduct(board);
+  if (!p.githubUrl) {
     return (
       <p>
-        <span className="mo-badge">Coming soon</span> Release notes will appear here when the {getProduct(board).name}{' '}
-        repository is published on GitHub.
+        <span className="mo-badge">Coming soon</span> Release notes will appear here when the {p.name} repository is
+        published on GitHub.
       </p>
     );
   }
   return (
-    <>
-      <p className="mo-muted">
-        Generated from <Link href={`https://github.com/${data.repo}`}>{data.repo}</Link> ({data.source}) on{' '}
-        {generatedAt.slice(0, 10)}.
-      </p>
-      {data.releases.map((r) => (
-        <details key={r.version} open={r === data.releases[0]}>
-          <summary>
-            <strong>v{r.version}</strong> — {r.date}
-          </summary>
-          <pre style={{whiteSpace: 'pre-wrap'}}>{r.notes}</pre>
-          <Link href={r.url}>View on GitHub</Link>
-        </details>
-      ))}
-    </>
+    <ul>
+      <li>
+        <Link href={`${p.githubUrl}/releases`}>All {p.name} releases on GitHub</Link> — every image with its notes,
+        downloads and SHA-256 checksums.
+      </li>
+      <li>
+        <Link href={`${p.githubUrl}/releases/latest`}>Latest release</Link> — opens the newest published release.
+      </li>
+    </ul>
   );
 }
 

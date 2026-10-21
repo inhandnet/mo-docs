@@ -1039,6 +1039,19 @@ try {
     await checkDocumentationMedia(page);
     await page.goto(url + board + '/resource-download/', {waitUntil: 'networkidle'});
     assert.equal(await page.locator('.theme-doc-markdown a[href="' + portal + '/software#os-images"]').count(), 1);
+    await page.goto(url + board + '/resource-download/release-notes/', {waitUntil: 'networkidle'});
+    const releaseNotes = page.locator('.theme-doc-markdown');
+    assert.ok(!(await releaseNotes.innerText()).includes('Generated from'), board + ': release notes must not bundle a snapshot');
+    assert.equal(await releaseNotes.locator('details').count(), 0, board);
+    if (board === 'mo-62a') {
+      assert.equal(await releaseNotes.locator('a[href="https://github.com/inhandnet/Mo62A/releases"]').count(), 1);
+      assert.equal(await releaseNotes.locator('a[href="https://github.com/inhandnet/Mo62A/releases/latest"]').count(), 1);
+      assert.equal(await releaseNotes.locator('.mo-badge').count(), 0);
+      await page.goto(url + board + '/resource-download/', {waitUntil: 'networkidle'});
+      assert.equal(await page.locator('.theme-doc-markdown a[href="https://github.com/inhandnet/Mo62A/releases"]').count(), 1);
+    } else {
+      assert.ok(/coming soon/i.test(await releaseNotes.locator('.mo-badge').textContent()), board);
+    }
     if (board === 'mo-62a') {
       for (const slug of ['', 'supported-accessories/', 'hat-compatibility/']) {
         await page.goto(url + board + '/accessories/' + slug, {waitUntil: 'networkidle'});
