@@ -5,13 +5,14 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const exactVersion = /^V(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+const exactVersion = /^V(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-rc[1-9]\d*)?$/;
 
 export function validateReleaseVersion(version, packageVersion, lockVersion) {
   if (!exactVersion.test(version ?? '')) {
-    throw new Error('release version must match V<major>.<minor>.<patch> exactly');
+    throw new Error('release version must match V<major>.<minor>.<patch> or V<major>.<minor>.<patch>-rc<n> exactly');
   }
-  const expected = version.slice(1);
+  // A release candidate V1.2.3-rc1 belongs to the declared version 1.2.3.
+  const expected = version.slice(1).replace(/-rc\d+$/, '');
   if (packageVersion !== expected) {
     throw new Error(`package.json version ${packageVersion} does not match ${version}`);
   }

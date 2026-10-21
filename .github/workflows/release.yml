@@ -20,6 +20,9 @@ concurrency:
 
 env:
   VERSION: ${{ github.event_name == 'push' && github.ref_name || inputs.version }}
+  # V1.2.3-rc1 is a release candidate: it is published as a prerelease and
+  # deployed to the test platform only. V1.2.3 also deploys to production.
+  PRERELEASE: ${{ contains(github.event_name == 'push' && github.ref_name || inputs.version, '-rc') }}
   DOCS_PREVIEW: '0'
   DOCS_BASE_URL: ${{ vars.WEBSITE_BASE_URL || '/docs/' }}
   DOCS_SITE_URL: ${{ vars.WEBSITE_SITE_URL || 'https://www.inhand.com' }}
@@ -117,6 +120,7 @@ jobs:
             --verify-tag \
             --notes-file dist/release-notes.md \
             --title "$VERSION" \
+            --prerelease="$PRERELEASE" \
             --draft
 
       - name: Publish the complete release
@@ -124,3 +128,61 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: gh release edit "$VERSION" --draft=false
+
+  # Deployment: stream the site archive over SSH to a web server. The deploy
+  # account there accepts the single command `deploy-docs`, reads a .tar.gz on
+  # stdin and unpacks it under /docs/ of the developer site itself.
+  # Each platform has its own secrets; a job skips while its SSH key is unset:
+  #   OPS_DEPLOY_HOST / OPS_PROD_HOST          server address
+  #   OPS_DEPLOY_USER / OPS_PROD_USER          deploy account
+  #   OPS_DEPLOY_SSH_KEY / OPS_PROD_SSH_KEY    private key
+  #   OPS_DEPLOY_HOST_KEY / OPS_PROD_HOST_KEY  the server's host key (ssh-keyscan line)
+  deploy-test:
+    name: deploy-test-platform
+    if: github.event_name == 'push' && github.repository == 'inhandnet/mo-docs'
+    needs: build
+    runs-on: ubuntu-latest
+    concurrency:
+      group: mo-docs-deploy-test
+      cancel-in-progress: false
+    env:
+      DEPLOY_PLATFORM: test
+      DEPLOY_HOST: ${{ secrets.OPS_DEPLOY_HOST }}
+      DEPLOY_USER: ${{ secrets.OPS_DEPLOY_USER }}
+      DEPLOY_SSH_KEY: ${{ secrets.OPS_DEPLOY_SSH_KEY }}
+      DEPLOY_HOST_KEY: ${{ secrets.OPS_DEPLOY_HOST_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v7
+        with:
+          name: mo-docs-release-${{ env.VERSION }}
+          path: dist/
+      - name: Deploy the documentation archive
+        run: bash .github/scripts/deploy-site.sh "dist/mo-docs-$VERSION.tar.gz"
+
+  deploy-production:
+    name: deploy-production-platform
+    if: github.event_name == 'push' && github.repository == 'inhandnet/mo-docs' && !contains(github.ref_name, '-rc')
+    needs: [build, deploy-test]
+    runs-on: ubuntu-latest
+    concurrency:
+      group: mo-docs-deploy-production
+      cancel-in-progress: false
+    env:
+      DEPLOY_PLATFORM: production
+      DEPLOY_HOST: ${{ secrets.OPS_PROD_HOST }}
+      DEPLOY_USER: ${{ secrets.OPS_PROD_USER }}
+      DEPLOY_SSH_KEY: ${{ secrets.OPS_PROD_SSH_KEY }}
+      DEPLOY_HOST_KEY: ${{ secrets.OPS_PROD_HOST_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/download-artifact@v7
+        with:
+          name: mo-docs-release-${{ env.VERSION }}
+          path: dist/
+      - name: Deploy the documentation archive
+        run: bash .github/scripts/deploy-site.sh "dist/mo-docs-$VERSION.tar.gz"

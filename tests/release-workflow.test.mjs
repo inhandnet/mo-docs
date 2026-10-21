@@ -12,7 +12,11 @@ test('release tag uses the exact uppercase V semantic version', () => {
   for (const version of ['V0.1.0', 'V1.0.0', 'V12.34.56']) {
     assert.equal(validateReleaseVersion(version, version.slice(1), version.slice(1)), version.slice(1));
   }
-  for (const version of ['v1.0.0', 'V1.0', 'V1.0.0-rc.1', 'V01.0.0', 'V1.0.0.1', 'release-V1.0.0']) {
+  // A release candidate belongs to the declared version.
+  assert.equal(validateReleaseVersion('V1.0.1-rc1', '1.0.1', '1.0.1'), '1.0.1');
+  assert.equal(validateReleaseVersion('V2.0.0-rc12', '2.0.0', '2.0.0'), '2.0.0');
+  assert.throws(() => validateReleaseVersion('V1.0.1-rc1', '1.0.1-rc1', '1.0.1-rc1'), /package.json/);
+  for (const version of ['v1.0.0', 'V1.0', 'V1.0.0-rc.1', 'V1.0.0-rc0', 'V1.0.0-rc', 'V1.0.0-beta1', 'V01.0.0', 'V1.0.0.1', 'release-V1.0.0']) {
     assert.throws(() => validateReleaseVersion(version, '1.0.0', '1.0.0'), /must match/);
   }
 });
@@ -39,6 +43,16 @@ test('release workflow keeps tag publication separate from master deployment', a
   assert.match(release, /--notes-file dist\/release-notes\.md/);
   assert.match(release, /--title "\$VERSION"/);
   assert.doesNotMatch(release, /--title "Mo documentation \$VERSION"/);
+  // Release candidates are prereleases that reach the test platform only.
+  assert.match(release, /--prerelease="\$PRERELEASE"/);
+  assert.match(release, /deploy-test:/);
+  assert.match(release, /deploy-production:/);
+  assert.match(release, /!contains\(github\.ref_name, '-rc'\)/);
+  assert.match(release, /deploy-site\.sh/);
+  const deploy = await fs.readFile(new URL('../.github/scripts/deploy-site.sh', import.meta.url), 'utf8');
+  assert.match(deploy, /deploy-docs/);
+  assert.match(deploy, /StrictHostKeyChecking=yes/);
+  assert.match(deploy, /skipping its deployment/);
   assert.match(masterBuild, /branches:\s*\[master\]/);
 });
 

@@ -116,9 +116,11 @@ Direct pushes, force pushes, and deletion of `master` are blocked. Changes merge
 
 ### Versioned releases
 
-The continuous deployment from `master` and versioned releases are separate. Merging a pull request keeps publishing the current website. Pushing an annotated tag that exactly matches `V<major>.<minor>.<patch>` runs the full checks, builds the public static site, and publishes a GitHub Release containing the site archive, release metadata, English and Chinese changelogs generated from the validated Git messages, and SHA-256 checksums.
+The continuous deployment from `master` and versioned releases are separate. Merging a pull request keeps publishing the current website. Pushing an annotated tag that exactly matches `V<major>.<minor>.<patch>` or a release candidate `V<major>.<minor>.<patch>-rc<n>` runs the full checks, builds the public static site, and publishes a GitHub Release containing the site archive, release metadata, English and Chinese changelogs generated from the validated Git messages, and SHA-256 checksums. A release candidate is published as a prerelease.
 
-The version without the leading `V` must match both `package.json` and `package-lock.json`. Update those files through a reviewed pull request before creating a release tag. Create the tag only from a commit already contained in `master`:
+The same workflow deploys the archive: every tag is streamed over SSH to the test platform, and only a final `V<major>.<minor>.<patch>` tag also goes to the production platform. Each platform has its own repository secrets (`OPS_DEPLOY_*` for test, `OPS_PROD_*` for production: host, user, SSH key and host key); a platform whose SSH key secret is missing is skipped. The deploy account on the server accepts only the `deploy-docs` command and unpacks the archive under `/docs/` of the developer site.
+
+The version without the leading `V` (ignoring the `-rc<n>` suffix) must match both `package.json` and `package-lock.json`. Update those files through a reviewed pull request before creating a release tag. Create the tag only from a commit already contained in `master`:
 
 ```bash
 git switch master
@@ -127,7 +129,7 @@ git tag -a V1.0.0 -m "V1.0.0"
 git push origin V1.0.0
 ```
 
-Replace `V1.0.0` with the version declared by the repository. A lightweight tag, a lowercase `v`, a prerelease suffix, a version mismatch, or a tag whose commit is not in `master` is rejected. Maintainers can run the release workflow manually to build and validate a candidate; manual runs do not publish a GitHub Release.
+Replace `V1.0.0` with the version declared by the repository, or append `-rc1`, `-rc2`, … for release candidates. A lightweight tag, a lowercase `v`, any other suffix, a version mismatch, or a tag whose commit is not in `master` is rejected. Maintainers can run the release workflow manually to build and validate a candidate; manual runs do not publish a GitHub Release.
 
 ## License
 

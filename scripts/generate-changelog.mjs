@@ -4,7 +4,7 @@ import {execFileSync} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const versionPattern = /^V(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+const versionPattern = /^V(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-rc[1-9]\d*)?$/;
 const headerPattern = /^(feat|fix|docs|refactor|sync|ci|chore)(?:\(([a-z0-9][a-z0-9/-]*)\))?(!)?: (.+)$/;
 const sections = {
   feat: ['Features', '新功能'],
@@ -125,7 +125,7 @@ function parseArguments(args) {
 
 function main() {
   const options = parseArguments(process.argv.slice(2));
-  if (!versionPattern.test(options.version)) throw new Error('release version must match V<major>.<minor>.<patch>');
+  if (!versionPattern.test(options.version)) throw new Error('release version must match V<major>.<minor>.<patch> or V<major>.<minor>.<patch>-rc<n>');
   const previous = findPreviousVersion(options.version, options.head);
   const baseline = previous || fs.readFileSync(new URL('../release-notes/changelog-baseline', import.meta.url), 'utf8').trim();
   git('merge-base', '--is-ancestor', baseline, options.head);
