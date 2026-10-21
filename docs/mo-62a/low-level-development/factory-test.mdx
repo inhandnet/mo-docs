@@ -5,7 +5,6 @@ sidebar_position: 5
 ---
 
 import checks from '@site/static/img/low-level-development/mo62a-customer-checks.png';
-import gpioProof from '@site/static/img/application-development/mo62a-gpio-loopback.png';
 
 ## Production tooling is not a customer self-test package
 
@@ -45,11 +44,7 @@ The capture confirms enumeration and service state on the documented development
 | AI | [Benchmarks](../application-development/ai/benchmarks.mdx) | Tested models and timing method; not an accuracy or power qualification |
 | Cooling | [Power & thermal](../hardware-development/power-and-thermal.mdx) | Read sensor/fan state; do not disable cooling for an unattended test |
 
-For example, the documented GPIO procedure exercised three pairs in both directions:
-
-<a href={gpioProof} target="_blank" rel="noopener noreferrer">
-  <img src={gpioProof} alt="Previously captured real GPIO loopback result from the documented customer procedure, not a complete production-line test" width="1440" height="900" />
-</a>
+For example, the documented GPIO procedure exercised three pairs in both directions; its [recorded result](../application-development/gpio-and-peripherals.mdx#gpio-python-loopback) is a customer-procedure capture, not a complete production-line test.
 
 Disconnect power before changing wiring and read the procedure's prerequisites. A test that needs an unconnected fixture should be recorded as not run, not passed. In this review, the three GPIO pairs, UART5 and pin-33 PWM passed; external I²C and SPI, RTC battery retention and the J4 debug electrical loopback were not tested.
 

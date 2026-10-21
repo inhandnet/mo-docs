@@ -4,7 +4,7 @@ description: "Mo62A read-only OP-TEE evidence, secure-boot validation boundaries
 sidebar_position: 3
 ---
 
-import teeState from '@site/static/img/low-level-development/mo62a-tee-console.png';
+import teeState from '@site/static/img/low-level-development/mo62a-tee-state.png';
 import guideCover from '@site/static/img/low-level-development/mo62a-keywriter-cover.png';
 
 ## What has actually been checked
@@ -20,7 +20,7 @@ The tested board exposes OP-TEE device nodes and an initialized kernel driver. T
 | Secure-boot negative tests | Not performed | An altered or unauthorized image is rejected |
 
 <a href={teeState} target="_blank" rel="noopener noreferrer">
-  <img src={teeState} alt="Actual read-only Mo62A capture showing OP-TEE 4.6 initialization, root-only TEE devices and no running tee-supplicant process" width="1440" height="900" />
+  <img src={teeState} alt="Actual read-only Mo62A capture showing OP-TEE 4.6 initialization, root-only TEE devices and no running tee-supplicant process" width="1440" height="444" />
 </a>
 
 The [OP-TEE client documentation](https://optee.readthedocs.io/en/latest/building/gits/optee_client.html) describes `tee-supplicant` as a normal-world helper for services such as filesystem access. Its absence in this capture is a boundary of the tested environment, not a claim that the kernel driver failed to initialize. No trusted-application, secure-storage or key-isolation test was run.
