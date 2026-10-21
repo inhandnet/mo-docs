@@ -1,52 +1,9 @@
 ---
 title: "Regulatory & safety information"
-description: "Mo62A bench handling, published ratings, battery connector precautions and missing environmental-compliance documents."
+description: "Mo 62A: Safe use, RoHS / REACH, WEEE, batteries."
 sidebar_position: 4
 ---
 
-import ratings from '@site/static/img/compliance/mo62a-ratings.png';
+Safe use, RoHS / REACH, WEEE and battery information.
 
-## Published ratings and their limits
-
-Page 5 of the English Mo62A Datasheet V1.0 in the [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO62A) lists 5 V / 5 A USB-C input, a 25 W maximum rating, an operating range of 0–50 °C and a storage range of −20–70 °C. The English source page is shown unchanged below.
-
-<a href={ratings} target="_blank" rel="noopener noreferrer">
-  <img src={ratings} alt="Original English datasheet page 5 showing Mo62A input, maximum-power, cooling and environmental ratings; it is not a safety test report" width="1273" height="1800" />
-</a>
-
-These specifications are not evidence of electrical-safety certification, ingress protection or qualification of a finished enclosure. No humidity, condensation, flammability or outdoor-use rating has been established by this documentation review.
-
-The software rows on this source page are product-level descriptions, not a manifest of every installed image. Use the [version map](../resource-download/version-map.mdx) and the board's runtime inventory for exact software versions. The RTC support entry likewise does not replace a battery-retention test.
-
-## Bench handling
-
-- Shut down and disconnect power before connecting or moving GPIO jumpers, HATs, camera ribbons, a fan or a backup battery.
-- Keep the exposed PCB on a stable, nonconductive surface; prevent loose metal or conductive tools from contacting powered circuits.
-- Use 3.3 V logic on header signal pins. Power/ground pins are not GPIO, and a mechanically fitting connector does not guarantee a matching pinout.
-- Use a suitable power supply and cable. Do not back-power the board through a USB-UART adapter or connect competing supplies.
-- Keep cooling paths clear. Allow hot components to cool before handling them; fan blades and exposed wiring also need protection in an enclosure.
-- Stop using damaged cables, connectors or batteries. Do not improvise an electrical repair while the board is powered.
-
-For the actual connector and pin assignments, use [Hardware interfaces](../hardware-development/hardware-interfaces.mdx). For supply troubleshooting and sensor readings, use [Power & thermal](../hardware-development/power-and-thermal.mdx).
-
-## RTC battery connection
-
-The schematics show a two-pin SH1.0 battery connector J2, not a coin-cell holder: pin 1 is GND and pin 2 is VBAT. Obtain the approved battery assembly and confirm polarity, voltage and connector before attaching it; do not choose a bare cell solely from an older accessory description.
-
-See the [original RTC/battery circuit on sheet 17](../hardware-development/schematics.mdx#connector-circuits-sheet-17) and the [connector map](../hardware-development/hardware-interfaces.mdx#locate-the-board-features) for the source pin assignment and physical location.
-
-Battery retention, charging behaviour and a specific replacement battery assembly were not validated in this review. Do not attempt to charge a primary cell or short its terminals. Keep small batteries away from children and use the battery supplier's handling and disposal instructions.
-
-## Environmental and disposal documentation
-
-| Topic | Available evidence in this documentation |
-|---|---|
-| RoHS | No verified Mo62A-specific declaration linked |
-| REACH / substances | No verified Mo62A-specific declaration or material statement linked |
-| WEEE / collection | No model-specific collection instructions or registration details verified |
-| Battery compliance and transport | No approved battery assembly or associated documentation verified |
-| Finished-product safety | No matching regulatory safety test report available here |
-
-Request the applicable documents for the exact model and market from InHand. Use appropriate local collection channels for electronics and batteries; obtain destination-specific instructions from the supplier or local authority. This page does not determine the legal obligations for a particular deployment.
-
-See [Declarations & test reports](./declarations.mdx) for the evidence checklist. Do not turn a missing document into an unsupported “compliant” or “non-compliant” statement.
+<ComingSoon />

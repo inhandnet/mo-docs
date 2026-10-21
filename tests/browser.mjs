@@ -648,23 +648,15 @@ try {
         }
       }
 
-      for (const [slug, imageCount, phrases] of [
-        ['certifications', 2, ['not a finding that the product is uncertified', 'No verified', 'October 20, 2026']],
-        ['declarations', 1, ['No signed Mo62A', 'not a regulatory declaration', 'Do not generate a signature']],
-        ['integration-notes', 0, ['not a declaration', 'Do not select antenna gain', 'manufacturing use']],
-        ['regulatory-and-safety', 1, ['No verified Mo62A-specific', 'not a coin-cell holder', 'not a safety test report']],
-      ]) {
-        await page.goto(url + board + '/compliance/' + slug + '/', {waitUntil: 'networkidle'});
+      for (const slug of ['', 'certifications/', 'declarations/', 'integration-notes/', 'regulatory-and-safety/']) {
+        await page.goto(url + board + '/compliance/' + slug, {waitUntil: 'networkidle'});
         const article = page.locator('.theme-doc-markdown');
-        assert.equal(await article.locator('img').count(), imageCount, slug);
-        if (imageCount > 0) await checkDocumentationMedia(page);
+        assert.equal(await article.locator('img').count(), 0, slug);
         const text = await article.innerText();
-        for (const phrase of phrases) {
-          const searchable = text + await article.locator('img').evaluateAll(images => images.map(image => image.alt).join(' '));
-          assert.ok(searchable.includes(phrase), slug + ': ' + phrase);
-        }
-        assert.ok(!text.includes('Coming soon'));
+        if (slug) assert.ok((await article.locator('.mo-stub').innerText()).includes('Coming soon.'), slug);
+        else assert.equal(await article.locator('.mo-stub').count(), 0, slug);
         assert.ok(!text.includes('the on-board Wi-Fi is a pre-certified module'));
+        assert.ok(!/October 20, 2026|No verified Mo62A|Datasheet V1.0/.test(text), slug);
         assert.ok(!/10\.5\.\d+\.\d+/.test(text));
         const localLinks = await article.locator('a[href]').evaluateAll(links =>
           [...new Set(links.map(link => link.getAttribute('href')).filter(href => href.startsWith('/') && !href.startsWith('//')))]);

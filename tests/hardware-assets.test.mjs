@@ -6,16 +6,7 @@ import {execFileSync} from 'node:child_process';
 
 const root = new URL('../', import.meta.url);
 
-test('hardware references keep the reviewed English datasheet images', async () => {
-  // Rendered without content edits from pages 5 and 7 of the English V1.0 PDF.
-  // Reviewed source PDF SHA-256: 6b8afdf66fa6f3c96e2d21291688f0c89ac71ab399bbd3ae06b4436909fd9ea9.
-  for (const [file, expected] of [
-    ['compliance/mo62a-ratings.png', '2c8b3af358ac84741323c3bf306273cd300f3db00447699ca658f39fae26890c'],
-    ['compliance/mo62a-model-identification.png', '2577e292fdd936f3cf25910d5a065685883c3147f273fa295c9ca3f7a5688ca7'],
-  ]) {
-    const data = await fs.readFile(new URL('static/img/' + file, root));
-    assert.equal(createHash('sha256').update(data).digest('hex'), expected, file);
-  }
+test('hardware references keep the English block-diagram redraws', async () => {
   for (const version of ['v10', 'v11']) {
     const svg = await fs.readFile(new URL(`static/img/hardware-development/mo62a-block-${version}-en.svg`, root), 'utf8');
     assert.doesNotMatch(svg, /\p{Script=Han}/u);

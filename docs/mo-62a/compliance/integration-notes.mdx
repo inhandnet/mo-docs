@@ -1,39 +1,9 @@
 ---
 title: "Integration notes"
-description: "Information to collect before integrating Mo62A into an OEM product; radio approvals and final-product compliance remain unverified."
+description: "Mo 62A: For OEMs building the board into a product."
 sidebar_position: 3
 ---
 
-## Start with an identified configuration
+Labelling and antenna requirements when you build the board into your own product.
 
-This page is an engineering handoff checklist, not a declaration that a finished product is approved for sale. The reviewed materials do not establish the on-board radio's approval conditions, approved antenna list or final-product labelling requirements. Do not assume that a module name proves pre-certification or that a board-level approval would cover every enclosure and peripheral combination.
-
-Use the [connector map](../hardware-development/hardware-interfaces.mdx#locate-the-board-features) and [mechanical references](../hardware-development/mechanical.mdx) when identifying the configuration below.
-
-Record the following before asking InHand or a qualified compliance reviewer to assess the integrated product:
-
-| Area | Configuration to record | Evidence to obtain |
-|---|---|---|
-| Board | Ordered SKU, PCB and assembly revision | Revision-matched design and conformity documents |
-| Radio | Module marking, enabled bands and firmware | Relevant approval identifiers and integration instructions |
-| Antenna | Exact part, gain, cable, connector and placement | Approved antenna configuration and installation restrictions |
-| Power | Adapter, cable, input protection and peripheral load | Appropriate supply documentation and final-system measurements |
-| Enclosure | Material, openings, mounting and cooling | Final mechanical drawings and test configuration |
-| Cables and expansion | USB, Ethernet, display, camera and HATs | Interface checks and the configuration used for qualification |
-| User information | Intended use, installation and destination | Approved labels, warnings and user-manual text |
-
-Do not select antenna gain, separation distance or required label wording from this page: those values have not been verified for Mo62A. Obtain them from the matching approval and integration documents.
-
-## Mechanical and thermal boundaries
-
-The public dimension drawing is useful for early planning but explicitly excludes manufacturing use. Keep the [published dimensions, STEP views and model limitations](../hardware-development/mechanical.mdx#published-dimensions) with the integration record instead of treating a product illustration as a production drawing.
-
-Obtain toleranced CAD for the actual revision before enclosure tooling. Check camera-cable access, header clearance, insulated mounting, plug strain, antenna routing and airflow. See [Mechanical](../hardware-development/mechanical.mdx).
-
-Published 5 V / 5 A and 25 W values are product ratings, not measured consumption for your system. The [temperature and fan capture](../hardware-development/power-and-thermal.mdx) is a one-time development-board observation, not environmental qualification of an enclosure.
-
-## Before production release
-
-Keep an exact configuration record and the applicable original [declarations/reports](./declarations.mdx). Ask the responsible compliance reviewer which tests and labels apply to the target market and integrated product. Changes to the board revision, radio, antenna, power supply, enclosure or attached devices should trigger review against that record.
-
-Do not reuse another InHand product's certificate, regulatory identifier, label artwork or approval statements. The outstanding Mo62A evidence is listed under [Certifications](./certifications.mdx).
+<ComingSoon />
