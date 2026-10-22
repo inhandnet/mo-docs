@@ -61,6 +61,8 @@ Read the data contract before interpreting a result. The application restores co
 
 ## 3. Quantize and compile on x86
 
+`compile_model.py` and `model.py` are maintained in [mo-models](https://github.com/inhandnet/mo-models/tree/master/compile/zone-demo); the application-side scripts are in [mo-examples](https://github.com/inhandnet/mo-examples/tree/master/ai/zone-demo). The tutorial package downloaded on this page bundles the same files.
+
 Use a new bundle for each changed graph, calibration set or compiler configuration. The script refuses to overwrite an artifact directory.
 
 ```bash

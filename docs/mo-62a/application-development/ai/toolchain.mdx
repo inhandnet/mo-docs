@@ -35,6 +35,8 @@ The [TI compatibility table](https://github.com/TexasInstruments/edgeai-tidl-too
 
 ## Prepare an isolated x86 environment
 
+The pinned versions used below (TI repository tag, compiler release, host Python, target firmware directory) are maintained as `toolchain/versions.json` in the [mo-tools](https://github.com/inhandnet/mo-tools) repository, together with the host setup scripts under `toolchain/host-setup/`. The downloads on this page are the same files.
+
 TI's CPU Docker recipe uses Ubuntu 22.04 and Python 3.10. This walkthrough was exercised on x86 Ubuntu 24.04.4 with a separately installed Python 3.10.20. That observation is not a claim that TI supports every OS combination. Consult the [TI Docker instructions](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/scripts/docker/README.md) for its reference environment.
 
 Provide Python 3.10 with `venv`, Git, curl, tar, a C++ runtime and TI's required host libraries (`libyaml-cpp` and GLib). On Ubuntu 22.04 an administrator can install prerequisites with:

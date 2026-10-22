@@ -13,6 +13,10 @@ The Mo62A installation includes compiled bundles derived from TI model-zoo entri
 The inventory is from the V1.1.0 development installation with TIDL `11_02_17_00`. Installation, successful inference, accuracy and video integration are separate checks. Only the two models with downloadable raw timing records are assigned audited latency figures here.
 :::
 
+## Model catalog repository
+
+The machine-readable catalog of these bundles lives in the [mo-models](https://github.com/inhandnet/mo-models) repository and is published as versioned releases (first candidate: [V1.0.1-rc1](https://github.com/inhandnet/mo-models/releases/tag/V1.0.1-rc1)). Its `models.json` records, for every entry, the task, runtime, input size, the TI model-zoo source file with its SHA-256, the TI pre-compiled AM62A artifact as an upstream reference, the Mo OS image and TIDL version it was compiled for, and whether a raw latency record exists. Following the TI model-zoo convention, the repository stores `.link` files (one URL per file) and no model binaries. The bundles below were compiled by InHand with TIDL `11_02_17_00`; InHand-hosted downloads are marked `pending-hosting` until a model server exists.
+
 ## Models in the image
 
 The bundles are available through `/opt/model_zoo/`. `edgeai-demo list` groups them by task. This is an inventory, not a claim that every model was retested in this audit:
@@ -40,7 +44,7 @@ The names identify runtime/task families and model IDs. Inspect actual tensor me
 
 ## Auditable timing results
 
-The [benchmark page](./benchmarks.mdx) provides the script and 100 samples per model after five warm-up calls: nano mean 10.900 ms, small mean 40.402 ms. Both reported 329/329 offloaded nodes. These are synchronous inference-call timings with blank input, not accuracy or end-to-end video FPS.
+The [benchmark page](./benchmarks.mdx) provides the script and 100 samples per model after five warm-up calls (the same raw records are kept under `benchmarks/results/` in [mo-models](https://github.com/inhandnet/mo-models)): nano mean 10.900 ms, small mean 40.402 ms. Both reported 329/329 offloaded nodes. These are synchronous inference-call timings with blank input, not accuracy or end-to-end video FPS.
 
 <a href={benchmark} target="_blank" rel="noopener noreferrer">
   <img src={benchmark} alt="Actual two-model benchmark capture corresponding to the downloadable raw timing records" width="1440" height="900" />
@@ -81,3 +85,4 @@ The [TI AM62A model guide](https://software-dl.ti.com/processor-sdk-linux/esd/AM
 - [Run your first NPU demo](../../getting-started/first-npu-demo.mdx): the launcher in use.
 - [Inference APIs](./inference-apis.mdx): loading a model directory from code.
 - [Version map](../../resource-download/version-map.mdx): the measured development-board stack and host/target differences; not a manifest for every image.
+- [mo-models](https://github.com/inhandnet/mo-models): the catalog, compile scripts, benchmark records and compatibility baseline (`compat/compat.json`).

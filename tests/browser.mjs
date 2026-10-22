@@ -876,7 +876,7 @@ try {
       for (const [slug, headings, images, phrases] of [
         ['overview', ['Three things to know first', 'The software stack', 'Initialization and repeated inference', 'Subgraph partitioning', 'Compatible versions, not identical version strings', 'Actual board inventory', 'Where to go next'],
           ['ai-stack-overview', 'ai-inference-flow', 'ai-subgraph', 'ai-version-matrix', 'mo62a-stack-v110'], ['C7x DSP', 'TIDL 11_02_17_00', 'Offloaded Nodes - 329', 'not traces', 'Python 3.13.5', '2.12.1']],
-        ['model-hub', ['Models in the image', 'Auditable timing results', 'Run a model', 'Models that are not included', 'Add more models', 'Related pages'],
+        ['model-hub', ['Model catalog repository', 'Models in the image', 'Auditable timing results', 'Run a model', 'Models that are not included', 'Add more models', 'Related pages'],
           ['mo62a-model-inventory', 'mo62a-benchmark'], ['ONR-OD-8200-yolox-nano-lite-mmdet-coco-416x416', '10.900 ms', 'unsupported_models.txt']],
         ['toolchain', ['Select a compatible combination', 'Prepare an isolated x86 environment', 'Reactivate and verify the environment', 'Track upstream without changing the deployment baseline', 'What compilation produces', 'Calibration and precision', 'Application builds and upgrades'],
           ['ai-compile', 'mo62a-zone-host-setup'], ['11_02_17_00', 'bash setup_host.sh ./host', 'Python 3.10', 'not sufficient proof']],
