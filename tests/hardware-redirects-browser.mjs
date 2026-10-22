@@ -36,7 +36,8 @@ try {
   const fallback=await context.newPage();
   await fallback.goto(origin+base+routes[0].route);
   assert.equal(await fallback.getByRole('link',{name:'Continue to this page in Hardware documentation'}).getAttribute('href'),hardware+'/'+routes[0].route);
-  assert.equal(await fallback.locator('meta[name="robots"]').getAttribute('content'),'noindex, follow');
+  assert.equal(await fallback.locator('meta[name="robots"]').getAttribute('content'),
+    process.env.DOCS_PREVIEW === '1' ? 'noindex, nofollow' : 'noindex, follow');
   await context.close();
   console.log(`Verified ${routes.length} redirects with queries/fragments and no-JS fallback.`);
 } finally {

@@ -15,7 +15,7 @@ const config: Config = {
   favicon: 'img/favicon.png',
   url: process.env.DOCS_SITE_URL ?? 'https://www.inhand.com',
   baseUrl,
-  customFields: {developerPortalUrl: portal, hardwareUrl},
+  customFields: {developerPortalUrl: portal, hardwareUrl, documentationPreview: preview},
   trailingSlash: true,
   organizationName: 'inhandnet', projectName: 'mo-docs',
   onBrokenLinks: 'throw',
