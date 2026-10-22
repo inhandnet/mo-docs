@@ -9,7 +9,7 @@
   "scripts": {
     "validate": "node --test tests/docs.test.mjs",
     "test": "node --test tests/*.test.mjs",
-    "test:browser": "node tests/browser.mjs",
+    "test:browser": "node tests/hardware-redirects-browser.mjs && node tests/browser.mjs",
     "build": "docusaurus build",
     "start": "docusaurus start --host 0.0.0.0 --port 8041 --no-open",
     "fetch-data": "node scripts/fetch-releases.mjs",

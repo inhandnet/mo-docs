@@ -2,44 +2,17 @@
 title: "Overview & specifications"
 description: "Mo62A hardware specifications, source documents and the boundary between product capabilities and tested workflows."
 sidebar_position: 1
+hardware_redirect: mo-62a/hardware-development/overview/
 ---
 
-import boardTop from '@site/static/img/hardware-development/mo62a-board-top.png';
+<HardwareRedirect route="mo-62a/hardware-development/overview/" />
 
-Mo62A is built on the TI AM62A74 vision processor, with four Arm Cortex-A53 cores at up to 1.4 GHz and a C7x DSP with Matrix Multiply Accelerator rated at 2 TOPS. These are product specifications, not application benchmark results. See [AI benchmarks](../application-development/ai/benchmarks.mdx) for measured inference times and [Real-time cores](../real-time-cores/overview.mdx) for the actual remote-processor ownership.
-
-<a href={boardTop} target="_blank" rel="noopener noreferrer">
-  <img src={boardTop} alt="Mo62A standard component-side product image: 40-pin header along the upper edge, USB and Ethernet on the right; a perspective reference, not an orthographic drawing" width="1474" height="1067" />
-</a>
-
-<BoardSpecs board="mo-62a" />
-
-## Design reference and validation scope
-
-Use [Schematics](./schematics.mdx#preview-and-connector-references) for the system block diagram and circuit sources, and [Hardware interfaces](./hardware-interfaces.mdx#locate-the-board-features) for connector locations. Design diagrams are not checklists of enabled or validated features: the board has no on-board PoE PD/power converter, and the tested system boots from microSD rather than the optional eMMC block in the older schematic.
-
-| Area | Evidence available | Boundary |
-|---|---|---|
-| Linux system | [First boot](../getting-started/first-boot.mdx) and [system information](../mo-os/using-mo-os.mdx) | Results apply to the documented image and development board |
-| AI inference | [Python/C++ APIs](../application-development/ai/inference-apis.mdx), sample models and measured runs | A 2 TOPS rating is not model FPS |
-| Camera | [IMX219 JPEG capture](../application-development/camera-and-video.mdx) | CPU JPEG encode after TI ISP; hardware encode not qualified |
-| Expansion | [GPIO, UART5 and PWM loopbacks](../application-development/gpio-and-peripherals.mdx) | No blanket HAT, SPI or external I²C certification |
-| Power and cooling | Product ratings and [read-only sensor capture](./power-and-thermal.mdx) | No measured 25 W draw or environmental qualification |
-| MCU R5F / FreeRTOS | [MCU console](../real-time-cores/mcu-console.mdx), RPMsg, 30 reload cycles and AI coexistence | Validated example on the MCU R5F; DM R5F remains reserved for system management |
-| Secure boot | SoC/SDK capabilities and [provisioning guidance](../low-level-development/secure-boot.mdx) | Board key provisioning has not been validated |
-
-Memory capacity is an ordered hardware option: 2 GB, 4 GB or 8 GB, with no default capacity specified here. Confirm the purchased SKU and use `free -h` to inspect memory visible to Linux; reservations mean this is not a direct reading of fitted DRAM capacity.
-
-## Integration references
-
-- [Hardware interfaces](./hardware-interfaces.mdx): physical pins, voltage, Linux mapping and connector-reference discrepancies.
-- [Power & thermal](./power-and-thermal.mdx): supply ratings and live sensor readings.
-- [Mechanical](./mechanical.mdx): downloadable assembly STEP, checksum verification, CAD views and the limits of nominal dimensions.
-- [Schematics](./schematics.mdx) and [hardware revisions](./hardware-revisions.mdx): verified downloads and identification limits.
-- [Compare the boards](/hardware#compare): product-level comparison; verify the target board's own tested workflows before migration.
-
-## Downloads
-
-- [English datasheet — InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO62A)
-- [Schematics](./schematics.mdx)
-- [OS images](/software#os-images)
+{/* Preserve legacy fragment targets; the content lives in mo-hardware. */}
+<span id="search-title" />
+<span id="hardware" />
+<span id="wireless" />
+<span id="power--mechanical" />
+<span id="software" />
+<span id="design-reference-and-validation-scope" />
+<span id="integration-references" />
+<span id="downloads" />

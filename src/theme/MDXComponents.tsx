@@ -7,6 +7,7 @@ import {ComingSoon, BoardSpecs, ReleaseNotes, VersionMap, Only, BoardDownloads} 
 import DocumentationLink from '@site/src/components/DocumentationLink';
 import type {ComponentProps} from 'react';
 import DocumentationTable from '@site/src/components/DocumentationTable';
+import HardwareRedirect from '@site/src/components/HardwareRedirect';
 
 // A path, identifier or option is one token; commands can wrap at spaces.
 function Code({children, ...props}: ComponentProps<'code'>) {
@@ -32,4 +33,5 @@ export default {
   VersionMap,
   Only,
   BoardDownloads,
+  HardwareRedirect,
 };

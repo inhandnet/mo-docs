@@ -1,0 +1,289 @@
+[
+  {
+    "route": "mo-62a/hardware-development/hardware-interfaces/",
+    "doc": "mo-62a/hardware-development/hardware-interfaces",
+    "anchors": [
+      "search-title",
+      "locate-the-board-features",
+      "camera-fan-and-debug-uart",
+      "other-connectors",
+      "controls-and-board-identification",
+      "40-pin-header-j6",
+      "confirm-the-physical-orientation",
+      "signal-reference",
+      "linux-names-and-observed-state",
+      "select-a-peripheral-function",
+      "sources-and-checks"
+    ]
+  },
+  {
+    "route": "mo-62a/hardware-development/hardware-revisions/",
+    "doc": "mo-62a/hardware-development/hardware-revisions",
+    "anchors": [
+      "search-title",
+      "identify-the-board-not-just-the-software",
+      "1-read-the-physical-markings",
+      "2-keep-the-identifiers-separate",
+      "3-match-the-design-files",
+      "published-schematic-identifiers",
+      "can-software-read-the-hardware-revision",
+      "record-a-board-for-integration-or-support",
+      "what-is-not-established",
+      "before-a-revision-dependent-change"
+    ]
+  },
+  {
+    "route": "mo-62a/hardware-development/",
+    "doc": "mo-62a/hardware-development/index",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-62a/hardware-development/mechanical/",
+    "doc": "mo-62a/hardware-development/mechanical",
+    "anchors": [
+      "search-title",
+      "download-the-assembly-step-model",
+      "1-download-and-check-the-files",
+      "2-import-and-inspect-the-assembly",
+      "published-dimensions",
+      "enclosure-and-cable-clearance",
+      "production-drawings-and-validation-limits"
+    ]
+  },
+  {
+    "route": "mo-62a/hardware-development/overview/",
+    "doc": "mo-62a/hardware-development/overview",
+    "anchors": [
+      "search-title",
+      "hardware",
+      "wireless",
+      "power--mechanical",
+      "software",
+      "design-reference-and-validation-scope",
+      "integration-references",
+      "downloads"
+    ]
+  },
+  {
+    "route": "mo-62a/hardware-development/power-and-thermal/",
+    "doc": "mo-62a/hardware-development/power-and-thermal",
+    "anchors": [
+      "search-title",
+      "power-supply-and-measurement-boundary",
+      "cooling-and-the-fan-connector",
+      "read-temperature-and-fan-state"
+    ]
+  },
+  {
+    "route": "mo-62a/hardware-development/schematics/",
+    "doc": "mo-62a/hardware-development/schematics",
+    "anchors": [
+      "search-title",
+      "download-the-published-files",
+      "preview-and-connector-references",
+      "connector-circuits-sheet-17",
+      "find-a-module-in-the-schematic",
+      "power-input-and-sequencing",
+      "processor-clocks-reset-and-boot",
+      "lpddr4-and-microsd",
+      "ic-control-and-eeprom",
+      "wi-fi-and-bluetooth",
+      "ethernet-and-poe-taps",
+      "usb-hub-and-type-c-connection",
+      "csi-camera-path",
+      "display-and-analogue-audio",
+      "expansion-cooling-rtc-and-debug",
+      "git-lfs-and-download-checks",
+      "revision-caveat"
+    ]
+  },
+  {
+    "route": "mo-62a/accessories/hat-compatibility/",
+    "doc": "mo-62a/accessories/hat-compatibility",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-62a/accessories/",
+    "doc": "mo-62a/accessories/index",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-62a/accessories/supported-accessories/",
+    "doc": "mo-62a/accessories/supported-accessories",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-62a/compliance/certifications/",
+    "doc": "mo-62a/compliance/certifications",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-62a/compliance/declarations/",
+    "doc": "mo-62a/compliance/declarations",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-62a/compliance/",
+    "doc": "mo-62a/compliance/index",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-62a/compliance/integration-notes/",
+    "doc": "mo-62a/compliance/integration-notes",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-62a/compliance/regulatory-and-safety/",
+    "doc": "mo-62a/compliance/regulatory-and-safety",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-68a/hardware-development/hardware-interfaces/",
+    "doc": "mo-68a/hardware-development/hardware-interfaces",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-68a/hardware-development/hardware-revisions/",
+    "doc": "mo-68a/hardware-development/hardware-revisions",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-68a/hardware-development/",
+    "doc": "mo-68a/hardware-development/index",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-68a/hardware-development/mechanical/",
+    "doc": "mo-68a/hardware-development/mechanical",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-68a/hardware-development/overview/",
+    "doc": "mo-68a/hardware-development/overview",
+    "anchors": [
+      "search-title",
+      "hardware",
+      "wireless",
+      "power--mechanical",
+      "software",
+      "mo-68a-vs-mo-62a"
+    ]
+  },
+  {
+    "route": "mo-68a/hardware-development/power-and-thermal/",
+    "doc": "mo-68a/hardware-development/power-and-thermal",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-68a/hardware-development/schematics/",
+    "doc": "mo-68a/hardware-development/schematics",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-68a/accessories/hat-compatibility/",
+    "doc": "mo-68a/accessories/hat-compatibility",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-68a/accessories/",
+    "doc": "mo-68a/accessories/index",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-68a/accessories/supported-accessories/",
+    "doc": "mo-68a/accessories/supported-accessories",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-68a/compliance/certifications/",
+    "doc": "mo-68a/compliance/certifications",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-68a/compliance/declarations/",
+    "doc": "mo-68a/compliance/declarations",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-68a/compliance/",
+    "doc": "mo-68a/compliance/index",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-68a/compliance/integration-notes/",
+    "doc": "mo-68a/compliance/integration-notes",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "mo-68a/compliance/regulatory-and-safety/",
+    "doc": "mo-68a/compliance/regulatory-and-safety",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "accessories/guides/",
+    "doc": "accessories/guides",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "accessories/",
+    "doc": "accessories/index",
+    "anchors": [
+      "search-title"
+    ]
+  },
+  {
+    "route": "accessories/overview/",
+    "doc": "accessories/overview",
+    "anchors": [
+      "search-title"
+    ]
+  }
+]
