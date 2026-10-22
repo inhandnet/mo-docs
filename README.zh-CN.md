@@ -14,6 +14,12 @@
 
 Markdown 和 MDX 源文件位于 [`docs/`](docs/)。本仓库维护文档及其网站源码；系统镜像等下载资源通过相关指南中的链接获取。
 
+Hardware development、硬件配件和合规资料现由
+[mo-hardware](https://github.com/inhandnet/mo-hardware) 独立维护和构建。
+这里的旧页面仅用于兼容跳转，不再维护第二份正文；软件教程仍留在本仓库。
+旧下载附件暂时保留以兼容已有链接。`HARDWARE_URL` 指定对应环境的硬件站，
+测试平台为 `https://developer.inhand.online/hardware-docs`。
+
 ## 参与贡献
 
 欢迎修正文档、补充示例或编写新文档。

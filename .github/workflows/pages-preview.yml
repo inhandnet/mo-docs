@@ -8,6 +8,9 @@ on:
 permissions:
   contents: read
 
+env:
+  HARDWARE_URL: https://inhandnet.github.io/mo-hardware
+
 concurrency:
   group: mo-docs-pages-preview
   cancel-in-progress: false

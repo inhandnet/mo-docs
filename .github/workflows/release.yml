@@ -25,6 +25,7 @@ env:
   PRERELEASE: ${{ contains(github.event_name == 'push' && github.ref_name || inputs.version, '-rc') }}
   DOCS_PREVIEW: '0'
   DOCS_BASE_URL: ${{ vars.WEBSITE_BASE_URL || '/docs/' }}
+  HARDWARE_URL: ${{ vars.HARDWARE_URL || 'https://developer.inhand.online/hardware-docs' }}
   DOCS_SITE_URL: ${{ vars.WEBSITE_SITE_URL || 'https://www.inhand.com' }}
   DEVELOPER_PORTAL_URL: ${{ vars.DEVELOPER_PORTAL_URL || 'https://www.inhand.com/developer' }}
 
