@@ -11,6 +11,13 @@ Mo boards run AI models on TI's **C7x DSP with a Matrix Multiply Accelerator (MM
 
 **Workflow:** train in your usual framework → export ONNX or TFLite → compile with <Link to={`/docs/${props.board}/application-development/ai/toolchain`}>edgeai-tidl-tools</Link> on a PC → copy the compiled model to the board → run with ONNX Runtime / TFLite.
 
+Source repositories (each released independently; this documentation links to their releases):
+
+- [mo-models](https://github.com/inhandnet/mo-models): model catalog, compile scripts, benchmark records, compatibility baseline.
+- [mo-tools](https://github.com/inhandnet/mo-tools): toolchain version pins, host setup scripts, board test tool.
+- [mo-examples](https://github.com/inhandnet/mo-examples): C/C++ and Python inference examples, demo applications.
+- [Mo62A](https://github.com/inhandnet/Mo62A): board support package and OS image.
+
 Background reading:
 - [The Edge AI toolchain on TI development boards: OpenCV, GStreamer and TIDL](https://www.inhand.com/en/support/blogs/ti-edge-ai-tools) (InHand blog)
 - [AM62A AI software stack](https://github.com/inhandnet/Mo62A/blob/HEAD/doc/AM62A_AI_Stack_ZH.md) (Chinese, with diagrams)
