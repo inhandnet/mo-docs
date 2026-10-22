@@ -4,7 +4,7 @@
 
 export type Spec = {label: string; value: string};
 export type SpecGroup = {title: string; rows: Spec[]};
-export type Variant = {sku: string; ram: string; price: number};
+export type Variant = {sku: string; ram: string};
 export type KeySpec = {icon: string; value: string; label: string};
 export type Feature = {title: string; subtitle: string; body: string; image: string; points?: string[]};
 
@@ -49,9 +49,9 @@ export const products: Product[] = [
     // expiring signed download URL or fall back to the superseded PDF.
     datasheetUrl: null,
     variants: [
-      {sku: 'Mo-62A-2G', ram: '2 GB', price: 169},
-      {sku: 'Mo-62A-4G', ram: '4 GB', price: 249},
-      {sku: 'Mo-62A-8G', ram: '8 GB', price: 339},
+      {sku: 'Mo-62A-2G', ram: '2 GB'},
+      {sku: 'Mo-62A-4G', ram: '4 GB'},
+      {sku: 'Mo-62A-8G', ram: '8 GB'},
     ],
     highlights: [
       '2 TOPS C7x DSP + MMA deep-learning accelerator',
@@ -175,8 +175,8 @@ export const products: Product[] = [
     githubUrl: null,
     datasheetUrl: null,
     variants: [
-      {sku: 'Mo-68A-4G', ram: '4 GB', price: 329},
-      {sku: 'Mo-68A-8G', ram: '8 GB', price: 489},
+      {sku: 'Mo-68A-4G', ram: '4 GB'},
+      {sku: 'Mo-68A-8G', ram: '8 GB'},
     ],
     highlights: [
       '8 TOPS: 2 × C7x DSP with deep-learning accelerator',
@@ -286,7 +286,8 @@ export const products: Product[] = [
 
 export const getProduct = (id: Product['id']) => products.find((p) => p.id === id)!;
 
-export const fromPrice = (p: Product) => Math.min(...p.variants.map((v) => v.price));
+// Prices are deliberately not kept in the documentation: the InHand store is the
+// only source of pricing and availability.
 
 // Shown wherever a lifetime commitment would go; replace once confirmed with TI.
 export const PRODUCTION_LIFETIME = 'To be announced';
