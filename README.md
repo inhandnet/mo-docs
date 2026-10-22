@@ -14,6 +14,14 @@ The website is currently a preview. Pages marked **Coming soon** are not yet ava
 
 The Markdown and MDX source files are in [`docs/`](docs/). This repository maintains the documentation and its website source; software images and other downloadable resources are linked from the relevant guides.
 
+Hardware development, hardware accessories and compliance references are now
+maintained in [mo-hardware](https://github.com/inhandnet/mo-hardware), with an
+independently built site. The old pages here are compatibility redirects,
+not a second editable copy. Software tutorials remain in this repository.
+Legacy download assets are retained for existing links. `HARDWARE_URL` selects
+the matching hardware-site URL; the test platform uses
+`https://developer.inhand.online/hardware-docs`.
+
 ## Contributing
 
 Corrections, examples, and new documentation are welcome.
