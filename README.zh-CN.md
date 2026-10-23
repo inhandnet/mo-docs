@@ -8,7 +8,7 @@ Mo 系列软硬件文档源仓库，维护教程、规格、媒体、设计资�
 
 ## mo-docs 内部架构
 
-![内容来源与统一网站](architecture/documentation.zh-CN.svg)
+[![内容来源与统一网站](architecture/ownership.zh-CN.svg)](architecture/ownership.zh-CN.svg)
 
 | 位置 | 维护内容 |
 |---|---|
@@ -28,18 +28,20 @@ Mo 系列软硬件文档源仓库，维护教程、规格、媒体、设计资�
 
 ## Mo 系列仓库协同
 
-![仓库职责与统一渲染](architecture/repository-map.zh-CN.svg)
+[![Mo 系列仓库职责与统一网站](architecture/repository-map.zh-CN.svg)](architecture/repository-map.zh-CN.svg)
 
-| 仓库 | 唯一维护职责 |
-|---|---|
-| **developer** | 网站实现、标准组件、来源适配、内容规则、搜索、预览和整站部署 |
-| **mo-docs** | 软硬件正文、产品事实、媒体、设计资料和来源/许可 |
-| **Mo*** | 各型号 BSP、镜像构建、系统集成和发布元信息 |
-| **mo-tools** | 已验证的 TI 工具链/SDK 组合、主机脚本、最小工具链示例和 Studio |
-| **mo-models** | 模型目录、编译资源、兼容关系、原始基准和产物状态 |
-| **mo-examples** | 完整应用、依赖、配置、验证和发布包 |
+| 仓库 | 人工维护的源内容 | 交付职责 |
+|---|---|---|
+| **developer** · GitLab | 网站组件、路由、搜索、接入层与内容接口 | 完整网站、发布组成清单与部署 |
+| [mo-docs](https://github.com/inhandnet/mo-docs) | 软硬件教程、规格、媒体、设计资料与维护培训 | 版本化内容与参考附件 |
+| [mo-tools](https://github.com/inhandnet/mo-tools) | 工具链/SDK 选择、环境准备、通用开发工具与 Studio | 工具元信息和源码包 |
+| [mo-models](https://github.com/inhandnet/mo-models) | 模型目录、编译资源、兼容关系与原始基准 | 模型引用、验证证据与托管状态 |
+| [mo-examples](https://github.com/inhandnet/mo-examples) | 完整示例及配套固件、客户端和配置 | 示例源码及适用条件 |
+| **Mo\*** · 各型号仓库 | 各自 BSP、驱动、根文件系统、镜像构建与烧录 | 系统镜像及带校验值的发布元信息 |
 
-各仓独立发版，只有 developer 区分 RC 与正式网站版本。每个 developer Release 冻结自身源码与选定子库普通版本的发布组成清单；正式网站显式继承已验收 RC 的组合。网站组件读取固定数据，不在浏览器中偷偷切换到更新的上游版本。教程适用范围和实际验证状态独立于网站版本。
+`Mo*` 表示各型号独立的产品仓库，例如 [Mo62A](https://github.com/inhandnet/Mo62A)、Mo68A、Mo69A、Mo67A、Mo3588、Mo3568，框架不固定数量。mo-hardware 的资料与维护培训迁入 mo-docs；mo-hardware 保留为历史迁移来源，不再单列为目标网站发布组成项。
+
+各源仓库独立发布普通版本，只有 developer 区分网站 RC 与正式版。目标发布组成绑定 **developer + mo-docs + mo-tools + mo-models + mo-examples + 纳入的 Mo\***，记录准确提交与所消费附件哈希。上游新发版本不会改变已冻结的网站组合。教程适用范围、PCB 修订、镜像版本和实际验证结论分别记录。
 
 ## 仓库权限与保护
 
@@ -52,17 +54,18 @@ Mo 系列软硬件文档源仓库，维护教程、规格、媒体、设计资�
 | 直接推送、强推或删除 master | 不允许 | 由无绕过的 PR/检查规则阻止 |
 | 创建远端 Tag 并启动发布 | 不允许 | 允许；推送后由 Tag CI 校验 |
 
-GitHub 保留**两条 master 规则和一条全 Tag 规则**。权限与合并检查分开，是因为 bypass 会作用于整条 ruleset。
+GitHub 保留**两条 master 规则和两条全 Tag 规则**。权限与合并检查分开，是因为 bypass 会作用于整条 ruleset。
 
 | Ruleset | 范围 | 规则与 bypass |
 |---|---|---|
 | `admin-only-master-updates` | `refs/heads/master` | 限制创建、更新、删除和强推，仅 Admin 可 bypass |
 | `master-pr-and-required-checks` | `refs/heads/master` | 必须 PR、与主线同步的必需检查、禁止删除与强推；**无 bypass**；审批数为 0 |
 | `admin-only-tags` | 所有 Tag | 限制创建、更新、删除和强推，仅 Admin 可 bypass |
+| `tags-immutable` | 所有 Tag | 禁止更新、删除和强推；**无 bypass** |
 
 必需检查为 `commit-message`、`validate-content`。临时分支没有额外 ruleset 限制。PR 合并后自动删除符合条件的源分支。保留 merge、squash 和 rebase；选择 squash 时使用已校验的 PR 标题及合规的可选正文，并为 GitHub 自动追加的 PR 编号留出标题长度。
 
-本地钩子提供即时反馈，但可以被本地绕过，CI 才是合并门槛。能够更改仓库设置的管理员仍是受信任操作者；Tag 规则中的 Admin bypass 也允许行政修改 Tag。因此，**不改写或删除已发布 Tag 和 Release** 是本流程必须遵守的操作约定，修正使用新 RC 或新版本。不安装本地或服务器 Tag 创建钩子；非法 Tag 可以出现在远端，但 CI 会在发布前失败。
+本地钩子提供即时反馈，但可以被本地绕过，CI 才是合并门槛。能够更改仓库设置的管理员仍是受信任操作者；独立的 Tag 不可变规则不设 bypass。因此，**不改写或删除已发布 Tag 和 Release** 是本流程必须遵守的操作约定，修正使用新的普通版本。不安装本地或服务器 Tag 创建钩子；非法 Tag 可以出现在远端，但 CI 会在发布前失败。
 
 ## 英文提交与 Changelog
 
@@ -74,7 +77,7 @@ fix(download): keep the image and checksum on the same release
 
 `npm ci` 会安装当前克隆的 `commit-msg` 和 `pre-push` 钩子，`git commit`（包括 `git commit -m`）时立即校验。CI 再检查 PR 标题及新增的非 merge 提交，不改写策略边界之前的历史。规则来源为 [repository-policy.json](config/repository-policy.json) 与 [policy.mjs](scripts/lib/policy.mjs)。
 
-两份发布日志的条目都保留英文，只固定翻译标题和分类，例如 Features / 新功能、Fixes / 修复、Documentation / 文档。历史 `Message: en` 与 `Message.en:` 英文摘要继续兼容，新提交不需要双语块。[generate-changelog.mjs](scripts/generate-changelog.mjs) 从上一个**正式版本**计算提交范围，RC 与正式版都包含完整变更，不从上一个 RC 截断。
+两份发布日志的条目都保留英文，只固定翻译标题和分类，例如 Features / 新功能、Fixes / 修复、Documentation / 文档。历史 `Message: en` 与 `Message.en:` 英文摘要继续兼容，新提交不需要双语块。[generate-changelog.mjs](scripts/generate-changelog.mjs) 从上一个普通版本计算提交范围；历史 RC 可用于追溯，不再作为新发布渠道。
 
 ### 翻译 API（占位）
 
@@ -87,7 +90,7 @@ fix(download): keep the image and checksum on the same release
 
 ## 从修改到发布
 
-![内容发布与网站组成](architecture/release-flow.zh-CN.svg)
+[![内容发布与网站组成](architecture/release-flow.zh-CN.svg)](architecture/release-flow.zh-CN.svg)
 
 1. 修改事实所属的源文件并提交 PR，内容规则、可下载资源测试和提交规范均须通过。
 2. Admin 在必需 CI 通过后合并；通过 developer 的集成预览检查页面与链接，mo-docs 不再独立构建网站。
@@ -110,3 +113,9 @@ npm run preview -- --port 8051
 网站工作区不在相邻目录时设置 `DEVELOPER_DIR`。预览调用 developer，以当前 mo-docs 作为本地内容来源，修改正文后自动刷新。完整网站构建、浏览器检查和搜索索引均在 developer 中执行。`npm run docs:diagrams` 重新生成中英 README 图示。
 
 参见 [贡献指南](CONTRIBUTING.zh-CN.md)、[技术架构](ARCHITECTURE.md) 和 [安全说明](SECURITY.md)。内容采用 CC BY-SA 4.0；第三方许可保留在 [static/ASSETS.md](static/ASSETS.md) 和相关资源旁。
+
+## 迁移状态与图示维护
+
+硬件资料与维护培训已经归并，本仓库前端已移至 developer。部分教程可执行资源仍在 static/downloads/，后续按维护职责迁入工具、模型或示例仓库，并由固定来源生成旧下载入口；尚未宣称这些资源已全部迁完。developer 的发布冻结与整站上线另行验收。
+
+框架图源统一维护在 developer/scripts/render-architecture.mjs。运行 `npm run docs:diagrams`，或设置 DEVELOPER_DIR 指向已安装的 developer 工作区，生成本仓库六张中英文 SVG。

@@ -8,7 +8,7 @@ The unified website serves documentation at `/docs/` and preserves `/hardware-do
 
 ## Inside mo-docs
 
-![Content sources and the unified website](architecture/documentation.en.svg)
+[![Content sources and the unified website](architecture/ownership.en.svg)](architecture/ownership.en.svg)
 
 | Location | Maintained content |
 |---|---|
@@ -28,18 +28,20 @@ Hardware material was migrated from mo-hardware. Identical files have one mainta
 
 ## Mo series repository architecture
 
-![Repository ownership and unified rendering](architecture/repository-map.en.svg)
+[![Mo repository ownership and unified website](architecture/repository-map.en.svg)](architecture/repository-map.en.svg)
 
-| Repository | Owns |
-|---|---|
-| **developer** | Website implementation, standard components, source adapters, contracts, search, preview and complete-site deployment |
-| **mo-docs** | Software/hardware documentation, product facts, media, design files and source/license notices |
-| **Mo*** | Each model's BSP, image build, system integration and release metadata |
-| **mo-tools** | Verified TI toolchain/SDK combinations, host scripts, minimal toolchain examples and Studio |
-| **mo-models** | Model catalog, compilation resources, compatibility, raw benchmarks and artifact status |
-| **mo-examples** | Complete applications, dependencies, configuration, verification and release packages |
+| Repository | Maintained source | Delivery responsibility |
+|---|---|---|
+| **developer** · GitLab | Website components, routes, search, integration and contracts | The complete website, release composition and deployment |
+| [mo-docs](https://github.com/inhandnet/mo-docs) | Software/hardware tutorials, specifications, media, design files and training | Versioned content and reference assets |
+| [mo-tools](https://github.com/inhandnet/mo-tools) | Toolchain/SDK selection, environment setup, reusable tools and Studio | Tool metadata and source packages |
+| [mo-models](https://github.com/inhandnet/mo-models) | Model catalog, compilation resources, compatibility and raw benchmarks | Model references, evidence and artifact status |
+| [mo-examples](https://github.com/inhandnet/mo-examples) | Complete examples with related firmware, clients and configuration | Example sources and their requirements |
+| **Mo\*** · product repositories | Each product's BSP, drivers, root filesystem, image build and flashing | Product images and checksummed release metadata |
 
-Repositories publish independently. Only developer has RC and final website channels. Each developer release freezes a composition of its own source and selected ordinary subrepository releases. A final website inherits an explicitly accepted RC combination. Website components consume that fixed data; readers do not silently switch to a newer upstream release. Tutorial applicability and actual verification status remain separate from the website version.
+`Mo*` covers independently maintained product repositories such as [Mo62A](https://github.com/inhandnet/Mo62A), Mo68A, Mo69A, Mo67A, Mo3588 and Mo3568. The framework does not fix their number. Hardware content and maintainer training move from mo-hardware into mo-docs; mo-hardware remains a historical migration source and is not a separate member of the target website composition.
+
+Each source repository publishes ordinary versions. Developer alone has website RC/final channels. The target composition binds **developer + mo-docs + mo-tools + mo-models + mo-examples + selected Mo\*** to exact commits and consumed-asset hashes. A new source release does not change an already frozen website combination. Tutorial applicability, PCB revisions, image versions and actual validation remain distinct.
 
 ## Repository protection
 
@@ -52,17 +54,18 @@ Repositories publish independently. Only developer has RC and final website chan
 | Direct push, force-push or delete `master` | Not allowed | Blocked by the PR/check ruleset |
 | Create remote Tags and start releases | Not allowed | Allowed; Tag CI validates after push |
 
-GitHub uses **two rulesets for master and one for all Tags**. Permissions and merge checks are separate because bypass permissions apply to an entire ruleset.
+GitHub uses **two rulesets for master and two for all Tags**. Permissions and merge checks are separate because bypass permissions apply to an entire ruleset.
 
 | Ruleset | Scope | Rules / bypass |
 |---|---|---|
 | `admin-only-master-updates` | `refs/heads/master` | Restricts creation/update/deletion/force-push; only Admin has bypass |
 | `master-pr-and-required-checks` | `refs/heads/master` | PR, up-to-date required checks, no deletion or force-push; **no bypass**; required approvals: 0 |
 | `admin-only-tags` | All Tags | Restricts creation/update/deletion/force-push; only Admin has bypass |
+| `tags-immutable` | All Tags | No updates, deletion or force-push; **no bypass** |
 
 Required checks are `commit-message` and `validate-content`. Topic branches have no additional ruleset restriction. The repository automatically deletes eligible source branches after PR merge. Merge, squash and rebase remain available; when squashing, use the validated PR title and a conforming optional body, including room for GitHub's PR-number suffix.
 
-Local hooks provide early feedback and can be bypassed locally; CI is the merge gate. Admins who can edit repository settings remain trusted operators. Their Tag-rule bypass also permits administrative changes to Tags: **published Tags and Releases must not be rewritten or deleted** in this workflow. Use a new ordinary version for corrections. No local or server-side Tag-creation hook is installed; an invalid Tag remains visible but fails CI before publication.
+Local hooks provide early feedback and can be bypassed locally; CI is the merge gate. Admins who can edit repository settings remain trusted operators. The separate immutable-Tag rule has no bypass: **published Tags and Releases must not be rewritten or deleted** in this workflow. Use a new ordinary version for corrections. No local or server-side Tag-creation hook is installed; an invalid Tag remains visible but fails CI before publication.
 
 ## English commit messages and Changelog
 
@@ -74,7 +77,7 @@ An English Conventional Commit title is sufficient. Add an English body when use
 
 `npm ci` installs this clone's `commit-msg` and `pre-push` hooks, so invalid messages fail at `git commit`, including `git commit -m`. CI checks the PR title and new non-merge commits again. Historical commits before the policy boundary are not rewritten. The policy is in [repository-policy.json](config/repository-policy.json) and [policy.mjs](scripts/lib/policy.mjs).
 
-Release notes use English entries in both editions. Only fixed headings and categories are translated, for example Features / 新功能, Fixes / 修复 and Documentation / 文档. Historical `Message: en` and `Message.en:` summaries remain readable; new commits do not need bilingual blocks. [generate-changelog.mjs](scripts/generate-changelog.mjs) computes the range after the preceding **final** release, so RCs and the final release include the complete change set rather than only changes since the last RC.
+Release notes use English entries in both editions. Only fixed headings and categories are translated, for example Features / 新功能, Fixes / 修复 and Documentation / 文档. Historical `Message: en` and `Message.en:` summaries remain readable; new commits do not need bilingual blocks. [generate-changelog.mjs](scripts/generate-changelog.mjs) computes the range after the preceding ordinary release. Historical RCs remain traceable but are not a channel for new releases.
 
 ### Translation API (planned)
 
@@ -87,7 +90,7 @@ These are placeholders for future translation of change entries. The current gen
 
 ## From a change to a release
 
-![Content publication and website composition](architecture/release-flow.en.svg)
+[![Content publication and website composition](architecture/release-flow.en.svg)](architecture/release-flow.en.svg)
 
 1. Edit the owning source and open a PR. Content rules, downloadable-resource tests and commit policy must pass.
 2. An Admin merges after required CI. Use developer's integrated preview to check affected pages and links; mo-docs has no independent website build.
@@ -110,3 +113,9 @@ npm run preview -- --port 8051
 Set `DEVELOPER_DIR` if the website checkout is elsewhere. Preview runs developer with this mo-docs directory as a local source override and refreshes edited content. Full website builds, browser checks and search indexing run in developer. `npm run docs:diagrams` regenerates the bilingual README diagrams.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md), [ARCHITECTURE.md](ARCHITECTURE.md) and [SECURITY.md](SECURITY.md). Content is CC BY-SA 4.0; third-party notices remain in [static/ASSETS.md](static/ASSETS.md) and beside their source files.
+
+## Migration status and diagrams
+
+Hardware references and maintainer training are consolidated, and website implementation has moved to developer. Some executable tutorial resources still live in static/downloads/; their owning tool/model/example repositories will receive them while pinned assembly preserves old download paths. That resource migration is not yet complete. Developer release freezing and full-site rollout have separate acceptance.
+
+Diagram source is maintained centrally in developer/scripts/render-architecture.mjs. Run `npm run docs:diagrams`, setting DEVELOPER_DIR if necessary, to regenerate this repository's six bilingual SVGs.
