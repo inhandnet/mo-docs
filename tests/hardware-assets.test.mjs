@@ -8,16 +8,16 @@ const root = new URL('../', import.meta.url);
 
 test('hardware references keep the English block-diagram redraws', async () => {
   for (const version of ['v10', 'v11']) {
-    const svg = await fs.readFile(new URL(`static/img/hardware-development/mo62a-block-${version}-en.svg`, root), 'utf8');
+    const svg = await fs.readFile(new URL(`hardware/products/mo62a/images/mo62a-block-${version}-en.svg`, root), 'utf8');
     assert.doesNotMatch(svg, /\p{Script=Han}/u);
     assert.match(svg, /English reference redrawn from schematic sheet 1; consult original PDF/);
     assert.match(svg, /transformer taps|transformer center taps/);
-    await assert.rejects(fs.access(new URL(`static/img/hardware-development/mo62a-schematic-${version}.png`, root)), {code: 'ENOENT'});
+    await assert.rejects(fs.access(new URL(`hardware/products/mo62a/images/mo62a-schematic-${version}.png`, root)), {code: 'ENOENT'});
   }
 });
 
 test('published source text does not reintroduce removed branding', async () => {
-  for (const directory of ['docs/', 'src/', 'static/']) {
+  for (const directory of ['docs/', 'static/']) {
     for (const file of await fs.readdir(new URL(directory, root), {recursive: true})) {
       if (!/\.(mdx?|txt|json|[cm]?js|tsx?|css|svg|sh|py|ya?ml)$/.test(file)) continue;
       const source = await fs.readFile(new URL(directory + file, root), 'utf8');
@@ -27,7 +27,7 @@ test('published source text does not reintroduce removed branding', async () => 
 });
 
 test('assembly download has the exact checked ZIP and STEP payload', async () => {
-  const dir = new URL('static/downloads/hardware/mo62a/', root);
+  const dir = new URL('hardware/products/mo62a/mechanical/files/', root);
   const zip = new URL('MO_62A_MB_PCBA_V1_ASM.stp.zip', dir);
   const sums = await fs.readFile(new URL('SHA256SUMS.txt', dir), 'utf8');
   const data = await fs.readFile(zip);

@@ -1,0 +1,8 @@
+TRAINING EXAMPLE — not a hardware test or approval.
+
+1. Read the linked published model notes.
+2. Copy the exact assembly identifier and format.
+3. Preserve the reference-only use and topology-check limitation.
+4. Separate source-text review from a new CAD or enclosure test.
+5. Inspect the source diff and links before opening a Draft PR.
+6. Record actual CI results; close the training PR without a release.

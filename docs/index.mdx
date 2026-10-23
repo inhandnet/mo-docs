@@ -5,16 +5,8 @@ sidebar_position: 0
 slug: /
 ---
 
-import ChooseYourBoard from '@site/src/components/ChooseYourBoard/index.mdx';
 
-import DocCardList from '@theme/DocCardList';
-import {useDocsSidebar} from '@docusaurus/plugin-content-docs/client';
 
-export const SectionCards = () => {
-  const sidebar = useDocsSidebar();
-  // The sidebar starts with this page; list only the sections.
-  return <DocCardList items={sidebar.items.filter((item) => !(item.type === 'link' && item.docId === 'index'))} />;
-};
 
 Guides and reference documentation for InHand's **Mo series** single-board computers. Select your board to get started, configure its operating system, and develop applications.
 

@@ -6,7 +6,6 @@ sidebar_position: 8
 
 import result from '@site/static/img/application-development/ai/mo62a-benchmark.png';
 import videoResult from '@site/static/img/getting-started/mo62a-npu-video-cpp.png';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Measure the part of the application you intend to improve. A model-call latency, a video pipeline's completed-frame rate and an accuracy score answer different questions; none can replace the others.
 
@@ -23,7 +22,7 @@ The results below come from one V1.1.0 development installation running Linux 6.
 
 ## Reproduce inference-call timing
 
-Download <a href={useBaseUrl('/downloads/ai/benchmark-inference.py')} download>benchmark-inference.py</a> to the board (the maintained copy and the raw result records are in the [mo-models](https://github.com/inhandnet/mo-models/tree/master/benchmarks) repository). Stop other inference applications first, then run:
+Download <AssetLink href="/downloads/ai/benchmark-inference.py" download>benchmark-inference.py</AssetLink> to the board (the maintained copy and the raw result records are in the [mo-models](https://github.com/inhandnet/mo-models/tree/master/benchmarks) repository). Stop other inference applications first, then run:
 
 ```bash
 sudo python3 benchmark-inference.py \
@@ -48,7 +47,7 @@ Blank input is deliberately a timing-only test. It is not representative calibra
 
 CPU frequency was 1.4 GHz at both boundaries; the sampled thermal zones ranged approximately 52–57 °C across these runs. Frequency samples at the boundaries do not prove that it never changed inside the interval. An earlier nano run averaged 10.523 ms; repeated measurements vary, so do not treat the last decimal as a product specification.
 
-Download the complete results: <a href={useBaseUrl('/downloads/ai/benchmark-nano.json')} download>nano JSON</a> and <a href={useBaseUrl('/downloads/ai/benchmark-small.json')} download>small JSON</a>. No screen capture occurred inside the timed loop; the terminal was captured after both commands finished.
+Download the complete results: <AssetLink href="/downloads/ai/benchmark-nano.json" download>nano JSON</AssetLink> and <AssetLink href="/downloads/ai/benchmark-small.json" download>small JSON</AssetLink>. No screen capture occurred inside the timed loop; the terminal was captured after both commands finished.
 
 ## Video application comparison
 
@@ -65,7 +64,7 @@ These measurements used the development board's hardware-decoding fixes describe
   <img src={videoResult} alt="Actual Mo62A HDMI output of the YOLOX-S-Lite road-video application; this separate screenshot is not the timed measurement interval" width="1920" height="1080" />
 </a>
 
-The <a href={useBaseUrl('/downloads/npu-demo/backend-comparison.json')} download>six-run comparison data</a> records the input checksum, configuration, CPU accounting and temperatures. That experiment recorded approximately 76–85 °C, so it must not be conflated with the shorter, cooler timing runs above. No power measurement was taken.
+The <AssetLink href="/downloads/npu-demo/backend-comparison.json" download>six-run comparison data</AssetLink> records the input checksum, configuration, CPU accounting and temperatures. That experiment recorded approximately 76–85 °C, so it must not be conflated with the shorter, cooler timing runs above. No power measurement was taken.
 
 ## Newly compiled warehouse application
 
@@ -81,7 +80,7 @@ The timer covers input checksum calculation, OpenCV software decoding, preproces
 
 All three runs produced identical per-frame detections and states, with events at 7.367 s and 8.667 s of source time. The original 8200 baseline passed before and after, with the same boot and remote processor running. Thermal readings at those checks were approximately 54–55 °C, not continuous temperature monitoring. No power data was collected. The model visibly misses small/occluded people; output consistency is not a recall or mAP result.
 
-Download the <a href={useBaseUrl('/downloads/ai/zone-demo-evidence.json')}>three-run summaries, host/target checks and agreement record</a>, <a href={useBaseUrl('/downloads/ai/zone-demo-frames.jsonl')}>all 611 first-run frame records</a> and <a href={useBaseUrl('/downloads/ai/zone-demo-events.csv')}>event CSV</a>. Result media and complete source/input licensing are on the tutorial page.
+Download the <AssetLink href="/downloads/ai/zone-demo-evidence.json">three-run summaries, host/target checks and agreement record</AssetLink>, <AssetLink href="/downloads/ai/zone-demo-frames.jsonl">all 611 first-run frame records</AssetLink> and <AssetLink href="/downloads/ai/zone-demo-events.csv">event CSV</AssetLink>. Result media and complete source/input licensing are on the tutorial page.
 
 ## Make a fair comparison
 

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "contract_version": 1,
+  "repository": "developer",
+  "commit": "34d06cbbeae1f8da6df74851b9ba871a046e1e6e",
+  "files": {
+    "content.mjs": "310ba68d762dbb76cd3966728ca3e5c16d7b0d480132b0fcb613261d1b93a54e",
+    "content-map.mjs": "f1811468bbd915069df1d84e084b30b8eea756f63583ceebc630ae2b7d6ba70b",
+    "check.mjs": "540aa5a33c96aae9568bef3017c19f69b7ed9b90831ba539851583cbc10456df"
+  }
+}

@@ -6,7 +6,6 @@ sidebar_position: 3
 
 import smoke from '@site/static/img/application-development/ai/mo62a-python-smoke.png';
 import cpp from '@site/static/img/application-development/ai/mo62a-cpp-smoke.png';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
 This page covers Python ONNX Runtime, the image's C/C++ SDK and GStreamer-based applications. Sharing a model-directory convention does not make all runtimes interchangeable: the graph, compiled artifacts, runtime and application metadata must agree. TI documents these boundaries in the [pinned runtime overview](https://github.com/TexasInstruments/edgeai-tidl-tools/blob/11_02_17_00/README.md).
 
@@ -37,7 +36,7 @@ The local DMA-heap nodes are root-only, so these smoke tests use `sudo`. This is
 
 ## Python: ONNX Runtime with the TIDL execution provider
 
-Download <a href={useBaseUrl('/downloads/ai/infer-yolox-nano.py')} download>infer-yolox-nano.py</a>. It checks the TI provider, the expected static input, output shapes and finite values over three calls. Its core session setup is:
+Download <AssetLink href="/downloads/ai/infer-yolox-nano.py" download>infer-yolox-nano.py</AssetLink>. It checks the TI provider, the expected static input, output shapes and finite values over three calls. Its core session setup is:
 
 ```python
 import numpy as np

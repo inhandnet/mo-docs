@@ -4,10 +4,11 @@ description: "Turn a newly compiled YOLOX-tiny-lite model into a Mo62A warehouse
 sidebar_position: 6
 ---
 
+import zonePreviewAnimation from '@site/static/img/application-development/ai/mo62a-zone-preview.gif';
+
 import occupied from '@site/static/img/application-development/ai/mo62a-zone-occupied.jpg';
 import cleared from '@site/static/img/application-development/ai/mo62a-zone-cleared.jpg';
 import events from '@site/static/img/application-development/ai/mo62a-zone-events.png';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Build a small, inspectable business application: detect the existing COCO `person` class, test each detection against a configurable image region, and write debounced occupancy events for a dashboard or an operator's review queue. The downloadable project includes source, configuration, two licensed input clips and tests.
 
@@ -87,17 +88,17 @@ Keep `SOURCE.txt` with the input and any redistributed result. The program check
 The recording below comes from this application's actual Mo62A output. It is a single video element with a poster, not a second static image layered over a recording. The MP4 was transcoded from the board's MJPEG output without changing its detections or event timing.
 
 <video controls playsInline preload="none" poster={occupied} width="1280" height="720" aria-label="Actual Mo62A YOLOX-tiny-lite warehouse zone-occupancy output, played at source-video speed">
-  <source src={useBaseUrl('/img/application-development/ai/mo62a-zone-result.mp4')} type="video/mp4" />
-  <a href={useBaseUrl('/img/application-development/ai/mo62a-zone-result.mp4')}>Download the result video</a>.
+  <MediaSource src="/img/application-development/ai/mo62a-zone-result.mp4" type="video/mp4" />
+  <AssetLink href="/img/application-development/ai/mo62a-zone-result.mp4">Download the result video</AssetLink>.
 </video>
 
 Playback is 30 fps because it preserves the source timeline. Processing was approximately 7.8 fps, not real-time 30 fps. The displayed inference-call milliseconds are only one part of that work.
 
 Short animated event preview (source time 6–10 s, reduced to 8 fps):
 
-<a href={useBaseUrl('/img/application-development/ai/mo62a-zone-preview.gif')} target="_blank" rel="noopener noreferrer">
-  <img src={useBaseUrl('/img/application-development/ai/mo62a-zone-preview.gif')} alt="A shortened animation of actual board output around the occupied and cleared events, not a live camera stream" width="960" height="540" loading="lazy" />
-</a>
+<AssetLink href="/img/application-development/ai/mo62a-zone-preview.gif" target="_blank" rel="noopener noreferrer">
+  <img src={zonePreviewAnimation} alt="A shortened animation of actual board output around the occupied and cleared events, not a live camera stream" width="960" height="540" loading="lazy" />
+</AssetLink>
 
 ## 4. Read the business outputs
 
@@ -174,6 +175,6 @@ Both clips are by domdomegg under [CC BY 4.0](https://creativecommons.org/licens
 - [Loading docks 1](https://commons.wikimedia.org/wiki/File:Amazon_warehouse_BHX4_loading_docks_1.webm), revision 929950166: evaluation/demo input; cropped to 1280 × 720 at x=0, y=300.
 - [Loading docks 2](https://commons.wikimedia.org/wiki/File:Amazon_warehouse_BHX4_loading_docks_2.webm), revision 929950182: calibration input; cropped to 1280 × 720 at x=100, y=250.
 
-Both were converted to constant 30 fps H.264 with audio removed. Result media adds model detections, an illustrative region, timestamps and attribution; the preview is shortened and rescaled. Complete URLs, original/derived hashes and modification notes are in <a href={useBaseUrl('/downloads/ai/zone-demo/SOURCE.txt')}>SOURCE.txt</a> and <a href={useBaseUrl('/downloads/ai/zone-demo/sources.json')}>sources.json</a>. Preserve this attribution when sharing. Copyright permission does not automatically grant trademark, privacy or publicity rights; no affiliation, customer deployment or endorsement is claimed.
+Both were converted to constant 30 fps H.264 with audio removed. Result media adds model detections, an illustrative region, timestamps and attribution; the preview is shortened and rescaled. Complete URLs, original/derived hashes and modification notes are in <AssetLink href="/downloads/ai/zone-demo/SOURCE.txt">SOURCE.txt</AssetLink> and <AssetLink href="/downloads/ai/zone-demo/sources.json">sources.json</AssetLink>. Preserve this attribution when sharing. Copyright permission does not automatically grant trademark, privacy or publicity rights; no affiliation, customer deployment or endorsement is claimed.
 
 The [AM62A model guide](https://software-dl.ti.com/processor-sdk-linux/esd/AM62AX/11_01_07_05/exports/docs/edgeai/inference_models.html) describes host import and model metadata. TI's [YOLO E2E discussion](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1443278/sk-am62a-lp-how-to-run-yolov8-v11-in-this-board) discusses version-specific architecture/training requirements, not universal support for arbitrary exports. Our claims here are limited to the pinned model and measured Mo62A results.

@@ -7,7 +7,6 @@ sidebar_position: 1
 import gpioResult from '@site/static/img/application-development/mo62a-gpio-loopback.png';
 import uartResult from '@site/static/img/application-development/mo62a-uart-loopback.png';
 import pwmResult from '@site/static/img/application-development/mo62a-pwm-loopback.png';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
 The 40-pin header exposes GPIO and multiplexed peripheral signals. This page starts with a GPIO loopback, then uses the same wiring to test UART5 and PWM after selecting their boot entries. Each test checks what arrives at an input pin, so a successful configuration command alone is not counted as a passing test.
 
@@ -78,7 +77,7 @@ With libgpiod 2.x, `gpioset` normally stays running to own the output line. `--h
 
 ## GPIO: Python loopback
 
-Download <a href={useBaseUrl('/downloads/peripherals/mo-docs-gpio-loopback.py')} download>mo-docs-gpio-loopback.py</a>, copy it to the board and run it with all three jumpers fitted:
+Download <AssetLink href="/downloads/peripherals/mo-docs-gpio-loopback.py" download>mo-docs-gpio-loopback.py</AssetLink>, copy it to the board and run it with all three jumpers fitted:
 
 ```bash
 sudo python3 mo-docs-gpio-loopback.py
@@ -110,7 +109,7 @@ ls -l /dev/ttyS3
 
 The node status must be `okay`. `/dev/ttyS3` can exist in the default GPIO configuration too, so its existence alone does not confirm that UART5 is active.
 
-Download <a href={useBaseUrl('/downloads/peripherals/mo-docs-uart-loopback.py')} download>mo-docs-uart-loopback.py</a> and run:
+Download <AssetLink href="/downloads/peripherals/mo-docs-uart-loopback.py" download>mo-docs-uart-loopback.py</AssetLink> and run:
 
 ```bash
 sudo python3 mo-docs-uart-loopback.py
@@ -143,7 +142,7 @@ done
 
 EHRPWM0 is the controller at `23000000.pwm`; channel 0 drives physical pin 33. Do not select a controller only because it is named `pwmchip0`: the fan controller at `23010000.pwm` is also present, and enumeration changes when EHRPWM0 is enabled.
 
-Download <a href={useBaseUrl('/downloads/peripherals/mo-docs-pwm-loopback.py')} download>mo-docs-pwm-loopback.py</a> and run:
+Download <AssetLink href="/downloads/peripherals/mo-docs-pwm-loopback.py" download>mo-docs-pwm-loopback.py</AssetLink> and run:
 
 ```bash
 sudo python3 mo-docs-pwm-loopback.py

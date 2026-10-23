@@ -4,7 +4,6 @@ description: "Restore the original Mo62A MCU R5F firmware, avoid the TI echo exa
 sidebar_position: 6
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import issue from '@site/static/img/real-time-cores/mo62a-rt-known-issue.png';
 
 ## Restore the original firmware
@@ -61,7 +60,7 @@ platform 79000000.r5f: k3_r5_rproc_stop: timeout waiting for rproc completion ev
 remoteproc remoteproc1: can't stop rproc: -16
 ```
 
-Reproduced over SSH with the stock image firmware and <a href={useBaseUrl('/downloads/real-time-cores/reload-cycle.sh')} download>reload-cycle.sh</a>: the fourth reload, the fifth start since boot, does not reach the receive loop, and the core can no longer be stopped:
+Reproduced over SSH with the stock image firmware and <AssetLink href="/downloads/real-time-cores/reload-cycle.sh" download>reload-cycle.sh</AssetLink>: the fourth reload, the fifth start since boot, does not reach the receive loop, and the core can no longer be stopped:
 
 <a href={issue} target="_blank" rel="noopener noreferrer">
   <img src={issue} alt="SSH session on Mo62A: the stock MCU R5F firmware hangs on the fourth reload, echo stop fails with Device or resource busy, the kernel reports can't stop rproc -16 and the trace has only the version line" width="1440" height="900" />
@@ -80,7 +79,7 @@ ipc.c75ss0_0              = "NONE";
 
 The [MCU console](./mcu-console.mdx) does this. It then passed 30 consecutive stop, load and start cycles, and the C7x AI benchmark was unaffected. If your firmware really needs IPC with the C7x or DM R5F, it must also handle repeated starts on both sides; that case has not been tested on Mo62A.
 
-The test script is <a href={useBaseUrl('/downloads/real-time-cores/reload-cycle.sh')} download>reload-cycle.sh</a>. Put it next to the `rpmsg_echo_latency` program from [Linux communication](./rpmsg.mdx#measure-the-round-trip) and run `sudo bash reload-cycle.sh <firmware name> <cycles>`; it loads the firmware repeatedly, waits for the "end point 14" log line, and runs an echo test each time. Expect to reboot if you run it with the unmodified TI example.
+The test script is <AssetLink href="/downloads/real-time-cores/reload-cycle.sh" download>reload-cycle.sh</AssetLink>. Put it next to the `rpmsg_echo_latency` program from [Linux communication](./rpmsg.mdx#measure-the-round-trip) and run `sudo bash reload-cycle.sh <firmware name> <cycles>`; it loads the firmware repeatedly, waits for the "end point 14" log line, and runs an echo test each time. Expect to reboot if you run it with the unmodified TI example.
 
 ### Other observations
 

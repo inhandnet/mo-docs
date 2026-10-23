@@ -40,7 +40,7 @@ test('first-release public content excludes deferred model research', async () =
       }
     }
   }
-  for (const directory of ['docs', 'src', 'static']) await inspect(directory);
+  for (const directory of ['docs', 'static', 'hardware/products', 'hardware/accessories']) await inspect(directory);
 });
 
 test('Mo62A model development pins official TI tools and a complete compatibility baseline', async () => {

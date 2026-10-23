@@ -7,8 +7,6 @@ sidebar_position: 5
 import changePassword from '@site/static/img/mo-os/mo62a-change-password.png';
 import addUser from '@site/static/img/mo-os/mo62a-add-user.png';
 import sshdHardening from '@site/static/img/mo-os/mo62a-sshd-hardening.png';
-import CodeBlock from '@theme/CodeBlock';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import firewallRules from '@site/static/downloads/security/mo-host-filter.nft';
 import firewallService from '@site/static/downloads/security/mo-host-filter.service';
 
@@ -125,7 +123,7 @@ Keep a serial console or local desktop available, leave the current SSH session 
 The V1.1.0 kernel lacks match modules needed by the installed `ufw` front end; `ufw enable` can leave the board unreachable. Also, Debian's stock `nftables.service` uses `nft flush ruleset` when stopped, which removes Docker rules too. Do not start, reload or stop that service to manage this example, and do not use a global `flush ruleset`.
 :::
 
-**1. Review the rules and service.** Download <a href={useBaseUrl('/downloads/security/mo-host-filter.nft')} download>mo-host-filter.nft</a> and <a href={useBaseUrl('/downloads/security/mo-host-filter.service')} download>mo-host-filter.service</a> into a working directory on the board. Their contents are shown here:
+**1. Review the rules and service.** Download <AssetLink href="/downloads/security/mo-host-filter.nft" download>mo-host-filter.nft</AssetLink> and <AssetLink href="/downloads/security/mo-host-filter.service" download>mo-host-filter.service</AssetLink> into a working directory on the board. Their contents are shown here:
 
 <CodeBlock language="text" title="mo-host-filter.nft">{firewallRules}</CodeBlock>
 

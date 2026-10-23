@@ -13,9 +13,6 @@ import modelMenu from '@site/static/img/getting-started/mo62a-npu-menu-model.png
 import backendMenu from '@site/static/img/getting-started/mo62a-npu-menu-backend.png';
 import pythonResult from '@site/static/img/getting-started/mo62a-npu-video-python.png';
 import cppResult from '@site/static/img/getting-started/mo62a-npu-video-cpp.png';
-import useBaseUrl from '@docusaurus/useBaseUrl';
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 import peopleResult from '@site/static/img/getting-started/mo62a-npu-people-cpp.png';
 import petResult from '@site/static/img/getting-started/mo62a-npu-pet-cpp.png';
 
@@ -156,9 +153,9 @@ mkdir -p /tmp/mo-npu-video
 
 **2. On your computer**, download these three files into one directory:
 
-- <a href={useBaseUrl('/downloads/npu-demo/traffic-sample.mp4')} download>traffic-sample.mp4</a> — a 20-second, 1280 × 720 H.264 road video (about 11 MB).
-- <a href={useBaseUrl('/downloads/npu-demo/video-demo.yaml')} download>video-demo.yaml</a> — YOLOX-S-Lite (8220), a detection threshold of 0.4, looping video input and HDMI output.
-- <a href={useBaseUrl('/downloads/npu-demo/run-video-demo.sh')} download>run-video-demo.sh</a> — checks the input, stops the desktop, runs inference and restores the desktop service when stopped.
+- <AssetLink href="/downloads/npu-demo/traffic-sample.mp4" download>traffic-sample.mp4</AssetLink> — a 20-second, 1280 × 720 H.264 road video (about 11 MB).
+- <AssetLink href="/downloads/npu-demo/video-demo.yaml" download>video-demo.yaml</AssetLink> — YOLOX-S-Lite (8220), a detection threshold of 0.4, looping video input and HDMI output.
+- <AssetLink href="/downloads/npu-demo/run-video-demo.sh" download>run-video-demo.sh</AssetLink> — checks the input, stops the desktop, runs inference and restores the desktop service when stopped.
 
 From that download directory, copy the files to the board. Replace the username and address with your own:
 
@@ -199,30 +196,30 @@ The recordings are about 12 seconds long, silent and sampled at approximately 8 
   <TabItem value="road-cpp" label="Road / C++">
     <p>Road traffic with the C/C++ backend. Look for cars entering, leaving and overlapping in the scene.</p>
     <video controls playsInline preload="none" poster={cppResult} width="1920" height="1080" aria-label="Road traffic detection on Mo62A using the C++ backend">
-      <source src={useBaseUrl('/img/getting-started/mo62a-npu-video-result.mp4')} type="video/mp4" />
-      <a href={useBaseUrl('/img/getting-started/mo62a-npu-video-result.mp4')}>Download the C++ road recording</a>.
+      <MediaSource src="/img/getting-started/mo62a-npu-video-result.mp4" type="video/mp4" />
+      <AssetLink href="/img/getting-started/mo62a-npu-video-result.mp4">Download the C++ road recording</AssetLink>.
     </video>
   </TabItem>
   <TabItem value="road-python" label="Road / Python">
     <p>The same road input and 8220 model with the Python backend. Compare the measured results below rather than browser playback speed.</p>
     <video controls playsInline preload="none" poster={pythonResult} width="1920" height="1080" aria-label="Same road traffic and model on Mo62A using the Python backend">
-      <source src={useBaseUrl('/img/getting-started/mo62a-npu-road-python.mp4')} type="video/mp4" />
-      <a href={useBaseUrl('/img/getting-started/mo62a-npu-road-python.mp4')}>Download the Python road recording</a>.
+      <MediaSource src="/img/getting-started/mo62a-npu-road-python.mp4" type="video/mp4" />
+      <AssetLink href="/img/getting-started/mo62a-npu-road-python.mp4">Download the Python road recording</AssetLink>.
     </video>
   </TabItem>
   <TabItem value="people-cpp" label="People / C++">
     <p>Pedestrians on Sabana Grande Boulevard, Caracas, using the C/C++ backend. Occlusion and small distant people can cause missed or unstable detections.</p>
     <video controls playsInline preload="none" poster={peopleResult} width="1920" height="1080" aria-label="Actual Mo62A pedestrian detection with YOLOX-S-Lite 8220">
-      <source src={useBaseUrl('/img/getting-started/mo62a-npu-people-cpp.mp4')} type="video/mp4" />
-      <a href={useBaseUrl('/img/getting-started/mo62a-npu-people-cpp.mp4')}>Download the pedestrian recording</a>.
+      <MediaSource src="/img/getting-started/mo62a-npu-people-cpp.mp4" type="video/mp4" />
+      <AssetLink href="/img/getting-started/mo62a-npu-people-cpp.mp4">Download the pedestrian recording</AssetLink>.
     </video>
     <p><a href={peopleResult} target="_blank" rel="noopener noreferrer">Open the full-resolution HDMI screenshot</a>.</p>
   </TabItem>
   <TabItem value="pet-cpp" label="Pet / C++">
     <p>A cat playing indoors, using the C/C++ backend. This demonstrates another COCO class and changing animal pose; predictions can still be missed or incorrect.</p>
     <video controls playsInline preload="none" poster={petResult} width="1920" height="1080" aria-label="Actual Mo62A cat detection with YOLOX-S-Lite 8220">
-      <source src={useBaseUrl('/img/getting-started/mo62a-npu-pet-cpp.mp4')} type="video/mp4" />
-      <a href={useBaseUrl('/img/getting-started/mo62a-npu-pet-cpp.mp4')}>Download the pet recording</a>.
+      <MediaSource src="/img/getting-started/mo62a-npu-pet-cpp.mp4" type="video/mp4" />
+      <AssetLink href="/img/getting-started/mo62a-npu-pet-cpp.mp4">Download the pet recording</AssetLink>.
     </video>
     <p><a href={petResult} target="_blank" rel="noopener noreferrer">Open the full-resolution HDMI screenshot</a>.</p>
   </TabItem>
@@ -234,9 +231,9 @@ All three inputs use YOLOX-S-Lite COCO 8220, threshold 0.4, hardware H.264 decod
 
 | Scene | Input video | Configuration | What to observe |
 |---|---|---|---|
-| Road traffic | <a href={useBaseUrl('/downloads/npu-demo/traffic-sample.mp4')} download>20-second MP4</a> | <a href={useBaseUrl('/downloads/npu-demo/video-demo.yaml')} download>video-demo.yaml</a> | Vehicles at different distances and overlaps. |
-| Pedestrians | <a href={useBaseUrl('/downloads/npu-demo/people-sample.mp4')} download>12-second MP4</a> | <a href={useBaseUrl('/downloads/npu-demo/people-demo.yaml')} download>people-demo.yaml</a> | People walking past one another, with partial occlusion. |
-| Pet | <a href={useBaseUrl('/downloads/npu-demo/pet-sample.mp4')} download>20-second MP4</a> | <a href={useBaseUrl('/downloads/npu-demo/pet-demo.yaml')} download>pet-demo.yaml</a> | A cat moving and changing pose indoors. |
+| Road traffic | <AssetLink href="/downloads/npu-demo/traffic-sample.mp4" download>20-second MP4</AssetLink> | <AssetLink href="/downloads/npu-demo/video-demo.yaml" download>video-demo.yaml</AssetLink> | Vehicles at different distances and overlaps. |
+| Pedestrians | <AssetLink href="/downloads/npu-demo/people-sample.mp4" download>12-second MP4</AssetLink> | <AssetLink href="/downloads/npu-demo/people-demo.yaml" download>people-demo.yaml</AssetLink> | People walking past one another, with partial occlusion. |
+| Pet | <AssetLink href="/downloads/npu-demo/pet-sample.mp4" download>20-second MP4</AssetLink> | <AssetLink href="/downloads/npu-demo/pet-demo.yaml" download>pet-demo.yaml</AssetLink> | A cat moving and changing pose indoors. |
 
 Copy the selected pair into the board's working directory, alongside the helper from the previous section. For example, on your computer:
 
@@ -253,7 +250,7 @@ sudo bash /tmp/mo-npu-video/run-video-demo.sh cpp /tmp/mo-npu-video/people-demo.
 
 For the pet scene, copy `pet-sample.mp4` and `pet-demo.yaml` instead, then pass `/tmp/mo-npu-video/pet-demo.yaml`. Stop the current run with Ctrl+C and wait for cleanup before starting another. The helper also accepts `python`; the extra-scene recordings above show C/C++.
 
-**Video credits.** The pedestrian excerpt is from [Sabana Grande Caracas](https://commons.wikimedia.org/wiki/File:Sabana_Grande_Caracas._People_walking_on_the_Boulevard_of_Sabana_Grande,_famous_in_Caracas,_Venezuela.webm) by **Vicente Quintero (QuinteroP)**, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/), using its first 12 seconds. The pet excerpt is from [Cat playing in Taiwan](https://commons.wikimedia.org/wiki/File:Cat_playing_in_Taiwan.webm) by **MiNe**, [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/), using seconds 25–45. Both inputs are converted to 1280 × 720, 30 fps H.264 without audio; the result recordings add the board's actual detections and overlay. Attribution and change details are also in <a href={useBaseUrl('/downloads/npu-demo/SOURCE.txt')}>SOURCE.txt</a>.
+**Video credits.** The pedestrian excerpt is from [Sabana Grande Caracas](https://commons.wikimedia.org/wiki/File:Sabana_Grande_Caracas._People_walking_on_the_Boulevard_of_Sabana_Grande,_famous_in_Caracas,_Venezuela.webm) by **Vicente Quintero (QuinteroP)**, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/), using its first 12 seconds. The pet excerpt is from [Cat playing in Taiwan](https://commons.wikimedia.org/wiki/File:Cat_playing_in_Taiwan.webm) by **MiNe**, [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/), using seconds 25–45. Both inputs are converted to 1280 × 720, 30 fps H.264 without audio; the result recordings add the board's actual detections and overlay. Attribution and change details are also in <AssetLink href="/downloads/npu-demo/SOURCE.txt">SOURCE.txt</AssetLink>.
 
 ### C/C++ and Python: same model, same video
 
@@ -280,7 +277,7 @@ C/C++ processed about **21.5% more frames per second** at a similar CPU load. Th
 - Both installed applications enable their existing `-n -v` frame and inference reports. There is no screen recording or input-file transfer during measurement. SSH report collection adds some overhead; the results are rounded and are not a model-only benchmark.
 - To compare your own setup, run the **same configuration** once with `cpp` and once with `python`, stop between runs, allow warm-up and repeat in alternating order. Keep the decoder, model, scene, resolution and threshold unchanged. Compare throughput and CPU load separately from model-call timing.
 
-The <a href={useBaseUrl('/downloads/npu-demo/backend-comparison.json')} download>six-run measurement data</a> contains the input checksum, configuration, individual results, temperatures and timing method. These measurements apply to this board, model and scene; other workloads can give different results.
+The <AssetLink href="/downloads/npu-demo/backend-comparison.json" download>six-run measurement data</AssetLink> contains the input checksum, configuration, individual results, temperatures and timing method. These measurements apply to this board, model and scene; other workloads can give different results.
 
 </details>
 

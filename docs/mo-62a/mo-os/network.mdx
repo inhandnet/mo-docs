@@ -4,7 +4,6 @@ description: "Mo 62A: configure Ethernet, Wi-Fi and Bluetooth Low Energy from th
 sidebar_position: 2
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import antennaAnimation from '@site/static/img/getting-started/mo62a-antenna-connect.gif';
 import antennaStill from '@site/static/img/getting-started/mo62a-antenna-connect.png';
@@ -310,7 +309,7 @@ If the radio is soft-blocked, unblock it with `sudo rfkill unblock bluetooth`. A
 
 On Mo62A, run `bluetoothctl show` and note its **Controller** address. This is the board's Bluetooth address, not its Ethernet or Wi-Fi address.
 
-**2. Start the peripheral on the Linux computer.** Download <a href={useBaseUrl('/downloads/network/mo-ble-demo-peripheral.py')} download>mo-ble-demo-peripheral.py</a> onto that computer. In the directory containing the file, run:
+**2. Start the peripheral on the Linux computer.** Download <AssetLink href="/downloads/network/mo-ble-demo-peripheral.py" download>mo-ble-demo-peripheral.py</AssetLink> onto that computer. In the directory containing the file, run:
 
 ```bash
 sudo python3 mo-ble-demo-peripheral.py BOARD_BLUETOOTH_ADDRESS
@@ -320,7 +319,7 @@ Replace `BOARD_BLUETOOTH_ADDRESS` with the board's address from step 1. Wait for
 
 This is a short-lived demonstration service with an unencrypted read/write test value. It is not a secure application protocol; do not send credentials or sensitive data through it.
 
-**3. Run the central on Mo62A.** Download <a href={useBaseUrl('/downloads/network/mo-ble-gatt-check.py')} download>mo-ble-gatt-check.py</a> onto Mo62A and save it as `/tmp/mo-ble-gatt-check.py`. Then run:
+**3. Run the central on Mo62A.** Download <AssetLink href="/downloads/network/mo-ble-gatt-check.py" download>mo-ble-gatt-check.py</AssetLink> onto Mo62A and save it as `/tmp/mo-ble-gatt-check.py`. Then run:
 
 ```bash
 python3 /tmp/mo-ble-gatt-check.py --name "Mo BLE Demo"

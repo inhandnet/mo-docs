@@ -6,7 +6,6 @@ sidebar_position: 2
 
 import runtime from '@site/static/img/application-development/ai/mo62a-stack-v110.png';
 import firmware from '@site/static/img/application-development/ai/mo62a-stack-firmware-v110.png';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
 Use this page as the version reference for Mo62A AI tutorials. The model compiler, board Python environment, runtime libraries and firmware have separate identities; they do not all share one version number.
 
@@ -46,7 +45,7 @@ A read-only recheck on 2026-10-23 confirmed the same image build field, kernel, 
   <img src={runtime} alt="Actual V1.1.0 board imports: Python 3.13.5, ONNX Runtime 1.23.0, TFLite 2.12.1, TVM 0.18.0, DLR 1.13.0 and missing tidlruntime; C library API also reports 1.23.0" width="1440" height="900" />
 </a>
 
-The current CMake SDK file still contains an old comment naming ONNX Runtime 1.15. The resolved library and its version API report 1.23.0; the comment is not runtime evidence. Likewise, the application install scripts default to `EDGEAI_APP_STACK_11_01_00_00`, but that does not prove every installed application/plugin was built from that unmodified tag. The SDK's static archives and plugin hashes are retained in the <a href={useBaseUrl('/downloads/ai/mo62a-v110-stack-inventory.json')} download>raw board inventory</a>.
+The current CMake SDK file still contains an old comment naming ONNX Runtime 1.15. The resolved library and its version API report 1.23.0; the comment is not runtime evidence. Likewise, the application install scripts default to `EDGEAI_APP_STACK_11_01_00_00`, but that does not prove every installed application/plugin was built from that unmodified tag. The SDK's static archives and plugin hashes are retained in the <AssetLink href="/downloads/ai/mo62a-v110-stack-inventory.json" download>raw board inventory</AssetLink>.
 
 ## Host tools are a separate environment
 
@@ -86,7 +85,7 @@ The selected C7x file and these five installed libraries match the corresponding
 - `libvx_tidl_rt.so.1.0`
 - `libtivision_apps.so.11.1.0`
 
-Download the <a href={useBaseUrl('/downloads/ai/mo62a-v110-ti-binary-comparison.json')} download>six-file comparison, source URLs and complete SHA-256 hashes</a>. The archives were inspected on the host, not installed on the board. This comparison identifies the selected file on disk, not the resident firmware's memory bytes; it does not claim every firmware component, driver or model was validated.
+Download the <AssetLink href="/downloads/ai/mo62a-v110-ti-binary-comparison.json" download>six-file comparison, source URLs and complete SHA-256 hashes</AssetLink>. The archives were inspected on the host, not installed on the board. This comparison identifies the selected file on disk, not the resident firmware's memory bytes; it does not claim every firmware component, driver or model was validated.
 
 ## Repeat the checks on your board
 

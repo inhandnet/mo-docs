@@ -2,21 +2,19 @@
 
 [English](CONTRIBUTING.md)
 
-在临时分支修改，向 master 提交 PR。Write 可创建、修改和删除临时分支；Admin 在三个必需检查通过后合并，自己的 PR 不强制第二人审批。合并后自动删除符合条件的源分支。准确的 GitHub 规则和发布权限见 [README](README.zh-CN.md)。
+在临时分支修改，向 master 提交 PR。Write 可创建、修改和删除临时分支；Admin 在内容与提交必需检查通过后合并，自己的 PR 不强制第二人审批。合并后自动删除符合条件的源分支。准确的 GitHub 规则和发布权限见 [README](README.zh-CN.md)。
 
 ## 环境与验证
 
-```bash
+```sh
 nvm use
 npm ci
 npm test
-npm run typecheck
-npm run build
-npx playwright install chromium
-npm run test:browser
+# 先在 developer 安装网站依赖
+npm run preview -- --port 8051
 ```
 
-交互预览使用空闲端口。浏览器检查动态分配端口，运行时必须沿用构建所用的域名、base path、主站和硬件站变量。验证发布目标可用 `node scripts/build-site.mjs test --verify` 或 `node scripts/build-site.mjs production --verify`。
+选择空闲端口；网站仓库不在相邻目录时设置 `DEVELOPER_DIR`。受影响页面、媒体、搜索和下载通过 developer 的整站构建及浏览器检查验证，本仓库 CI 校验内容和所属资源。
 
 ## 按证据写文档
 
@@ -24,7 +22,7 @@ npm run test:browser
 - 记录板卡、镜像及构建标识、相关工具和运行库版本、命令、观察结果与验证边界。区分开发安装与原始发布镜像，不从已安装包、算子清单或 TOPS 推导推理正确性。
 - 在合适环境验证命令。账号、网络、防火墙和部署行为优先使用只读检查与隔离环境；可能中断访问或重载固件的命令应说明恢复路径与验证范围。
 - 截图必须忠实于实际行为，终端文字可读并带替代文本，公开前移除凭据和私有网络信息。命令改变后标明旧证据的时间与范围，不能让旧截图充当新命令已测试的证明。
-- 模型、工具和示例链接到各自维护仓库；未单独确认迁移前保留公开附件和跳转。硬件事实及设计资料归 mo-hardware。
+- 模型、工具和示例链接到各自维护仓库；未单独确认迁移前保留公开附件和跳转。硬件事实及设计资料归本仓库 hardware/。
 - 附件旁保留第三方许可证、来源 URL 和哈希；发布压缩包时检查归档校验值及解压内容。
 
 使用普通 Markdown 表格，共用组件负责布局。软件页使用文档链接，迁出的硬件页使用映射跳转。媒体、表格或导航变更后检查手机与桌面布局。README 的每个自然段和列表项在源码中保持单行，不套用提交信息的 72 字符换行规则。
@@ -41,17 +39,17 @@ Explain the evidence or user impact when a title is insufficient.
 
 PR 正文说明具体改动、验证及未解决边界。GitHub merge 提交不进入 Changelog 条目。Squash 时使用已校验的标题和合规的可选正文，给 GitHub 自动追加的 PR 编号留出空间，确保最终标题仍不超过 72 字符；rebase 则保留已检查的各条提交作为日志来源。
 
-## 发布快照与架构图
+## 内容规则与架构图
 
-`npm run fetch-data` 显式更新 `src/data/generated/releases.json`，审查完整差异，尤其是仓库身份、正式版/候选版选择和日期。失败保留原文件并非零退出；内容不变时不更新时间戳。不手工虚构缺失的 Release，也不猜测 ChangeLog 路径。
+正文调用标准 MDX 组件并引用共享正文/媒体，前端逻辑放在 developer。`validation/` 是固定提交规则的生成副本，不手工修改；先在 developer 修改、测试并提交规则，再导出到本仓库。CI 先核对规则哈希再执行校验。
 
-修改 `scripts/render-architecture.mjs` 后运行它，更新 `architecture/` 中的中英 SVG；两种语言都检查桌面与手机预览。架构图的可编辑来源是生成代码，不是位图截图。
+修改 `scripts/render-architecture.mjs` 后执行 `npm run docs:diagrams`，审查中英 SVG。资料迁移时保留来源、许可、适用范围和路径映射，不将未验证状态改为支持承诺。
 
 ## 发布步骤（Admin）
 
-1. 确认选定 master 提交已通过必需检查、改动已审阅，并检查该 Tag 会触发的每个环境是否已配置部署条件。
-2. 用 `git ls-remote --tags origin` 检查远端 Tag，再创建和推送 annotated `VX.Y.Z-rcN` 或 `VX.Y.Z`。Tag 推送后由 CI 校验，本地不拦截 Tag 创建。
-3. 检查验证、打包、发布和部署任务，下载核对 `SHA256SUMS` 与 `release.json`，再确认在线 `deployment.json` 对应 Tag 的提交。
-4. 发布或部署失败时先检查实际 Release 与服务器状态；不得改写既有 Tag 或已发布附件，内容修正使用下一个 RC 或版本。
+1. 确认选定 master 提交通过必需检查和整站集成预览。
+2. 用 `git ls-remote --tags origin` 检查名称未占用，创建普通附注 Tag `VX.Y.Z`；新的 RC 只属于 developer。
+3. 检查校验、内容打包和 Release 发布；核对内容包、文件清单、发布元信息和 SHA256SUMS 与选定提交一致。
+4. developer 在后续冻结的网站组成中选择该普通版本，mo-docs 没有部署步骤。
 
-手动 workflow dispatch 只验证和打包，不发布或部署。中文标题版 Changelog 保留英文条目，不依赖翻译服务。正式平台是否就绪由实际基础设施配置与部署验证决定，不能只凭正式构建成功判断。
+手动触发只校验/打包，不发布。保留历史 Tag 和已发布附件；失败草稿不代表完整 Release，重试前检查真实状态。内容修正使用新的普通版本。
