@@ -259,6 +259,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md), [ARCHITECTURE.md](ARCHITECTURE.md) and [
 
 ## Migration status and diagrams
 
-Hardware references and maintainer training are consolidated, and website implementation has moved to developer. Some executable tutorial resources still live in static/downloads/; their owning tool/model/example repositories will receive them while pinned assembly preserves old download paths. That resource migration is not yet complete. Developer release freezing and full-site rollout have separate acceptance.
+Hardware references and maintainer training are consolidated; website implementation lives in developer. Executable tutorial resources now belong to mo-tools, mo-models and mo-examples. `content/resource-map.json` preserves legacy download URLs; `content/resource-migration.json` records original commits, paths, hashes and necessary adjustments. This repository retains prose, images, design attachments and declarative firewall configuration. Developer release freezing and full-site rollout have separate acceptance.
 
 Diagram source is maintained centrally in developer/scripts/render-architecture.mjs. Run `npm run docs:diagrams`, setting DEVELOPER_DIR if necessary, to regenerate this repository's six bilingual SVGs.
+
+## Specification data
+
+Maintain Mo62A specifications in [specifications.json](hardware/products/mo62a/overview/specifications.json). Developer generates hardware documentation, product cards and specification tables from this file. OS and kernel versions come from pinned Mo62A release metadata. Integration expands the `product-specifications` marker; do not maintain a second specification table in prose.

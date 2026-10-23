@@ -1,0 +1,509 @@
+{
+  "schema_version": 1,
+  "repository": "inhandnet/mo-docs",
+  "commit": "e238f7e6dd74e322ceaba4bc00c3f982cc4367e5",
+  "files": [
+    {
+      "old": "static/downloads/ai/benchmark-inference.py",
+      "repository": "mo-models",
+      "path": "benchmarks/benchmark-inference.py",
+      "sha256": "62d3c63b6b54c819b0a18f0e1717b8b7fb7236ab593d3dffc3b0e96060346bd7",
+      "existing": true,
+      "same": true,
+      "new_sha256": "62d3c63b6b54c819b0a18f0e1717b8b7fb7236ab593d3dffc3b0e96060346bd7"
+    },
+    {
+      "old": "static/downloads/ai/benchmark-nano.json",
+      "repository": "mo-models",
+      "path": "benchmarks/results/mo62a-v110-tidl-11_02_17_00/benchmark-nano.json",
+      "sha256": "7ebee780af944c159f1c4e76294ce612c3bd7f9112663e4e51df27c87eeb6c0a",
+      "existing": false,
+      "same": false,
+      "new_sha256": "7ebee780af944c159f1c4e76294ce612c3bd7f9112663e4e51df27c87eeb6c0a"
+    },
+    {
+      "old": "static/downloads/ai/benchmark-small.json",
+      "repository": "mo-models",
+      "path": "benchmarks/results/mo62a-v110-tidl-11_02_17_00/benchmark-small.json",
+      "sha256": "33538052f20addb29c66294957fb3fc7a028aec8c7344270ffd5dd5ef2641978",
+      "existing": false,
+      "same": false,
+      "new_sha256": "33538052f20addb29c66294957fb3fc7a028aec8c7344270ffd5dd5ef2641978"
+    },
+    {
+      "old": "static/downloads/ai/infer-yolox-nano.py",
+      "repository": "mo-examples",
+      "path": "ai/python-smoke/infer-yolox-nano.py",
+      "sha256": "792e1ac13048165f9fb7d129831bf65381996f55c574519c9fac8fb08c4e2d03",
+      "existing": true,
+      "same": true,
+      "new_sha256": "792e1ac13048165f9fb7d129831bf65381996f55c574519c9fac8fb08c4e2d03"
+    },
+    {
+      "old": "static/downloads/ai/mo62a-v110-stack-inventory.json",
+      "repository": "mo-models",
+      "path": "compat/evidence/mo62a-v110-stack-inventory.json",
+      "sha256": "38e4dabc2f6ae1b6fb9999c7e5692cfa7563749bdb51bc11cfee70029a3e6f9d",
+      "existing": false,
+      "same": false,
+      "new_sha256": "38e4dabc2f6ae1b6fb9999c7e5692cfa7563749bdb51bc11cfee70029a3e6f9d"
+    },
+    {
+      "old": "static/downloads/ai/mo62a-v110-ti-binary-comparison.json",
+      "repository": "mo-models",
+      "path": "compat/evidence/mo62a-v110-ti-binary-comparison.json",
+      "sha256": "e6fb0ca44b02370da336f9fdd9f3446ef6865f5e34c65152339463d677e65d87",
+      "existing": false,
+      "same": false,
+      "new_sha256": "e6fb0ca44b02370da336f9fdd9f3446ef6865f5e34c65152339463d677e65d87"
+    },
+    {
+      "old": "static/downloads/ai/mo62a-zone-demo.tar.gz",
+      "repository": "developer",
+      "path": "generated bundle",
+      "sha256": "b7ef2849432cd68a013b04caa0559e65c29d2fd946408ed1050784924dc4aea1",
+      "existing": false,
+      "same": false,
+      "disposition": "generated archive and checksum"
+    },
+    {
+      "old": "static/downloads/ai/mo62a-zone-demo.tar.gz.sha256",
+      "repository": "developer",
+      "path": "generated bundle",
+      "sha256": "389e53e0172817e8715c537dde834760075118c0166b0c5233ffbccaef7ca02b",
+      "existing": false,
+      "same": false,
+      "disposition": "generated archive and checksum"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/LICENSE",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/LICENSE",
+      "sha256": "23ee78c8bae49cf08ea2f0c84945c66b987ebe4520881fb51b3dad4fb43d07c2",
+      "existing": true,
+      "same": true,
+      "new_sha256": "23ee78c8bae49cf08ea2f0c84945c66b987ebe4520881fb51b3dad4fb43d07c2"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/README.md",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/README.md",
+      "sha256": "1da67d559c743aec39389b621537243f5b3c537cc067161183f607952587c64d",
+      "existing": true,
+      "same": false,
+      "change": "README explains repository checkout and assembled bundle",
+      "new_sha256": "f105b3afae5dbb0786a7414f787e23b7d316dcdd16cb90b0d1cd4fb8b8c972c6"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/SOURCE.txt",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/SOURCE.txt",
+      "sha256": "d67e48a7d6bac73bf9090e715a4a6c9ad26a1d6252938cb5d9152d676946bc54",
+      "existing": true,
+      "same": true,
+      "new_sha256": "d67e48a7d6bac73bf9090e715a4a6c9ad26a1d6252938cb5d9152d676946bc54"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/activate_host.sh",
+      "repository": "mo-tools",
+      "path": "toolchain/host-setup/activate_host.sh",
+      "sha256": "7cb17d6c5ae404ef3552cf78fbf533c9c01688d81865eec71fb73d0f62466450",
+      "existing": true,
+      "same": false,
+      "change": "Keep existing shellcheck source annotation; executable statements unchanged",
+      "new_sha256": "788030faaaadea3e08be76299f4559d02e8e5d5b5e3fe020e827eebf1e7d0b81",
+      "adjustment": "Preserved existing mo-tools ShellCheck annotation; executable lines unchanged."
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/compare_detections.py",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/compare_detections.py",
+      "sha256": "49f28c127488249fde6a14bb48cbda74f34267b201ce01b9c69cd4ed89d3c24b",
+      "existing": true,
+      "same": true,
+      "new_sha256": "49f28c127488249fde6a14bb48cbda74f34267b201ce01b9c69cd4ed89d3c24b"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/compile_model.py",
+      "repository": "mo-models",
+      "path": "compile/zone-demo/compile_model.py",
+      "sha256": "a0bc60f9e7c022024051b8fcfb3a0acb395c68cc914ea6ef4abc81d3c8e17422",
+      "existing": true,
+      "same": true,
+      "new_sha256": "a0bc60f9e7c022024051b8fcfb3a0acb395c68cc914ea6ef4abc81d3c8e17422"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/fetch_model.py",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/fetch_model.py",
+      "sha256": "d9688ddbe4b617cc519b9d15ebb6059474996cc8ffb8a88dfc5622dee1994d6f",
+      "existing": true,
+      "same": true,
+      "new_sha256": "d9688ddbe4b617cc519b9d15ebb6059474996cc8ffb8a88dfc5622dee1994d6f"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/inputs/calibration.mp4",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/inputs/calibration.mp4",
+      "sha256": "df9cf3be9c275314289be7a8b684d80f094cd8751a3d13637a6283aad27a3c25",
+      "existing": false,
+      "same": false,
+      "new_sha256": "df9cf3be9c275314289be7a8b684d80f094cd8751a3d13637a6283aad27a3c25"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/inputs/evaluation.mp4",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/inputs/evaluation.mp4",
+      "sha256": "fba367bfad48335444a236123afde022c28dd7ed4dce9d9b1422179d295d49c5",
+      "existing": false,
+      "same": false,
+      "new_sha256": "fba367bfad48335444a236123afde022c28dd7ed4dce9d9b1422179d295d49c5"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/inspect_bundle.py",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/inspect_bundle.py",
+      "sha256": "28bea20296f085ff1c564ef992654b64c5419277f5af67f89168aca43111a32c",
+      "existing": true,
+      "same": true,
+      "new_sha256": "28bea20296f085ff1c564ef992654b64c5419277f5af67f89168aca43111a32c"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/logic.py",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/logic.py",
+      "sha256": "0e00c5581a25e7fc99c46e4d94c499862736098b7a7566225a9f72a429deb67e",
+      "existing": true,
+      "same": true,
+      "new_sha256": "0e00c5581a25e7fc99c46e4d94c499862736098b7a7566225a9f72a429deb67e"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/model.py",
+      "repository": "mo-models",
+      "path": "compile/zone-demo/model.py",
+      "sha256": "3594ca721bc73c9fd11609106c76b816be9ab6e9583b330b3de5245636613dc0",
+      "existing": true,
+      "same": true,
+      "new_sha256": "3594ca721bc73c9fd11609106c76b816be9ab6e9583b330b3de5245636613dc0"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/prepare_inputs.py",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/prepare_inputs.py",
+      "sha256": "9387cd6849c942c8340210687579ef698c215cc93ef92690f06c654f1ef88b52",
+      "existing": true,
+      "same": true,
+      "new_sha256": "9387cd6849c942c8340210687579ef698c215cc93ef92690f06c654f1ef88b52"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/requirements-host.txt",
+      "repository": "mo-tools",
+      "path": "toolchain/host-setup/requirements-host.txt",
+      "sha256": "d6bcd897cf29ad73612fc895784a44bbba1f36666e32da49b7c3ab7e6b8ae882",
+      "existing": true,
+      "same": true,
+      "new_sha256": "d6bcd897cf29ad73612fc895784a44bbba1f36666e32da49b7c3ab7e6b8ae882"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/run_images.py",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/run_images.py",
+      "sha256": "fa75916fe78173f20e43a13b197354484357a11e9dd275a95fba4e886c3c4980",
+      "existing": false,
+      "same": false,
+      "new_sha256": "fa75916fe78173f20e43a13b197354484357a11e9dd275a95fba4e886c3c4980"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/run_video.py",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/run_video.py",
+      "sha256": "c79150408cda108e45895e015b87c124b09fe90d5ace7e15c8fc6bc56a127bf1",
+      "existing": false,
+      "same": false,
+      "new_sha256": "c79150408cda108e45895e015b87c124b09fe90d5ace7e15c8fc6bc56a127bf1"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/setup_host.sh",
+      "repository": "mo-tools",
+      "path": "toolchain/host-setup/setup_host.sh",
+      "sha256": "4e592fc9b8d5c8d9eceeb2ca9b53ba31365eb18184fd9d6f63d32f7f9a4a8c7e",
+      "existing": true,
+      "same": true,
+      "new_sha256": "4e592fc9b8d5c8d9eceeb2ca9b53ba31365eb18184fd9d6f63d32f7f9a4a8c7e"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/sources.json",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/sources.json",
+      "sha256": "d6af877d70e6762a608fcc9ebbc1fd866f1b1428415b582abef8d6f518cb796e",
+      "existing": true,
+      "same": true,
+      "new_sha256": "d6af877d70e6762a608fcc9ebbc1fd866f1b1428415b582abef8d6f518cb796e"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/test_evidence.py",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/test_evidence.py",
+      "sha256": "38e3b3198e630619de87f93b2be5dcab3c61c7086fbccc51b0a7c6361d709260",
+      "existing": false,
+      "same": false,
+      "new_sha256": "38e3b3198e630619de87f93b2be5dcab3c61c7086fbccc51b0a7c6361d709260"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/test_logic.py",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/test_logic.py",
+      "sha256": "da29b82eefd88fbaa3a4fe38dfa24408507affe047c003419670bf12edb0fe1d",
+      "existing": false,
+      "same": false,
+      "new_sha256": "da29b82eefd88fbaa3a4fe38dfa24408507affe047c003419670bf12edb0fe1d"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/verify_inputs.py",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/verify_inputs.py",
+      "sha256": "aa080ef3be225d6e1c023a703c14e2c8d0626562f3893dd8c29d5f058bc0a1dd",
+      "existing": false,
+      "same": false,
+      "new_sha256": "aa080ef3be225d6e1c023a703c14e2c8d0626562f3893dd8c29d5f058bc0a1dd"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo/zone.json",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/zone.json",
+      "sha256": "975995709f00b3dc5c4a25d997529527cb1ad3388430415436cd9e1937e2519a",
+      "existing": false,
+      "same": false,
+      "new_sha256": "975995709f00b3dc5c4a25d997529527cb1ad3388430415436cd9e1937e2519a"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo-events.csv",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/evidence/zone-demo-events.csv",
+      "sha256": "017e2903d77c718f9c6e9304450b6b642d4c4c8cd67cdc86d7bae4df20c03ddf",
+      "existing": false,
+      "same": false,
+      "new_sha256": "017e2903d77c718f9c6e9304450b6b642d4c4c8cd67cdc86d7bae4df20c03ddf"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo-evidence.json",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/evidence/zone-demo-evidence.json",
+      "sha256": "cdece664171a71bc95c2549b595d809129c6a8e938d70049f37605e02b5ecc09",
+      "existing": false,
+      "same": false,
+      "new_sha256": "cdece664171a71bc95c2549b595d809129c6a8e938d70049f37605e02b5ecc09"
+    },
+    {
+      "old": "static/downloads/ai/zone-demo-frames.jsonl",
+      "repository": "mo-examples",
+      "path": "ai/zone-demo/evidence/zone-demo-frames.jsonl",
+      "sha256": "a923d50be78447408b4e4945991ccc982702efe7041724a95b1fce64b8b08a98",
+      "existing": false,
+      "same": false,
+      "new_sha256": "a923d50be78447408b4e4945991ccc982702efe7041724a95b1fce64b8b08a98"
+    },
+    {
+      "old": "static/downloads/camera/capture-jpeg-mmap.sh",
+      "repository": "mo-examples",
+      "path": "camera/jpeg-capture/capture-jpeg-mmap.sh",
+      "sha256": "afd2ba0776c0c42b399959c71aae224fdad3085c186ca7ec469c76eacef05e66",
+      "existing": false,
+      "same": false,
+      "new_sha256": "afd2ba0776c0c42b399959c71aae224fdad3085c186ca7ec469c76eacef05e66"
+    },
+    {
+      "old": "static/downloads/network/mo-ble-demo-peripheral.py",
+      "repository": "mo-examples",
+      "path": "network/ble/mo-ble-demo-peripheral.py",
+      "sha256": "a1a485d270303fca17dca08995207e682d8a92a68fb275a8fd440774b7756f8e",
+      "existing": false,
+      "same": false,
+      "new_sha256": "a1a485d270303fca17dca08995207e682d8a92a68fb275a8fd440774b7756f8e"
+    },
+    {
+      "old": "static/downloads/network/mo-ble-gatt-check.py",
+      "repository": "mo-examples",
+      "path": "network/ble/mo-ble-gatt-check.py",
+      "sha256": "1cd14b0729104701fad72bbe9fa681645f42be721581283b1db5cf4af4304bb2",
+      "existing": false,
+      "same": false,
+      "new_sha256": "1cd14b0729104701fad72bbe9fa681645f42be721581283b1db5cf4af4304bb2"
+    },
+    {
+      "old": "static/downloads/npu-demo/SOURCE.txt",
+      "repository": "mo-examples",
+      "path": "ai/npu-demo/SOURCE.txt",
+      "sha256": "e8ea342523593c45df1a647c80adbceb60fe871701364760a6b32ebfb3acc318",
+      "existing": false,
+      "same": false,
+      "new_sha256": "e8ea342523593c45df1a647c80adbceb60fe871701364760a6b32ebfb3acc318"
+    },
+    {
+      "old": "static/downloads/npu-demo/backend-comparison.json",
+      "repository": "mo-examples",
+      "path": "ai/npu-demo/backend-comparison.json",
+      "sha256": "abed6dd66a83eeb760bd9dae3a080fa629722bd483822bbde229dda3c487a20e",
+      "existing": false,
+      "same": false,
+      "new_sha256": "abed6dd66a83eeb760bd9dae3a080fa629722bd483822bbde229dda3c487a20e"
+    },
+    {
+      "old": "static/downloads/npu-demo/people-demo.yaml",
+      "repository": "mo-examples",
+      "path": "ai/npu-demo/people-demo.yaml",
+      "sha256": "6f29ab4cf120facb7eabc4ed4ff80f3c1737ae1401afc5585fcea02652a14a77",
+      "existing": false,
+      "same": false,
+      "new_sha256": "5507b557fa60908c63e989a7dfeff690522392f55b61aa4b68306a32681ba20a",
+      "adjustment": "YAML layout and boolean spelling normalized; parsed configuration unchanged."
+    },
+    {
+      "old": "static/downloads/npu-demo/people-sample.mp4",
+      "repository": "mo-examples",
+      "path": "ai/npu-demo/people-sample.mp4",
+      "sha256": "d5ba447d6a5b71ebae310c13141d335e5a648cad8084ccb364c97695e3432643",
+      "existing": false,
+      "same": false,
+      "new_sha256": "d5ba447d6a5b71ebae310c13141d335e5a648cad8084ccb364c97695e3432643"
+    },
+    {
+      "old": "static/downloads/npu-demo/pet-demo.yaml",
+      "repository": "mo-examples",
+      "path": "ai/npu-demo/pet-demo.yaml",
+      "sha256": "810ccd9da750b44d8ef712d385aab88a3479d56db35c0cfc1a04e4c60ae97bb2",
+      "existing": false,
+      "same": false,
+      "new_sha256": "0dcfbc864ee9d7692adc24a900647ee200fca11b4589b0c20dac382b847193ec",
+      "adjustment": "YAML layout and boolean spelling normalized; parsed configuration unchanged."
+    },
+    {
+      "old": "static/downloads/npu-demo/pet-sample.mp4",
+      "repository": "mo-examples",
+      "path": "ai/npu-demo/pet-sample.mp4",
+      "sha256": "e4ce4f989570e7aa887ac781c1a0552e9a14a036bf22e78191e8945874e25396",
+      "existing": false,
+      "same": false,
+      "new_sha256": "e4ce4f989570e7aa887ac781c1a0552e9a14a036bf22e78191e8945874e25396"
+    },
+    {
+      "old": "static/downloads/npu-demo/run-video-demo.sh",
+      "repository": "mo-examples",
+      "path": "ai/npu-demo/run-video-demo.sh",
+      "sha256": "636e26d88513a342e4f77dc3ea2a17a99c0c9ec6e4c01bba55c0861d9b0446af",
+      "existing": false,
+      "same": false,
+      "new_sha256": "636e26d88513a342e4f77dc3ea2a17a99c0c9ec6e4c01bba55c0861d9b0446af"
+    },
+    {
+      "old": "static/downloads/npu-demo/traffic-sample.mp4",
+      "repository": "mo-examples",
+      "path": "ai/npu-demo/traffic-sample.mp4",
+      "sha256": "160edc85f81ce7eed5240082ea075d6ee69cbfc50583a6d31a0431b766723aac",
+      "existing": false,
+      "same": false,
+      "new_sha256": "160edc85f81ce7eed5240082ea075d6ee69cbfc50583a6d31a0431b766723aac"
+    },
+    {
+      "old": "static/downloads/npu-demo/video-demo.yaml",
+      "repository": "mo-examples",
+      "path": "ai/npu-demo/video-demo.yaml",
+      "sha256": "863e2bf1e33d533706fa37588799f71f9afdcc81e4991eb420cb9fa5c2f9e72b",
+      "existing": false,
+      "same": false,
+      "new_sha256": "96119840b91b7256cb111b1c4a331affd7f595d798fbab95ae2b7f88b7e440e2",
+      "adjustment": "YAML layout and boolean spelling normalized; parsed configuration unchanged."
+    },
+    {
+      "old": "static/downloads/peripherals/mo-docs-gpio-loopback.py",
+      "repository": "mo-tools",
+      "path": "diagnostics/peripherals/mo-docs-gpio-loopback.py",
+      "sha256": "230ba721e32b8c27d2e703ed2971917309835feb75c528d0becec15059d322dd",
+      "existing": false,
+      "same": false,
+      "new_sha256": "230ba721e32b8c27d2e703ed2971917309835feb75c528d0becec15059d322dd"
+    },
+    {
+      "old": "static/downloads/peripherals/mo-docs-pwm-loopback.py",
+      "repository": "mo-tools",
+      "path": "diagnostics/peripherals/mo-docs-pwm-loopback.py",
+      "sha256": "b9ccda33bb01bb7d758677b6e91d9e8e6a70dbddd2ae4c6cdf9d1e4d01a6c854",
+      "existing": false,
+      "same": false,
+      "new_sha256": "b9ccda33bb01bb7d758677b6e91d9e8e6a70dbddd2ae4c6cdf9d1e4d01a6c854"
+    },
+    {
+      "old": "static/downloads/peripherals/mo-docs-uart-loopback.py",
+      "repository": "mo-tools",
+      "path": "diagnostics/peripherals/mo-docs-uart-loopback.py",
+      "sha256": "d3107d49d7d55433e39400e7d2d757feace85d32be3aeacae757912114e88bcb",
+      "existing": false,
+      "same": false,
+      "new_sha256": "d3107d49d7d55433e39400e7d2d757feace85d32be3aeacae757912114e88bcb"
+    },
+    {
+      "old": "static/downloads/real-time-cores/mcu-console.py",
+      "repository": "mo-examples",
+      "path": "r5f/mcu-console/mcu-console.py",
+      "sha256": "97ebcfa6c49785957b1b950b6010edcd127cc445084feadd283c523d9d4e4d1b",
+      "existing": false,
+      "same": false,
+      "new_sha256": "97ebcfa6c49785957b1b950b6010edcd127cc445084feadd283c523d9d4e4d1b"
+    },
+    {
+      "old": "static/downloads/real-time-cores/mo62a-mcu-console.out",
+      "repository": "mo-examples",
+      "path": "r5f/mcu-console/mo62a-mcu-console.out",
+      "sha256": "b74622b86f0a237ae103791df5d7f20f0d6a45ee2ca46127b83b2aa9f18ea693",
+      "existing": false,
+      "same": false,
+      "new_sha256": "b74622b86f0a237ae103791df5d7f20f0d6a45ee2ca46127b83b2aa9f18ea693"
+    },
+    {
+      "old": "static/downloads/real-time-cores/mo62a-mcu-console.out.sha256",
+      "repository": "mo-examples",
+      "path": "r5f/mcu-console/mo62a-mcu-console.out.sha256",
+      "sha256": "49760a8ee94071d6025c0c38bdc6e5df05aec9b3c4340e8b31c86d3effc7c97c",
+      "existing": false,
+      "same": false,
+      "new_sha256": "49760a8ee94071d6025c0c38bdc6e5df05aec9b3c4340e8b31c86d3effc7c97c"
+    },
+    {
+      "old": "static/downloads/real-time-cores/mo62a_console.c",
+      "repository": "mo-examples",
+      "path": "r5f/mcu-console/mo62a_console.c",
+      "sha256": "21a00ae55194af40dedd9995894dfcac9cdae48e7e28421978b7ecb7e2ebb727",
+      "existing": false,
+      "same": false,
+      "new_sha256": "21a00ae55194af40dedd9995894dfcac9cdae48e7e28421978b7ecb7e2ebb727"
+    },
+    {
+      "old": "static/downloads/real-time-cores/mo62a_mcu_console.diff",
+      "repository": "mo-examples",
+      "path": "r5f/mcu-console/mo62a_mcu_console.diff",
+      "sha256": "be0485a1d3e965cdb12f1f8f6a1858a87687f62ee1948054d9155107c8074920",
+      "existing": false,
+      "same": false,
+      "new_sha256": "be0485a1d3e965cdb12f1f8f6a1858a87687f62ee1948054d9155107c8074920"
+    },
+    {
+      "old": "static/downloads/real-time-cores/reload-cycle.sh",
+      "repository": "mo-examples",
+      "path": "r5f/mcu-console/reload-cycle.sh",
+      "sha256": "0950fb112758570e5f854301aa4fcd673769b0202a6bb9ee991cf1c203edbb6d",
+      "existing": false,
+      "same": false,
+      "new_sha256": "c52ab33d702fdadb667d3104912f88dfcc0a3a56e9008cdedafbb36d845df9d8",
+      "adjustment": "ShellCheck annotation only; executable lines unchanged."
+    },
+    {
+      "old": "static/downloads/real-time-cores/rpmsg_echo_latency.c",
+      "repository": "mo-examples",
+      "path": "r5f/mcu-console/rpmsg_echo_latency.c",
+      "sha256": "84f0aa5e605ead16b5fb211ba8e3589a1627e868d8f4796d2377dbe9a2182107",
+      "existing": false,
+      "same": false,
+      "new_sha256": "84f0aa5e605ead16b5fb211ba8e3589a1627e868d8f4796d2377dbe9a2182107"
+    }
+  ]
+}

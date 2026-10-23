@@ -259,6 +259,10 @@ npm run preview -- --port 8051
 
 ## 迁移状态与图示维护
 
-硬件资料与维护培训已经归并，本仓库前端已移至 developer。部分教程可执行资源仍在 static/downloads/，后续按维护职责迁入工具、模型或示例仓库，并由固定来源生成旧下载入口；尚未宣称这些资源已全部迁完。developer 的发布冻结与整站上线另行验收。
+硬件资料与维护培训已归并，前端已移至 developer。教程可执行资源已按职责归入 mo-tools、mo-models 和 mo-examples；`content/resource-map.json` 保留旧下载地址，`content/resource-migration.json` 记录原提交、路径、哈希和必要调整。正文、图片、设计附件及声明式防火墙配置继续由本仓库维护。developer 的发布冻结与整站上线另行验收。
 
 框架图源统一维护在 developer/scripts/render-architecture.mjs。运行 `npm run docs:diagrams`，或设置 DEVELOPER_DIR 指向已安装的 developer 工作区，生成本仓库六张中英文 SVG。
+
+## 规格数据
+
+Mo62A 规格维护在 [specifications.json](hardware/products/mo62a/overview/specifications.json)，developer 从同一文件生成硬件正文、产品卡片和规格表。镜像系统与内核版本取固定 Mo62A Release 元信息。正文中的 `product-specifications` 标记由接入层替换，不另写一份规格表。

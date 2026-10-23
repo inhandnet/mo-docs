@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {validateMDX} from './content.mjs';
 import {validateContentMap} from './content-map.mjs';
+import {validateResourceMap} from './resources.mjs';
+import {validateSpecifications} from './specifications.mjs';
 
 export function checkContent(root) {
   const errors=[];let documents=0;let assets=0;
@@ -43,6 +45,16 @@ export function checkContent(root) {
       if(fs.existsSync(path.join(root,alias.target)))throw Error(`Alias has a duplicate maintained file: ${alias.target}`);
     }
   }catch(error){errors.push(`content/hardware-map.json: ${error.message}`);}
+  try {
+    if(fs.existsSync(path.join(root,'content/resource-map.json'))) {
+      const resources=validateResourceMap(read('content/resource-map.json'));
+      for(const file of [...resources.files,...resources.bundles]) if(fs.existsSync(path.join(root,'static',file.target)))throw Error(`Resource has a duplicate maintained source: ${file.target}`);
+    }
+  }catch(error){errors.push(`content/resource-map.json: ${error.message}`);}
+  try {
+    const file='hardware/products/mo62a/overview/specifications.json';
+    if(fs.existsSync(path.join(root,file)))validateSpecifications(read(file));
+  }catch(error){errors.push(`Product specifications: ${error.message}`);}
   for(const directory of ['static','hardware'])for(const file of walk(directory)) {
     const descriptor=fs.openSync(path.join(root,file),'r');const head=Buffer.alloc(80);
     try{fs.readSync(descriptor,head,0,80,0);}finally{fs.closeSync(descriptor);}
