@@ -10,17 +10,52 @@ Mo 系列软硬件文档源仓库，维护教程、规格、媒体、设计资�
 
 [![内容来源与统一网站](architecture/ownership.zh-CN.svg)](architecture/ownership.zh-CN.svg)
 
-| 位置 | 维护内容 |
-|---|---|
-| `docs/` | 软件教程、FAQ、板卡章节、共享 Markdown/MDX 与章节元数据 |
-| `static/` | 截图、许可媒体、证据和兼容下载 |
-| `hardware/products/`、`hardware/accessories/` | 硬件规格、接口、原理图、机械资料和配件 |
-| `hardware/training/`、`hardware/templates/` | 维护培训和编写模板，不进入产品导航 |
-| `content/hardware-map.json` | 硬件源文件与文档路由、公开素材的映射 |
-| `content/asset-aliases.json` | 从一份维护源生成旧媒体/下载路径 |
-| `content/hardware-migration.json` | 原硬件仓库、提交、路径和迁移哈希 |
-| `validation/` | developer 固定版本内容规则的生成副本，记录提交与哈希 |
-| `scripts/`、`tests/`、`.github/` | 内容与资源校验、仓库治理和内容发布 |
+<table width="100%">
+  <thead>
+    <tr>
+      <th width="284" align="left">位置</th>
+      <th width="664" align="left">维护内容</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left"><code>docs/</code></td>
+      <td align="left">软件教程、FAQ、板卡章节、共享 Markdown/MDX 与章节元数据</td>
+    </tr>
+    <tr>
+      <td align="left"><code>static/</code></td>
+      <td align="left">截图、许可媒体、证据和兼容下载</td>
+    </tr>
+    <tr>
+      <td align="left"><code>hardware/products/</code>、<code>hardware/accessories/</code></td>
+      <td align="left">硬件规格、接口、原理图、机械资料和配件</td>
+    </tr>
+    <tr>
+      <td align="left"><code>hardware/training/</code>、<code>hardware/templates/</code></td>
+      <td align="left">维护培训和编写模板，不进入产品导航</td>
+    </tr>
+    <tr>
+      <td align="left"><code>content/hardware-map.json</code></td>
+      <td align="left">硬件源文件与文档路由、公开素材的映射</td>
+    </tr>
+    <tr>
+      <td align="left"><code>content/asset-aliases.json</code></td>
+      <td align="left">从一份维护源生成旧媒体/下载路径</td>
+    </tr>
+    <tr>
+      <td align="left"><code>content/hardware-migration.json</code></td>
+      <td align="left">原硬件仓库、提交、路径和迁移哈希</td>
+    </tr>
+    <tr>
+      <td align="left"><code>validation/</code></td>
+      <td align="left">developer 固定版本内容规则的生成副本，记录提交与哈希</td>
+    </tr>
+    <tr>
+      <td align="left"><code>scripts/</code>、<code>tests/</code>、<code>.github/</code></td>
+      <td align="left">内容与资源校验、仓库治理和内容发布</td>
+    </tr>
+  </tbody>
+</table>
 
 普通正文写 Markdown；选项卡、媒体、下载和版本表调用标准组件，实现统一放在 developer。允许导入共享正文和媒体文件。内容规则拒绝 Hooks、网络请求、任意 JavaScript、内联样式和 developer 内部 `src/` 导入；代码围栏中的教学代码不受影响。Excel 保留为原始资料或附件，新增结构化网页数据采用 JSON。
 
@@ -30,14 +65,47 @@ Mo 系列软硬件文档源仓库，维护教程、规格、媒体、设计资�
 
 [![Mo 系列仓库职责与统一网站](architecture/repository-map.zh-CN.svg)](architecture/repository-map.zh-CN.svg)
 
-| 仓库 | 人工维护的源内容 | 交付职责 |
-|---|---|---|
-| **developer** · GitLab | 网站组件、路由、搜索、接入层与内容接口 | 完整网站、发布组成清单与部署 |
-| [mo-docs](https://github.com/inhandnet/mo-docs) | 软硬件教程、规格、媒体、设计资料与维护培训 | 版本化内容与参考附件 |
-| [mo-tools](https://github.com/inhandnet/mo-tools) | 工具链/SDK 选择、环境准备、通用开发工具与 Studio | 工具元信息和源码包 |
-| [mo-models](https://github.com/inhandnet/mo-models) | 模型目录、编译资源、兼容关系与原始基准 | 模型引用、验证证据与托管状态 |
-| [mo-examples](https://github.com/inhandnet/mo-examples) | 完整示例及配套固件、客户端和配置 | 示例源码及适用条件 |
-| **Mo\*** · 各型号仓库 | 各自 BSP、驱动、根文件系统、镜像构建与烧录 | 系统镜像及带校验值的发布元信息 |
+<table width="100%">
+  <thead>
+    <tr>
+      <th width="171" align="left">仓库</th>
+      <th width="398" align="left">人工维护的源内容</th>
+      <th width="379" align="left">交付职责</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left"><strong>developer</strong> · GitLab</td>
+      <td align="left">网站组件、路由、搜索、接入层与内容接口</td>
+      <td align="left">完整网站、发布组成清单与部署</td>
+    </tr>
+    <tr>
+      <td align="left"><a href="https://github.com/inhandnet/mo-docs">mo-docs</a></td>
+      <td align="left">软硬件教程、规格、媒体、设计资料与维护培训</td>
+      <td align="left">版本化内容与参考附件</td>
+    </tr>
+    <tr>
+      <td align="left"><a href="https://github.com/inhandnet/mo-tools">mo-tools</a></td>
+      <td align="left">工具链/SDK 选择、环境准备、通用开发工具与 Studio</td>
+      <td align="left">工具元信息和源码包</td>
+    </tr>
+    <tr>
+      <td align="left"><a href="https://github.com/inhandnet/mo-models">mo-models</a></td>
+      <td align="left">模型目录、编译资源、兼容关系与原始基准</td>
+      <td align="left">模型引用、验证证据与托管状态</td>
+    </tr>
+    <tr>
+      <td align="left"><a href="https://github.com/inhandnet/mo-examples">mo-examples</a></td>
+      <td align="left">完整示例及配套固件、客户端和配置</td>
+      <td align="left">示例源码及适用条件</td>
+    </tr>
+    <tr>
+      <td align="left"><strong>Mo*</strong> · 各型号仓库</td>
+      <td align="left">各自 BSP、驱动、根文件系统、镜像构建与烧录</td>
+      <td align="left">系统镜像及带校验值的发布元信息</td>
+    </tr>
+  </tbody>
+</table>
 
 `Mo*` 表示各型号独立的产品仓库，例如 [Mo62A](https://github.com/inhandnet/Mo62A)、Mo68A、Mo69A、Mo67A、Mo3588、Mo3568，框架不固定数量。mo-hardware 的资料与维护培训迁入 mo-docs；mo-hardware 保留为历史迁移来源，不再单列为目标网站发布组成项。
 
@@ -45,23 +113,81 @@ Mo 系列软硬件文档源仓库，维护教程、规格、媒体、设计资�
 
 ## 仓库权限与保护
 
-| 操作 | Write | Admin |
-|---|---|---|
-| 创建、修改、删除临时分支 | 允许 | 允许 |
-| 向 master 提交 PR | 允许 | 允许 |
-| 合并到 master | 不允许 | 必需 CI 通过后允许 |
-| 合并自己的 PR | 不允许 | 同样通过检查，不强制第二人审批 |
-| 直接推送、强推或删除 master | 不允许 | 由无绕过的 PR/检查规则阻止 |
-| 创建远端 Tag 并启动发布 | 不允许 | 允许；推送后由 Tag CI 校验 |
+<table width="100%">
+  <thead>
+    <tr>
+      <th width="436" align="left">操作</th>
+      <th width="256" align="left">Write</th>
+      <th width="256" align="left">Admin</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left">创建、修改、删除临时分支</td>
+      <td align="left">允许</td>
+      <td align="left">允许</td>
+    </tr>
+    <tr>
+      <td align="left">向 master 提交 PR</td>
+      <td align="left">允许</td>
+      <td align="left">允许</td>
+    </tr>
+    <tr>
+      <td align="left">合并到 master</td>
+      <td align="left">不允许</td>
+      <td align="left">必需 CI 通过后允许</td>
+    </tr>
+    <tr>
+      <td align="left">合并自己的 PR</td>
+      <td align="left">不允许</td>
+      <td align="left">同样通过检查，不强制第二人审批</td>
+    </tr>
+    <tr>
+      <td align="left">直接推送、强推或删除 master</td>
+      <td align="left">不允许</td>
+      <td align="left">由无绕过的 PR/检查规则阻止</td>
+    </tr>
+    <tr>
+      <td align="left">创建远端 Tag 并启动发布</td>
+      <td align="left">不允许</td>
+      <td align="left">允许；推送后由 Tag CI 校验</td>
+    </tr>
+  </tbody>
+</table>
 
 GitHub 保留**两条 master 规则和两条全 Tag 规则**。权限与合并检查分开，是因为 bypass 会作用于整条 ruleset。
 
-| Ruleset | 范围 | 规则与 bypass |
-|---|---|---|
-| `admin-only-master-updates` | `refs/heads/master` | 限制创建、更新、删除和强推，仅 Admin 可 bypass |
-| `master-pr-and-required-checks` | `refs/heads/master` | 必须 PR、与主线同步的必需检查、禁止删除与强推；**无 bypass**；审批数为 0 |
-| `admin-only-tags` | 所有 Tag | 限制创建、更新、删除和强推，仅 Admin 可 bypass |
-| `tags-immutable` | 所有 Tag | 禁止更新、删除和强推；**无 bypass** |
+<table width="100%">
+  <thead>
+    <tr>
+      <th width="246" align="left">Ruleset</th>
+      <th width="351" align="left">范围</th>
+      <th width="351" align="left">规则与 bypass</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left"><code>admin-only-master-updates</code></td>
+      <td align="left"><code>refs/heads/master</code></td>
+      <td align="left">限制创建、更新、删除和强推，仅 Admin 可 bypass</td>
+    </tr>
+    <tr>
+      <td align="left"><code>master-pr-and-required-checks</code></td>
+      <td align="left"><code>refs/heads/master</code></td>
+      <td align="left">必须 PR、与主线同步的必需检查、禁止删除与强推；<strong>无 bypass</strong>；审批数为 0</td>
+    </tr>
+    <tr>
+      <td align="left"><code>admin-only-tags</code></td>
+      <td align="left">所有 Tag</td>
+      <td align="left">限制创建、更新、删除和强推，仅 Admin 可 bypass</td>
+    </tr>
+    <tr>
+      <td align="left"><code>tags-immutable</code></td>
+      <td align="left">所有 Tag</td>
+      <td align="left">禁止更新、删除和强推；<strong>无 bypass</strong></td>
+    </tr>
+  </tbody>
+</table>
 
 必需检查为 `commit-message`、`validate-content`。临时分支没有额外 ruleset 限制。PR 合并后自动删除符合条件的源分支。保留 merge、squash 和 rebase；选择 squash 时使用已校验的 PR 标题及合规的可选正文，并为 GitHub 自动追加的 PR 编号留出标题长度。
 
@@ -81,10 +207,27 @@ fix(download): keep the image and checksum on the same release
 
 ### 翻译 API（占位）
 
-| 平台 | 翻译服务器 | 状态 |
-|---|---|---|
-| GitLab | - | 后续接入 |
-| GitHub | - | 后续接入 |
+<table width="100%">
+  <thead>
+    <tr>
+      <th width="246" align="left">平台</th>
+      <th width="351" align="left">翻译服务器</th>
+      <th width="351" align="left">状态</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left">GitLab</td>
+      <td align="left">-</td>
+      <td align="left">后续接入</td>
+    </tr>
+    <tr>
+      <td align="left">GitHub</td>
+      <td align="left">-</td>
+      <td align="left">后续接入</td>
+    </tr>
+  </tbody>
+</table>
 
 此表保留未来翻译变更条目的入口。当前生成器不调用翻译 API，也不需要翻译凭据。
 
