@@ -1,97 +1,78 @@
 #!/usr/bin/env node
-// Builds src/data/generated/releases.json from GitHub so the Software page and
-// release notes never need hand edits.
-//
-// Source order per board:
-//   1. GitHub Releases API (preferred: version, date, notes, assets incl. SHA256SUMS)
-//   2. ChangeLog.md in the repo (fallback while the repo has no Releases)
-// If the network is unavailable the previous JSON is kept, so local builds still work.
-
+// Explicit refresh of the reviewed release snapshot; builds never use the
+// network. A failed refresh leaves the previous file intact and exits nonzero.
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import {fileURLToPath} from 'node:url';
+import {fileURLToPath, pathToFileURL} from 'node:url';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const outFile = path.join(root, 'src/data/generated/releases.json');
-
+const defaultFile = path.join(root, 'src/data/generated/releases.json');
 const BOARDS = [
-  {id: 'mo-62a', repo: 'inhandnet/Mo62A', changelog: 'ChangeLog.md'},
-  {id: 'mo-68a', repo: null, changelog: null}, // GitHub repo not published yet
+  {id: 'mo-62a', repo: 'inhandnet/Mo62A'},
+  {id: 'mo-68a', repo: null},
 ];
 
-const headers = {'User-Agent': 'inhand-developer-site'};
-if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
-
-async function getJson(url) {
-  const res = await fetch(url, {headers});
-  if (!res.ok) throw new Error(`${res.status} ${url}`);
-  return res.json();
-}
-
-async function getText(url) {
-  const res = await fetch(url, {headers});
-  if (!res.ok) throw new Error(`${res.status} ${url}`);
-  return res.text();
-}
-
-async function fromReleases(repo) {
-  const releases = await getJson(`https://api.github.com/repos/${repo}/releases?per_page=20`);
-  return releases
-    .filter((r) => !r.draft)
-    .map((r) => ({
-      version: r.tag_name.replace(/^v/, ''),
-      date: r.published_at.slice(0, 10),
-      prerelease: r.prerelease,
-      url: r.html_url,
-      notes: r.body ?? '',
-      assets: r.assets.map((a) => ({name: a.name, size: a.size, url: a.browser_download_url})),
-    }));
-}
-
-// "## v1.1.0 — 2026-08-19" headings split the changelog into versions.
-function parseChangelog(text, repo, file) {
-  const parts = text.split(/^## /m).slice(1);
-  return parts.map((part) => {
-    const [heading, ...body] = part.split('\n');
-    const m = heading.match(/v?([\d.]+)\s*[—-]\s*(\d{4}-\d{2}-\d{2})/);
-    return {
-      version: m ? m[1] : heading.trim(),
-      date: m ? m[2] : null,
-      prerelease: false,
-      url: `https://github.com/${repo}/blob/HEAD/${file}`,
-      notes: body.join('\n').trim(),
-      assets: [],
-    };
-  });
-}
-
-async function fetchBoard(board) {
-  if (!board.repo) return {source: 'none', releases: []};
-  const releases = await fromReleases(board.repo);
-  if (releases.length) return {source: 'github-releases', releases};
-  const text = await getText(`https://raw.githubusercontent.com/${board.repo}/HEAD/${board.changelog}`);
-  return {source: 'changelog', releases: parseChangelog(text, board.repo, board.changelog)};
-}
-
-async function main() {
-  const data = {generatedAt: new Date().toISOString(), boards: {}};
-  try {
-    for (const board of BOARDS) {
-      const result = await fetchBoard(board);
-      data.boards[board.id] = {repo: board.repo, ...result};
-      console.log(`[fetch-releases] ${board.id}: ${result.releases.length} releases (${result.source})`);
+export async function fetchBoard(board, {fetchImpl = fetch, token = process.env.GITHUB_TOKEN,
+  timeout = Number(process.env.FETCH_TIMEOUT_MS ?? 15000)} = {}) {
+  if (!board.repo) return {repo: null, source: 'none', releases: []};
+  const headers = {'User-Agent': 'inhand-developer-site', Accept: 'application/vnd.github+json'};
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const releases = [];
+  for (let page = 1; ; page++) {
+    if (page > 100) throw new Error('Release history exceeds the supported page limit.');
+    const response = await fetchImpl(`https://api.github.com/repos/${board.repo}/releases?per_page=100&page=${page}`, {
+      headers, signal: AbortSignal.timeout(timeout),
+    });
+    if (!response.ok) throw new Error(`GitHub release request failed (HTTP ${response.status}).`);
+    const records = await response.json();
+    if (!Array.isArray(records)) throw new Error('GitHub release response must be an array.');
+    for (const r of records) {
+      if (r.draft || !r.published_at) continue;
+      if (typeof r.tag_name !== 'string' || typeof r.prerelease !== 'boolean' ||
+          typeof r.published_at !== 'string' || !Number.isFinite(Date.parse(r.published_at)) ||
+          typeof r.html_url !== 'string' || !Array.isArray(r.assets)) {
+        throw new Error('Invalid GitHub release metadata.');
+      }
+      const assets = r.assets.map(a => {
+        if (typeof a.name !== 'string' || typeof a.size !== 'number' || typeof a.browser_download_url !== 'string') {
+          throw new Error('Invalid GitHub release asset.');
+        }
+        return {name: a.name, size: a.size, url: a.browser_download_url};
+      }).sort((a, b) => a.name.localeCompare(b.name, 'en'));
+      releases.push({version: r.tag_name, date: r.published_at.slice(0, 10),
+        prerelease: r.prerelease, url: r.html_url, notes: r.body ?? '', assets});
     }
-  } catch (err) {
-    try {
-      await fs.access(outFile);
-      console.warn(`[fetch-releases] ${err.message}; keeping existing ${path.relative(root, outFile)}`);
-      return;
-    } catch {
-      console.warn(`[fetch-releases] ${err.message}; writing empty data`);
-    }
+    if (records.length < 100) break;
   }
-  await fs.mkdir(path.dirname(outFile), {recursive: true});
-  await fs.writeFile(outFile, JSON.stringify(data, null, 2) + '\n');
+  // Stable serialization, independent of GitHub's response order. Consumers
+  // choose the latest stable image by version, keeping candidates in history.
+  releases.sort((a, b) => b.date.localeCompare(a.date) || b.version.localeCompare(a.version, 'en', {numeric: true}));
+  return {repo: board.repo, source: 'github-releases', releases};
 }
 
-main();
+export async function refreshReleases({outFile = defaultFile, boards = BOARDS, now = () => new Date(), ...options} = {}) {
+  const results = {};
+  for (const board of boards) results[board.id] = await fetchBoard(board, options);
+  let previous;
+  try { previous = JSON.parse(await fs.readFile(outFile, 'utf8')); }
+  catch (error) { if (error.code !== 'ENOENT') throw error; }
+  if (JSON.stringify(previous?.boards) === JSON.stringify(results)) return {changed: false};
+  const data = {generatedAt: now().toISOString(), boards: results};
+  await fs.mkdir(path.dirname(outFile), {recursive: true});
+  const temporary = `${outFile}.${process.pid}.tmp`;
+  try {
+    await fs.writeFile(temporary, JSON.stringify(data, null, 2) + '\n', {flag: 'wx'});
+    await fs.rename(temporary, outFile);
+  } finally { await fs.rm(temporary, {force: true}); }
+  return {changed: true};
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  try {
+    const {changed} = await refreshReleases();
+    console.log(`[fetch-releases] ${changed ? 'Snapshot updated; review before committing.' : 'No release changes; snapshot unchanged.'}`);
+  } catch (error) {
+    console.error(`[fetch-releases] ${error.message} Snapshot not updated.`);
+    process.exitCode = 1;
+  }
+}

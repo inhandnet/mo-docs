@@ -47,13 +47,13 @@ swapon --show
 
 ## What the first boot changes
 
-On the first boot, before the login screen appears, Mo OS runs `mo-62a-firstboot-install.service` once. It:
+On the first boot, Mo OS runs `mo-62a-firstboot-install.service` once. It:
 
 1. installs the packages bundled with the image that are not part of the base system;
 2. grows the root partition to the end of the card and expands the ext4 file system online, so a 32 GB card gives about 25 GB for `/`;
-3. applies `sysconfig.txt` from the `BOOT` partition and then deletes it, so no password stays readable on the card.
+3. processes `sysconfig.txt` from the `BOOT` partition and then removes the file. Deletion is not secure erasure of flash media; change any temporary or default password after setup.
 
-The logs are `/var/log/mo-62a-firstboot-install.log` and `/var/log/mo-62a-auto-config.log`. The settings themselves are described in [sysconfig.txt reference](./sysconfig-reference.mdx).
+Do not treat the appearance of the login screen as proof that every first-boot step completed. Check the service status, logs and resulting settings. The logs are `/var/log/mo-62a-firstboot-install.log` and `/var/log/mo-62a-auto-config.log`. The settings themselves are described in [sysconfig.txt reference](./sysconfig-reference.mdx).
 
 ## Boot entries
 
@@ -92,12 +92,12 @@ Replace `/dev/sdX` with the card reader's device. A copy of the card boots on an
 
 | Symptom | What to check |
 |---|---|
-| Debug UART silent after power-on | The boot ROM found no bootloader. Re-seat the card until it clicks, check that the `BOOT` partition contains `tiboot3.bin`, `tispl.bin` and `u-boot.img`, and re-flash if in doubt. |
+| Debug UART silent after power-on | First check power, the UART adapter voltage, wiring, serial port and 115200 8N1 settings. Silence alone does not identify a bootloader failure. Re-seat the card until it clicks, check that the `BOOT` partition contains `tiboot3.bin`, `tispl.bin` and `u-boot.img`, and re-flash if in doubt. |
 | U-Boot starts but the kernel does not | Check `extlinux/extlinux.conf`: the `default` label must exist, and `Image` and the device tree files it names must be present in `BOOT`. Restore `extlinux.conf.bak` if a change broke the menu. |
 | A 40-pin peripheral is missing | Run `bootcfg show`; the default entry may not include the overlay you need. See [Device tree overlays](./device-tree-overlays.mdx). |
 | The camera is not detected | The current entry is not `microSD-default`. Switch back with `sudo bootcfg switch microSD-default`. |
-| `/` is smaller than the card | The first-boot expansion did not run. Check `/var/log/mo-62a-firstboot-install.log` and run `sudo /usr/local/sbin/mo-62a-auto-resize.sh`. |
-| The file system is reported read-only | Errors on the card remount `/` read-only (`errors=remount-ro`). Reboot; if it repeats, back up your data and replace the card. |
+| `/` is smaller than the card | Some difference is expected: BOOT and swap use space, and advertised GB differs from GiB. Compare the card and partition layout with `lsblk` and `df -h`. If unused space remains after the root partition, inspect `/var/log/mo-62a-firstboot-install.log` before considering the resize script; back up important data first. |
+| The file system is reported read-only | Inspect `findmnt /` and `sudo journalctl -k -b` for I/O or ext4 errors. Back up readable data before further writes; check power and the card, and repair the file system offline from another system if appropriate. Do not force it writable or assume a reboot repairs corruption. |
 
 
 ## Related pages

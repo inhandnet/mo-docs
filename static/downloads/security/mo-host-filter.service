@@ -1,0 +1,17 @@
+[Unit]
+Description=Mo host input firewall (dedicated nftables table)
+Documentation=https://developer.inhand.com/docs/mo-62a/mo-os/users-and-security/
+Wants=network-pre.target
+Before=network-pre.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStartPre=/usr/sbin/nft -c -f /etc/mo-host-filter.nft
+ExecStart=/usr/sbin/nft -f /etc/mo-host-filter.nft
+ExecReload=/usr/sbin/nft -c -f /etc/mo-host-filter.nft
+ExecReload=/usr/sbin/nft -f /etc/mo-host-filter.nft
+ExecStop=/usr/sbin/nft delete table inet mo_host_filter
+
+[Install]
+WantedBy=multi-user.target

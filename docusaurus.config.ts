@@ -5,15 +5,15 @@ import hardwareRoutes from './src/data/hardware-routes.json';
 
 const baseUrl = process.env.DOCS_BASE_URL ?? '/';
 if (!/^\/(?:[a-zA-Z0-9_-]+\/)*$/.test(baseUrl)) throw new Error('DOCS_BASE_URL must start and end with /');
-const portal = (process.env.DEVELOPER_PORTAL_URL ?? 'https://www.inhand.com/developer').replace(/\/$/, '');
+const portal = (process.env.DEVELOPER_PORTAL_URL ?? 'https://developer.inhand.com').replace(/\/$/, '');
 const preview = process.env.DOCS_PREVIEW === '1';
-const hardwareUrl = (process.env.HARDWARE_URL ?? 'https://developer.inhand.online/hardware-docs').replace(/\/$/, '');
+const hardwareUrl = (process.env.HARDWARE_URL ?? 'https://developer.inhand.com/hardware-docs').replace(/\/$/, '');
 if (!/^https?:\/\//.test(hardwareUrl)) throw new Error('HARDWARE_URL must be an absolute HTTP(S) URL');
 const config: Config = {
   title: 'InHand Developer Documentation',
   tagline: 'Build with InHand. Documentation for Mo single-board computers.',
   favicon: 'img/favicon.png',
-  url: process.env.DOCS_SITE_URL ?? 'https://www.inhand.com',
+  url: process.env.DOCS_SITE_URL ?? 'https://developer.inhand.com',
   baseUrl,
   customFields: {developerPortalUrl: portal, hardwareUrl, documentationPreview: preview},
   trailingSlash: true,
@@ -23,7 +23,7 @@ const config: Config = {
   markdown: {hooks: {onBrokenMarkdownLinks: 'throw', onBrokenMarkdownImages: 'throw'}},
   i18n: {defaultLocale: 'en', locales: ['en']},
   headTags: preview ? [{tagName: 'meta', attributes: {name: 'robots', content: 'noindex, nofollow'}}] : [],
-  plugins: ['./plugins/build-cache.mjs', './plugins/search.mjs', './plugins/font-license.mjs'],
+  plugins: ['./plugins/source-files.mjs', './plugins/build-cache.mjs', './plugins/search.mjs', './plugins/font-license.mjs'],
   presets: [['classic', {
     docs: {path: 'docs', routeBasePath: '/', sidebarPath: './sidebars.ts', editUrl: 'https://github.com/inhandnet/mo-docs/edit/master/', showLastUpdateTime: false, showLastUpdateAuthor: false, breadcrumbs: true,
       async sidebarItemsGenerator(args) {

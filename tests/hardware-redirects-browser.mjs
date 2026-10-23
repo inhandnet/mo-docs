@@ -5,7 +5,7 @@ import http from 'node:http';
 import {chromium} from 'playwright';
 
 const base = process.env.DOCS_BASE_URL ?? '/';
-const hardware = (process.env.HARDWARE_URL ?? 'https://developer.inhand.online/hardware-docs').replace(/\/$/,'');
+const hardware = (process.env.HARDWARE_URL ?? 'https://developer.inhand.com/hardware-docs').replace(/\/$/,'');
 const routes = JSON.parse(fs.readFileSync('src/data/hardware-routes.json','utf8'));
 const root = path.resolve('build');
 const types = {'.html':'text/html','.js':'application/javascript','.css':'text/css','.svg':'image/svg+xml','.json':'application/json'};

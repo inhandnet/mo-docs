@@ -14,3 +14,5 @@ export type BoardReleases = {repo: string | null; source: string; releases: Rele
 
 export const generatedAt: string = raw.generatedAt;
 export const boards = raw.boards as unknown as Record<'mo-62a' | 'mo-68a', BoardReleases | undefined>;
+
+export {latestStable as latestStableRelease} from './release-selection.mjs';

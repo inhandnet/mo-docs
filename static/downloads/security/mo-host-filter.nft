@@ -1,0 +1,18 @@
+#!/usr/sbin/nft -f
+# Replace only this table in one transaction; preserve Docker and other tables.
+add table inet mo_host_filter
+delete table inet mo_host_filter
+table inet mo_host_filter {
+  chain input {
+    type filter hook input priority 0; policy drop;
+    ct state established,related accept
+    iifname "lo" accept
+    ct state invalid drop
+    ip protocol icmp accept
+    meta l4proto ipv6-icmp accept
+    udp sport 67 udp dport 68 accept
+    udp sport 547 udp dport 546 accept
+    tcp dport 22 accept
+    udp dport 5353 accept
+  }
+}

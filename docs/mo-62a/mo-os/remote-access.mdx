@@ -43,7 +43,7 @@ ssh alice@BOARD_HOSTNAME.local
 
 If the `.local` name does not resolve, use the board's IP address instead, for example `ssh alice@192.0.2.10`.
 
-On the first connection, SSH shows the board's host key fingerprint and asks whether to continue. Type `yes` to save the key; later connections are checked against it. Then enter your password. Nothing is displayed while you type it.
+On the first connection, SSH shows the board's host key fingerprint and asks whether to continue. Before accepting it, compare the fingerprint with `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` run on the board's local or serial console (or inspect the matching host-key type). Type `yes` only when the fingerprints agree; later connections are checked against the saved key. Then enter your password. Nothing is displayed while you type it.
 
 The recording below shows a first login and two checks on the board. The board prints a short `Debian GNU/Linux 13` banner before the password prompt. The board's network address has been replaced with a documentation example.
 
@@ -68,9 +68,9 @@ Do this only when you know the board was reinstalled. An unexpected change can m
 
 ## Use SSH keys
 
-Key login is more secure than a password and lets scripts connect without prompting. Run these commands on your computer, not on the board.
+Key login avoids sending the account password. A protected private key may still require its passphrase unless an SSH agent has already unlocked it. Run these commands on your computer, not on the board.
 
-**1. Create a key pair.** Accept the default file location. A passphrase protects the private key if your computer is lost; an SSH agent can remember it for the session.
+**1. Create or reuse a key pair.** Check for an existing `~/.ssh/id_ed25519.pub` first. Reuse a suitable key, or choose a different filename; do not overwrite an existing private key. A passphrase protects the private key if your computer is lost; an SSH agent can remember it for the session.
 
 ```bash
 ssh-keygen -t ed25519 -C "alice@workstation"
@@ -96,7 +96,7 @@ Host mo62a
     User alice
 ```
 
-Now `ssh mo62a` logs in without a password. The same name works with `scp`, `sftp`, `rsync` and the tunnel commands below.
+Now `ssh mo62a` can log in without the board account password. A private-key passphrase prompt is separate and can be handled by your SSH agent. If you chose a different key filename, pass its public key with `ssh-copy-id -i PATH.pub` and add `IdentityFile PATH` to this SSH configuration. The same name works with `scp`, `sftp`, `rsync` and the tunnel commands below.
 
 The recording below creates a key without a passphrase for brevity, installs it, and logs in by key and by the short name. Local paths are shown as `/home/you`.
 

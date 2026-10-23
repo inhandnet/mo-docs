@@ -1,20 +1,22 @@
 ---
 title: "Works with Mo"
-description: "Software and platforms that run on Mo."
+description: "Tested software paths and integration candidates for Mo development."
 sidebar_position: 0
 ---
 
-Mo runs standard Debian, so most Linux software works as-is. These guides cover tools that need board-specific setup or have official Mo support.
+Mo OS uses Debian on Arm64. Software availability, kernel features and accelerator support still need to be checked for the board and image in use. These entries distinguish documented tests from possible future integrations; inclusion does not imply partner certification or official support by another project.
 
-| Project | Status | Guide | What it gives you |
-|---|---|---|---|
-| Armbian | Planned | Other systems | Community-maintained Debian / Ubuntu builds |
-| Ultralytics YOLO | Planned | Partner SDKs | Train and export YOLO models for Mo |
-| Frigate | Planned | Partner applications | NVR with object detection on the NPU |
-| Torizon | Planned | Other systems | Container-based industrial Linux and OTA |
-| Zephyr | Planned | Real-time cores (R5F) | RTOS on the R5F real-time core |
-| ROS 2 / micro-ROS | Planned | Partner SDKs | Robotics |
-| Node-RED | Tested on Mo62A | Partner applications | Flow-based automation and dashboards |
-| Edge Impulse, Viam, Mender | Planned | Partner SDKs / applications | ML pipelines, robotics, OTA |
+## Documented Mo62A paths
 
-Want to add your project? [Contact us](/contact).
+| Software | What was checked | Guide |
+|---|---|---|
+| Docker / Compose | The commands and kernel-dependent limits described in the guide | [Containers](../mo-62a/application-deployment/containers.mdx) |
+| Node-RED | Installation and a local flow on the documented image | [Partner applications](../mo-62a/application-deployment/partner-applications.mdx) |
+| TI TIDL / ONNX Runtime | Selected model compilation and Python/C++ inference paths; compatibility is model-specific | [AI development](../mo-62a/application-development/ai/index.mdx) |
+| TI MCU+ SDK / FreeRTOS | MCU R5F echo and console examples with documented reload limits | [Real-time cores](../mo-62a/real-time-cores/index.mdx) |
+
+## Integration candidates
+
+Armbian images, Ultralytics model workflows, Frigate, Torizon, Zephyr, ROS 2 / micro-ROS, Edge Impulse, Viam and Mender are candidates for separate evaluation. These guides do not establish their board support, NPU integration, real-time behavior or production readiness. In particular, a container starting successfully does not prove that its detector uses TIDL.
+
+For a concrete integration request, [contact InHand](/contact) with the board, image, upstream version and required behavior.

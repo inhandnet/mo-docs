@@ -2,37 +2,32 @@ import Link from '@site/src/components/DocumentationLink';
 
 ## Which AI frameworks and model formats are supported?
 
-Models run through TI's TIDL runtime, which accepts **ONNX** (`.onnx`) and **TFLite** (`.tflite`) models via ONNX Runtime and the TFLite delegate. Pre- and post-processing typically use OpenCV and GStreamer in Python or C/C++. See <Link to={`/docs/${props.board}/application-development/ai`}>AI development</Link>.
+TI TIDL provides ONNX Runtime and TFLite integration, but model operators, compiled artifacts and the target runtime must match. A supported format alone does not establish that a model runs correctly. Use the board-specific <Link to={`/docs/${props.board}/application-development/ai`}>AI development</Link> guide and its tested compatibility baseline.
 
-## What is 2 TOPS enough for?
+## How should I choose a model or board?
 
-Mo 62A suits classification, lightweight detection (for example YOLOX-nano), OCR, presence sensing, and pose or gesture recognition. For multiple streams or higher resolution at higher frame rates, use the Mo 68A (8 TOPS).
+Choose from measured workloads with the required input resolution, accuracy, latency and number of streams. TOPS is a hardware rating, not an application frame-rate guarantee. The Mo62A guides include selected classification, detection and segmentation paths; they do not establish OCR support or validate the same workload on Mo68A.
 
 ## Do 40-pin HATs and standard cases fit?
 
-Mechanically yes: the board is 85 × 56 mm with a 40-pin header in the standard position. Electrically the header is **3.3 V logic** — check the HAT's requirements first. Pins 27 / 28 are used by the camera bus on Mo 62A.
+A similar footprint and header do not guarantee mechanical or electrical compatibility. Check connector placement, mounting holes, clearance, signal voltage, pin mapping, power and drivers against the <Link to={`/docs/${props.board}/accessories/hat-compatibility`}>hardware compatibility guide</Link>. On Mo62A, pins 27 and 28 share the camera control bus.
 
 ## Does Mo run InHand DeviceLive or IEOS?
 
-No. Mo is a developer board managed with standard Debian tools and SSH.
+The documented Mo OS workflow uses Debian tools and SSH. DeviceLive or IEOS integration is not established by these guides.
 
 ## The screen stays blank after boot
 
-Screen blanking is disabled in the image. Press a key or move the mouse. On the first boot the board reboots once after expanding the file system — wait 2–3 minutes.
+Check display power, cable and input selection, then try a key or mouse movement. The inspected Mo62A desktop has DPMS enabled with 600-second timers; screen settings can change between installations. Follow the board-specific <Link to={`/docs/${props.board}/getting-started/first-boot`}>first boot</Link> guide and use the serial console if boot progress is unclear. Do not assume a fixed first-boot duration or an automatic reboot.
 
 ## The camera is not detected
 
-```bash
-v4l2-ctl --list-devices
-media-ctl -d /dev/media0 --print-topology
-```
-
-Power off, re-seat the ribbon cable with the latch locked, and for CSI cameras run `sudo init-imx219` before the demo.
+Follow the board-specific <Link to={`/docs/${props.board}/application-development/camera-and-video`}>camera guide</Link> to check the boot entry, sensor, media graph and device nodes. Power off before re-seating a ribbon cable. Mo62A's tested IMX219 setup does not validate a different sensor or a Mo68A configuration.
 
 ## The board does not boot from the SD card
 
-Make sure the card clicks into place, try a different card (16 GB+, Class 10 / UHS-I), and re-flash. Use the serial console to see where the boot stops.
+Check the card and image against <Link to={`/docs/${props.board}/getting-started/preparation`}>Preparation</Link> and <Link to={`/docs/${props.board}/getting-started/install-os`}>Install the OS</Link>. Use the serial console to identify where boot stops; verify power and UART wiring before interpreting a silent console.
 
-## Wi-Fi range is very short (Mo 62A)
+## Wi-Fi range is very short (Mo62A)
 
-Attach an antenna to the U.FL connector.
+Check that the external antenna is attached and that the network and band match the <Link to="/docs/mo-62a/mo-os/network">tested network setup</Link>.

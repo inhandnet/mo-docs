@@ -1,57 +1,57 @@
-# Contributing to Mo documentation
+# Contributing
 
-English | [简体中文](CONTRIBUTING.zh-CN.md)
+[简体中文](CONTRIBUTING.zh-CN.md)
 
-Contributions should help readers use and develop with Mo series single-board computers. See [README.md](README.md#contributing) for browser-based editing, local preview, checks, and commit message requirements. Submit changes through a pull request to `master`.
+Use a topic branch and open a PR to `master`. Write contributors can create, update and delete topic branches. An Admin merges after all three required checks pass; an Admin's own PR needs no additional approval. Eligible source branches are deleted automatically after merge. See the [README](README.md) for the exact GitHub rules and release ownership.
 
-## Document structure
+## Set up and validate
 
-Edit the Markdown or MDX files under `docs/`. Product guides live in `docs/<board>/<section>/`; shared topics have their own directories.
-
-Each page should have a clear title, a short description, and a sidebar position:
-
-```yaml
----
-title: First boot
-description: Boot and sign in to your Mo board.
-sidebar_position: 3
----
+```bash
+nvm use
+npm ci
+npm test
+npm run typecheck
+npm run build
+npx playwright install chromium
+npm run test:browser
 ```
 
-The sidebar is generated from the directory tree. Use `_category_.json` to set category labels and ordering. Category landing pages use `index.mdx` and Docusaurus `DocCardList`.
+Use an unused port for interactive previews. Browser checks allocate their own ports and must run with the same origin/base/portal/hardware variables used for the build. To validate a release destination, use `node scripts/build-site.mjs test --verify` or `node scripts/build-site.mjs production --verify`.
 
-State the applicable board, hardware revision, and software version. Describe prerequisites, expected results, and any risk of data loss before the relevant steps. Do not claim that instructions, downloads, or specifications have been verified unless they have.
+## Write evidence-based guides
 
-## Shared and incomplete content
+- Put new software guides in the relevant board section. Reuse a partial only when its statements apply to every consuming board, or explicitly scope the differences.
+- Record the board, image/build, relevant tool and runtime versions, command, observed result and limits. Distinguish an inspected development installation from a clean image. Do not infer inference correctness from installed packages, operator support or TOPS.
+- Test commands in an appropriate environment. Prefer read-only checks and isolated fixtures for account, network, firewall and deployment behavior. Describe recovery and validation boundaries for commands that can interrupt access or reload firmware.
+- Keep screenshots factual, use readable terminal text and alt text, and remove credentials or private network details before publication. Mark old evidence as historical when instructions change; do not present an old screenshot as proof of a new command.
+- Link maintained model/tool/example sources in their owning repositories. Preserve published downloads and redirects unless a separate migration is agreed. Hardware facts and design files belong in mo-hardware.
+- Include third-party licenses, source URLs and hashes beside downloadable artifacts. Verify the extracted payload as well as the archive checksum where a package is published.
 
-Shared MDX components live in `docs/_partials/`. For example:
+Use normal Markdown tables; the shared table component handles layout. Use documentation links for software pages and the hardware mapping for migrated routes. Check mobile and desktop layouts after changing media, tables or navigation. README paragraphs and list items stay on a single source line; the 72-character commit-message rule does not apply to README source wrapping.
 
-```mdx
-import FlashOsImage from '@site/docs/_partials/getting-started/flash-os-image.mdx';
+## Messages and PRs
 
-<FlashOsImage board="mo-62a" />
+```text
+docs(mo62a): clarify the measured runtime compatibility
+
+Explain the evidence or user impact when a title is insufficient.
 ```
 
-Use `Only` for board-specific passages inside shared content. Check all affected board pages after changing a shared component.
+A short English Conventional Commit is sufficient. Use the types and limits in [repository-policy.json](config/repository-policy.json); no bilingual Message block is required. Do not add Co-Authored-By, CI-skip directives or private infrastructure details. `npm ci` installs local hooks; CI checks the PR title and every new non-merge commit. `git commit --amend` or interactive rebase can fix unpublished topic history. Never rewrite published Tags.
 
-Use `<ComingSoon />` for content that is not yet available. Keep planning priorities and task identifiers out of published pages. Do not create empty downloads or invent missing instructions. Use `draft: true` in front matter for pages that should not be published; static builds exclude these pages, while the development server can display them.
+The PR body should explain the concrete change, validation and unresolved limits. GitHub merge commits are excluded from Changelog entries. With squash, keep the validated title and a conforming optional body, and allow for GitHub's PR-number suffix within the final 72-character title limit. With rebase, the checked topic commits remain the release-note source.
 
-## Links, assets, and data
+## Release snapshots and diagrams
 
-- Prefer relative file links between documentation pages.
-- Use `@site/src/components/DocumentationLink` for JSX links. It resolves documentation paths against the deployment base path and routes other portal sections through `DEVELOPER_PORTAL_URL`.
-- Put images in `static/img/`. Link to the actual release or resource location for large images, SDKs, and downloadable documents.
-- Documentation illustrations, screenshots, and animated GIFs fill the available body width, matching full-width note boxes rather than using a fixed pixel width. Height follows the original aspect ratio; do not stretch or crop content to force matching heights. Use the global `--mo-doc-media-width` style rather than per-page display sizes. For screenshots inside numbered steps, use a `mo-tool-screenshot` wrapper directly inside the list item to align the image with the body, while keeping the step text indented. Keep source assets at their original resolution. Check still images and animations together in full-screen, split-screen, and mobile previews.
-- Keep product facts in `src/data/products.ts`. Check the source and applicable version before changing specifications.
-- Release notes use the committed snapshot in `src/data/generated/releases.json`. Run `npm run fetch-data` to refresh it, inspect the result, and commit it explicitly. Builds do not refresh the data automatically. Check repository mappings before fetching; a failed fetch can retain the previous snapshot.
-- When adding a board, update its documentation tree, product data, board-selection table, and affected tests.
+`npm run fetch-data` explicitly refreshes `src/data/generated/releases.json`. Review the complete diff, especially repository identity, stable/candidate selection and dates. A failed fetch retains the old bytes and exits nonzero; an unchanged response does not update the timestamp. Do not edit the snapshot to invent a missing release or assume a ChangeLog path.
 
-## Style and review
+Edit `scripts/render-architecture.mjs` and run it to update the bilingual SVG diagrams in `architecture/`. Review both languages at desktop and mobile widths. Do not use raster screenshots as the editable source for architecture diagrams.
 
-Write clear, task-oriented English. Keep translations of repository guides in sync. Use the existing styles and bundled fonts, and preserve their license notices.
+## Release procedure (Admin)
 
-Before submitting, run the checks described in the README or review the results from GitHub Actions. Check navigation, shared content, download links, search, and narrow-screen layouts. For product instructions, describe what you tested and identify anything that still needs verification.
+1. Confirm the selected master commit has passed the required checks and the intended changes are reviewed. Verify that deployment configuration exists for every destination the Tag will trigger.
+2. Check the remote Tag namespace with `git ls-remote --tags origin`, then create and push an annotated `VX.Y.Z-rcN` or `VX.Y.Z` Tag. Tag CI validates after push; there is no local Tag-creation gate.
+3. Inspect validation, package, publication and deployment jobs. Download and check `SHA256SUMS` and `release.json`, then confirm the live `deployment.json` matches the Tag's commit.
+4. If publication or deployment fails, inspect the actual Release/server state. Do not rewrite an existing Tag or published asset; issue the next RC/version for a content correction.
 
-Do not include private infrastructure details, credentials, or confidential material. Follow [SECURITY.md](SECURITY.md) for security-related concerns. Only contribute material you have the right to share under the applicable license.
-
-For site components and deployment settings, see [ARCHITECTURE.md](ARCHITECTURE.md).
+Manual workflow dispatch validates and packages without publication or deployment. Chinese-heading Changelogs retain English entries and need no translation service. Production readiness requires actual configured infrastructure, not just a successful production build.

@@ -18,6 +18,8 @@ The complete deployment must use one tested compatibility baseline: x86 TIDL too
 The read-only audit on 2026-10-21 inspected the current V1.1.0 development installation. It did not reflash the board, install packages, run TI's target updater or restart a remote processor. This board has development changes, including the video-decoder fixes described in [the first NPU demo](../getting-started/first-npu-demo.mdx#run-the-sample-video-no-camera-required). This inventory is not a pristine V1.1.0 release-image manifest or a compatibility guarantee for every later image.
 :::
 
+A read-only recheck on 2026-10-23 confirmed the same image build field, kernel, Python module versions/providers and selected C7x firmware hash. It did not rerun model inference or replace the earlier six-file archive comparison.
+
 ## Measured target versions
 
 | Component | Current board observation | Evidence and limits |
