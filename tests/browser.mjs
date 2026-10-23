@@ -107,7 +107,7 @@ try {
   assert.deepEqual(await table.locator('thead th').allTextContents(), ['', 'Mo62A', 'Mo68A']);
   const acceleratorLabel = table.getByRole('cell', {name: 'AI accelerator', exact: true});
   for (const board of ['mo-62a', 'mo-68a']) assert.equal(await table.locator('a[href$="/' + board + '/getting-started/"]').count(), 1);
-  const portal = (process.env.DEVELOPER_PORTAL_URL ?? 'https://www.inhand.com/developer').replace(/\/$/, '');
+  const portal = (process.env.DEVELOPER_PORTAL_URL ?? 'https://developer.inhand.com').replace(/\/$/, '');
   assert.equal(await page.getByRole('link', {name: 'Compare the boards', exact: true}).getAttribute('href'), portal + '/hardware#compare');
   for (const width of [390, 768, 1024, 1280, 1440]) {
     await page.setViewportSize({width, height: 1000});
@@ -589,8 +589,8 @@ try {
         'Troubleshooting',
         'Related pages',
       ]);
-      assert.equal(await securityBody.locator('img').count(), 4);
-      for (const file of ['mo62a-change-password', 'mo62a-add-user', 'mo62a-sshd-hardening', 'mo62a-nftables']) {
+      assert.equal(await securityBody.locator('img').count(), 3);
+      for (const file of ['mo62a-change-password', 'mo62a-add-user', 'mo62a-sshd-hardening']) {
         const screenshot = securityBody.locator(`img[src*="${file}"]`);
         assert.equal(await screenshot.count(), 1);
         await screenshot.evaluate(image => image.decode());
@@ -608,7 +608,7 @@ try {
         'PasswordAuthentication no',
         'sudo sshd -t',
         'udp dport 5353 accept',
-        'sudo systemctl enable --now nftables',
+        'sudo systemctl enable --now mo-host-filter',
       ]) assert.ok(securityText.includes(expected), 'Missing Users & security guidance: ' + expected);
       assert.ok(!securityText.includes('sudo ufw enable'));
       assert.ok(!/10\.5\.\d+\.\d+/.test(securityText));
@@ -852,7 +852,7 @@ try {
         ['sdk-setup', [[1440, 900]], ['11.01.00.16', '4.0.1.LTS', 'sysconfig_1.24.0', 'a636a502bc82ec74a7a8a136440af603d2050e3094743280bbc37a0dd5ecb8e2']],
         ['getting-started', [[1440, 900], [1440, 900]], ['ipc_rpmsg_echo.mcu-r5f0_0.release.strip.out', 'Booting fw image', 'trace0', 'fifth start']],
         ['rpmsg', [[1440, 900]], ['TEST STATUS: PASSED', '1000/1000', 'nanoseconds', '485.6']],
-        ['mcu-console', [[1440, 900], [1920, 1080], [1440, 900]], ['sudo mcu-console', 'b74622b86f0a237ae103791df5d7f20f0d6a45ee2ca46127b83b2aa9f18ea693', '30/30', 'heap_3']],
+        ['mcu-console', [[1440, 900], [1920, 1080], [1440, 900]], ['sudo mcu-console', 'sha256sum -c mo62a-mcu-console.out.sha256', '30/30', 'heap_3']],
         ['examples', [[1440, 900]], ['k3_r5_rproc_stop', 'IpcNotify_syncAll', 'ipc.c75ss0_0', 'Not covered here']],
       ]) {
         await page.goto(url + board + '/real-time-cores/' + slug + '/', {waitUntil: 'networkidle'});

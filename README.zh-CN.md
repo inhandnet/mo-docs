@@ -1,142 +1,134 @@
-# Mo 系列文档
+# Mo 软件文档
 
-[English](README.md) | 简体中文
+[English](README.md)
 
-`mo-docs` 是映翰通（InHand）Mo 系列单板计算机的文档仓库，提供板卡入门、操作系统配置、应用开发及硬件接口使用的指南与参考资料。
+本仓库维护 Mo 系列的软件文档：准备开发板、安装和使用 Mo OS、开发 AI 与外设应用，以及选择相互兼容的工具、模型和示例。网站基于 Docusaurus 3、Node.js 22 独立构建，部署在开发者平台的 `/docs/`。
 
-[阅读文档](https://inhandnet.github.io/mo-docs/) · [反馈文档问题](https://github.com/inhandnet/mo-docs/issues/new/choose) · [许可证：CC BY-SA 4.0](LICENSE)
+| 环境 | 地址 | 更新方式 |
+|---|---|---|
+| 测试平台 | [developer.inhand.online/docs/](https://developer.inhand.online/docs/) | 发布候选版与正式版 |
+| 正式平台目标 | [developer.inhand.com/docs/](https://developer.inhand.com/docs/) | 仅正式版；需要配置部署基础设施与凭据 |
+| GitHub Pages 预览 | [inhandnet.github.io/mo-docs/](https://inhandnet.github.io/mo-docs/) | 集成后的 master；显示预览提示，不参与搜索引擎索引 |
 
-## 如何使用
+## mo-docs 内部架构
 
-访问[文档网站](https://inhandnet.github.io/mo-docs/)，选择你的板卡，从 **Getting started** 开始。其他栏目提供系统配置、硬件参考、开发指南，以及版本发布和资源下载链接。操作前请确认页面说明的适用板卡和软件版本。
+![内容、组件、数据与构建架构](architecture/documentation.zh-CN.svg)
 
-文档网站目前为预览版本。标记为 **Coming soon** 的页面尚未提供完整内容。
+| 层次 | 位置 | 职责 |
+|---|---|---|
+| 使用指南 | `docs/mo-*/`、`docs/security/`、`docs/works-with-mo/` | 各型号操作说明、实测软件边界和参考资料 |
+| 共用内容 | `docs/_partials/` | 复用 MDX；硬件与软件结论仍限定在实际证据范围内 |
+| 导航与渲染 | `sidebars.ts`、`src/components/`、`src/theme/` | 文档链接、表格、镜像下载、硬件跳转与搜索界面 |
+| 发布数据 | `src/data/generated/releases.json` | 经审阅并提交的 GitHub Releases 快照 |
+| 公开附件 | `static/img/`、`static/downloads/` | 截图、图示、授权媒体、示例源码和验证证据 |
+| 网站构建 | `docusaurus.config.ts`、`plugins/`、`scripts/` | 路由、共用样式、Pagefind 索引、环境配置和部署标记 |
+| 验证与交付 | `tests/`、`.github/workflows/` | 内容、脚本、发布、浏览器和布局检查；预览与发布流水线 |
 
-Markdown 和 MDX 源文件位于 [`docs/`](docs/)。本仓库维护文档及其网站源码；系统镜像等下载资源通过相关指南中的链接获取。
+集成有三种实际路径：普通链接指向上游维护的源码和发布物；`npm run fetch-data` 显式刷新本地发布快照，审阅后提交，普通构建不自动更新；Mo62A 镜像下载控件在浏览器查询最新 GitHub Release，仅接受同一正式发布中完整的镜像与校验文件组合，查询失败时提供发布历史入口，不从不同版本拼接附件。
 
-Hardware development、硬件配件和合规资料现由
-[mo-hardware](https://github.com/inhandnet/mo-hardware) 独立维护和构建。
-这里的旧页面仅用于兼容跳转，不再维护第二份正文；软件教程仍留在本仓库。
-旧下载附件暂时保留以兼容已有链接。`HARDWARE_URL` 指定对应环境的硬件站，
-测试平台为 `https://developer.inhand.online/hardware-docs`。
+硬件资料由 **mo-hardware** 维护。33 条旧硬件地址继续提供跳转，保留查询参数、锚点与不依赖 JavaScript 的备用链接；旧公开下载地址继续兼容。硬件跳转页不进入软件文档的搜索索引。
 
-## 参与贡献
+## Mo 系列仓库协同
 
-欢迎修正文档、补充示例或编写新文档。
+![仓库职责与资源集成](architecture/repository-map.zh-CN.svg)
 
-1. Fork 本仓库；如果已有写入权限，也可以直接创建工作分支。请基于最新的 `master` 开始修改。
-2. 编辑或新增 `docs/` 中的相关文件。每次修改保持聚焦，并说明适用的板卡和软件版本。
-3. 检查修改内容。GitHub 会自动检查 PR；也可以使用下方命令在本地预览和测试。
-4. 按照[提交信息规范](#提交信息规范)创建提交。
-5. 向 `master` 发起 Pull Request，说明修改内容和验证方式。
+| 仓库 | 维护内容 | mo-docs 如何使用 |
+|---|---|---|
+| **developer** · GitLab | `/` 下的主站、产品介绍、导航、下载入口、社区与联系页面 | 共用平台导航和入口 |
+| [mo-docs](https://github.com/inhandnet/mo-docs) | `/docs/` 下的软件指南和证据 | 本仓库 |
+| [mo-hardware](https://github.com/inhandnet/mo-hardware) | `/hardware-docs/` 下的接口、原理图、机械、配件与合规资料 | 直接链接与旧地址跳转 |
+| **Mo\*** · 产品仓库 | 每型号独立 BSP、启动组件、内核、根文件系统、镜像集成及构建/烧录工具 | 版本化镜像、SDK 集成和源码引用，例如 [Mo62A](https://github.com/inhandnet/Mo62A) |
+| [mo-models](https://github.com/inhandnet/mo-models) | 模型元数据、`.link` 下载引用、编译、兼容性与基准记录 | 选择模型、追溯来源和匹配产物；模型二进制独立托管 |
+| [mo-tools](https://github.com/inhandnet/mo-tools) | 工具链版本约定、主机环境配置与板测工具 | 可复现的开发和验证环境 |
+| [mo-examples](https://github.com/inhandnet/mo-examples) | 可运行的 AI、相机与应用示例 | 教程源码及应用侧示例 |
 
-如果只是反馈问题，可以[创建文档 Issue](https://github.com/inhandnet/mo-docs/issues/new/choose)，提供页面链接、相关板卡及软件版本，以及问题描述。请勿在公开 Issue 中包含凭据或其他敏感信息；安全相关问题请参阅 [SECURITY.md](SECURITY.md)。
+`Mo*` 表示 Mo 系列每个型号独立的 BSP 与系统镜像仓库，不限定型号仓库数量。三个网站独立构建和部署，各自只更新所属目录。来源仓库发布新版本，不会自动重建网站，也不会自动发布其他仓库。
 
-请仅提交你有权按照相应许可证分享的内容。修改本 README 时，请同步更新[英文版本](README.md)。
+各仓库独立管理版本。文档应记录**经过验证的组合**：镜像、板卡版本、SDK、TIDL 编译器、目标运行库与固件、模型图与编译产物、工具版本和应用配置。不同仓库不要求版本数字相同，数字相同也不能证明兼容。开发板上的观测不能自动代表未经修改的发布镜像；Mo62A 的测试不能推广成其他型号的结论。
 
-文档结构、共享内容和检查要求见 [CONTRIBUTING.zh-CN.md](CONTRIBUTING.zh-CN.md)。
+## 仓库权限与保护
 
-### 直接在 GitHub 编辑和构建
+| 操作 | Write | Admin |
+|---|---|---|
+| 创建、修改、删除临时分支 | 允许 | 允许 |
+| 向 master 提交 PR | 允许 | 允许 |
+| 合并到 master | 不允许 | 必需 CI 通过后允许 |
+| 合并自己的 PR | 不允许 | 同样通过检查，不强制第二人审批 |
+| 直接推送、强推或删除 master | 不允许 | 由无绕过的 PR/检查规则阻止 |
+| 创建远端 Tag 并启动发布 | 不允许 | 允许；推送后由 Tag CI 校验 |
 
-参与贡献不需要将仓库克隆到本地。在 GitHub 上创建工作分支或 Fork 后，打开要修改的文件，点击铅笔按钮进行编辑。对于本 README 这样的 Markdown 文件，可以在提交前点击 **Preview** 查看排版效果。
+GitHub 保留**两条 master 规则和一条全 Tag 规则**。权限与合并检查分开，是因为 bypass 会作用于整条 ruleset。
 
-按照下方规范提交到工作分支，再向 `master` 创建 PR。GitHub Actions 会自动执行检查和文档构建；PR 合并后，自动发布更新后的文档网站。
+| Ruleset | 范围 | 规则与 bypass |
+|---|---|---|
+| `admin-only-master-updates` | `refs/heads/master` | 限制创建、更新、删除和强推，仅 Admin 可 bypass |
+| `master-pr-and-required-checks` | `refs/heads/master` | 必须 PR、与主线同步的必需检查、禁止删除与强推；**无 bypass**；审批数为 0 |
+| `admin-only-tags` | 所有 Tag | 限制创建、更新、删除和强推，仅 Admin 可 bypass |
 
-GitHub 的 Markdown 预览不会渲染完整文档网站及其 MDX 组件。目前 PR 提供构建和浏览器检查，尚不提供独立的在线预览地址。
+必需检查为 `commit-message`、`validate-and-build-public`、`validate-and-build-office-preview`。临时分支没有额外 ruleset 限制。PR 合并后自动删除符合条件的源分支。保留 merge、squash 和 rebase；选择 squash 时使用已校验的 PR 标题及合规的可选正文，并为 GitHub 自动追加的 PR 编号留出标题长度。
 
-### 本地预览（可选）
+本地钩子提供即时反馈，但可以被本地绕过，CI 才是合并门槛。能够更改仓库设置的管理员仍是受信任操作者；Tag 规则中的 Admin bypass 也允许行政修改 Tag。因此，**不改写或删除已发布 Tag 和 Release** 是本流程必须遵守的操作约定，修正使用新 RC 或新版本。不安装本地或服务器 Tag 创建钩子；非法 Tag 可以出现在远端，但 CI 会在发布前失败。
 
-安装 [`.nvmrc`](.nvmrc) 指定的 Node.js 24，然后运行：
+## 英文提交与 Changelog
+
+```text
+fix(download): keep the image and checksum on the same release
+```
+
+一行英文 Conventional Commit 即可，正文按需使用英文。类型为 `feat`、`fix`、`perf`、`docs`、`style`、`refactor`、`test`、`build`、`ci`、`chore`、`revert`、`sync`；小写 scope 可选。标题不超过 72 字符，描述以小写字母开头、不加句号。正文前空一行，普通正文按 72 字符换行，URL 和缩进代码除外。不得包含凭据、内部基础设施信息、`Co-Authored-By` 或跳过 CI 的标记。
+
+`npm ci` 会安装当前克隆的 `commit-msg` 和 `pre-push` 钩子，`git commit`（包括 `git commit -m`）时立即校验。CI 再检查 PR 标题及新增的非 merge 提交，不改写策略边界之前的历史。规则来源为 [repository-policy.json](config/repository-policy.json) 与 [policy.mjs](scripts/lib/policy.mjs)。
+
+两份发布日志的条目都保留英文，只固定翻译标题和分类，例如 Features / 新功能、Fixes / 修复、Documentation / 文档。历史 `Message: en` 与 `Message.en:` 英文摘要继续兼容，新提交不需要双语块。[generate-changelog.mjs](scripts/generate-changelog.mjs) 从上一个**正式版本**计算提交范围，RC 与正式版都包含完整变更，不从上一个 RC 截断。
+
+### 翻译 API（占位）
+
+| 平台 | 翻译服务器 | 状态 |
+|---|---|---|
+| GitLab | - | 后续接入 |
+| GitHub | - | 后续接入 |
+
+此表保留未来翻译变更条目的入口。当前生成器不调用翻译 API，也不需要翻译凭据。
+
+## 从修改到发布
+
+![PR 检查、预览、发布与环境部署](architecture/release-flow.zh-CN.svg)
+
+1. 在临时分支修改并提交 PR。CI 校验提交、测试、TypeScript，以及 `/docs/` 公开构建和根路径预览构建；两种构建都运行浏览器检查并提供可下载的审阅产物。
+2. Admin 在必需检查通过后合并，GitHub Pages 从 master 自动更新。PR 提供构建附件，没有各自独立的 Pages 站点。合并不会部署产品测试站或正式站。
+3. Admin 在已审阅的 master 提交上推送 annotated Tag，格式为 `VX.Y.Z-rcN` 或 `VX.Y.Z`。所有推送的 Tag 都进入发布工作流，检查准确格式、注释 Tag、主线祖先关系和提交规范。
+4. CI 分别构建、验证测试和正式目标，归档内写入部署标记，生成 Changelog，通过 draft 发布完整的 GitHub Release。
+5. 测试部署等待 Release 发布成功；正式版再等待测试部署成功后部署正式站。每次检查归档校验值并回读在线 `deployment.json`，缺配置或版本不符会使对应任务失败。
+
+| Tag | GitHub Release | 测试站 | 正式站 |
+|---|---|---|---|
+| `V1.2.3-rc1` | Prerelease | 自动部署 | 不部署 |
+| `V1.2.3` | 正式发布 | 自动部署 | 测试部署成功后自动部署 |
+
+格式必须使用大写 `V`、三个无前导零的数字分量，可选小写 `-rcN`，N 从 1 开始。Tag 决定网站发布版本；`package.json` 与 lockfile 表示构建工程自身版本，二者必须一致。手动 `workflow_dispatch` 仅从 master 祖先提交验证和打包候选，不创建 Release，也不部署。
+
+附件包括 `mo-docs-VERSION-test.tar.gz`、`mo-docs-VERSION-production.tar.gz`、`release.json`、`CHANGELOG.en.md`、`CHANGELOG.zh-CN.md`、`release-notes.md` 和 `SHA256SUMS`。环境后缀避免把错误 canonical 地址与跨站导航带到另一环境。既有 Release 文件名和 Tag 不变。
+
+Release 已发布不代表部署成功；宣布上线前应检查部署任务和在线版本。正式环境还需要 `OPS_PROD_*` 凭据与服务器适配器，目前仓库只配置了测试部署凭据。[ARCHITECTURE.md](ARCHITECTURE.md) 说明适配器契约和环境变量。
+
+## 本地开发
 
 ```bash
-git clone https://github.com/inhandnet/mo-docs.git
-cd mo-docs
+nvm use
 npm ci
-npm start
+npm start -- --port 8051
 ```
 
-打开 http://localhost:8041。开发服务器会在源文件发生变化时自动刷新。
+已有预览运行时选择空闲端口。预览构建产物可用 `npx docusaurus serve --host 127.0.0.1 --port 8051 --no-open`。
 
-如需预览包含全文搜索的构建版本，请运行：
+| 命令 | 用途 |
+|---|---|
+| `npm test` | 内容、数据、治理、发布与下载脚本回归 |
+| `npm run typecheck` | TypeScript 检查 |
+| `npm run build` | 使用已提交内容构建 build/，包含 Pagefind 和部署标记 |
+| `npm run build:test` / `npm run build:production` | 使用准确的目标域名和 `/docs/` 构建 |
+| `npm run test:browser` | 在动态分配的本地端口验证当前构建 |
+| `npm run fetch-data` | 显式刷新发布元数据；失败保留原快照并非零退出 |
+| `node scripts/render-architecture.mjs` | 从维护的源码重新生成中英 SVG 架构图 |
 
-```bash
-npm run build
-npm run serve
-```
-
-打开 http://localhost:8040。全文搜索索引在构建时生成，开发服务器不提供全文搜索。
-
-### 运行检查
-
-```bash
-npm run check
-npx playwright install --with-deps chromium
-npm run test:browser
-```
-
-`npm run check` 执行文档测试、TypeScript 检查和静态站点构建。浏览器测试针对构建结果验证导航、搜索和响应式布局。首次运行浏览器测试前，需要执行上述 Playwright 安装命令。
-
-### 提交信息规范
-
-Git commit message 和 Pull Request 标题采用以下格式：
-
-```text
-<type>(<scope>): <subject>
-```
-
-- 允许的 type：`feat`、`fix`、`docs`、`refactor`、`sync`、`ci`、`chore`。
-- scope 可省略；填写时使用小写字母、数字和连字符，多级 scope 使用 `/` 分隔。
-- subject 以小写英文字母开头，不以句号结尾。
-- 完整标题不超过 72 个字符。
-- 如需正文，标题与正文之间空一行；正文每行不超过 72 个字符，URL 和缩进代码除外。
-- 不得包含私有 IP 地址、仅限内部访问的域名或敏感信息。
-- 在末尾添加双语信息块，供版本发布时自动生成准确的中英文变更记录：
-
-  ```text
-  Message:
-    en: Describe the user-visible change in English.
-    zh: 用中文描述用户可见的变更。
-  ```
-
-示例：
-
-```text
-docs: clarify the first-boot instructions
-
-Message:
-  en: Clarify the first-boot instructions.
-  zh: 完善首次启动说明。
-```
-
-[提交信息工作流](.github/workflows/commit-message.yml)通过 [`scripts/check-commit-msg.sh`](scripts/check-commit-msg.sh) 执行检查，同时检查 PR 标题、PR 正文和 PR 中的每个提交。请在 PR 正文末尾保留相同的 `Message` 信息块，使 Squash 合并后的 `master` 提交继续包含双语变更说明。
-
-### GitHub 合并规则
-
-`master` 是默认分支，仅通过 Pull Request 接收修改。合并前，工作分支须与最新的 `master` 保持同步，且以下检查全部通过：
-
-- `commit-message`
-- `validate-and-build-public`
-- `validate-and-build-office-preview`
-
-禁止直接推送、强制推送或删除 `master`。修改合并到 `master` 后，自动触发文档构建和网站发布。
-
-### 版本发布
-
-`master` 的持续部署与版本发布相互独立。Pull Request 合并后仍按现有方式发布当前网站。推送格式严格为 `V<主版本>.<次版本>.<修订号>` 的 annotated tag 时，工作流会执行完整检查、构建公共静态站点，并发布包含站点压缩包、版本信息、根据 Git 双语提交信息自动生成的中英文 changelog，以及 SHA-256 校验和的 GitHub Release。
-
-去掉开头 `V` 后的版本号必须与 `package.json` 和 `package-lock.json` 同时一致。创建发布标签前，应先通过经过审核的 Pull Request 更新这两个文件。标签只能基于已经进入 `master` 的提交创建：
-
-```bash
-git switch master
-git pull --ff-only
-git tag -a V1.0.0 -m "Mo documentation V1.0.0"
-git push origin V1.0.0
-```
-
-请用仓库声明的实际版本替换 `V1.0.0`。轻量标签、小写 `v`、预发布后缀、版本不一致，或标签提交不属于 `master` 时，发布会被拒绝。维护人员也可以手动运行 release 工作流来构建和验证候选版本；手动运行不会发布 GitHub Release。
-
-## 许可证
-
-文档采用 **知识共享署名—相同方式共享 4.0 国际许可协议（CC BY-SA 4.0）**。完整条款见 [LICENSE](LICENSE)。
-
-第三方组件和素材保留各自适用的许可证及声明。仓库附带的 Roboto 字体采用 [SIL Open Font License 1.1](src/css/fonts/OFL.txt)。文档许可证不授予使用映翰通商标或标志的权利。
+浏览器测试先用 `npx playwright install chromium` 安装 Chromium，运行时沿用构建使用的环境变量。内容和验证约定见 [CONTRIBUTING.zh-CN.md](CONTRIBUTING.zh-CN.md)，技术细节见 [ARCHITECTURE.md](ARCHITECTURE.md)，安全报告见 [SECURITY.md](SECURITY.md)。仓库内容采用 CC BY-SA 4.0，第三方素材保留 [static/ASSETS.md](static/ASSETS.md) 及相邻来源文件中的声明。

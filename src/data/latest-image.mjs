@@ -6,7 +6,7 @@ export const latestReleaseApi = `https://api.github.com/repos/${releaseRepositor
 // changing "latest" asset URLs. GitHub's source archives are not OS images.
 export function resolveImageRelease(release) {
   const tag = release?.tag_name;
-  if (release?.draft || release?.prerelease || !/^V\d+\.\d+\.\d+$/.test(tag ?? '') || !release?.published_at) return null;
+  if (release?.draft || release?.prerelease || !/^V(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(tag ?? '') || !release?.published_at) return null;
   const url = `${releaseHistoryUrl}/tag/${tag}`;
   if (release.html_url !== url || !Array.isArray(release.assets)) return null;
   const images = release.assets.filter(asset => asset.name?.endsWith('.img.xz'));

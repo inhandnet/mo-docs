@@ -1,16 +1,11 @@
 ## Summary
 
-- Describe the documentation or maintenance change.
+Describe the problem and the resulting behavior. Use an English Conventional Commit title.
 
 ## Validation
 
-- List the checks you ran.
+List the checks run and any board/image/version evidence. State remaining validation limits.
 
-## Changelog
+## Review notes
 
-Keep this block at the end of the pull request body. The English and Chinese
-text is copied into the versioned release changelogs.
-
-Message:
-  en: Describe the user-visible change in English.
-  zh: 用中文描述用户可见的变更。
+Link relevant pages or screenshots. Remove credentials and private infrastructure details. The release pipeline uses English commit subjects; no bilingual Message block is needed.

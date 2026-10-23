@@ -2,6 +2,8 @@
 # Run the installed EdgeAI applications with a video-file configuration.
 # Keep control in SSH/UART: LightDM is stopped during HDMI inference.
 set -euo pipefail
+
+main() {
 backend=${1:-cpp}
 config=${2:-/tmp/mo-npu-video/video-demo.yaml}
 case "$backend" in python|cpp) ;; *) echo 'Usage: sudo bash run-video-demo.sh [python|cpp] [config.yaml]' >&2; exit 2;; esac
@@ -35,20 +37,7 @@ rproc=/sys/class/remoteproc/remoteproc0/state
 [[ $(cat /sys/class/remoteproc/remoteproc0/name) == 7e000000.dsp ]] || { echo 'Unexpected accelerator device.' >&2; exit 1; }
 restore_desktop=false
 systemctl is-active --quiet lightdm && restore_desktop=true
-reset_c7x() {
-    [[ $(cat "$rproc") != running ]] || { echo stop > "$rproc"; sleep 2; }
-    echo start > "$rproc"
-    sleep 4
-}
-cleanup() {
-    status=$?
-    trap - EXIT INT TERM
-    reset_c7x || true
-    if "$restore_desktop"; then systemctl start lightdm || true; fi
-    echo '[video-demo] Finished; original desktop service state restored.'
-    exit "$status"
-}
-trap cleanup EXIT
+trap 'cleanup $?' EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 systemctl stop lightdm
@@ -62,3 +51,37 @@ else
     cd /opt/edgeai-gst-apps/apps_python
     python3 app_edgeai.py "$config" -n
 fi
+}
+
+reset_c7x() {
+    local state
+    state=$(cat "$rproc") || return 1
+    if [[ $state == running ]]; then
+        echo stop > "$rproc" || return 1
+        sleep 2 || return 1
+    fi
+    echo start > "$rproc" || return 1
+    sleep 4 || return 1
+    [[ $(cat "$rproc") == running ]]
+}
+cleanup() {
+    local status=$1 recovery_failed=0
+    trap - EXIT INT TERM
+    if ! reset_c7x; then
+        echo '[video-demo] Accelerator recovery failed; inspect remoteproc before retrying.' >&2
+        recovery_failed=1
+    fi
+    if "$restore_desktop"; then
+        if systemctl start lightdm && systemctl is-active --quiet lightdm; then
+            echo '[video-demo] Desktop service is active again.'
+        else
+            echo '[video-demo] Desktop service recovery failed.' >&2
+            recovery_failed=1
+        fi
+    fi
+    if ((recovery_failed && status == 0)); then status=1; fi
+    echo "[video-demo] Finished with status $status."
+    exit "$status"
+}
+
+if [[ ${BASH_SOURCE[0]} == "$0" ]]; then main "$@"; fi

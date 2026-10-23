@@ -7,9 +7,12 @@ sidebar_position: 5
 import changePassword from '@site/static/img/mo-os/mo62a-change-password.png';
 import addUser from '@site/static/img/mo-os/mo62a-add-user.png';
 import sshdHardening from '@site/static/img/mo-os/mo62a-sshd-hardening.png';
-import firewall from '@site/static/img/mo-os/mo62a-nftables.png';
+import CodeBlock from '@theme/CodeBlock';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+import firewallRules from '@site/static/downloads/security/mo-host-filter.nft';
+import firewallService from '@site/static/downloads/security/mo-host-filter.service';
 
-Mo OS is a standard Debian system: accounts, passwords, `sudo`, SSH and the firewall work as on any Debian 13 installation. This page covers the settings that matter for a board that is reachable over the network, starting with the account created at first boot.
+Mo OS is a standard Debian system: accounts, passwords, `sudo` and SSH use Debian tools. Kernel-dependent features such as firewall front ends still need board-specific verification. This page covers the settings that matter for a board that is reachable over the network, starting with the account created at first boot.
 
 :::info[Tested software]
 This page was tested on **Mo62A image V1.1.0** (built 2026-08-19), with Debian 13 (Trixie) and Linux 6.12.35. Commands and defaults can differ in later releases.
@@ -33,13 +36,13 @@ Run `passwd` as the user whose password you want to change. Enter the current pa
 passwd
 ```
 
-`passwd -S` shows the account status: `P` means the password is set and usable, `L` means the account is locked.
+`passwd -S` shows the account status: `P` means the password is set and usable, `L` means password authentication is locked; this does not disable every login method.
 
 <a href={changePassword} target="_blank" rel="noopener noreferrer">
   <img src={changePassword} alt="Mo62A terminal changing a user password with passwd and showing the account status with passwd -S" width="1440" height="900" />
 </a>
 
-An administrator can set another user's password with `sudo passwd USERNAME`, or lock an account with `sudo passwd -l USERNAME`.
+An administrator can set another user's password with `sudo passwd USERNAME`, or lock its password with `sudo passwd -l USERNAME`. SSH keys and other authentication methods may still permit access; review those separately when disabling an account.
 
 ## Add users and grant permissions
 
@@ -78,10 +81,11 @@ The first-boot account runs `sudo` without a password. This is convenient on a d
 
 ```bash
 sudo rm /etc/sudoers.d/010-USERNAME-nopasswd
+sudo -k
 sudo -l
 ```
 
-Replace `USERNAME` with the account name. `sudo -l` lists the rules that apply to you; after the change it asks for your password first. Accounts added with `usermod -aG sudo` always need a password.
+Replace `USERNAME` with the account name. `sudo -k` clears cached authentication and `sudo -l` lists the effective rules. Check for any remaining `NOPASSWD` entries. Membership in `sudo` normally requires a password on Debian, but another matching rule can override that policy.
 
 ## Harden the SSH server
 
@@ -93,8 +97,7 @@ PasswordAuthentication no
 PermitRootLogin no
 MaxAuthTries 3
 EOF
-sudo sshd -t && echo 'configuration OK'
-sudo systemctl reload ssh
+sudo sshd -t && sudo systemctl reload ssh
 sudo sshd -T | grep -E '^(passwordauthentication|permitrootlogin|maxauthtries) '
 ```
 
@@ -108,47 +111,43 @@ Keep your current SSH session open and log in from a second terminal to confirm 
   <img src={sshdHardening} alt="Mo62A terminal writing an SSH drop-in file that disables password login, testing the configuration, reloading the service and showing the active values" width="1440" height="900" />
 </a>
 
-To restore password login, delete `/etc/ssh/sshd_config.d/50-local.conf` and reload the service.
+To restore the previous settings, delete `/etc/ssh/sshd_config.d/50-local.conf`, then run `sudo sshd -t && sudo systemctl reload ssh`. Confirm the effective settings and a new login.
 
 ## Enable a firewall
 
-No firewall is active on the tested image, so every listening service is reachable from the network. Mo OS includes `nftables`; write a ruleset that keeps SSH and mDNS open, check it, then enable the service so it is applied at every boot.
+On the inspected board, the system nftables service is inactive, while Docker maintains its own tables. Use the dedicated `inet mo_host_filter` table below to filter traffic addressed to the host. It leaves other tables intact and does not control forwarded container ports. Review Docker's published ports separately.
 
-:::note
-The `ufw` front end is also installed, but the V1.1.0 kernel does not include the `iptables` match modules it needs, so `ufw enable` fails and can leave the board unreachable. Use `nftables` directly as shown here.
+:::warning[Keep a recovery path]
+Keep a serial console or local desktop available, leave the current SSH session open and test a second SSH connection after applying changes. Do not combine this example with an existing firewall manager without reviewing the combined policy. An accept here cannot override a drop in another base chain.
 :::
 
+:::note[Mo62A kernel and service behavior]
+The V1.1.0 kernel lacks match modules needed by the installed `ufw` front end; `ufw enable` can leave the board unreachable. Also, Debian's stock `nftables.service` uses `nft flush ruleset` when stopped, which removes Docker rules too. Do not start, reload or stop that service to manage this example, and do not use a global `flush ruleset`.
+:::
+
+**1. Review the rules and service.** Download <a href={useBaseUrl('/downloads/security/mo-host-filter.nft')} download>mo-host-filter.nft</a> and <a href={useBaseUrl('/downloads/security/mo-host-filter.service')} download>mo-host-filter.service</a> into a working directory on the board. Their contents are shown here:
+
+<CodeBlock language="text" title="mo-host-filter.nft">{firewallRules}</CodeBlock>
+
+The file replaces only its own table in one atomic transaction. It accepts established traffic, loopback, ICMP/ICMPv6, DHCP client replies, SSH and mDNS. Add a `tcp dport` or `udp dport` rule for every additional host service you expose. VNC through an [SSH tunnel](./remote-access.mdx#use-the-desktop-with-vnc) needs no extra port.
+
+<CodeBlock language="ini" title="mo-host-filter.service">{firewallService}</CodeBlock>
+
+**2. Install and check the files.** Run from the download directory:
+
 ```bash
-sudo tee /etc/nftables.conf <<'EOF'
-#!/usr/sbin/nft -f
-flush ruleset
-table inet filter {
-  chain input {
-    type filter hook input priority 0; policy drop;
-    ct state established,related accept
-    iif lo accept
-    ct state invalid drop
-    ip protocol icmp accept
-    ip6 nexthdr icmpv6 accept
-    tcp dport 22 accept
-    udp dport 5353 accept
-  }
-  chain forward { type filter hook forward priority 0; policy accept; }
-  chain output { type filter hook output priority 0; policy accept; }
-}
-EOF
-sudo nft -c -f /etc/nftables.conf && echo 'ruleset OK'
-sudo systemctl enable --now nftables
-sudo nft list chain inet filter input
+sudo install -m 0644 mo-host-filter.nft /etc/mo-host-filter.nft
+sudo install -m 0644 mo-host-filter.service /etc/systemd/system/mo-host-filter.service
+sudo systemctl daemon-reload
+sudo nft -c -f /etc/mo-host-filter.nft && sudo systemctl enable --now mo-host-filter
+sudo nft list chain inet mo_host_filter input
 ```
 
-`nft -c` checks the file without loading it. The `input` chain drops everything that is not listed: add a `tcp dport` or `udp dport` line for every service you expose, for example `tcp dport 8080 accept` for a web application, then reload with `sudo systemctl reload nftables`. The `udp dport 5353` rule keeps the board answering to `BOARD_HOSTNAME.local`; VNC through an [SSH tunnel](./remote-access.mdx#use-the-desktop-with-vnc) needs no extra rule.
+`nft -c` checks without applying changes; the service also checks before each start or reload. Confirm a fresh SSH login and any required network services. After editing `/etc/mo-host-filter.nft`, use `sudo systemctl reload mo-host-filter`. To remove only this firewall, use `sudo systemctl disable --now mo-host-filter`; its stop command deletes only `inet mo_host_filter`.
 
-<a href={firewall} target="_blank" rel="noopener noreferrer">
-  <img src={firewall} alt="Mo62A terminal writing an nftables ruleset that allows SSH and mDNS, checking it, enabling the nftables service and listing the active input chain" width="1440" height="900" />
-</a>
-
-Docker adds its own `nat` and `filter` tables for container networking and keeps them when the service restarts; the ruleset above does not remove them. To turn the firewall off, run `sudo systemctl disable --now nftables` and `sudo nft flush ruleset`.
+:::info[Validation boundary]
+On 2026-10-23, the example passed `systemd-analyze verify` and nftables syntax, apply, repeated-load and table-removal checks in an isolated network namespace on the Mo62A development board (Linux 6.12.35, nftables 1.1.3). An unrelated table survived each operation, and the host ruleset fingerprint was unchanged. This did not enable a persistent firewall on the board or test a reboot, DHCP renewal or forwarded container connectivity. Validate those paths for your deployment.
+:::
 
 ## Keep the system updated
 
@@ -161,10 +160,10 @@ Security fixes for Debian packages arrive through APT. Check for and install upd
 | `sudo` says the user is not in sudoers | Add the user to the `sudo` group with `sudo usermod -aG sudo USERNAME` from an administrator account, then log in again. |
 | A new group does not take effect | Group changes apply at the next login. Log out and back in, or start a new SSH session. |
 | Password rejected after SSH hardening | `PasswordAuthentication no` is active. Log in with your key, or remove `/etc/ssh/sshd_config.d/50-local.conf` from a local or serial console and reload the service. |
-| Unreachable after `ufw enable` | `ufw` is not supported on this kernel. From the local desktop or serial console, run `sudo ufw disable`, then `sudo iptables -P INPUT ACCEPT` and `sudo iptables -F`. |
+| Unreachable after `ufw enable` | `ufw` is not supported on this kernel. From the local desktop or serial console, disable ufw with `sudo ufw disable`, inspect `sudo nft list ruleset` and restore the known-good host policy if necessary. Do not globally flush tables belonging to Docker or another manager. |
 | `sshd -t` reports an error | Fix the drop-in file before reloading; the running server keeps the previous configuration until the reload succeeds. |
-| The `.local` name stops answering | The firewall blocks mDNS. Keep `udp dport 5353 accept` in the `input` chain and reload `nftables`. |
-| A service is blocked by the firewall | Run `sudo nft list chain inet filter input` and add an `accept` rule for the port; compare with `ss -ltnu` to see which ports are listening. |
+| The `.local` name stops answering | The firewall blocks mDNS. Keep `udp dport 5353 accept` in the `input` chain and reload `mo-host-filter`. |
+| A service is blocked by the firewall | Run `sudo nft list chain inet mo_host_filter input` and add an `accept` rule for the port; compare with `ss -ltnu` to see which ports are listening. |
 
 
 ## Related pages

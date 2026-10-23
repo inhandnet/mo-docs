@@ -2,13 +2,13 @@ name: release
 
 on:
   push:
-    tags: ['V*']
+    tags: ['**']
   workflow_dispatch:
     inputs:
       version:
         description: 'Candidate version (build and validate only; does not publish)'
         required: true
-        default: V1.0.0
+        default: V1.0.1-rc7
         type: string
 
 permissions:
@@ -23,11 +23,7 @@ env:
   # V1.2.3-rc1 is a release candidate: it is published as a prerelease and
   # deployed to the test platform only. V1.2.3 also deploys to production.
   PRERELEASE: ${{ contains(github.event_name == 'push' && github.ref_name || inputs.version, '-rc') }}
-  DOCS_PREVIEW: '0'
-  DOCS_BASE_URL: ${{ vars.WEBSITE_BASE_URL || '/docs/' }}
-  HARDWARE_URL: ${{ vars.HARDWARE_URL || 'https://developer.inhand.online/hardware-docs' }}
-  DOCS_SITE_URL: ${{ vars.WEBSITE_SITE_URL || 'https://www.inhand.com' }}
-  DEVELOPER_PORTAL_URL: ${{ vars.DEVELOPER_PORTAL_URL || 'https://www.inhand.com/developer' }}
+  DOCS_VERSION: ${{ github.event_name == 'push' && github.ref_name || inputs.version }}
 
 jobs:
   build:
@@ -57,33 +53,24 @@ jobs:
             test "$SOURCE_COMMIT" = "$(git rev-parse HEAD)"
           fi
           git merge-base --is-ancestor "$SOURCE_COMMIT" refs/remotes/origin/master
+          node scripts/check-commit-msg.mjs --revs "$SOURCE_COMMIT"
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Validate and build public site
-        run: npm run check
+      - name: Validate source
+        run: npm test && npm run typecheck
 
       - name: Install browser for smoke tests
         run: npx playwright install --with-deps chromium
 
-      - name: Verify built navigation, search and media
-        run: npm run test:browser
-
-      - name: Package static site
+      - name: Build, verify and package each destination
         run: |
-          mkdir -p dist
-          node scripts/generate-changelog.mjs --version "$VERSION" --output dist
-          SOURCE_COMMIT=$(git rev-parse HEAD)
-          SOURCE_DATE=$(git show -s --format=%cI HEAD)
-          tar -C build -czf "dist/mo-docs-$VERSION.tar.gz" .
-          printf '{\n  "version": "%s",\n  "commit": "%s",\n  "sourceDate": "%s"\n}\n' \
-            "$VERSION" "$SOURCE_COMMIT" "$SOURCE_DATE" > dist/release.json
-          (
-            cd dist
-            sha256sum "mo-docs-$VERSION.tar.gz" release.json \
-              CHANGELOG.en.md CHANGELOG.zh-CN.md release-notes.md > SHA256SUMS
-          )
+          for target in test production; do
+            node scripts/build-site.mjs "$target" --verify
+            node scripts/package-site.mjs "$target" "$VERSION"
+          done
+          node scripts/package-release.mjs "$VERSION"
 
       - name: Upload release candidate
         uses: actions/upload-artifact@v7
@@ -112,7 +99,8 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           gh release create "$VERSION" \
-            "dist/mo-docs-$VERSION.tar.gz" \
+            "dist/mo-docs-$VERSION-test.tar.gz" \
+            "dist/mo-docs-$VERSION-production.tar.gz" \
             dist/release.json \
             dist/CHANGELOG.en.md \
             dist/CHANGELOG.zh-CN.md \
@@ -133,7 +121,7 @@ jobs:
   # Deployment: stream the site archive over SSH to a web server. The deploy
   # account there accepts the single command `deploy-docs`, reads a .tar.gz on
   # stdin and unpacks it under /docs/ of the developer site itself.
-  # Each platform has its own secrets; a job skips while its SSH key is unset:
+  # Each platform needs all four secrets; incomplete configuration fails:
   #   OPS_DEPLOY_HOST / OPS_PROD_HOST          server address
   #   OPS_DEPLOY_USER / OPS_PROD_USER          deploy account
   #   OPS_DEPLOY_SSH_KEY / OPS_PROD_SSH_KEY    private key
@@ -141,7 +129,7 @@ jobs:
   deploy-test:
     name: deploy-test-platform
     if: github.event_name == 'push' && github.repository == 'inhandnet/mo-docs'
-    needs: build
+    needs: [build, publish]
     runs-on: ubuntu-latest
     concurrency:
       group: mo-docs-deploy-test
@@ -161,12 +149,12 @@ jobs:
           name: mo-docs-release-${{ env.VERSION }}
           path: dist/
       - name: Deploy the documentation archive
-        run: bash .github/scripts/deploy-site.sh "dist/mo-docs-$VERSION.tar.gz"
+        run: bash .github/scripts/deploy-site.sh "dist/mo-docs-$VERSION-$DEPLOY_PLATFORM.tar.gz"
 
   deploy-production:
     name: deploy-production-platform
     if: github.event_name == 'push' && github.repository == 'inhandnet/mo-docs' && !contains(github.ref_name, '-rc')
-    needs: [build, deploy-test]
+    needs: [build, publish, deploy-test]
     runs-on: ubuntu-latest
     concurrency:
       group: mo-docs-deploy-production
@@ -186,4 +174,4 @@ jobs:
           name: mo-docs-release-${{ env.VERSION }}
           path: dist/
       - name: Deploy the documentation archive
-        run: bash .github/scripts/deploy-site.sh "dist/mo-docs-$VERSION.tar.gz"
+        run: bash .github/scripts/deploy-site.sh "dist/mo-docs-$VERSION-$DEPLOY_PLATFORM.tar.gz"

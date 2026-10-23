@@ -1,8 +1,7 @@
 import type {ReactNode} from 'react';
 import Link from '@site/src/components/DocumentationLink';
 import {getProduct, type Product} from '@site/src/data/products';
-import {SpecTable} from '@site/src/components/SpecTable';
-import {boards} from '@site/src/data/releases';
+import {boards, latestStableRelease} from '@site/src/data/releases';
 import DocumentationTable from '@site/src/components/DocumentationTable';
 
 // Shows its children only for the given board; used in shared partials (docs/_partials).
@@ -14,18 +13,13 @@ export function Only({board, is, children}: {board: string; is: string | string[
 export function ComingSoon(): ReactNode {
   return (
     <div className="mo-stub">
-      <strong>Coming soon.</strong> This content is being prepared. Questions in the meantime? Ask on the{' '}
-      <Link href="https://community.inhand.com">forum</Link>.
+      <strong>Coming soon.</strong> This content is being prepared. Use the{' '}
+      <Link to="/contact">contact page</Link> for product questions.
     </div>
   );
 }
 
-export function BoardSpecs({board}: {board: Product['id']}): ReactNode {
-  return <SpecTable product={getProduct(board)} />;
-}
-
-// Release notes come from scripts/fetch-releases.mjs (GitHub Releases or ChangeLog.md).
-// Release notes live with each image on GitHub Releases; link there directly instead of bundling a snapshot.
+// Release notes live with each image on GitHub Releases.
 export function ReleaseNotes({board}: {board: Product['id']}): ReactNode {
   const p = getProduct(board);
   if (!p.githubUrl) {
@@ -39,8 +33,7 @@ export function ReleaseNotes({board}: {board: Product['id']}): ReactNode {
   return (
     <ul>
       <li>
-        <Link href={`${p.githubUrl}/releases`}>All {p.name} releases on GitHub</Link> — every image with its notes,
-        downloads and SHA-256 checksums.
+        <Link href={`${p.githubUrl}/releases`}>All {p.name} releases on GitHub</Link> — read the release notes and check the assets supplied for that version.
       </li>
       <li>
         <Link href={`${p.githubUrl}/releases/latest`}>Latest release</Link> — opens the newest published release.
@@ -52,18 +45,21 @@ export function ReleaseNotes({board}: {board: Product['id']}): ReactNode {
 // Unified download list for one board (docs › board › Resource download), built from products.ts and release data.
 export function BoardDownloads({board}: {board: Product['id']}): ReactNode {
   const p = getProduct(board);
-  const latest = boards[board]?.releases[0];
+  const latest = latestStableRelease(boards[board]?.releases ?? []);
   const rows: {item: string; where: ReactNode}[] = [
     {
       item: 'OS image',
       where: (
         <>
-          {latest ? <>v{latest.version} ({latest.date}) — </> : null}
-          <Link to="/software#os-images">Software page</Link> · <Link href={p.resourcesUrl}>InHand Resource Center</Link> (SHA256 next to
-          each file)
+          {latest ? <>{latest.version}{latest.date ? ` (${latest.date})` : ''} — </> : null}
+          <Link to="/software#os-images">Software page</Link> · <Link href={p.resourcesUrl}>InHand Resource Center</Link>
         </>
       ),
     },
+    ...['models', 'tools', 'examples'].map(name => ({
+      item: `mo-${name}`,
+      where: <Link href={`https://github.com/inhandnet/mo-${name}/releases`}>Releases and source</Link>,
+    })),
     {
       item: 'Datasheet',
       where: p.datasheetUrl ? <Link href={p.datasheetUrl}>PDF</Link> : <Link href={p.resourcesUrl}>InHand Resource Center</Link>,
@@ -101,12 +97,14 @@ export function BoardDownloads({board}: {board: Product['id']}): ReactNode {
 
 // Image ↔ firmware ↔ toolchain mapping. Update rows against verified releases.
 const VERSION_ROWS = [
-  {board: 'Mo 62A', image: 'v1.1.0 (2026-08-19)', base: 'TI Processor SDK Linux RT EdgeAI 11.01.07.05', tidl: '11_02_17_00', ort: '1.23.0'},
-  {board: 'Mo 68A', image: 'V1.0.0', base: 'To be published', tidl: 'To be published', ort: 'To be published'},
+  {board: 'Mo 62A', image: 'V1.1.0 development board (image build: 2026-08-19; GitHub release: 2026-10-16)', base: 'TI Processor SDK Linux RT EdgeAI 11.01.07.05', tidl: '11_02_17_00', ort: '1.23.0'},
+  {board: 'Mo 68A', image: 'Not verified', base: 'To be published', tidl: 'To be published', ort: 'To be published'},
 ];
 
 export function VersionMap(): ReactNode {
   return (
+    <>
+      <p>These rows describe a documented software combination; they are not a manifest of every released image. Check the board-specific version map and model compatibility records before deployment.</p>
       <DocumentationTable className="mo-spec-table">
         <thead>
           <tr>
@@ -129,5 +127,6 @@ export function VersionMap(): ReactNode {
           ))}
         </tbody>
       </DocumentationTable>
+    </>
   );
 }

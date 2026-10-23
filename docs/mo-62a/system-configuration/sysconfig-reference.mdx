@@ -4,7 +4,7 @@ description: "Every setting that Mo62A applies from sysconfig.txt on the first b
 sidebar_position: 3
 ---
 
-`sysconfig.txt` is a plain-text file on the `BOOT` partition of a freshly flashed card. On the first boot, Mo OS reads it, applies every enabled setting and then deletes the file so that no password remains readable on the card. It is the only way to pre-configure a board before it starts; afterwards, use the normal Mo OS tools described in [Users & security settings](../mo-os/users-and-security.mdx) and [Network](../mo-os/network.mdx).
+`sysconfig.txt` is a plain-text file on the `BOOT` partition of a freshly flashed card. On the first boot, Mo OS reads the supported settings and removes the file after processing. This is the supplied first-boot preconfiguration workflow; afterwards, use the normal Mo OS tools described in [Users & security settings](../mo-os/users-and-security.mdx) and [Network](../mo-os/network.mdx).
 
 :::info[Tested software]
 This page describes the file shipped with **Mo62A image V1.1.0** (built 2026-08-19). The current template is [`bin/sysconfig.txt`](https://github.com/inhandnet/Mo62A/blob/HEAD/bin/sysconfig.txt) in the Mo62A repository.
@@ -91,7 +91,7 @@ timezone=Europe/Berlin
 
 ## Check what was applied
 
-The first boot writes `/var/log/mo-62a-auto-config.log`. Every line names the setting it applied, and the last line confirms that the file was removed:
+The first boot writes `/var/log/mo-62a-auto-config.log`. Review it for errors and check the resulting accounts, network connections and system settings; the final removal message alone does not prove every requested setting succeeded. Example log excerpt:
 
 ```text
 [mo-62a-config] Starting (2026-04-13T19:38:17+00:00); config=/boot/firmware/sysconfig.txt
@@ -101,7 +101,7 @@ The first boot writes `/var/log/mo-62a-auto-config.log`. Every line names the se
 [mo-62a-config] Config applied and /boot/firmware/sysconfig.txt removed (2026-04-13T19:38:18+00:00)
 ```
 
-The account name is replaced with `USERNAME` in this excerpt. After the first boot, `ls /boot/firmware/sysconfig.txt` reports that the file no longer exists. To apply a new `sysconfig.txt`, flash the card again; the settings are not re-read on later boots.
+The account name is replaced with `USERNAME` in this excerpt. Removing `sysconfig.txt` does not securely erase its previous contents from flash media. Use a temporary setup password and change it after setup; avoid keeping copies containing credentials. After the first boot, `ls /boot/firmware/sysconfig.txt` reports that the file no longer exists. To apply a new `sysconfig.txt`, flash the card again; the settings are not re-read on later boots.
 
 ## Troubleshooting
 

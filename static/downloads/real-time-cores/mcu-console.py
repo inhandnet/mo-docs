@@ -12,6 +12,7 @@ import sys
 CORE = "79000000.r5f"   # MCU R5F
 ENDPOINT = 15           # console end point announced by the firmware
 TIMEOUT_S = 1.0
+MAX_PAYLOAD = 496       # 512-byte transport buffer minus the RPMsg header
 
 
 def find_device():
@@ -23,10 +24,17 @@ def find_device():
 
 
 def run(fd, command):
-    os.write(fd, command.encode())
+    payload = command.encode('utf-8')
+    if not payload or len(payload) > MAX_PAYLOAD:
+        raise ValueError(f"command must contain 1..{MAX_PAYLOAD} UTF-8 bytes")
+    if os.write(fd, payload) != len(payload):
+        raise OSError("incomplete RPMsg write")
     if not select.select([fd], [], [], TIMEOUT_S)[0]:
-        return f"no reply within {TIMEOUT_S:g} s"
-    return os.read(fd, 512).decode(errors="replace").rstrip("\n")
+        raise TimeoutError(f"no reply within {TIMEOUT_S:g} s")
+    reply = os.read(fd, MAX_PAYLOAD)
+    if not reply:
+        raise OSError("RPMsg endpoint closed without a reply")
+    return reply.decode(errors="replace").rstrip("\n")
 
 
 def main():
@@ -49,10 +57,18 @@ def main():
             if line in ("exit", "quit"):
                 break
             if line:
-                print(run(fd, line))
+                try:
+                    print(run(fd, line))
+                except ValueError as error:
+                    print(f"mcu-console: {error}", file=sys.stderr)
+                # Exit after transport failures: a late reply could otherwise
+                # be misattributed to the next interactive command.
     finally:
         os.close(fd)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (OSError, ValueError) as error:
+        sys.exit(f"mcu-console: {error}")

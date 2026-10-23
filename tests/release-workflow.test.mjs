@@ -21,8 +21,8 @@ test('release tag uses the exact uppercase V semantic version', () => {
   }
 });
 
-test('release tag must agree with both npm metadata files', () => {
-  assert.throws(() => validateReleaseVersion('V1.2.3', '1.2.2', '1.2.3'), /package.json/);
+test('release version is independent of consistent npm metadata', () => {
+  assert.equal(validateReleaseVersion('V9.0.0', '1.0.1', '1.0.1'), '9.0.0');
   assert.throws(() => validateReleaseVersion('V1.2.3', '1.2.3', '1.2.2'), /package-lock.json/);
   const versions = readRepositoryVersions();
   assert.doesNotThrow(() => validateReleaseVersion(`V${versions.packageVersion}`, versions.packageVersion, versions.lockVersion));
@@ -31,13 +31,13 @@ test('release tag must agree with both npm metadata files', () => {
 test('release workflow keeps tag publication separate from master deployment', async () => {
   const release = await fs.readFile(new URL('../.github/workflows/release.yml', import.meta.url), 'utf8');
   const masterBuild = await fs.readFile(new URL('../.github/workflows/build.yml', import.meta.url), 'utf8');
-  assert.match(release, /tags:\s*\['V\*'\]/);
+  assert.match(release, /tags:\s*\['\*\*'\]/);
   assert.match(release, /git cat-file -t/);
   assert.match(release, /merge-base --is-ancestor/);
   assert.match(release, /gh release create/);
   assert.match(release, /--draft/);
   assert.match(release, /gh release edit/);
-  assert.match(release, /generate-changelog\.mjs/);
+  assert.match(release, /package-release\.mjs/);
   assert.match(release, /CHANGELOG\.en\.md/);
   assert.match(release, /CHANGELOG\.zh-CN\.md/);
   assert.match(release, /--notes-file dist\/release-notes\.md/);
@@ -54,7 +54,9 @@ test('release workflow keeps tag publication separate from master deployment', a
   assert.doesNotMatch(deploy, /tar -tzf "\$archive" \| grep/, 'listing must be captured before grep -q under pipefail');
   assert.doesNotMatch(deploy, /\| grep -[A-Za-z]*q/, 'no pipe into grep -q under pipefail (SIGPIPE on the writer)');
   assert.match(deploy, /StrictHostKeyChecking=yes/);
-  assert.match(deploy, /skipping its deployment/);
+  assert.doesNotMatch(deploy, /skipping its deployment/);
+  assert.match(release, /needs: \[build, publish\]/);
+  assert.match(release, /needs: \[build, publish, deploy-test\]/);
   assert.match(masterBuild, /branches:\s*\[master\]/);
 });
 
@@ -84,11 +86,11 @@ test('legacy Message.en / Message.zh-CN paragraphs are still read', () => {
     'Message.zh-CN:', '记录 GPIO、UART5 与 PWM 回环实测。', '区分未实测路径。', '',
   ].join('\n'), 'abc123');
   assert.equal(legacy.en, 'Document tested GPIO, UART5 and PWM loopbacks with real captures. Separate untested paths.');
-  assert.equal(legacy.zh, '记录 GPIO、UART5 与 PWM 回环实测。 区分未实测路径。');
-  assert.throws(() => parseCommitMessage('docs: no message block at all\n\nJust prose.', 'def456'), /exactly one Message block/);
+  assert.equal(legacy.zh, legacy.en);
+  assert.equal(parseCommitMessage('docs: no message block at all\n\nJust prose.', 'def456').en, 'no message block at all');
 });
 
-test('bilingual commit messages produce English and Chinese changelogs', () => {
+test('historical English summaries feed both heading editions', () => {
   const first = parseCommitMessage(`docs(mo-os): explain package updates
 
 Message:
@@ -105,43 +107,18 @@ Message:
   const chinese = renderChangelog('V0.1.0', [first, second], 'zh');
   assert.match(english, /## Documentation[\s\S]*Explain safe Debian package updates/);
   assert.match(english, /## Fixes[\s\S]*Correct the Network guide link/);
-  assert.match(chinese, /## 文档[\s\S]*说明安全更新 Debian 软件包的方法/);
-  assert.match(chinese, /## 修复[\s\S]*修复网络指南链接/);
+  assert.match(chinese, /## 文档[\s\S]*Explain safe Debian package updates/);
+  assert.match(chinese, /## 修复[\s\S]*Correct the Network guide link/);
   const combined = combinedReleaseNotes(english, chinese);
   assert.match(combined, /<summary>简体中文<\/summary>/);
   assert.match(combined, /# Mo documentation V0\.1\.0/);
   assert.match(combined, /# Mo 文档 V0\.1\.0/);
 });
 
-test('commit policy rejects missing bilingual release text', async t => {
-  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'mo-docs-message-'));
-  t.after(() => fs.rm(directory, {recursive: true, force: true}));
-  const valid = path.join(directory, 'valid');
-  const invalid = path.join(directory, 'invalid');
-  await fs.writeFile(valid, `docs: explain daily use
-
-Message:
-  en: Explain daily use of Mo OS.
-  zh: 说明 Mo OS 的日常使用方法。
-`);
-  await fs.writeFile(invalid, 'docs: explain daily use\n');
-  const checker = new URL('../scripts/check-commit-msg.sh', import.meta.url).pathname;
-  assert.doesNotThrow(() => execFileSync(checker, ['--file', valid, '--require-bilingual']));
-  const failure = spawnSync(checker, ['--file', invalid, '--require-bilingual'], {encoding: 'utf8'});
-  assert.equal(failure.status, 1);
-  assert.match(failure.stderr, /add one final Message block/);
-});
-
-test('changelog parser rejects incomplete or untranslated Message blocks', () => {
-  assert.throws(() => parseCommitMessage(`docs: missing chinese
-
-Message:
-  en: Explain the change.
-`), /only en and zh/);
-  assert.throws(() => parseCommitMessage(`docs: untranslated
-
-Message:
-  en: Explain the change.
-  zh: English only.
-`), /must contain Chinese/);
+test('current English subjects and breaking-change bodies generate release entries', () => {
+  const commit = parseCommitMessage('feat: add an endpoint\n\nBREAKING CHANGE: replace the old route', 'abc123');
+  assert.equal(commit.en, 'add an endpoint');
+  assert.equal(commit.zh, commit.en);
+  assert.equal(commit.breaking, true);
+  assert.match(renderChangelog('V1.0.0', [commit], 'zh'), /变更条目保留英文/);
 });

@@ -21,12 +21,12 @@ Getting started takes you from preparing the board to booting Mo OS and running 
 
 The [first NPU demo](./first-npu-demo.mdx) explains how to run and interpret an existing application. Model conversion, inference APIs and application design belong in [AI development](../application-development/ai/index.mdx).
 
-For a concrete starting point, the image's C/C++ SDK provides examples in `/usr/share/edgeai-cpp-examples/` and an accompanying `DEV_GUIDE.md`. The [SDK example guide in the source repository](https://github.com/inhandnet/mo-62a/blob/master/board-support/extra-applications/edgeai-cpp/examples/DEV_GUIDE.md) is currently in Chinese:
+For a concrete starting point, the image's C/C++ SDK provides examples in `/usr/share/edgeai-cpp-examples/` and an accompanying `DEV_GUIDE.md`. The maintained [SDK example guide in mo-examples](https://github.com/inhandnet/mo-examples/blob/master/ai/edgeai-cpp/DEV_GUIDE.md) is currently in Chinese:
 
 - `hello_inference` loads a compiled model, runs one inference with zero-filled input and prints the outputs. It checks the inference environment without a camera or display; it is not a real-scene accuracy test.
 - `app_edgeai` provides the camera/video → inference → HDMI application and accepts YAML configurations. Use it as a starting point for a complete pipeline.
 
-Check the [version map](../resource-download/version-map.mdx) before replacing the runtime or compiling a model. A model file alone is not a substitute for compatible TIDL artifacts. Some AI development pages are still being expanded; use the existing SDK guide and the references on the toolchain page where a detailed walkthrough is not yet available.
+Check the [version map](../resource-download/version-map.mdx) before replacing the runtime or compiling a model. A model file alone is not a substitute for compatible TIDL artifacts. Use the inference API, model compilation and benchmark guides for each documented path. The installed example copy is part of the BSP image integration; mo-examples maintains the application-side source.
 
 The older source SDK guide mentions ONNX Runtime 1.15; the current board's Python and C/C++ runtimes both report 1.23.0. Use [Inference APIs](../application-development/ai/inference-apis.mdx) and the measured version map for the current runtime baseline, not that older version comment.
 
@@ -40,6 +40,6 @@ For system configuration, continue to [Mo OS](../mo-os/index.mdx). For an image 
 
 ## Get help or improve the documentation
 
-Ask product usage questions in the [community forum](https://community.inhand.com). Include the image version, relevant hardware, command or configuration, expected result and the smallest useful error excerpt. Remove passwords, Wi-Fi credentials, personal network details and other private information before sharing logs or screenshots.
+Use the [contact page](/contact) for product usage questions. Include the image version, relevant hardware, command or configuration, expected result and the smallest useful error excerpt. Remove passwords, Wi-Fi credentials, personal network details and other private information before sharing logs or screenshots.
 
 For incorrect or missing documentation, use **Report an issue** on the affected page or [open a documentation issue](https://github.com/inhandnet/mo-docs/issues/new/choose). Include the page link and the behavior you observed.

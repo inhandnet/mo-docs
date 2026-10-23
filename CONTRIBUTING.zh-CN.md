@@ -1,57 +1,57 @@
-# 参与 Mo 文档贡献
+# 贡献指南
 
-[English](CONTRIBUTING.md) | 简体中文
+[English](CONTRIBUTING.md)
 
-贡献内容应帮助读者使用 Mo 系列单板计算机并进行开发。网页编辑、本地预览、检查命令和提交信息规范见 [README.zh-CN.md](README.zh-CN.md#参与贡献)。所有修改通过 PR 提交到 `master`。
+在临时分支修改，向 master 提交 PR。Write 可创建、修改和删除临时分支；Admin 在三个必需检查通过后合并，自己的 PR 不强制第二人审批。合并后自动删除符合条件的源分支。准确的 GitHub 规则和发布权限见 [README](README.zh-CN.md)。
 
-## 文档结构
+## 环境与验证
 
-编辑 `docs/` 中的 Markdown 或 MDX 文件。产品指南位于 `docs/<board>/<section>/`，通用主题使用独立目录。
-
-每个页面应包含清晰的标题、简短描述及侧栏顺序：
-
-```yaml
----
-title: First boot
-description: Boot and sign in to your Mo board.
-sidebar_position: 3
----
+```bash
+nvm use
+npm ci
+npm test
+npm run typecheck
+npm run build
+npx playwright install chromium
+npm run test:browser
 ```
 
-侧栏根据目录树自动生成。使用 `_category_.json` 设置分类名称和顺序；分类首页使用 `index.mdx` 和 Docusaurus 的 `DocCardList`。
+交互预览使用空闲端口。浏览器检查动态分配端口，运行时必须沿用构建所用的域名、base path、主站和硬件站变量。验证发布目标可用 `node scripts/build-site.mjs test --verify` 或 `node scripts/build-site.mjs production --verify`。
 
-说明适用的板卡、硬件修订和软件版本。在操作步骤之前列出前置条件、预期结果及可能的数据丢失风险。未经验证，不要声称操作、下载或规格已经验证通过。
+## 按证据写文档
 
-## 共享内容与待完善内容
+- 软件指南放入对应型号目录。只有结论适用于所有消费者时才直接共用 partial，否则明确标注型号差异。
+- 记录板卡、镜像及构建标识、相关工具和运行库版本、命令、观察结果与验证边界。区分开发安装与原始发布镜像，不从已安装包、算子清单或 TOPS 推导推理正确性。
+- 在合适环境验证命令。账号、网络、防火墙和部署行为优先使用只读检查与隔离环境；可能中断访问或重载固件的命令应说明恢复路径与验证范围。
+- 截图必须忠实于实际行为，终端文字可读并带替代文本，公开前移除凭据和私有网络信息。命令改变后标明旧证据的时间与范围，不能让旧截图充当新命令已测试的证明。
+- 模型、工具和示例链接到各自维护仓库；未单独确认迁移前保留公开附件和跳转。硬件事实及设计资料归 mo-hardware。
+- 附件旁保留第三方许可证、来源 URL 和哈希；发布压缩包时检查归档校验值及解压内容。
 
-共享 MDX 组件位于 `docs/_partials/`。例如：
+使用普通 Markdown 表格，共用组件负责布局。软件页使用文档链接，迁出的硬件页使用映射跳转。媒体、表格或导航变更后检查手机与桌面布局。README 的每个自然段和列表项在源码中保持单行，不套用提交信息的 72 字符换行规则。
 
-```mdx
-import FlashOsImage from '@site/docs/_partials/getting-started/flash-os-image.mdx';
+## 提交与 PR
 
-<FlashOsImage board="mo-62a" />
+```text
+docs(mo62a): clarify the measured runtime compatibility
+
+Explain the evidence or user impact when a title is insufficient.
 ```
 
-在共享内容中使用 `Only` 区分板卡适用段落。修改共享组件后，检查所有受影响的板卡页面。
+简短英文 Conventional Commit 即可，类型和限制见 [repository-policy.json](config/repository-policy.json)，不要求双语 Message 块。不加 Co-Authored-By、跳过 CI 的指令或内部基础设施信息。`npm ci` 安装本地钩子，CI 再检查 PR 标题和新增非 merge 提交。未发布的临时分支可通过 amend 或交互式 rebase 修正提交，不改写已发布 Tag。
 
-尚未提供的内容使用 `<ComingSoon />`，不要在公开页面显示内部优先级和任务编号。不要创建空下载文件或编造缺失步骤。不应发布的页面可在 front matter 中设置 `draft: true`；静态构建不包含这些页面，开发服务器可显示它们。
+PR 正文说明具体改动、验证及未解决边界。GitHub merge 提交不进入 Changelog 条目。Squash 时使用已校验的标题和合规的可选正文，给 GitHub 自动追加的 PR 编号留出空间，确保最终标题仍不超过 72 字符；rebase 则保留已检查的各条提交作为日志来源。
 
-## 链接、素材和数据
+## 发布快照与架构图
 
-- 文档页面之间优先使用相对文件链接。
-- JSX 链接使用 `@site/src/components/DocumentationLink`，以适配部署路径；其他门户栏目通过 `DEVELOPER_PORTAL_URL` 跳转。
-- 图片放在 `static/img/`。大型镜像、SDK 和下载文档链接到实际发布或资源位置。
-- 文档正文的插图、截图和 GIF 动图统一铺满正文可用宽度，与通栏 NOTE 提示框对齐，不再限定固定像素宽度。高度保持原始比例，不为统一高度而拉伸或裁切内容。统一使用全站 `--mo-doc-media-width` 样式，不在各页单独设置展示尺寸。编号步骤中的截图使用直接放在列表项内的 `mo-tool-screenshot` 容器，让图片与正文边缘对齐，同时保留步骤文字的缩进。源素材保留原始分辨率；全屏、分屏和手机预览时同时检查静态图与动图。
-- 产品信息保存在 `src/data/products.ts`。修改规格前核对来源和适用版本。
-- 发布记录使用已提交的 `src/data/generated/releases.json` 快照。运行 `npm run fetch-data` 刷新后，检查结果并单独提交；构建不会自动刷新数据。获取前应检查仓库映射，获取失败时可能继续保留旧快照。
-- 新增板卡时，同步更新文档目录、产品数据、选板表格及受影响的测试。
+`npm run fetch-data` 显式更新 `src/data/generated/releases.json`，审查完整差异，尤其是仓库身份、正式版/候选版选择和日期。失败保留原文件并非零退出；内容不变时不更新时间戳。不手工虚构缺失的 Release，也不猜测 ChangeLog 路径。
 
-## 风格与检查
+修改 `scripts/render-architecture.mjs` 后运行它，更新 `architecture/` 中的中英 SVG；两种语言都检查桌面与手机预览。架构图的可编辑来源是生成代码，不是位图截图。
 
-文档正文使用清晰、面向具体操作的英文。仓库指南的翻译保持同步。沿用已有样式和内置字体，并保留许可证声明。
+## 发布步骤（Admin）
 
-提交前运行 README 中的检查，或查看 GitHub Actions 的检查结果。检查导航、共享内容、下载链接、搜索和窄屏布局。产品操作说明应列出实际测试内容，并标明仍待验证的部分。
+1. 确认选定 master 提交已通过必需检查、改动已审阅，并检查该 Tag 会触发的每个环境是否已配置部署条件。
+2. 用 `git ls-remote --tags origin` 检查远端 Tag，再创建和推送 annotated `VX.Y.Z-rcN` 或 `VX.Y.Z`。Tag 推送后由 CI 校验，本地不拦截 Tag 创建。
+3. 检查验证、打包、发布和部署任务，下载核对 `SHA256SUMS` 与 `release.json`，再确认在线 `deployment.json` 对应 Tag 的提交。
+4. 发布或部署失败时先检查实际 Release 与服务器状态；不得改写既有 Tag 或已发布附件，内容修正使用下一个 RC 或版本。
 
-不要提交内部基础设施信息、凭据或机密内容。安全相关问题遵循 [SECURITY.md](SECURITY.md)。请仅提交有权按照相应许可证分享的内容。
-
-站点组件和部署配置见 [ARCHITECTURE.md](ARCHITECTURE.md)。
+手动 workflow dispatch 只验证和打包，不发布或部署。中文标题版 Changelog 保留英文条目，不依赖翻译服务。正式平台是否就绪由实际基础设施配置与部署验证决定，不能只凭正式构建成功判断。

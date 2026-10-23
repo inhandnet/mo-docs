@@ -35,17 +35,19 @@ jobs:
       - name: Validate and build preview
         run: npm run check
         env:
+          SITE_ENVIRONMENT: pages
           DOCS_PREVIEW: '1'
           DOCS_SITE_URL: ${{ steps.pages.outputs.origin }}
           DOCS_BASE_URL: ${{ steps.pages.outputs.base_path }}/
-          DEVELOPER_PORTAL_URL: ${{ vars.DEVELOPER_PORTAL_URL || 'https://www.inhand.com/developer' }}
+          DEVELOPER_PORTAL_URL: ${{ vars.DEVELOPER_PORTAL_URL || 'https://developer.inhand.online' }}
       - run: npx playwright install --with-deps chromium
       - name: Verify preview navigation and search
         run: npm run test:browser
         env:
+          SITE_ENVIRONMENT: pages
           DOCS_PREVIEW: '1'
           DOCS_BASE_URL: ${{ steps.pages.outputs.base_path }}/
-          DEVELOPER_PORTAL_URL: ${{ vars.DEVELOPER_PORTAL_URL || 'https://www.inhand.com/developer' }}
+          DEVELOPER_PORTAL_URL: ${{ vars.DEVELOPER_PORTAL_URL || 'https://developer.inhand.online' }}
       - uses: actions/upload-pages-artifact@v4
         with:
           path: build/

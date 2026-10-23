@@ -82,19 +82,28 @@ Download the prebuilt firmware and the Linux command. The firmware was built fro
 - <a href={useBaseUrl('/downloads/real-time-cores/mo62a-mcu-console.out')} download>mo62a-mcu-console.out</a> (59316 bytes) and its <a href={useBaseUrl('/downloads/real-time-cores/mo62a-mcu-console.out.sha256')} download>SHA-256</a>
 - <a href={useBaseUrl('/downloads/real-time-cores/mcu-console.py')} download>mcu-console.py</a>, installed on the board as `mcu-console`
 
-Copy both to the board, then install and load them:
+Copy the firmware, its checksum file and the Python client to the board. Keep a serial console available and follow the [reload limits](./examples.mdx) before changing firmware. The subshell below stops on any failure without closing your login shell:
 
 ```bash
-sha256sum mo62a-mcu-console.out    # b74622b86f0a237ae103791df5d7f20f0d6a45ee2ca46127b83b2aa9f18ea693
+(
+set -euo pipefail
+sha256sum -c mo62a-mcu-console.out.sha256
 sudo install -m 0644 mo62a-mcu-console.out /lib/firmware/
 sudo install -m 0755 mcu-console.py /usr/local/bin/mcu-console
 
-MCU=$(grep -l '^79000000.r5f$' /sys/class/remoteproc/remoteproc*/name | xargs dirname)
+MCU=
+for name in /sys/class/remoteproc/remoteproc*/name; do
+  [[ -r $name && $(cat "$name") == 79000000.r5f ]] || continue
+  [[ -z $MCU ]] || { echo 'More than one MCU R5F found' >&2; exit 1; }
+  MCU=${name%/name}
+done
+[[ -n $MCU ]] || { echo 'MCU R5F not found' >&2; exit 1; }
 echo stop | sudo tee "$MCU/state"
 echo -n mo62a-mcu-console.out | sudo tee "$MCU/firmware"
 echo start | sudo tee "$MCU/state"
 
 sudo mcu-console version
+)
 ```
 
 The kernel log shows the extra channel for endpoint 15 (`0xf`):

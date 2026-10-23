@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Use this form for problems in the documentation. For questions about
-        using a product, ask in the [community forum](https://community.inhand.com).
+        using a product, use the [contact page](https://developer.inhand.online/contact/).
   - type: input
     id: page
     attributes:
