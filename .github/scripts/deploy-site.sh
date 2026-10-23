@@ -29,12 +29,14 @@ fi
 
 dist=$(dirname "$archive")
 (cd "$dist" && sha256sum -c --ignore-missing SHA256SUMS)
-# Read the whole listing first: `grep -q` closing the pipe early would make
-# tar fail under pipefail even though the archive is fine.
+# Read the whole listing first, then match it in the shell. Any pipe into
+# `grep -q` can fail under pipefail when grep exits early and the writer
+# (tar, or printf for a large listing) receives SIGPIPE.
 names=$(tar -tzf "$archive")
-printf '%s\n' "$names" | grep -Eq '^(\./)?index\.html$' || {
-  echo "archive root must contain index.html" >&2; exit 1
-}
+case $'\n'"$names"$'\n' in
+  *$'\nindex.html\n'* | *$'\n./index.html\n'*) ;;
+  *) echo "archive root must contain index.html" >&2; exit 1 ;;
+esac
 
 ssh_dir=$(mktemp -d)
 trap 'rm -rf "$ssh_dir"' EXIT

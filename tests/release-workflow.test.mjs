@@ -52,6 +52,7 @@ test('release workflow keeps tag publication separate from master deployment', a
   const deploy = await fs.readFile(new URL('../.github/scripts/deploy-site.sh', import.meta.url), 'utf8');
   assert.match(deploy, /deploy-docs/);
   assert.doesNotMatch(deploy, /tar -tzf "\$archive" \| grep/, 'listing must be captured before grep -q under pipefail');
+  assert.doesNotMatch(deploy, /\| grep -[A-Za-z]*q/, 'no pipe into grep -q under pipefail (SIGPIPE on the writer)');
   assert.match(deploy, /StrictHostKeyChecking=yes/);
   assert.match(deploy, /skipping its deployment/);
   assert.match(masterBuild, /branches:\s*\[master\]/);
