@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {mkdtempSync, writeFileSync, rmSync} from 'node:fs';
+import {mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
-import {join} from 'node:path';
+import {dirname, join} from 'node:path';
 import {spawnSync} from 'node:child_process';
-import {checkMessage, parseVersion} from '../scripts/lib/policy.mjs';
+import {checkMessage, parseVersion, policy} from '../scripts/lib/policy.mjs';
 import {eventSelection} from '../scripts/check-ci.mjs';
 
 test('English one-line commits work; malformed and CI-bypassing messages fail', () => {
@@ -32,11 +32,41 @@ test('CI validates PR data and fails closed on missing or malformed event refs',
 test('the hook entry point rejects invalid messages and invalid git ranges', () => {
   const dir=mkdtempSync(join(tmpdir(),'mo-policy-'));
   try {
+    // Build the history this test needs instead of depending on checkout depth
+    // or remote refs supplied by a developer's clone or a CI merge checkout.
+    for (const file of ['.githooks/commit-msg', 'scripts/check-commit-msg.sh', 'scripts/check-commit-msg.mjs', 'scripts/lib/policy.mjs']) {
+      mkdirSync(dirname(join(dir,file)), {recursive:true});
+      writeFileSync(join(dir,file),readFileSync(new URL(`../${file}`,import.meta.url)),{mode:0o755});
+    }
+    const run=(command,args)=>spawnSync(command,args,{cwd:dir,encoding:'utf8'});
+    const git=(...args)=>{
+      const result=run('git',args);
+      assert.equal(result.status,0,result.stderr);
+      return result.stdout.trim();
+    };
+    git('init','--quiet');
+    git('config','user.name','Policy test');
+    git('config','user.email','policy@example.invalid');
+    git('config','commit.gpgsign','false');
+    git('commit','--allow-empty','-m','Legacy subject before the policy');
+    const legacyBoundary=git('rev-parse','HEAD');
+    mkdirSync(join(dir,'config'));
+    writeFileSync(join(dir,'config/repository-policy.json'),JSON.stringify({...policy,legacyBoundary}));
+    git('update-ref','refs/remotes/origin/master',legacyBoundary);
+    git('commit','--allow-empty','-m','docs: add checked content');
+
     const message=join(dir,'message');writeFileSync(message,'docs: test hook feedback\n');
-    assert.equal(spawnSync('bash',['.githooks/commit-msg',message]).status,0);
+    const valid=run('bash',['.githooks/commit-msg',message]);
+    assert.equal(valid.status,0,valid.stderr);
     writeFileSync(message,'not a conventional commit\n');
-    assert.equal(spawnSync('bash',['.githooks/commit-msg',message]).status,1);
-    assert.equal(spawnSync('node',['scripts/check-commit-msg.mjs','--revs','missing-revision..HEAD']).status,1);
-    assert.equal(spawnSync('node',['scripts/check-commit-msg.mjs','--revs','HEAD','--not','origin/master']).status,0);
+    assert.equal(run('bash',['.githooks/commit-msg',message]).status,1);
+    assert.equal(run('node',['scripts/check-commit-msg.mjs','--revs','missing-revision..HEAD']).status,1);
+    const range=['scripts/check-commit-msg.mjs','--revs','HEAD','--not','origin/master'];
+    const accepted=run('node',range);
+    assert.equal(accepted.status,0,accepted.stderr);
+    git('commit','--allow-empty','-m','Invalid new subject');
+    const rejected=run('node',range);
+    assert.equal(rejected.status,1,rejected.stderr);
+    assert.match(rejected.stderr,/English Conventional Commit/);
   } finally {rmSync(dir,{recursive:true,force:true});}
 });
