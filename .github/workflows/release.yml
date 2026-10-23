@@ -1,30 +1,21 @@
 name: release
-
 on:
   push:
     tags: ['**']
   workflow_dispatch:
     inputs:
       version:
-        description: 'Candidate version (build and validate only; does not publish)'
+        description: 'Ordinary content version (validation/package only)'
         required: true
-        default: V1.0.1-rc7
+        default: V1.0.2
         type: string
-
 permissions:
   contents: read
-
 concurrency:
   group: mo-docs-release-${{ github.event_name == 'push' && github.ref_name || inputs.version }}
   cancel-in-progress: false
-
 env:
   VERSION: ${{ github.event_name == 'push' && github.ref_name || inputs.version }}
-  # V1.2.3-rc1 is a release candidate: it is published as a prerelease and
-  # deployed to the test platform only. V1.2.3 also deploys to production.
-  PRERELEASE: ${{ contains(github.event_name == 'push' && github.ref_name || inputs.version, '-rc') }}
-  DOCS_VERSION: ${{ github.event_name == 'push' && github.ref_name || inputs.version }}
-
 jobs:
   build:
     name: validate-and-package
@@ -35,13 +26,11 @@ jobs:
           ref: ${{ github.event_name == 'push' && github.ref || github.sha }}
           fetch-depth: 0
           persist-credentials: false
-
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
-
-      - name: Validate version, tag and source branch
+      - name: Validate ordinary version, annotated tag and mainline ancestry
         env:
           EVENT_NAME: ${{ github.event_name }}
         run: |
@@ -49,37 +38,20 @@ jobs:
           SOURCE_COMMIT=$(git rev-parse HEAD)
           if [ "$EVENT_NAME" = push ]; then
             test "$(git cat-file -t "refs/tags/$VERSION")" = tag
-            SOURCE_COMMIT=$(git rev-parse "refs/tags/$VERSION^{commit}")
-            test "$SOURCE_COMMIT" = "$(git rev-parse HEAD)"
+            test "$(git rev-parse "refs/tags/$VERSION^{commit}")" = "$SOURCE_COMMIT"
           fi
           git merge-base --is-ancestor "$SOURCE_COMMIT" refs/remotes/origin/master
           node scripts/check-commit-msg.mjs --revs "$SOURCE_COMMIT"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Validate source
-        run: npm test && npm run typecheck
-
-      - name: Install browser for smoke tests
-        run: npx playwright install --with-deps chromium
-
-      - name: Build, verify and package each destination
-        run: |
-          for target in test production; do
-            node scripts/build-site.mjs "$target" --verify
-            node scripts/package-site.mjs "$target" "$VERSION"
-          done
-          node scripts/package-release.mjs "$VERSION"
-
-      - name: Upload release candidate
-        uses: actions/upload-artifact@v7
+      - run: npm ci
+      - run: npm test
+      - name: Package versioned content with file hashes
+        run: node scripts/package-release.mjs "$VERSION"
+      - uses: actions/upload-artifact@v7
         with:
-          name: mo-docs-release-${{ env.VERSION }}
+          name: mo-docs-content-${{ env.VERSION }}
           path: dist/
           if-no-files-found: error
-          retention-days: 14
-
+          retention-days: 30
   publish:
     name: publish-github-release
     if: github.event_name == 'push' && github.repository == 'inhandnet/mo-docs'
@@ -90,88 +62,14 @@ jobs:
     steps:
       - uses: actions/download-artifact@v7
         with:
-          name: mo-docs-release-${{ env.VERSION }}
+          name: mo-docs-content-${{ env.VERSION }}
           path: dist/
-
-      - name: Upload assets to a draft release
+      - name: Create the complete content release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          gh release create "$VERSION" \
-            "dist/mo-docs-$VERSION-test.tar.gz" \
-            "dist/mo-docs-$VERSION-production.tar.gz" \
-            dist/release.json \
-            dist/CHANGELOG.en.md \
-            dist/CHANGELOG.zh-CN.md \
-            dist/release-notes.md \
-            dist/SHA256SUMS \
-            --verify-tag \
-            --notes-file dist/release-notes.md \
-            --title "$VERSION" \
-            --prerelease="$PRERELEASE" \
-            --draft
-
-      - name: Publish the complete release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: gh release edit "$VERSION" --draft=false
-
-  # Deployment: stream the site archive over SSH to a web server. The deploy
-  # account there accepts the single command `deploy-docs`, reads a .tar.gz on
-  # stdin and unpacks it under /docs/ of the developer site itself.
-  # Each platform needs all four secrets; incomplete configuration fails:
-  #   OPS_DEPLOY_HOST / OPS_PROD_HOST          server address
-  #   OPS_DEPLOY_USER / OPS_PROD_USER          deploy account
-  #   OPS_DEPLOY_SSH_KEY / OPS_PROD_SSH_KEY    private key
-  #   OPS_DEPLOY_HOST_KEY / OPS_PROD_HOST_KEY  the server's host key (ssh-keyscan line)
-  deploy-test:
-    name: deploy-test-platform
-    if: github.event_name == 'push' && github.repository == 'inhandnet/mo-docs'
-    needs: [build, publish]
-    runs-on: ubuntu-latest
-    concurrency:
-      group: mo-docs-deploy-test
-      cancel-in-progress: false
-    env:
-      DEPLOY_PLATFORM: test
-      DEPLOY_HOST: ${{ secrets.OPS_DEPLOY_HOST }}
-      DEPLOY_USER: ${{ secrets.OPS_DEPLOY_USER }}
-      DEPLOY_SSH_KEY: ${{ secrets.OPS_DEPLOY_SSH_KEY }}
-      DEPLOY_HOST_KEY: ${{ secrets.OPS_DEPLOY_HOST_KEY }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: actions/download-artifact@v7
-        with:
-          name: mo-docs-release-${{ env.VERSION }}
-          path: dist/
-      - name: Deploy the documentation archive
-        run: bash .github/scripts/deploy-site.sh "dist/mo-docs-$VERSION-$DEPLOY_PLATFORM.tar.gz"
-
-  deploy-production:
-    name: deploy-production-platform
-    if: github.event_name == 'push' && github.repository == 'inhandnet/mo-docs' && !contains(github.ref_name, '-rc')
-    needs: [build, publish, deploy-test]
-    runs-on: ubuntu-latest
-    concurrency:
-      group: mo-docs-deploy-production
-      cancel-in-progress: false
-    env:
-      DEPLOY_PLATFORM: production
-      DEPLOY_HOST: ${{ secrets.OPS_PROD_HOST }}
-      DEPLOY_USER: ${{ secrets.OPS_PROD_USER }}
-      DEPLOY_SSH_KEY: ${{ secrets.OPS_PROD_SSH_KEY }}
-      DEPLOY_HOST_KEY: ${{ secrets.OPS_PROD_HOST_KEY }}
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: actions/download-artifact@v7
-        with:
-          name: mo-docs-release-${{ env.VERSION }}
-          path: dist/
-      - name: Deploy the documentation archive
-        run: bash .github/scripts/deploy-site.sh "dist/mo-docs-$VERSION-$DEPLOY_PLATFORM.tar.gz"
+          gh release create "$VERSION" dist/* \
+            --verify-tag --notes-file dist/release-notes.md \
+            --title "$VERSION" --prerelease=false --draft
+          gh release edit "$VERSION" --draft=false

@@ -1,0 +1,186 @@
+{
+  "captured_at": "2026-10-23",
+  "images": {
+    "edit-file.png": {
+      "url": "https://docs.github.com/assets/cb-47646/images/help/repository/edit-file-edit-button.png",
+      "page": "https://docs.github.com/en/repositories/working-with-files/managing-files/editing-files",
+      "alt": "Screenshot of a file. In the header, a button, labeled with a pencil icon, is outlined in dark orange.",
+      "sha256": "694ef02b7f50736e518df67b5389560bd5db92ba599697bb2b729e907b98e3bd",
+      "license": "CC BY 4.0",
+      "attribution": "GitHub Docs",
+      "modifications": "none"
+    },
+    "preview-changes.png": {
+      "url": "https://docs.github.com/assets/cb-35434/images/help/repository/edit-readme-preview-changes.png",
+      "page": "https://docs.github.com/en/repositories/working-with-files/managing-files/editing-files",
+      "alt": "Screenshot of a file in edit mode. Above the file's contents, a tab labeled \"Preview\" is outlined in dark orange.",
+      "sha256": "d50c9d93ce164bd352d72916f92a19a8f6ef7012b7c1ce3af5449baae9614c7e",
+      "license": "CC BY 4.0",
+      "attribution": "GitHub Docs",
+      "modifications": "none"
+    },
+    "choose-commit-branch.png": {
+      "url": "https://docs.github.com/assets/cb-27122/images/help/repository/choose-commit-branch.png",
+      "page": "https://docs.github.com/en/repositories/working-with-files/managing-files/adding-a-file-to-a-repository",
+      "alt": "Screenshot of a GitHub pull request showing a radio button to commit directly to the main branch or to create a new branch. New branch is selected.",
+      "sha256": "b1d3fc781042da16d56395da3e57697f03bbf2a63f1484ce2d3b249d22edd99b",
+      "license": "CC BY 4.0",
+      "attribution": "GitHub Docs",
+      "modifications": "none"
+    },
+    "upload-files.png": {
+      "url": "https://docs.github.com/assets/cb-54037/images/help/repository/upload-files-button.png",
+      "page": "https://docs.github.com/en/repositories/working-with-files/managing-files/adding-a-file-to-a-repository",
+      "alt": "Screenshot of the main page of the repository. Above the list of a files, a button, labeled \"Add file,\" is outlined in dark orange.",
+      "sha256": "5f40b799646d8f239aa2da3b6bba6f5b2d9f628369c40501c0eebd1ed656cdc7",
+      "license": "CC BY 4.0",
+      "attribution": "GitHub Docs",
+      "modifications": "none"
+    },
+    "branch-selector.png": {
+      "url": "https://docs.github.com/assets/cb-36152/images/help/repository/file-tree-view-branch-dropdown-expanded.png",
+      "page": "https://docs.github.com/en/pull-requests/how-tos/commit-changes/managing-branches-within-your-repository",
+      "alt": "Screenshot of the file tree view for a repository. A dropdown menu for branches is expanded and outlined in dark orange.",
+      "sha256": "ad1402c013f516303c4b91b9dab14c0b498869373cc2c28cc799391681958cb4",
+      "license": "CC BY 4.0",
+      "attribution": "GitHub Docs",
+      "modifications": "none"
+    },
+    "create-branch.png": {
+      "url": "https://docs.github.com/assets/cb-28640/images/help/branches/create-branch-text.png",
+      "page": "https://docs.github.com/en/pull-requests/how-tos/commit-changes/managing-branches-within-your-repository",
+      "alt": "Screenshot of the branch selector dropdown menu. \"Create branch: new-branch\" is highlighted with an orange outline.",
+      "sha256": "c94fcbd131a53e0524bd9b40c87612c6e5bfb9db0631bdd0229d20f2b2142456",
+      "license": "CC BY 4.0",
+      "attribution": "GitHub Docs",
+      "modifications": "none"
+    },
+    "compare-pr.png": {
+      "url": "https://docs.github.com/assets/cb-34097/images/help/pull_requests/pull-request-compare-pull-request.png",
+      "page": "https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request",
+      "alt": "Screenshot of the banner above the list of files.",
+      "sha256": "3e0ccbaaa19c2ee045c904e76d4ff9f4728e89e63708b2a1230120a9efcc64af",
+      "license": "CC BY 4.0",
+      "attribution": "GitHub Docs",
+      "modifications": "none"
+    },
+    "files-changed.png": {
+      "url": "https://docs.github.com/assets/cb-23571/images/help/pull_requests/pull-request-tabs-changed-files.png",
+      "page": "https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request",
+      "alt": "Screenshot of the tabs for a pull request. The \"Files changed\" tab is outlined in dark orange.",
+      "sha256": "f961a8d4c77aca43f45ab5795c520eff0cd3f7e7e85480f52b0247b50ac17ded",
+      "license": "CC BY 4.0",
+      "attribution": "GitHub Docs",
+      "modifications": "none"
+    },
+    "repository.png": {
+      "url": "https://github.com/inhandnet/mo-hardware",
+      "attribution": "Read-only capture of the public mo-hardware repository",
+      "sha256": "09975a027f2644c8e8dd5231cbd0ece1116d249fee099f12b83fe7af9fd1c227",
+      "modifications": "none"
+    },
+    "mechanical-file.png": {
+      "url": "https://github.com/inhandnet/mo-hardware/blob/master/products/mo62a/mechanical/mechanical.en-US.md",
+      "attribution": "Read-only capture of the public mo-hardware repository",
+      "sha256": "e0c31103afedbaadfb8b2f8f7cd5ffdb53c0a65e827468c87d4cfd4c0710ec75",
+      "modifications": "none"
+    },
+    "releases.png": {
+      "url": "https://github.com/inhandnet/mo-hardware/releases/tag/V1.0.1-rc4",
+      "attribution": "Read-only capture of the public mo-hardware repository",
+      "sha256": "b37eb08323a6772c02b6f778d22b1a7292c4a01f54e7b603a805fad65d9b432a",
+      "modifications": "none"
+    },
+    "example-01-product.png": {
+      "source": "training/examples/category-records/01-product.en-US.md",
+      "type": "local Markdown rendering",
+      "sha256": "c86c4a3d5860d3892a9099c9f23d4f51f70ead8fe0acaf7fd688a6902a15a25b",
+      "license": "CC BY-SA 4.0",
+      "modifications": "Browser screenshot of supplied example source"
+    },
+    "example-02-images.png": {
+      "source": "training/examples/category-records/02-images.en-US.md",
+      "type": "local Markdown rendering",
+      "sha256": "7cb292c0a75bd8c1ccdb8cbeadb841bdc585bfe958f5b9cded7a0489f58b290e",
+      "license": "CC BY-SA 4.0",
+      "modifications": "Browser screenshot of supplied example source"
+    },
+    "example-03-interfaces.png": {
+      "source": "training/examples/category-records/03-interfaces.en-US.md",
+      "type": "local Markdown rendering",
+      "sha256": "e69de97d1752a5046baecbc4ffe1281c457858409deb6688187ca565baee64a5",
+      "license": "CC BY-SA 4.0",
+      "modifications": "Browser screenshot of supplied example source"
+    },
+    "example-04-schematics.png": {
+      "source": "training/examples/category-records/04-schematics.en-US.md",
+      "type": "local Markdown rendering",
+      "sha256": "261fd3a07a1f65d009753c5680c9908c918b6fa14f1ccd4fc369cbd641de871b",
+      "license": "CC BY-SA 4.0",
+      "modifications": "Browser screenshot of supplied example source"
+    },
+    "example-05-pcb.png": {
+      "source": "training/examples/category-records/05-pcb.en-US.md",
+      "type": "local Markdown rendering",
+      "sha256": "6dbf586211b9b0f352a324440e7598eb1d160dc18eba702ad4ec1c9f9c416c7a",
+      "license": "CC BY-SA 4.0",
+      "modifications": "Browser screenshot of supplied example source"
+    },
+    "example-06-mechanical.png": {
+      "source": "training/examples/category-records/06-mechanical.en-US.md",
+      "type": "local Markdown rendering",
+      "sha256": "2d9e050cd036f8e014e814bb1b6c96df60742c1922a6146499bafe21eec68022",
+      "license": "CC BY-SA 4.0",
+      "modifications": "Browser screenshot of supplied example source"
+    },
+    "example-07-revisions.png": {
+      "source": "training/examples/category-records/07-revisions.en-US.md",
+      "type": "local Markdown rendering",
+      "sha256": "fc83ab660a483a0e8d8b73768ac7a0e8fdaf9836c306b1f8fc18fff3ba14d9b0",
+      "license": "CC BY-SA 4.0",
+      "modifications": "Browser screenshot of supplied example source"
+    },
+    "example-08-power-thermal.png": {
+      "source": "training/examples/category-records/08-power-thermal.en-US.md",
+      "type": "local Markdown rendering",
+      "sha256": "860d4955dff143f025591cdaec0f1745333d504f7a06b11d01872cf39c4ff84e",
+      "license": "CC BY-SA 4.0",
+      "modifications": "Browser screenshot of supplied example source"
+    },
+    "example-09-interface-tests.png": {
+      "source": "training/examples/category-records/09-interface-tests.en-US.md",
+      "type": "local Markdown rendering",
+      "sha256": "195fb19443a029153d6d78ccecf2eee122a0d20483d0308f04f29b8039c37152",
+      "license": "CC BY-SA 4.0",
+      "modifications": "Browser screenshot of supplied example source"
+    },
+    "example-10-compliance.png": {
+      "source": "training/examples/category-records/10-compliance.en-US.md",
+      "type": "local Markdown rendering",
+      "sha256": "40a3bef9ae1df0cea0db0fb070d4bc439fcdfd047922dc01a4d2a2cdfa85645b",
+      "license": "CC BY-SA 4.0",
+      "modifications": "Browser screenshot of supplied example source"
+    },
+    "example-11-accessories.png": {
+      "source": "training/examples/category-records/11-accessories.en-US.md",
+      "type": "local Markdown rendering",
+      "sha256": "105ecae1d626a91c50da65ee30d360fa85a4acbaf5fb62b500fff7d1974227ac",
+      "license": "CC BY-SA 4.0",
+      "modifications": "Browser screenshot of supplied example source"
+    },
+    "example-12-compatibility.png": {
+      "source": "training/examples/category-records/12-compatibility.en-US.md",
+      "type": "local Markdown rendering",
+      "sha256": "6fd02512e2c0c9d97e97e752a69300f50568e70d28748aaf1341239f1f532c7f",
+      "license": "CC BY-SA 4.0",
+      "modifications": "Browser screenshot of supplied example source"
+    },
+    "exercise-solution.png": {
+      "source": "training/examples/mechanical-review/solution.en-US.md",
+      "type": "local Markdown rendering",
+      "sha256": "547402aa476f2367e13234b64a4a74078db0aa3419ed6e7b3f818a408ad78a92",
+      "license": "CC BY-SA 4.0",
+      "modifications": "Browser screenshot of supplied example source"
+    }
+  }
+}

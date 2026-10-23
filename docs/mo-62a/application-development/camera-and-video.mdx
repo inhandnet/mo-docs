@@ -6,7 +6,6 @@ sidebar_position: 2
 
 import devices from '@site/static/img/application-development/mo62a-camera-devices.png';
 import jpeg from '@site/static/img/application-development/mo62a-camera-jpeg.png';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
 This is the application-development reference for camera acquisition and video processing, independent of a neural network. The worked pipeline takes Bayer frames through the TI ISP and saves 1920 × 1080 JPEG files without taking over HDMI. Use it to validate an application's input before adding inference, encoding or network transport.
 
@@ -49,7 +48,7 @@ The codec discovery screenshot comes from a development test system with earlier
 
 ## Capture JPEG frames
 
-Download <a href={useBaseUrl('/downloads/camera/capture-jpeg-mmap.sh')} download>capture-jpeg-mmap.sh</a> and copy it to the board. Choose an output directory that does not already exist:
+Download <AssetLink href="/downloads/camera/capture-jpeg-mmap.sh" download>capture-jpeg-mmap.sh</AssetLink> and copy it to the board. Choose an output directory that does not already exist:
 
 ```bash
 sudo bash capture-jpeg-mmap.sh /tmp/camera-capture-01

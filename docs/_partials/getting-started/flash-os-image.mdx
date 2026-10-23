@@ -1,5 +1,3 @@
-import Link from '@site/src/components/DocumentationLink';
-import ImageDownload, {ImageReleaseProvider} from '@site/src/components/ImageDownload';
 import installAnimation from '@site/static/img/getting-started/armbian-imager-install-windows.gif';
 import installStill from '@site/static/img/getting-started/armbian-imager-windows.png';
 import customImageAnimation from '@site/static/img/getting-started/armbian-imager-use-custom-image.gif';
@@ -21,7 +19,7 @@ Writing the image erases everything on the card.
 
 <ImageReleaseProvider>
 
-Download the <ImageDownload>latest Mo62A OS image</ImageDownload> (or [view all releases](https://github.com/inhandnet/Mo62A/releases)).
+Download the <ImageDownload>selected Mo62A OS image</ImageDownload> (or [view all releases](https://github.com/inhandnet/Mo62A/releases)).
 
 :::note
 Please also download the corresponding <ImageDownload asset="checksums">SHA256SUMS</ImageDownload> file to verify the image.
@@ -58,12 +56,12 @@ The steps below use Armbian Imager. Other image writers, such as [balenaEtcher](
 
    <picture>
      <source media="(prefers-reduced-motion: reduce)" srcSet={customImageStill} />
-     <img
-       src={props.board === 'mo-62a' ? customImageAnimation : customImageStill}
-       alt={props.board === 'mo-62a'
-         ? 'Armbian Imager: click Use Custom Image, select the Mo62A OS image, and click Open'
-         : 'Armbian Imager on Windows showing the Use Custom Image button'}
-     />
+     <Only board={props.board} is="mo-62a">
+       <img src={customImageAnimation} alt="Armbian Imager: click Use Custom Image, select the Mo62A OS image, and click Open" />
+     </Only>
+     <Only board={props.board} is="mo-68a">
+       <img src={customImageStill} alt="Armbian Imager on Windows showing the Use Custom Image button" />
+     </Only>
    </picture>
 
    </div>

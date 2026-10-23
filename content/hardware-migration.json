@@ -1,0 +1,688 @@
+{
+  "source": {
+    "repository": "inhandnet/mo-hardware",
+    "commit": "f4b1c7862a9c8f9827dcb149acbffd8b5ccc2f5d"
+  },
+  "files": [
+    {
+      "original": "products/mo62a/compliance/.gitkeep",
+      "destination": "hardware/products/mo62a/compliance/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo62a/compliance/certifications.en-US.md",
+      "destination": "hardware/products/mo62a/compliance/certifications.en-US.md",
+      "sha256": "255e6b96c1dbbcc686cfb834f39a759300f80f152ce290032d3f7dc4247e7107"
+    },
+    {
+      "original": "products/mo62a/compliance/declarations.en-US.md",
+      "destination": "hardware/products/mo62a/compliance/declarations.en-US.md",
+      "sha256": "b56d6a0f2f8cbc4de5c0edc8cd2ff364958c5b918e7d99c1767105ab65586b0a"
+    },
+    {
+      "original": "products/mo62a/compliance/index.en-US.md",
+      "destination": "hardware/products/mo62a/compliance/index.en-US.md",
+      "sha256": "487eccd4478e1a81f83c7d41f74d65a2903b4d715c3486eb25373b2c67269611"
+    },
+    {
+      "original": "products/mo62a/compliance/integration-notes.en-US.md",
+      "destination": "hardware/products/mo62a/compliance/integration-notes.en-US.md",
+      "sha256": "2f886ca923d622fcaede917a7d6288d620920a702d3d041b378b10ac183b5cb9"
+    },
+    {
+      "original": "products/mo62a/compliance/regulatory-and-safety.en-US.md",
+      "destination": "hardware/products/mo62a/compliance/regulatory-and-safety.en-US.md",
+      "sha256": "c7a4ee150fe309bcddf6854ca4d23e3374fcc37bddfc0d601aaf078fce93cc9e"
+    },
+    {
+      "original": "products/mo62a/images/.gitkeep",
+      "destination": "hardware/products/mo62a/images/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo62a/images/mo62a-40pin-reference.svg",
+      "destination": "hardware/products/mo62a/images/mo62a-40pin-reference.svg",
+      "sha256": "ef3640858ab87c9f446e25a9b3a567c6aa57ee667a713b7ac555e9f6dd017a9e"
+    },
+    {
+      "original": "products/mo62a/images/mo62a-block-v10-en.svg",
+      "destination": "hardware/products/mo62a/images/mo62a-block-v10-en.svg",
+      "sha256": "23c381217fc0f6f92ea01bbdb7ccf452e6c201419947634aa130a4b0a84255b0"
+    },
+    {
+      "original": "products/mo62a/images/mo62a-block-v11-en.svg",
+      "destination": "hardware/products/mo62a/images/mo62a-block-v11-en.svg",
+      "sha256": "09306d0d6a50f450b390b3a92a420537aaf3e50ed33e7fd8fbed5d3ff4765a51"
+    },
+    {
+      "original": "products/mo62a/images/mo62a-board-top.png",
+      "destination": "hardware/products/mo62a/images/mo62a-board-top.png",
+      "sha256": "afee288a01ac2de5aadf3d1d6e4bb1692bbcdf2e5620b1217915b188962c1fe7"
+    },
+    {
+      "original": "products/mo62a/images/mo62a-connectors-numbered.svg",
+      "destination": "hardware/products/mo62a/images/mo62a-connectors-numbered.svg",
+      "sha256": "186e8b70c1973060b293b3a1e9520e1272d53e08cc94ae5d672dc4939b215d99"
+    },
+    {
+      "original": "products/mo62a/images/mo62a-connectors-v11.png",
+      "destination": "hardware/products/mo62a/images/mo62a-connectors-v11.png",
+      "sha256": "56bdf3c946a335fbc97db83495c03247bed2000dbd27e03d569744debb2c6def"
+    },
+    {
+      "original": "products/mo62a/images/mo62a-interfaces.png",
+      "destination": "hardware/products/mo62a/images/mo62a-interfaces.png",
+      "sha256": "59e1fdbaf898c8ca183429ddcf3a71a621cafd03976bf82e79fe5937a5df8346"
+    },
+    {
+      "original": "products/mo62a/images/mo62a-j6-orientation.svg",
+      "destination": "hardware/products/mo62a/images/mo62a-j6-orientation.svg",
+      "sha256": "1cac651cbf7530d017b4ca5ad27b7cd1709977845380367827d89c3f49cc3646"
+    },
+    {
+      "original": "products/mo62a/images/mo62a-step-isometric.png",
+      "destination": "hardware/products/mo62a/images/mo62a-step-isometric.png",
+      "sha256": "881a7f50302d024e02f287711eda8b9bb9c60faf78693ad743cbf3e612a9e711"
+    },
+    {
+      "original": "products/mo62a/images/mo62a-step-top.png",
+      "destination": "hardware/products/mo62a/images/mo62a-step-top.png",
+      "sha256": "f5b49a7a7bdb0fcb5ff80da8833f1c332eaa7af42236f0951b2492dbc50c8ff8"
+    },
+    {
+      "original": "products/mo62a/images/mo62a-thermal.png",
+      "destination": "hardware/products/mo62a/images/mo62a-thermal.png",
+      "sha256": "cbc3f032da7fdd975efed1af32f9e7fda4eeb63cde1d4dd59a7b2db89b4ed44d"
+    },
+    {
+      "original": "products/mo62a/interfaces/.gitkeep",
+      "destination": "hardware/products/mo62a/interfaces/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo62a/interfaces/hardware-interfaces.en-US.md",
+      "destination": "hardware/products/mo62a/interfaces/hardware-interfaces.en-US.md",
+      "sha256": "8c41f777f9799eab3acb1e892d6f0c5e119493463dee52d2d4883506fabe1ef6"
+    },
+    {
+      "original": "products/mo62a/mechanical/.gitkeep",
+      "destination": "hardware/products/mo62a/mechanical/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo62a/mechanical/files/MO_62A_MB_PCBA_V1_ASM.stp.zip",
+      "destination": "hardware/products/mo62a/mechanical/files/MO_62A_MB_PCBA_V1_ASM.stp.zip",
+      "sha256": "bbb27e5b16e253fc991a8df99de0cdf10bcb1a09b442cb23bcf41711a4a0cde6"
+    },
+    {
+      "original": "products/mo62a/mechanical/files/README.txt",
+      "destination": "hardware/products/mo62a/mechanical/files/README.txt",
+      "sha256": "fbff3c169a37ee131a2be0476bf9dc1dc0cf9e795e8601654bbb0eb2d8a147c4"
+    },
+    {
+      "original": "products/mo62a/mechanical/files/SHA256SUMS.txt",
+      "destination": "hardware/products/mo62a/mechanical/files/SHA256SUMS.txt",
+      "sha256": "dd4fccf1d5b5cb7e926b6543ab3cabfd34f602820ea83d648b4302d6f1ae116b"
+    },
+    {
+      "original": "products/mo62a/mechanical/mechanical.en-US.md",
+      "destination": "hardware/products/mo62a/mechanical/mechanical.en-US.md",
+      "sha256": "ba07b1e1f4e238fec96e301d7112ceb297ece40375ebb362a4a9df47cc566db0"
+    },
+    {
+      "original": "products/mo62a/overview/index.en-US.md",
+      "destination": "hardware/products/mo62a/overview/index.en-US.md",
+      "sha256": "58173a83ae9bab4c8a9771d2eddf7e1c3f9d15468fa6653ec6a24636837b729b"
+    },
+    {
+      "original": "products/mo62a/overview/overview.en-US.md",
+      "destination": "hardware/products/mo62a/overview/overview.en-US.md",
+      "sha256": "a713df6099dcaa189558723a4797bcd39f4671b768d646debd36c57f7f547708"
+    },
+    {
+      "original": "products/mo62a/pcb/.gitkeep",
+      "destination": "hardware/products/mo62a/pcb/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo62a/revisions/.gitkeep",
+      "destination": "hardware/products/mo62a/revisions/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo62a/revisions/hardware-revisions.en-US.md",
+      "destination": "hardware/products/mo62a/revisions/hardware-revisions.en-US.md",
+      "sha256": "dc1353f8aed68172036929fbff1f32471fa51054e58302b865cfb1e16be9688f"
+    },
+    {
+      "original": "products/mo62a/schematics/.gitkeep",
+      "destination": "hardware/products/mo62a/schematics/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo62a/schematics/files/MO_62A_S_MB_V11-260426.pdf",
+      "destination": "hardware/products/mo62a/schematics/files/MO_62A_S_MB_V11-260426.pdf",
+      "sha256": "11aea5b41fe549bc77c8b476fdc14d8d407facbcf6f87f41ca69d9b9bf982ce7"
+    },
+    {
+      "original": "products/mo62a/schematics/files/MO_62A_sch_V1.0-260203.pdf",
+      "destination": "hardware/products/mo62a/schematics/files/MO_62A_sch_V1.0-260203.pdf",
+      "sha256": "50defd55bd0c9edeef46dc421bc65c7743482e32a996ee8e3ac560908cc3aeff"
+    },
+    {
+      "original": "products/mo62a/schematics/schematics.en-US.md",
+      "destination": "hardware/products/mo62a/schematics/schematics.en-US.md",
+      "sha256": "613c0be9832e0bc57a6d476f407acd6e7fe88814b8046bc77b6f647dfccd235d"
+    },
+    {
+      "original": "products/mo62a/validation/interfaces/.gitkeep",
+      "destination": "hardware/products/mo62a/validation/interfaces/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo62a/validation/power-thermal/.gitkeep",
+      "destination": "hardware/products/mo62a/validation/power-thermal/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo62a/validation/power-thermal/power-and-thermal.en-US.md",
+      "destination": "hardware/products/mo62a/validation/power-thermal/power-and-thermal.en-US.md",
+      "sha256": "ef060c41b1ad5c11553c88a9941e1a4ab15c85641cea9580983464c08cf12fe6"
+    },
+    {
+      "original": "products/mo68a/compliance/.gitkeep",
+      "destination": "hardware/products/mo68a/compliance/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo68a/images/.gitkeep",
+      "destination": "hardware/products/mo68a/images/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo68a/interfaces/.gitkeep",
+      "destination": "hardware/products/mo68a/interfaces/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo68a/mechanical/.gitkeep",
+      "destination": "hardware/products/mo68a/mechanical/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo68a/pcb/.gitkeep",
+      "destination": "hardware/products/mo68a/pcb/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo68a/revisions/.gitkeep",
+      "destination": "hardware/products/mo68a/revisions/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo68a/schematics/.gitkeep",
+      "destination": "hardware/products/mo68a/schematics/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo68a/validation/interfaces/.gitkeep",
+      "destination": "hardware/products/mo68a/validation/interfaces/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "products/mo68a/validation/power-thermal/.gitkeep",
+      "destination": "hardware/products/mo68a/validation/power-thermal/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "accessories/.gitkeep",
+      "destination": "hardware/accessories/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "accessories/catalog/guides.en-US.md",
+      "destination": "hardware/accessories/catalog/guides.en-US.md",
+      "sha256": "40271d7db1876becb37920351f742350f2c916cb4b9425facb630370b9675860"
+    },
+    {
+      "original": "accessories/catalog/index.en-US.md",
+      "destination": "hardware/accessories/catalog/index.en-US.md",
+      "sha256": "7d82bfb1b777ba327b380233580ab52e092d7e1f4f5bd4a8c8b6a4ccb524cdd7"
+    },
+    {
+      "original": "accessories/catalog/overview.en-US.md",
+      "destination": "hardware/accessories/catalog/overview.en-US.md",
+      "sha256": "04d77628857bc64e581b889bd7645d3cfd8e7c07afd791e0028d34a5c8691bc3"
+    },
+    {
+      "original": "accessories/compatibility/mo62a/hat-compatibility.en-US.md",
+      "destination": "hardware/accessories/compatibility/mo62a/hat-compatibility.en-US.md",
+      "sha256": "6b7d60ae0ae946281ad86134c133bb1ca46eda67f74144dbede119dfe83d834b"
+    },
+    {
+      "original": "accessories/compatibility/mo62a/index.en-US.md",
+      "destination": "hardware/accessories/compatibility/mo62a/index.en-US.md",
+      "sha256": "eef00a164a8e90c5a4e20a035c15d4135ffae94d6e39b6b67146546641c16516"
+    },
+    {
+      "original": "accessories/compatibility/mo62a/supported-accessories.en-US.md",
+      "destination": "hardware/accessories/compatibility/mo62a/supported-accessories.en-US.md",
+      "sha256": "990ee087f359336877477f78943db7c058adac122dd153bc4a949cfcd5a8796e"
+    },
+    {
+      "original": "training/README.zh-CN.md",
+      "destination": "hardware/training/README.zh-CN.md",
+      "sha256": "767aee445b517b4d52331209a5d5b4e6725da238fdf691a05aa781f802efc9f1"
+    },
+    {
+      "original": "training/categories/01-product.zh-CN.md",
+      "destination": "hardware/training/categories/01-product.zh-CN.md",
+      "sha256": "255e739be3da0460254af49dd0c6ab87506cfaf5f8ede3ef37436b7556102713"
+    },
+    {
+      "original": "training/categories/02-images.zh-CN.md",
+      "destination": "hardware/training/categories/02-images.zh-CN.md",
+      "sha256": "a54f74f6f313b05fa993cef6b2773513f036ff148b8f7990308268c84efc1589"
+    },
+    {
+      "original": "training/categories/03-interfaces.zh-CN.md",
+      "destination": "hardware/training/categories/03-interfaces.zh-CN.md",
+      "sha256": "d63c70630f9ff0ae899613deb1f3c8e0dcf45c24f9a6820368efe448523d424e"
+    },
+    {
+      "original": "training/categories/04-schematics.zh-CN.md",
+      "destination": "hardware/training/categories/04-schematics.zh-CN.md",
+      "sha256": "e30066b48ca6d64363b2dfa7589079ef5e7b7fdaf885765391478b5ce3985f07"
+    },
+    {
+      "original": "training/categories/05-pcb.zh-CN.md",
+      "destination": "hardware/training/categories/05-pcb.zh-CN.md",
+      "sha256": "f1c1ca1886096baa095b95cc3551b28daaf3b576b44a9a04ae1cce93c9359e76"
+    },
+    {
+      "original": "training/categories/06-mechanical.zh-CN.md",
+      "destination": "hardware/training/categories/06-mechanical.zh-CN.md",
+      "sha256": "dd68ba24ad8c23fbfb89eb048168ca79b65c55bd5237a4644a2308cc1ead6ab9"
+    },
+    {
+      "original": "training/categories/07-revisions.zh-CN.md",
+      "destination": "hardware/training/categories/07-revisions.zh-CN.md",
+      "sha256": "02f0e9d47173c8fe2b3b940c54117d1a27a3c0b0b8439b5a14f9b3002a16fc8f"
+    },
+    {
+      "original": "training/categories/08-power-thermal.zh-CN.md",
+      "destination": "hardware/training/categories/08-power-thermal.zh-CN.md",
+      "sha256": "5b59e544e66b425aef12232fd167fadcadda3a1f422af9a31dc28436380e8757"
+    },
+    {
+      "original": "training/categories/09-interface-tests.zh-CN.md",
+      "destination": "hardware/training/categories/09-interface-tests.zh-CN.md",
+      "sha256": "c6a3fc0c637b25b78bbf2f055a9686059c05721ca2b88625f5a42d16e9e718d8"
+    },
+    {
+      "original": "training/categories/10-compliance.zh-CN.md",
+      "destination": "hardware/training/categories/10-compliance.zh-CN.md",
+      "sha256": "f569e2e96bf627be5b06060043b84bc9aa0635bd24f22d3677c7d10a8df6e589"
+    },
+    {
+      "original": "training/categories/11-accessories.zh-CN.md",
+      "destination": "hardware/training/categories/11-accessories.zh-CN.md",
+      "sha256": "f96132496dafcbf8f665d427c1038f5de0e900ea486375411470c948c9a4c856"
+    },
+    {
+      "original": "training/categories/12-compatibility.zh-CN.md",
+      "destination": "hardware/training/categories/12-compatibility.zh-CN.md",
+      "sha256": "9b05af95fd017e6958d0ef82f0cd080d12cd906090d44e65249e2f135cd8f560"
+    },
+    {
+      "original": "training/examples/category-records/01-product.en-US.md",
+      "destination": "hardware/training/examples/category-records/01-product.en-US.md",
+      "sha256": "45442ca26a5c3f1dbba75afe4c426be0abae6545395e78e52fc6f2bd145060ef"
+    },
+    {
+      "original": "training/examples/category-records/02-images.en-US.md",
+      "destination": "hardware/training/examples/category-records/02-images.en-US.md",
+      "sha256": "5c407d6b3fb046f67e6d75a7767bee8c1829798033ca0585c810286ec09ce46b"
+    },
+    {
+      "original": "training/examples/category-records/03-interfaces.en-US.md",
+      "destination": "hardware/training/examples/category-records/03-interfaces.en-US.md",
+      "sha256": "0038e7a83ebd0c01bc90cd7f36fee7b61d4e11673cfbc1737184caf0958faaad"
+    },
+    {
+      "original": "training/examples/category-records/04-schematics.en-US.md",
+      "destination": "hardware/training/examples/category-records/04-schematics.en-US.md",
+      "sha256": "50f1e2ca3feae1b1a8cc5860ca727afcf06c88110ad0e313b812703b94f42feb"
+    },
+    {
+      "original": "training/examples/category-records/05-pcb.en-US.md",
+      "destination": "hardware/training/examples/category-records/05-pcb.en-US.md",
+      "sha256": "faf5fd43dfa4bbcb637ff17b9e5b1623d745a00c3a37af3025219430f70f73f3"
+    },
+    {
+      "original": "training/examples/category-records/06-mechanical.en-US.md",
+      "destination": "hardware/training/examples/category-records/06-mechanical.en-US.md",
+      "sha256": "e8316cd4a3162e3e9e2e88e8efffcab201699bad6d932b6ad86e3b13a7633b70"
+    },
+    {
+      "original": "training/examples/category-records/07-revisions.en-US.md",
+      "destination": "hardware/training/examples/category-records/07-revisions.en-US.md",
+      "sha256": "01a5e7edb03a157c08c444fade5cd980c8d92be33cde2c4e72ae766b71a5a7a9"
+    },
+    {
+      "original": "training/examples/category-records/08-power-thermal.en-US.md",
+      "destination": "hardware/training/examples/category-records/08-power-thermal.en-US.md",
+      "sha256": "4d8411006bdd3d85b35471463d4cc82b696e8344c408cd35fc4615a8bc86e7b1"
+    },
+    {
+      "original": "training/examples/category-records/09-interface-tests.en-US.md",
+      "destination": "hardware/training/examples/category-records/09-interface-tests.en-US.md",
+      "sha256": "9448c18099f7da6f8cf8cea802124515eb9e5a6e9a4137e9c87b80a8b80c639d"
+    },
+    {
+      "original": "training/examples/category-records/10-compliance.en-US.md",
+      "destination": "hardware/training/examples/category-records/10-compliance.en-US.md",
+      "sha256": "bc614a56aed7da164d40a21cd77a2cd6343ce4b27a92beed2c66ff7a2dbba808"
+    },
+    {
+      "original": "training/examples/category-records/11-accessories.en-US.md",
+      "destination": "hardware/training/examples/category-records/11-accessories.en-US.md",
+      "sha256": "a7dfcfcea8dd89e37b044f5e0accd578c60a58ee57f8555ff8eeb12a38e641e8"
+    },
+    {
+      "original": "training/examples/category-records/12-compatibility.en-US.md",
+      "destination": "hardware/training/examples/category-records/12-compatibility.en-US.md",
+      "sha256": "35c4c041d81aa06d5a34544ef00345342eaeb3a90b4a7382383aa034e76a35e5"
+    },
+    {
+      "original": "training/examples/mechanical-review/README.zh-CN.md",
+      "destination": "hardware/training/examples/mechanical-review/README.zh-CN.md",
+      "sha256": "0aff020358934a4821b246fa86f5a9c4215c4d560598b9e05c22bc66835db3eb"
+    },
+    {
+      "original": "training/examples/mechanical-review/reading-checklist.txt",
+      "destination": "hardware/training/examples/mechanical-review/reading-checklist.txt",
+      "sha256": "adcd2f62308a7e54caa31efef453e262d8d3adcdb92384d9d18bd189def9e2bb"
+    },
+    {
+      "original": "training/examples/mechanical-review/record.en-US.md",
+      "destination": "hardware/training/examples/mechanical-review/record.en-US.md",
+      "sha256": "6f78fa76c476a620f8be2f2de5bbbf5f96586c5efcc4944a8cb787cbbac1dc26"
+    },
+    {
+      "original": "training/examples/mechanical-review/solution.en-US.md",
+      "destination": "hardware/training/examples/mechanical-review/solution.en-US.md",
+      "sha256": "c7946a7b00d621320beacb86c2b88d176bc468d62a8d2d7fee84818116b0cc94"
+    },
+    {
+      "original": "training/github-workflow.zh-CN.md",
+      "destination": "hardware/training/github-workflow.zh-CN.md",
+      "sha256": "fb7236b94c441e15ffdfee5cc65a1a9b02da1d59224a10f1aa18da71ef742465"
+    },
+    {
+      "original": "training/images/SOURCES.md",
+      "destination": "hardware/training/images/SOURCES.md",
+      "sha256": "a6e29f7fb58879138253db9f7adde96f825d26fd0e15f6199673abe76784efba"
+    },
+    {
+      "original": "training/images/branch-selector.png",
+      "destination": "hardware/training/images/branch-selector.png",
+      "sha256": "ad1402c013f516303c4b91b9dab14c0b498869373cc2c28cc799391681958cb4"
+    },
+    {
+      "original": "training/images/choose-commit-branch.png",
+      "destination": "hardware/training/images/choose-commit-branch.png",
+      "sha256": "b1d3fc781042da16d56395da3e57697f03bbf2a63f1484ce2d3b249d22edd99b"
+    },
+    {
+      "original": "training/images/compare-pr.png",
+      "destination": "hardware/training/images/compare-pr.png",
+      "sha256": "3e0ccbaaa19c2ee045c904e76d4ff9f4728e89e63708b2a1230120a9efcc64af"
+    },
+    {
+      "original": "training/images/create-branch.png",
+      "destination": "hardware/training/images/create-branch.png",
+      "sha256": "c94fcbd131a53e0524bd9b40c87612c6e5bfb9db0631bdd0229d20f2b2142456"
+    },
+    {
+      "original": "training/images/edit-file.png",
+      "destination": "hardware/training/images/edit-file.png",
+      "sha256": "694ef02b7f50736e518df67b5389560bd5db92ba599697bb2b729e907b98e3bd"
+    },
+    {
+      "original": "training/images/example-01-product.png",
+      "destination": "hardware/training/images/example-01-product.png",
+      "sha256": "c86c4a3d5860d3892a9099c9f23d4f51f70ead8fe0acaf7fd688a6902a15a25b"
+    },
+    {
+      "original": "training/images/example-02-images.png",
+      "destination": "hardware/training/images/example-02-images.png",
+      "sha256": "7cb292c0a75bd8c1ccdb8cbeadb841bdc585bfe958f5b9cded7a0489f58b290e"
+    },
+    {
+      "original": "training/images/example-03-interfaces.png",
+      "destination": "hardware/training/images/example-03-interfaces.png",
+      "sha256": "e69de97d1752a5046baecbc4ffe1281c457858409deb6688187ca565baee64a5"
+    },
+    {
+      "original": "training/images/example-04-schematics.png",
+      "destination": "hardware/training/images/example-04-schematics.png",
+      "sha256": "261fd3a07a1f65d009753c5680c9908c918b6fa14f1ccd4fc369cbd641de871b"
+    },
+    {
+      "original": "training/images/example-05-pcb.png",
+      "destination": "hardware/training/images/example-05-pcb.png",
+      "sha256": "6dbf586211b9b0f352a324440e7598eb1d160dc18eba702ad4ec1c9f9c416c7a"
+    },
+    {
+      "original": "training/images/example-06-mechanical.png",
+      "destination": "hardware/training/images/example-06-mechanical.png",
+      "sha256": "2d9e050cd036f8e014e814bb1b6c96df60742c1922a6146499bafe21eec68022"
+    },
+    {
+      "original": "training/images/example-07-revisions.png",
+      "destination": "hardware/training/images/example-07-revisions.png",
+      "sha256": "fc83ab660a483a0e8d8b73768ac7a0e8fdaf9836c306b1f8fc18fff3ba14d9b0"
+    },
+    {
+      "original": "training/images/example-08-power-thermal.png",
+      "destination": "hardware/training/images/example-08-power-thermal.png",
+      "sha256": "860d4955dff143f025591cdaec0f1745333d504f7a06b11d01872cf39c4ff84e"
+    },
+    {
+      "original": "training/images/example-09-interface-tests.png",
+      "destination": "hardware/training/images/example-09-interface-tests.png",
+      "sha256": "195fb19443a029153d6d78ccecf2eee122a0d20483d0308f04f29b8039c37152"
+    },
+    {
+      "original": "training/images/example-10-compliance.png",
+      "destination": "hardware/training/images/example-10-compliance.png",
+      "sha256": "40a3bef9ae1df0cea0db0fb070d4bc439fcdfd047922dc01a4d2a2cdfa85645b"
+    },
+    {
+      "original": "training/images/example-11-accessories.png",
+      "destination": "hardware/training/images/example-11-accessories.png",
+      "sha256": "105ecae1d626a91c50da65ee30d360fa85a4acbaf5fb62b500fff7d1974227ac"
+    },
+    {
+      "original": "training/images/example-12-compatibility.png",
+      "destination": "hardware/training/images/example-12-compatibility.png",
+      "sha256": "6fd02512e2c0c9d97e97e752a69300f50568e70d28748aaf1341239f1f532c7f"
+    },
+    {
+      "original": "training/images/exercise-solution.png",
+      "destination": "hardware/training/images/exercise-solution.png",
+      "sha256": "547402aa476f2367e13234b64a4a74078db0aa3419ed6e7b3f818a408ad78a92"
+    },
+    {
+      "original": "training/images/files-changed.png",
+      "destination": "hardware/training/images/files-changed.png",
+      "sha256": "f961a8d4c77aca43f45ab5795c520eff0cd3f7e7e85480f52b0247b50ac17ded"
+    },
+    {
+      "original": "training/images/github-docs-LICENSE.txt",
+      "destination": "hardware/training/images/github-docs-LICENSE.txt",
+      "sha256": "12d3a82a7d1378e6f597ec23d63a081aeb6ec4bc8de2a76ee9dc96c34c6d7a1b"
+    },
+    {
+      "original": "training/images/mechanical-file.png",
+      "destination": "hardware/training/images/mechanical-file.png",
+      "sha256": "e0c31103afedbaadfb8b2f8f7cd5ffdb53c0a65e827468c87d4cfd4c0710ec75"
+    },
+    {
+      "original": "training/images/preview-changes.png",
+      "destination": "hardware/training/images/preview-changes.png",
+      "sha256": "d50c9d93ce164bd352d72916f92a19a8f6ef7012b7c1ce3af5449baae9614c7e"
+    },
+    {
+      "original": "training/images/releases.png",
+      "destination": "hardware/training/images/releases.png",
+      "sha256": "b37eb08323a6772c02b6f778d22b1a7292c4a01f54e7b603a805fad65d9b432a"
+    },
+    {
+      "original": "training/images/repository.png",
+      "destination": "hardware/training/images/repository.png",
+      "sha256": "09975a027f2644c8e8dd5231cbd0ece1116d249fee099f12b83fe7af9fd1c227"
+    },
+    {
+      "original": "training/images/sources.json",
+      "destination": "hardware/training/images/sources.json",
+      "sha256": "c68ca7e97d9762603c48c8a98fc9c036311223e1a42568a1690166fcaa5078f4"
+    },
+    {
+      "original": "training/images/upload-files.png",
+      "destination": "hardware/training/images/upload-files.png",
+      "sha256": "5f40b799646d8f239aa2da3b6bba6f5b2d9f628369c40501c0eebd1ed656cdc7"
+    },
+    {
+      "original": "templates/accessory/.gitkeep",
+      "destination": "hardware/templates/accessory/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "templates/compliance/.gitkeep",
+      "destination": "hardware/templates/compliance/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "templates/hardware-revision/.gitkeep",
+      "destination": "hardware/templates/hardware-revision/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "templates/interface/.gitkeep",
+      "destination": "hardware/templates/interface/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "templates/interface-test/.gitkeep",
+      "destination": "hardware/templates/interface-test/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "templates/mechanical/.gitkeep",
+      "destination": "hardware/templates/mechanical/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "templates/pcb/.gitkeep",
+      "destination": "hardware/templates/pcb/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "templates/power-thermal-test/.gitkeep",
+      "destination": "hardware/templates/power-thermal-test/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "templates/product/.gitkeep",
+      "destination": "hardware/templates/product/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "templates/schematic/.gitkeep",
+      "destination": "hardware/templates/schematic/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "original": "site/placeholders/mo-68a/accessories/hat-compatibility.md",
+      "destination": "hardware/placeholders/mo-68a/accessories/hat-compatibility.md",
+      "sha256": "5296b0ebdd30c4e98c83e8a390ef6f41c32cb52ee9e366af27e16997a7861eb2"
+    },
+    {
+      "original": "site/placeholders/mo-68a/accessories/index.md",
+      "destination": "hardware/placeholders/mo-68a/accessories/index.md",
+      "sha256": "bb5eb9fda208d821032f1c1924379bacbb6996aaf89bd363c7e5820d12a90165"
+    },
+    {
+      "original": "site/placeholders/mo-68a/accessories/supported-accessories.md",
+      "destination": "hardware/placeholders/mo-68a/accessories/supported-accessories.md",
+      "sha256": "8cee2348d9e5abdc1961f79d63acebdbb1ccd84d1361dad07305c6f98760350b"
+    },
+    {
+      "original": "site/placeholders/mo-68a/compliance/certifications.md",
+      "destination": "hardware/placeholders/mo-68a/compliance/certifications.md",
+      "sha256": "c53710ac3c144a6e78267f40471b27cac6eb6267d7ae47c3487595e0061b5089"
+    },
+    {
+      "original": "site/placeholders/mo-68a/compliance/declarations.md",
+      "destination": "hardware/placeholders/mo-68a/compliance/declarations.md",
+      "sha256": "ae9767ff6b0c4ac0f61412dc390e49df76e9bd54dbcef9b3603c71e58913befe"
+    },
+    {
+      "original": "site/placeholders/mo-68a/compliance/index.md",
+      "destination": "hardware/placeholders/mo-68a/compliance/index.md",
+      "sha256": "1742d7aa5f10fcbcea16043eaea33fbb9cb1e9667748de9dac9e7ba0957f698d"
+    },
+    {
+      "original": "site/placeholders/mo-68a/compliance/integration-notes.md",
+      "destination": "hardware/placeholders/mo-68a/compliance/integration-notes.md",
+      "sha256": "40c4922dbb70355c8f9bef5429f24d28e41ac2dda8757d75a704d6fa7fcb3659"
+    },
+    {
+      "original": "site/placeholders/mo-68a/compliance/regulatory-and-safety.md",
+      "destination": "hardware/placeholders/mo-68a/compliance/regulatory-and-safety.md",
+      "sha256": "42c8956301e7404c089740991838f3840e30f53d57acde54d7cc846fad1f78d1"
+    },
+    {
+      "original": "site/placeholders/mo-68a/hardware-development/hardware-interfaces.md",
+      "destination": "hardware/placeholders/mo-68a/hardware-development/hardware-interfaces.md",
+      "sha256": "a10a99366d2cd8b7a9c9a5558b781cdc99ea1f52a009bdc398187d5708144355"
+    },
+    {
+      "original": "site/placeholders/mo-68a/hardware-development/hardware-revisions.md",
+      "destination": "hardware/placeholders/mo-68a/hardware-development/hardware-revisions.md",
+      "sha256": "974475ceeefa78f2a0ad86e4e4c56aa51cee487a9102ec27f737257e621c66fc"
+    },
+    {
+      "original": "site/placeholders/mo-68a/hardware-development/index.md",
+      "destination": "hardware/placeholders/mo-68a/hardware-development/index.md",
+      "sha256": "03ba39f76cb216d257a1bd23a7d514feb5ce6cc10180f231c876df55a8080eb6"
+    },
+    {
+      "original": "site/placeholders/mo-68a/hardware-development/mechanical.md",
+      "destination": "hardware/placeholders/mo-68a/hardware-development/mechanical.md",
+      "sha256": "1e97956d1223d43621ebc382692273e77d7d02f8b88a47aa5b5f730322832de8"
+    },
+    {
+      "original": "site/placeholders/mo-68a/hardware-development/overview.md",
+      "destination": "hardware/placeholders/mo-68a/hardware-development/overview.md",
+      "sha256": "45aab70cde8a2158ffc4bc4bae971c43e06ca8040f21b530b9c2a0636fa0940b"
+    },
+    {
+      "original": "site/placeholders/mo-68a/hardware-development/power-and-thermal.md",
+      "destination": "hardware/placeholders/mo-68a/hardware-development/power-and-thermal.md",
+      "sha256": "0f73a07861217cdb90f06dd24864491d67d454a247cd57fc717e016bbd2d7ed1"
+    },
+    {
+      "original": "site/placeholders/mo-68a/hardware-development/schematics.md",
+      "destination": "hardware/placeholders/mo-68a/hardware-development/schematics.md",
+      "sha256": "713096613e61124cc493159d18c6f7bfad642262964d80e5379773af203f0f87"
+    },
+    {
+      "original": "site/reference-assets/img/boards/mo-68a.png",
+      "destination": "hardware/reference-assets/img/boards/mo-68a.png",
+      "sha256": "47d8b8578d3affa414dba18fb4617bda5194d7ed4cacfae36bea66c687997913"
+    }
+  ]
+}

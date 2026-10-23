@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "aliases": [
+    {
+      "source": "hardware/products/mo62a/images/mo62a-interfaces.png",
+      "target": "static/img/hardware-development/mo62a-interfaces.png"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-connectors-numbered.svg",
+      "target": "static/img/hardware-development/mo62a-connectors-numbered.svg"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-j6-orientation.svg",
+      "target": "static/img/hardware-development/mo62a-j6-orientation.svg"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-40pin-reference.svg",
+      "target": "static/img/hardware-development/mo62a-40pin-reference.svg"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-step-isometric.png",
+      "target": "static/img/hardware-development/mo62a-step-isometric.png"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-step-top.png",
+      "target": "static/img/hardware-development/mo62a-step-top.png"
+    },
+    {
+      "source": "hardware/products/mo62a/mechanical/files/MO_62A_MB_PCBA_V1_ASM.stp.zip",
+      "target": "static/downloads/hardware/mo62a/MO_62A_MB_PCBA_V1_ASM.stp.zip"
+    },
+    {
+      "source": "hardware/products/mo62a/mechanical/files/SHA256SUMS.txt",
+      "target": "static/downloads/hardware/mo62a/SHA256SUMS.txt"
+    },
+    {
+      "source": "hardware/products/mo62a/mechanical/files/README.txt",
+      "target": "static/downloads/hardware/mo62a/README.txt"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-board-top.png",
+      "target": "static/img/hardware-development/mo62a-board-top.png"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-thermal.png",
+      "target": "static/img/hardware-development/mo62a-thermal.png"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-connectors-v11.png",
+      "target": "static/img/hardware-development/mo62a-connectors-v11.png"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-block-v11-en.svg",
+      "target": "static/img/hardware-development/mo62a-block-v11-en.svg"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-block-v10-en.svg",
+      "target": "static/img/hardware-development/mo62a-block-v10-en.svg"
+    },
+    {
+      "source": "hardware/reference-assets/img/boards/mo-68a.png",
+      "target": "static/img/boards/mo-68a.png"
+    }
+  ]
+}

@@ -8,10 +8,10 @@ import {tagPattern as exactVersion} from './lib/policy.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 export function validateReleaseVersion(version, packageVersion, lockVersion) {
-  if (!exactVersion.test(version ?? '')) {
-    throw new Error('release version must match V<major>.<minor>.<patch> or V<major>.<minor>.<patch>-rc<n> exactly');
+  if (!exactVersion.test(version ?? '') || version.includes('-')) {
+    throw new Error('content releases must match V<major>.<minor>.<patch>; release candidates belong to developer');
   }
-  // Tags version the site; npm metadata describes the build project separately.
+  // Tags version the content; npm metadata describes the build project separately.
   const expected = version.slice(1).replace(/-rc\d+$/, '');
   if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(packageVersion ?? '')) {
     throw new Error('package.json must declare a numeric build project version');

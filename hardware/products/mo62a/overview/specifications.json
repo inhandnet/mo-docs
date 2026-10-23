@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "board": "mo-62a",
+  "source": "https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO62A",
+  "facts": {
+    "processor": {
+      "model": "TI AM62A74",
+      "cores": 4,
+      "architecture": "Arm Cortex-A53",
+      "clock_ghz": 1.4,
+      "realtime": "MCU Cortex-R5F + Device Manager Cortex-R5F (reserved)"
+    },
+    "accelerator": {
+      "name": "C7x DSP + Matrix Multiply Accelerator (MMA)",
+      "tops": 2
+    },
+    "memory": {
+      "technology": "LPDDR4",
+      "capacities_gb": [
+        2,
+        4,
+        8
+      ]
+    }
+  },
+  "groups": [
+    {
+      "title": "Hardware",
+      "rows": [
+        {
+          "label": "Processor",
+          "fact": "processor"
+        },
+        {
+          "label": "AI accelerator",
+          "fact": "accelerator"
+        },
+        {
+          "label": "ISP / vision",
+          "value": "On-chip ISP + VPAC (RGB-IR, WDR, LDC)"
+        },
+        {
+          "label": "Memory",
+          "fact": "memory"
+        },
+        {
+          "label": "Storage",
+          "value": "microSD card"
+        },
+        {
+          "label": "Ethernet",
+          "value": "1 × Gigabit Ethernet"
+        },
+        {
+          "label": "USB",
+          "value": "4 × USB 2.0 Type-A"
+        },
+        {
+          "label": "Display",
+          "value": "1 × micro HDMI"
+        },
+        {
+          "label": "Camera",
+          "value": "1 × 4-lane MIPI CSI-2, 22-pin / 0.5 mm FPC; verify cable pinout and contact orientation"
+        },
+        {
+          "label": "Audio",
+          "value": "3.5 mm jack; PCM via 40-pin header"
+        },
+        {
+          "label": "Expansion",
+          "value": "40-pin header: GPIO / I²C / SPI / UART / PWM / PCM, 3.3 V logic"
+        },
+        {
+          "label": "Debug",
+          "value": "1 × TTL UART console (115200 8N1)"
+        },
+        {
+          "label": "Fan",
+          "value": "1 × 4-pin fan header"
+        },
+        {
+          "label": "RTC",
+          "value": "External RTC and battery connector; battery retention not tested"
+        }
+      ]
+    },
+    {
+      "title": "Wireless",
+      "rows": [
+        {
+          "label": "Wi-Fi",
+          "value": "Wi-Fi 5 (802.11ac), dual-band"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "BLE 4.2"
+        },
+        {
+          "label": "Antenna",
+          "value": "On-board snap-on antenna"
+        }
+      ]
+    },
+    {
+      "title": "Power & mechanical",
+      "rows": [
+        {
+          "label": "Power input",
+          "value": "USB Type-C, 5 V / 5 A"
+        },
+        {
+          "label": "Power consumption",
+          "value": "25 W maximum rating (not measured workload power)"
+        },
+        {
+          "label": "Dimensions / weight",
+          "value": "85 × 56 mm, 47 g"
+        },
+        {
+          "label": "Operating temperature",
+          "value": "0 – 50 °C"
+        }
+      ]
+    },
+    {
+      "title": "Software",
+      "rows": [
+        {
+          "label": "Operating system",
+          "fact": "image"
+        },
+        {
+          "label": "AI runtime",
+          "value": "TI TIDL with ONNX Runtime / TFLite"
+        },
+        {
+          "label": "Development",
+          "value": "Python, C/C++, OpenCV, GStreamer, NumPy, apt"
+        },
+        {
+          "label": "Security",
+          "value": "SoC security capabilities; board secure-boot provisioning not validated"
+        }
+      ]
+    }
+  ]
+}

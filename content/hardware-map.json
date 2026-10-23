@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "source_repository": "inhandnet/mo-docs",
+  "source_commit": "cbc60530f3fa04ebdf7870dcfe47d08e753fb636",
+  "routes": [
+    {
+      "route": "mo-62a/hardware-development/hardware-interfaces/",
+      "source": "hardware/products/mo62a/interfaces/hardware-interfaces.en-US.md",
+      "original": "docs/mo-62a/hardware-development/hardware-interfaces.mdx"
+    },
+    {
+      "route": "mo-62a/hardware-development/hardware-revisions/",
+      "source": "hardware/products/mo62a/revisions/hardware-revisions.en-US.md",
+      "original": "docs/mo-62a/hardware-development/hardware-revisions.mdx"
+    },
+    {
+      "route": "mo-62a/hardware-development/",
+      "source": "hardware/products/mo62a/overview/index.en-US.md",
+      "original": "docs/mo-62a/hardware-development/index.mdx"
+    },
+    {
+      "route": "mo-62a/hardware-development/mechanical/",
+      "source": "hardware/products/mo62a/mechanical/mechanical.en-US.md",
+      "original": "docs/mo-62a/hardware-development/mechanical.mdx"
+    },
+    {
+      "route": "mo-62a/hardware-development/overview/",
+      "source": "hardware/products/mo62a/overview/overview.en-US.md",
+      "original": "docs/mo-62a/hardware-development/overview.mdx"
+    },
+    {
+      "route": "mo-62a/hardware-development/power-and-thermal/",
+      "source": "hardware/products/mo62a/validation/power-thermal/power-and-thermal.en-US.md",
+      "original": "docs/mo-62a/hardware-development/power-and-thermal.mdx"
+    },
+    {
+      "route": "mo-62a/hardware-development/schematics/",
+      "source": "hardware/products/mo62a/schematics/schematics.en-US.md",
+      "original": "docs/mo-62a/hardware-development/schematics.mdx"
+    },
+    {
+      "route": "mo-62a/accessories/hat-compatibility/",
+      "source": "hardware/accessories/compatibility/mo62a/hat-compatibility.en-US.md",
+      "original": "docs/mo-62a/accessories/hat-compatibility.mdx"
+    },
+    {
+      "route": "mo-62a/accessories/",
+      "source": "hardware/accessories/compatibility/mo62a/index.en-US.md",
+      "original": "docs/mo-62a/accessories/index.mdx"
+    },
+    {
+      "route": "mo-62a/accessories/supported-accessories/",
+      "source": "hardware/accessories/compatibility/mo62a/supported-accessories.en-US.md",
+      "original": "docs/mo-62a/accessories/supported-accessories.mdx"
+    },
+    {
+      "route": "mo-62a/compliance/certifications/",
+      "source": "hardware/products/mo62a/compliance/certifications.en-US.md",
+      "original": "docs/mo-62a/compliance/certifications.mdx"
+    },
+    {
+      "route": "mo-62a/compliance/declarations/",
+      "source": "hardware/products/mo62a/compliance/declarations.en-US.md",
+      "original": "docs/mo-62a/compliance/declarations.mdx"
+    },
+    {
+      "route": "mo-62a/compliance/",
+      "source": "hardware/products/mo62a/compliance/index.en-US.md",
+      "original": "docs/mo-62a/compliance/index.mdx"
+    },
+    {
+      "route": "mo-62a/compliance/integration-notes/",
+      "source": "hardware/products/mo62a/compliance/integration-notes.en-US.md",
+      "original": "docs/mo-62a/compliance/integration-notes.mdx"
+    },
+    {
+      "route": "mo-62a/compliance/regulatory-and-safety/",
+      "source": "hardware/products/mo62a/compliance/regulatory-and-safety.en-US.md",
+      "original": "docs/mo-62a/compliance/regulatory-and-safety.mdx"
+    },
+    {
+      "route": "mo-68a/hardware-development/hardware-interfaces/",
+      "source": "hardware/placeholders/mo-68a/hardware-development/hardware-interfaces.md",
+      "original": "docs/mo-68a/hardware-development/hardware-interfaces.mdx"
+    },
+    {
+      "route": "mo-68a/hardware-development/hardware-revisions/",
+      "source": "hardware/placeholders/mo-68a/hardware-development/hardware-revisions.md",
+      "original": "docs/mo-68a/hardware-development/hardware-revisions.mdx"
+    },
+    {
+      "route": "mo-68a/hardware-development/",
+      "source": "hardware/placeholders/mo-68a/hardware-development/index.md",
+      "original": "docs/mo-68a/hardware-development/index.mdx"
+    },
+    {
+      "route": "mo-68a/hardware-development/mechanical/",
+      "source": "hardware/placeholders/mo-68a/hardware-development/mechanical.md",
+      "original": "docs/mo-68a/hardware-development/mechanical.mdx"
+    },
+    {
+      "route": "mo-68a/hardware-development/overview/",
+      "source": "hardware/placeholders/mo-68a/hardware-development/overview.md",
+      "original": "docs/mo-68a/hardware-development/overview.mdx"
+    },
+    {
+      "route": "mo-68a/hardware-development/power-and-thermal/",
+      "source": "hardware/placeholders/mo-68a/hardware-development/power-and-thermal.md",
+      "original": "docs/mo-68a/hardware-development/power-and-thermal.mdx"
+    },
+    {
+      "route": "mo-68a/hardware-development/schematics/",
+      "source": "hardware/placeholders/mo-68a/hardware-development/schematics.md",
+      "original": "docs/mo-68a/hardware-development/schematics.mdx"
+    },
+    {
+      "route": "mo-68a/accessories/hat-compatibility/",
+      "source": "hardware/placeholders/mo-68a/accessories/hat-compatibility.md",
+      "original": "docs/mo-68a/accessories/hat-compatibility.mdx"
+    },
+    {
+      "route": "mo-68a/accessories/",
+      "source": "hardware/placeholders/mo-68a/accessories/index.md",
+      "original": "docs/mo-68a/accessories/index.mdx"
+    },
+    {
+      "route": "mo-68a/accessories/supported-accessories/",
+      "source": "hardware/placeholders/mo-68a/accessories/supported-accessories.md",
+      "original": "docs/mo-68a/accessories/supported-accessories.mdx"
+    },
+    {
+      "route": "mo-68a/compliance/certifications/",
+      "source": "hardware/placeholders/mo-68a/compliance/certifications.md",
+      "original": "docs/mo-68a/compliance/certifications.mdx"
+    },
+    {
+      "route": "mo-68a/compliance/declarations/",
+      "source": "hardware/placeholders/mo-68a/compliance/declarations.md",
+      "original": "docs/mo-68a/compliance/declarations.mdx"
+    },
+    {
+      "route": "mo-68a/compliance/",
+      "source": "hardware/placeholders/mo-68a/compliance/index.md",
+      "original": "docs/mo-68a/compliance/index.mdx"
+    },
+    {
+      "route": "mo-68a/compliance/integration-notes/",
+      "source": "hardware/placeholders/mo-68a/compliance/integration-notes.md",
+      "original": "docs/mo-68a/compliance/integration-notes.mdx"
+    },
+    {
+      "route": "mo-68a/compliance/regulatory-and-safety/",
+      "source": "hardware/placeholders/mo-68a/compliance/regulatory-and-safety.md",
+      "original": "docs/mo-68a/compliance/regulatory-and-safety.mdx"
+    },
+    {
+      "route": "accessories/guides/",
+      "source": "hardware/accessories/catalog/guides.en-US.md",
+      "original": "docs/accessories/guides.mdx"
+    },
+    {
+      "route": "accessories/",
+      "source": "hardware/accessories/catalog/index.en-US.md",
+      "original": "docs/accessories/index.mdx"
+    },
+    {
+      "route": "accessories/overview/",
+      "source": "hardware/accessories/catalog/overview.en-US.md",
+      "original": "docs/accessories/overview.mdx"
+    }
+  ],
+  "assets": [
+    {
+      "source": "hardware/products/mo62a/schematics/files/MO_62A_S_MB_V11-260426.pdf",
+      "target": "downloads/hardware/mo62a/schematics/MO_62A_S_MB_V11-260426.pdf"
+    },
+    {
+      "source": "hardware/products/mo62a/schematics/files/MO_62A_sch_V1.0-260203.pdf",
+      "target": "downloads/hardware/mo62a/schematics/MO_62A_sch_V1.0-260203.pdf"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-interfaces.png",
+      "target": "img/hardware-development/mo62a-interfaces.png"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-connectors-numbered.svg",
+      "target": "img/hardware-development/mo62a-connectors-numbered.svg"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-j6-orientation.svg",
+      "target": "img/hardware-development/mo62a-j6-orientation.svg"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-40pin-reference.svg",
+      "target": "img/hardware-development/mo62a-40pin-reference.svg"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-step-isometric.png",
+      "target": "img/hardware-development/mo62a-step-isometric.png"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-step-top.png",
+      "target": "img/hardware-development/mo62a-step-top.png"
+    },
+    {
+      "source": "hardware/products/mo62a/mechanical/files/MO_62A_MB_PCBA_V1_ASM.stp.zip",
+      "target": "downloads/hardware/mo62a/MO_62A_MB_PCBA_V1_ASM.stp.zip"
+    },
+    {
+      "source": "hardware/products/mo62a/mechanical/files/SHA256SUMS.txt",
+      "target": "downloads/hardware/mo62a/SHA256SUMS.txt"
+    },
+    {
+      "source": "hardware/products/mo62a/mechanical/files/README.txt",
+      "target": "downloads/hardware/mo62a/README.txt"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-board-top.png",
+      "target": "img/hardware-development/mo62a-board-top.png"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-thermal.png",
+      "target": "img/hardware-development/mo62a-thermal.png"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-connectors-v11.png",
+      "target": "img/hardware-development/mo62a-connectors-v11.png"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-block-v11-en.svg",
+      "target": "img/hardware-development/mo62a-block-v11-en.svg"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-block-v10-en.svg",
+      "target": "img/hardware-development/mo62a-block-v10-en.svg"
+    },
+    {
+      "source": "hardware/reference-assets/img/boards/mo-68a.png",
+      "target": "img/boards/mo-68a.png"
+    }
+  ],
+  "migrated_from": {
+    "repository": "inhandnet/mo-hardware",
+    "commit": "f4b1c7862a9c8f9827dcb149acbffd8b5ccc2f5d"
+  }
+}

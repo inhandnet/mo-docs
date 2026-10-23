@@ -8,7 +8,6 @@ import ssh from '@site/static/img/real-time-cores/mo62a-rt-console-ssh.png';
 import desktop from '@site/static/img/real-time-cores/mo62a-rt-console-desktop.png';
 import build from '@site/static/img/real-time-cores/mo62a-rt-build-console.png';
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
 The MCU console is a minimal example of your own code on the MCU R5F: a FreeRTOS task that answers text commands, and a Linux command, `mcu-console`, to type them. Use it from an SSH session or from a terminal on the Mo62A desktop.
 
@@ -79,8 +78,8 @@ The console task waits for messages with a 100 ms timeout so that it notices whe
 
 Download the prebuilt firmware and the Linux command. The firmware was built from the source below with the [SDK setup](./sdk-setup.mdx) tool versions.
 
-- <a href={useBaseUrl('/downloads/real-time-cores/mo62a-mcu-console.out')} download>mo62a-mcu-console.out</a> (59316 bytes) and its <a href={useBaseUrl('/downloads/real-time-cores/mo62a-mcu-console.out.sha256')} download>SHA-256</a>
-- <a href={useBaseUrl('/downloads/real-time-cores/mcu-console.py')} download>mcu-console.py</a>, installed on the board as `mcu-console`
+- <AssetLink href="/downloads/real-time-cores/mo62a-mcu-console.out" download>mo62a-mcu-console.out</AssetLink> (59316 bytes) and its <AssetLink href="/downloads/real-time-cores/mo62a-mcu-console.out.sha256" download>SHA-256</AssetLink>
+- <AssetLink href="/downloads/real-time-cores/mcu-console.py" download>mcu-console.py</AssetLink>, installed on the board as `mcu-console`
 
 Copy the firmware, its checksum file and the Python client to the board. Keep a serial console available and follow the [reload limits](./examples.mdx) before changing firmware. The subshell below stops on any failure without closing your login shell:
 
@@ -136,7 +135,7 @@ hello from Linux
 
 ## Build it yourself
 
-Get <a href={useBaseUrl('/downloads/real-time-cores/mo62a_mcu_console.diff')} download>mo62a_mcu_console.diff</a> (it also contains <a href={useBaseUrl('/downloads/real-time-cores/mo62a_console.c')} download>mo62a_console.c</a>). On the host, copy the TI example and apply it:
+Get <AssetLink href="/downloads/real-time-cores/mo62a_mcu_console.diff" download>mo62a_mcu_console.diff</AssetLink> (it also contains <AssetLink href="/downloads/real-time-cores/mo62a_console.c" download>mo62a_console.c</AssetLink>). On the host, copy the TI example and apply it:
 
 ```bash
 cd ~/ti/mcu_plus_sdk_am62ax_11_01_00_16/examples/drivers/ipc

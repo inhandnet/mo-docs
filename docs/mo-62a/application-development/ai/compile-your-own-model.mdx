@@ -7,7 +7,6 @@ sidebar_position: 5
 import compiler from '@site/static/img/application-development/ai/mo62a-zone-compile.png';
 import bundleCheck from '@site/static/img/application-development/ai/mo62a-zone-bundle.png';
 import boardCompare from '@site/static/img/application-development/ai/mo62a-zone-compare.png';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
 This walkthrough compiles TI's pretrained YOLOX-tiny-lite 8210, a model not included in the tested image's demo inventory. It does not reuse the precompiled 8200/8220 artifacts. You download the original ONNX model, calibrate and compile it on x86, compare outputs and transfer your newly created bundle to Mo62A. Continue to [YOLO: deployment and quantization](./tutorial-yolo.mdx) for the full-video application and business events.
 
@@ -40,11 +39,11 @@ python -B verify_inputs.py
 | Outputs | `dets[N,5]`: x1, y1, x2, y2, score; `labels[N]`: zero-based COCO class index |
 | Detection metadata | Matching `.prototxt`, `meta_arch_type=6`; person index 0 |
 
-The downloaded ONNX SHA256 is `c9d2a3fdb21bed079a74029441d83235ddd910c82f1e7b9de5a2a5998bc3eeca`; metadata SHA256 is `bd8d5558af8c982da135579cd84851f9d95382aab6f089df7a49edacb846f142`. The script checks both and refuses to replace an existing mismatched file. The <a href={useBaseUrl('/downloads/ai/zone-demo/sources.json')}>source manifest</a> preserves model and input provenance. Model/tool licenses are separate from the documentation license.
+The downloaded ONNX SHA256 is `c9d2a3fdb21bed079a74029441d83235ddd910c82f1e7b9de5a2a5998bc3eeca`; metadata SHA256 is `bd8d5558af8c982da135579cd84851f9d95382aab6f089df7a49edacb846f142`. The script checks both and refuses to replace an existing mismatched file. The <AssetLink href="/downloads/ai/zone-demo/sources.json">source manifest</AssetLink> preserves model and input provenance. Model/tool licenses are separate from the documentation license.
 
 ## 2. Prepare separate calibration and evaluation inputs
 
-The archive contains two prepared warehouse clips by domdomegg under CC BY 4.0. Both depict the same site/date: they are separate inputs, not a broad independent accuracy dataset. Keep <a href={useBaseUrl('/downloads/ai/zone-demo/SOURCE.txt')}>SOURCE.txt</a> with them. No third-party endorsement or real restricted area is implied.
+The archive contains two prepared warehouse clips by domdomegg under CC BY 4.0. Both depict the same site/date: they are separate inputs, not a broad independent accuracy dataset. Keep <AssetLink href="/downloads/ai/zone-demo/SOURCE.txt">SOURCE.txt</AssetLink> with them. No third-party endorsement or real restricted area is implied.
 
 ```bash
 python -B prepare_inputs.py --video inputs/calibration.mp4 \

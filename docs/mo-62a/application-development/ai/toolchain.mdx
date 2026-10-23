@@ -6,7 +6,6 @@ sidebar_position: 4
 
 import compileFlow from '@site/static/img/application-development/ai/ai-compile.png';
 import hostSetup from '@site/static/img/application-development/ai/mo62a-zone-host-setup.png';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
 This is step 1 of the warehouse zone-occupancy example: install the x86 tools here, [compile a new model bundle](./compile-your-own-model.mdx), then [deploy the business application](./tutorial-yolo.mdx). No GPU, activation replacement or retraining is needed for the model's existing `person` class.
 
@@ -48,7 +47,7 @@ sudo apt-get install git curl tar libyaml-cpp-dev libglib2.0-dev python3.10-venv
 
 Ubuntu 24.04's default Python is not 3.10. Do not replace its system interpreter or assume the command above provides 3.10 there: provision it separately or use the reference container. If a managed Python omits `ensurepip`, its existing pip must support `--python` to bootstrap only the new virtual environment.
 
-Download <a href={useBaseUrl('/downloads/ai/mo62a-zone-demo.tar.gz')} download>the complete source/input archive</a> and <a href={useBaseUrl('/downloads/ai/mo62a-zone-demo.tar.gz.sha256')} download>its checksum</a> into one directory on the x86 host. It includes scripts, two prepared CC BY 4.0 clips, configuration, tests and attribution. It contains no TI tools or model weights.
+Download <AssetLink href="/downloads/ai/mo62a-zone-demo.tar.gz" download>the complete source/input archive</AssetLink> and <AssetLink href="/downloads/ai/mo62a-zone-demo.tar.gz.sha256" download>its checksum</AssetLink> into one directory on the x86 host. It includes scripts, two prepared CC BY 4.0 clips, configuration, tests and attribution. It contains no TI tools or model weights.
 
 ```bash
 sha256sum -c mo62a-zone-demo.tar.gz.sha256
@@ -59,7 +58,7 @@ source ./activate_host.sh ./host
 python -m pip check
 ```
 
-Use a new directory. Setup refuses to replace an existing `host`. It clones the official source and checks its commit, creates a virtual environment, installs the pinned TI wheel and dependencies, and downloads/checks the AM62A tool archive. It does not use sudo, modify global pip or access the board. Review <a href={useBaseUrl('/downloads/ai/zone-demo/setup_host.sh')}>setup_host.sh</a> and <a href={useBaseUrl('/downloads/ai/zone-demo/requirements-host.txt')}>requirements-host.txt</a> before running downloaded code.
+Use a new directory. Setup refuses to replace an existing `host`. It clones the official source and checks its commit, creates a virtual environment, installs the pinned TI wheel and dependencies, and downloads/checks the AM62A tool archive. It does not use sudo, modify global pip or access the board. Review <AssetLink href="/downloads/ai/zone-demo/setup_host.sh">setup_host.sh</AssetLink> and <AssetLink href="/downloads/ai/zone-demo/requirements-host.txt">requirements-host.txt</AssetLink> before running downloaded code.
 
 <a href={hostSetup} target="_blank" rel="noopener noreferrer">
   <img src={hostSetup} alt="Actual inspection of the new x86 environment: TI source, compiler version, Python, execution providers and dependency check" width="1440" height="900" />
