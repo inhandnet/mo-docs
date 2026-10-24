@@ -20,7 +20,13 @@
         2,
         4,
         8
-      ]
+      ],
+      "default_gb": 4,
+      "model_codes": {
+        "2": "Mo-62A-2G",
+        "4": "Mo-62A-4G",
+        "8": "Mo-62A-8G"
+      }
     }
   },
   "groups": [
@@ -80,6 +86,14 @@
           "value": "1 × 4-pin fan header"
         },
         {
+          "label": "Button",
+          "value": "1 × Reset button"
+        },
+        {
+          "label": "LEDs",
+          "value": "PWR, USER"
+        },
+        {
           "label": "RTC",
           "value": "External RTC and battery connector; battery retention not tested"
         }
@@ -118,8 +132,16 @@
           "value": "85 × 56 mm, 47 g"
         },
         {
+          "label": "Cooling",
+          "value": "Active fan (optional); 4-pin fan connector"
+        },
+        {
           "label": "Operating temperature",
           "value": "0 – 50 °C"
+        },
+        {
+          "label": "Storage temperature",
+          "value": "-20 – 70 °C"
         }
       ]
     },
@@ -143,6 +165,13 @@
           "value": "SoC security capabilities; board secure-boot provisioning not validated"
         }
       ]
+    }
+  ],
+  "source_documents": [
+    {
+      "title": "Mo 62A_Datasheet_V1.0",
+      "url": "https://www.inhand.com/en/products/ai-edge-computers/mo-62a",
+      "published": "2026-08-19"
     }
   ]
 }

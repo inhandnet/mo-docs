@@ -237,6 +237,14 @@
     {
       "source": "hardware/reference-assets/img/boards/mo-68a.png",
       "target": "img/boards/mo-68a.png"
+    },
+    {
+      "source": "hardware/products/mo62a/validation/power-thermal/files/mo62a-power-temperature-20261022.json",
+      "target": "downloads/hardware/mo62a-power-temperature-20261022.json"
+    },
+    {
+      "source": "hardware/products/mo62a/images/mo62a-power-temperature-20261022.svg",
+      "target": "img/hardware-development/mo62a-power-temperature-20261022.svg"
     }
   ],
   "migrated_from": {
