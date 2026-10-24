@@ -4,7 +4,7 @@
 
 Mo 系列软硬件文档源仓库，维护教程、规格、媒体、设计资料、验证证据和章节元数据。唯一的 Docusaurus 网站、标准组件、搜索、预览和整站部署统一由 **developer** 维护。
 
-统一网站在 `/docs/` 提供文档，并兼容 `/hardware-docs/` 和已有附件地址。测试平台为 [developer.inhand.online](https://developer.inhand.online/)，正式目标为 [developer.inhand.com](https://developer.inhand.com/)，正式上线仍需基础设施和发布验收。历史 GitHub Pages 与发布 Tag 保留作迁移依据；新的 mo-docs Release 只发布内容，不部署网站。
+统一网站把软硬件文档及其下载统一放在 `/docs/` 下。测试平台为 [developer.inhand.online](https://developer.inhand.online/)，正式目标为 [developer.inhand.com](https://developer.inhand.com/)，正式上线仍需基础设施和发布验收。网站仍处于正式发布前阶段，不保留旧的 `/hardware-docs/` 路径和旧附件地址；mo-docs Release 只发布内容，不部署网站。
 
 ## mo-docs 内部架构
 
@@ -39,10 +39,6 @@ Mo 系列软硬件文档源仓库，维护教程、规格、媒体、设计资�
       <td align="left">硬件源文件与文档路由、公开素材的映射</td>
     </tr>
     <tr>
-      <td align="left"><code>content/asset-aliases.json</code></td>
-      <td align="left">从一份维护源生成旧媒体/下载路径</td>
-    </tr>
-    <tr>
       <td align="left"><code>content/hardware-migration.json</code></td>
       <td align="left">原硬件仓库、提交、路径和迁移哈希</td>
     </tr>
@@ -59,7 +55,7 @@ Mo 系列软硬件文档源仓库，维护教程、规格、媒体、设计资�
 
 普通正文写 Markdown；选项卡、媒体、下载和版本表调用标准组件，实现统一放在 developer。允许导入共享正文和媒体文件。内容规则拒绝 Hooks、网络请求、任意 JavaScript、内联样式和 developer 内部 `src/` 导入；代码围栏中的教学代码不受影响。Excel 保留为原始资料或附件，新增结构化网页数据采用 JSON。
 
-硬件内容从 mo-hardware 迁入。相同文件只保留一个维护源，网站生成兼容素材路径；培训、来源和许可证据继续保留。统一构建按硬件映射替换原软件目录中的跳转占位页。
+硬件内容从已归档的 mo-hardware 仓库迁入。每个文件只在 `hardware/` 下维护一份，`content/hardware-map.json` 把硬件页面与附件纳入 `/docs/` 导航；培训、来源和许可证据继续保留。
 
 ## Mo 系列仓库协同
 

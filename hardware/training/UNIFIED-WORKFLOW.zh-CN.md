@@ -5,7 +5,7 @@
 1. 打开 [mo-docs](https://github.com/inhandnet/mo-docs)，从最新 master 创建主题分支；普通作者申请 Write 权限，合并与 Tag 发布由 Admin 执行。
 2. 在 `hardware/products/` 或 `hardware/accessories/` 定位原始资料。机械页示例为 `hardware/products/mo62a/mechanical/mechanical.en-US.md`。先核对型号、资料版本、来源与许可。
 3. 编辑 Markdown 正文或上传附件；仅改变本次有依据的事实，不将规格等同于测试结果。附件旁保留来源说明和校验值。
-4. 新页面或公开附件在仓库根目录 `content/hardware-map.json` 登记。旧地址兼容使用 `content/asset-aliases.json`，不再复制一份手工维护文件。培训、模板不放入产品导航。
+4. 新页面或公开附件在仓库根目录 `content/hardware-map.json` 登记。图片与附件也在该映射中登记，不再复制一份手工维护文件；网站正式发布前不保留旧地址。培训、模板不放入产品导航。
 5. 提交采用简短英文 Conventional Commit，例如 `docs(mechanical): clarify the assembly reference`；不写凭据、内网地址或跳过 CI 的指令。
 6. 向 mo-docs master 提交 PR，说明变动、证据、影响的页面/附件和未验证范围。`commit-message` 与 `validate-content` 必须通过。
 7. 请网站维护者在 developer 集成预览中选用此 PR 的准确提交 SHA。检查目标页面、来源链接、附件哈希、桌面/手机、旧 URL 和搜索；网页作者不需要维护 React 或另建网站。

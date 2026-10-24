@@ -229,7 +229,7 @@ Pages 是共享槽位：另一个 PR 或 master 成功后可能覆盖当前预�
 
 ## 15. 区分合并、预览和版本发布
 
-合并后的 master CI 成功会更新 Pages。测试产品站 `https://developer.inhand.online/hardware-docs/` 只在管理员创建新发布 Tag 后部署，因此 master 的新内容可能暂时不在测试产品站。
+合并后的 master CI 成功会更新 Pages。测试产品站 `https://developer.inhand.online/docs/` 只在管理员创建新的 developer 发布 Tag 后部署，因此 master 的新内容可能暂时不在测试产品站。
 
 ![本仓库 V1.0.1-rc4 Release 页面](images/releases.png)
 

@@ -9,18 +9,18 @@ account. See the bilingual README for repository ownership and governance.
 `docs/` retains software chapters and category metadata. `_partials/` contains
 shared body text. `hardware/products/` and `hardware/accessories/` hold the
 hardware originals. `content/hardware-map.json` maps those originals into the
-same `/docs/` navigation; generated pages replace legacy hardware redirect stubs.
-The frontend owns `/hardware-docs/` redirects, preserving query and fragment.
+same `/docs/` navigation. The website is pre-release, so no legacy
+`/hardware-docs/` routes or redirect stubs are kept.
 
 `hardware/training/` and `hardware/templates/` remain author resources and are
 excluded from product navigation. Migration provenance records the original
 mo-hardware commit and file hashes. Those hashes document the migration baseline;
 future reviewed content edits are allowed and have their own Git history.
 
-`static/` contains media and downloadable resources. Identical hardware assets
-are maintained once under `hardware/`; `content/asset-aliases.json` declares their
-old static paths. Developer generates those aliases without retaining another
-hand-maintained source. Source and license notices move with the content.
+`static/` contains media and downloadable resources. Hardware assets are
+maintained once under `hardware/` and listed in `content/hardware-map.json`;
+developer publishes them under `/docs/` without another hand-maintained copy.
+Source and license notices move with the content.
 
 ## Content contract
 
