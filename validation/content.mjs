@@ -3,7 +3,7 @@ import path from 'node:path';
 import {createProcessor} from '@mdx-js/mdx';
 
 export const contractVersion = 1;
-export const components = new Set(['Tabs','TabItem','ComingSoon','Only','BoardDownloads','ReleaseNotes','VersionMap','HardwareRedirect','Link','DocCardList','SectionCards','ChooseYourBoard','ImageDownload','ImageReleaseProvider','CodeBlock','AssetLink','MediaSource','ModelCatalog']);
+export const components = new Set(['Tabs','TabItem','ComingSoon','Only','BoardDownloads','ReleaseNotes','VersionMap','Link','DocCardList','SectionCards','ChooseYourBoard','ImageDownload','ImageReleaseProvider','CodeBlock','AssetLink','MediaSource','ModelCatalog']);
 const themeImports = new Set(['@theme/Tabs','@theme/TabItem','@theme/DocCardList','@theme/CodeBlock']);
 const html = new Set(['a','img','picture','source','video','div','span','p','strong','em','code','pre','br','small','section','h1','h2','h3','h4','h5','h6','table','thead','tbody','tr','th','td','ul','ol','li','details','summary','sup','sub','hr']);
 const processor = createProcessor({format:'mdx'});

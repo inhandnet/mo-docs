@@ -3,12 +3,12 @@
   "contract_version": 1,
   "kind": "content",
   "repository": "developer",
-  "commit": "001a6a9766b1f6d3681cfc2ed26d99ca02c441e2",
+  "commit": "2c30e05393eef65d24fd95a25f0f8da8aa24dd36",
   "files": {
-    "content.mjs": "310ba68d762dbb76cd3966728ca3e5c16d7b0d480132b0fcb613261d1b93a54e",
+    "content.mjs": "94a01f4f7f7afe13df67573bdc808769c8189c52159bac5d594853632df1721d",
     "content-map.mjs": "f1811468bbd915069df1d84e084b30b8eea756f63583ceebc630ae2b7d6ba70b",
     "resources.mjs": "9ee826f430d5f597e2e071504002ed61b35548e94a9d7711549ba8325d616c91",
     "specifications.mjs": "580c945bef90c8ac81b6037557dc7ec63b009f17cfbc809748db7a5854d7f332",
-    "check.mjs": "4cfd160a724e54975b941459f3d31b2a2d2f99677ac3a0d0fab6c3aad246a610"
+    "check.mjs": "de02ea2911cef04d5100123fe5ac106092aff735ec3696b2545caf5e23f301c8"
   }
 }

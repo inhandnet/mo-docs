@@ -34,16 +34,6 @@ export function checkContent(root) {
       const source=fs.readFileSync(path.join(root,entry.source),'utf8').replace(/(^|\n)(`{3,}|~{3,})[^\n]*\n[\s\S]*?\n\2(?=\n|$)/g,'\n');
       if(/<(script|style)\b|\bon(?:click|load|error)\s*=/i.test(source))errors.push(`${entry.source}: executable HTML is not content`);
     }
-    const aliases=read('content/asset-aliases.json');
-    if(aliases.schema_version!==1||!Array.isArray(aliases.aliases))throw Error('unsupported asset alias schema');
-    const targets=new Set();
-    for(const alias of aliases.aliases) {
-      if(!/^static\/(img|downloads)\//.test(alias.target)||alias.target.includes('..')||targets.has(alias.target))throw Error(`Invalid or duplicate alias ${alias.target}`);
-      targets.add(alias.target);
-      const source=path.resolve(root,alias.source);
-      if(!source.startsWith(path.resolve(root)+path.sep)||!fs.lstatSync(source).isFile()||!fs.realpathSync(source).startsWith(fs.realpathSync(root)+path.sep))throw Error(`Missing or unsafe alias source ${alias.source}`);
-      if(fs.existsSync(path.join(root,alias.target)))throw Error(`Alias has a duplicate maintained file: ${alias.target}`);
-    }
   }catch(error){errors.push(`content/hardware-map.json: ${error.message}`);}
   try {
     if(fs.existsSync(path.join(root,'content/resource-map.json'))) {

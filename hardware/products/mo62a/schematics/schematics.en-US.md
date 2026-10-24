@@ -144,13 +144,13 @@ The older README disagrees on some connector names and fan signal assignments. F
 
 ## Repository and download checks
 
-This repository stores complete PDF files under `products/mo62a/schematics/files/`; it does not use Git LFS for these attachments. The upstream Mo62A BSP repository uses Git LFS at a different path. Commands for that repository must not be run as if they were mo-hardware paths.
+The mo-docs repository stores complete PDF files under `hardware/products/mo62a/schematics/files/`; it does not use Git LFS for these attachments. The upstream Mo62A BSP repository uses Git LFS at a different path, so its commands do not apply to these files.
 
-After cloning mo-hardware, inspect the local files:
+After cloning mo-docs, inspect the local files:
 
 ```bash
-file products/mo62a/schematics/files/*.pdf
-sha256sum products/mo62a/schematics/files/*.pdf
+file hardware/products/mo62a/schematics/files/*.pdf
+sha256sum hardware/products/mo62a/schematics/files/*.pdf
 ```
 
 Compare each result with the filename, size and SHA-256 in [Download the published files](#download-the-published-files). A short text file beginning with `version https://git-lfs.github.com/spec/v1` is a pointer, not a PDF; obtain the complete bytes from the published downloads before use. The repository checks reject LFS pointers.

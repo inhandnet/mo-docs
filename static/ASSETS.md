@@ -10,4 +10,4 @@ Download directories retain their own source and license notices. The security r
 
 The MCU console client, reload helper and video-demo wrapper have defensive host-side regression checks. Those checks do not constitute a new firmware reload or video-inference measurement; their guides retain the original experiment boundaries.
 
-Hardware media and design files are maintained under `hardware/`. Historical duplicates in `static/` are generated from the aliases in `content/asset-aliases.json`; licenses and source notices remain beside the maintained files.
+Hardware media and design files are maintained under `hardware/` and published through `content/hardware-map.json`; `static/` holds no duplicates of them. Licenses and source notices remain beside the maintained files.

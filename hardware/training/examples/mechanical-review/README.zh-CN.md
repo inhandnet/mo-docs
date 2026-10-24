@@ -63,7 +63,7 @@ docs(training): record the mechanical source review
 
 ## 第四步：查看差异并创建Draft PR
 
-确认差异只包含本练习记录和新附件，未修改产品目录、源码、规则或Release。创建PR时 base 是 `inhandnet/mo-hardware:master`（Fork时通过跨仓库比较），compare 是自己的训练分支。
+确认差异只包含本练习记录和新附件，未修改产品目录、源码、规则或Release。创建PR时 base 是 `inhandnet/mo-docs:master`（Fork时通过跨仓库比较），compare 是自己的训练分支。
 
 标题：
 

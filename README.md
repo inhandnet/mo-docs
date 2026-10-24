@@ -4,7 +4,7 @@
 
 Software and hardware documentation sources for the Mo series. This repository maintains guides, specifications, media, design files, evidence and authoring metadata. The single Docusaurus website, standard components, search, previews and deployment are maintained in **developer**.
 
-The unified website serves documentation at `/docs/` and preserves `/hardware-docs/` and existing attachment URLs. The test platform is [developer.inhand.online](https://developer.inhand.online/); the production target is [developer.inhand.com](https://developer.inhand.com/), subject to infrastructure and release acceptance. Historical GitHub Pages deployments and release tags remain migration references; new mo-docs releases contain content and do not deploy a website.
+The unified website serves all documentation, including hardware pages and their downloads, under `/docs/`. The test platform is [developer.inhand.online](https://developer.inhand.online/); the production target is [developer.inhand.com](https://developer.inhand.com/), subject to infrastructure and release acceptance. The website is pre-release, so legacy `/hardware-docs/` routes and old attachment paths are not kept; mo-docs releases contain content and do not deploy a website.
 
 ## Inside mo-docs
 
@@ -39,10 +39,6 @@ The unified website serves documentation at `/docs/` and preserves `/hardware-do
       <td align="left">Hardware source-to-document route and public asset mapping</td>
     </tr>
     <tr>
-      <td align="left"><code>content/asset-aliases.json</code></td>
-      <td align="left">Legacy media/download paths generated from one maintained file</td>
-    </tr>
-    <tr>
       <td align="left"><code>content/hardware-migration.json</code></td>
       <td align="left">Original hardware repository, commit, paths and migration hashes</td>
     </tr>
@@ -59,7 +55,7 @@ The unified website serves documentation at `/docs/` and preserves `/hardware-do
 
 Write normal Markdown. Use registered components for tabs, media, downloads and version tables; component implementation belongs in developer. Shared content and media imports are allowed. Hooks, network requests, arbitrary JavaScript, inline styles and imports from developer's internal `src/` are rejected by the content contract. Teaching code inside fenced code blocks is unaffected. Excel remains a source document or attachment; new structured web data uses JSON.
 
-Hardware material was migrated from mo-hardware. Identical files have one maintained source; the website generates compatibility asset paths. Training and source/license evidence remain in the repository. The hardware map replaces the old software-page redirect stubs during the unified build.
+Hardware material was migrated from the archived mo-hardware repository. Each file has one maintained source under `hardware/`; `content/hardware-map.json` places hardware pages and assets in the `/docs/` navigation. Training and source/license evidence remain in the repository.
 
 ## Mo series repository architecture
 

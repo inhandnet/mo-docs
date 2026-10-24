@@ -16,13 +16,15 @@ test('documentation contains only Mo boards and their shared resources', async (
 });
 
 test('shared MDX imports and category landing pages exist', async () => {
+  // Hardware pages are generated from content/hardware-map.json at build time.
+  const generated = new Set(JSON.parse(await fs.readFile(new URL('../content/hardware-map.json', import.meta.url), 'utf8')).routes.map(entry => entry.original));
   for (const file of await fs.readdir(root, {recursive: true})) {
     if (file.endsWith('.mdx')) {
       const source = await fs.readFile(new URL(file, root), 'utf8');
       for (const match of source.matchAll(/from ['"]@site\/docs\/([^'"]+)['"]/g)) await fs.access(new URL(match[1], root));
     } else if (path.basename(file) === '_category_.json') {
       const category = JSON.parse(await fs.readFile(new URL(file, root), 'utf8'));
-      if (category.link?.type === 'doc') await fs.access(new URL(`${category.link.id}.mdx`, root));
+      if (category.link?.type === 'doc' && !generated.has(`docs/${category.link.id}.mdx`)) await fs.access(new URL(`${category.link.id}.mdx`, root));
     }
   }
 });
