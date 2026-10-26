@@ -38,8 +38,11 @@ test('documentation placeholders do not expose planning metadata', async () => {
   }
 });
 
-test('repository and website security reporting instructions agree', async () => {
-  const policy = (await fs.readFile(new URL('../SECURITY.md', import.meta.url), 'utf8')).replace(/^# [^\n]*\n\s*/, '').trim();
-  const page = (await fs.readFile(new URL('security/vulnerability-reporting.mdx', root), 'utf8')).replace(/^---\n[\s\S]*?\n---\n\s*/, '').trim();
-  assert.equal(page, policy);
+test('repository security policy points to the website reporting page', async () => {
+  const policy = await fs.readFile(new URL('../SECURITY.md', import.meta.url), 'utf8');
+  const page = await fs.readFile(new URL('security/vulnerability-reporting.mdx', root), 'utf8');
+  assert.match(policy, /Report a vulnerability/);
+  assert.match(policy, /https:\/\/developer\.inhand\.online\/docs\/security\/vulnerability-reporting\//);
+  assert.match(page, /private vulnerability reporting/);
+  assert.doesNotMatch(page, /has not yet been published/);
 });
