@@ -12,7 +12,7 @@ hardware originals. `content/hardware-map.json` maps those originals into the
 same `/docs/` navigation. The website is pre-release, so no legacy
 `/hardware-docs/` routes or redirect stubs are kept.
 
-`hardware/training/` and `hardware/templates/` remain author resources and are
+`hardware/training/` remains an author resource and is
 excluded from product navigation.
 
 `static/` contains media and downloadable resources. Hardware assets are

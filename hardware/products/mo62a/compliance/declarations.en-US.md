@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Declarations & test reports"
 description: "Mo 62A: EU DoC, FCC SDoC and test reports."
 sidebar_position: 2

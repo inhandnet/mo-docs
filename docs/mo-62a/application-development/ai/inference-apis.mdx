@@ -92,7 +92,7 @@ The image installs a C/C++ SDK so inference programs compile on the board withou
 | Static libraries | `/usr/lib/edgeai/` |
 | CMake package | `/usr/lib/cmake/EdgeAI/EdgeAIConfig.cmake` |
 | TI runtime libraries | `/opt/ti/edgeai/lib/` |
-| Examples and guide | `/usr/share/edgeai-cpp-examples/` (source maintained in [mo-examples](https://github.com/inhandnet/mo-examples/tree/master/ai/edgeai-cpp)) |
+| Examples and guide | `/usr/share/edgeai-cpp-examples/` (source maintained in [mo-examples](https://github.com/inhandnet/mo-examples/tree/master/products/mo62a/ai/edgeai-cpp)) |
 
 
 The image-specific `find_package(EdgeAI)` configuration exposes `EdgeAI::edgeai`; additional application dependencies remain your responsibility. The supplied `hello_inference` example loads a model directory, runs inference and prints output tensors:

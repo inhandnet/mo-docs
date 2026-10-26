@@ -31,8 +31,8 @@ Mo 系列软硬件文档源仓库，维护教程、规格、媒体、设计资�
       <td align="left">硬件规格、接口、原理图、机械资料和配件</td>
     </tr>
     <tr>
-      <td align="left"><code>hardware/training/</code>、<code>hardware/templates/</code></td>
-      <td align="left">维护培训和编写模板，不进入产品导航</td>
+      <td align="left"><code>hardware/training/</code></td>
+      <td align="left">维护培训，不进入产品导航</td>
     </tr>
     <tr>
       <td align="left"><code>content/hardware-map.json</code></td>
