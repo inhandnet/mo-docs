@@ -6,7 +6,7 @@
 
 让集成者在断电情况下定位正确连接器、确认电气条件，再跳转软件指南配置功能。
 
-**实际源位置：** `products/mo62a/interfaces/hardware-interfaces.en-US.md`
+**实际源位置：** `hardware/products/mo62a/interfaces/hardware-interfaces.en-US.md`
 
 **当前状态：** 当前已有连接器定位、J6 40针表及部分验证范围。逻辑引脚示意、物理朝向和Linux GPIO号属于不同概念。
 

@@ -6,7 +6,7 @@
 
 帮助读者选择正确模型、核对字节与单位，理解名义几何和制造/装配验证之间的差别。
 
-**实际源位置：** `products/mo62a/mechanical/mechanical.en-US.md；附件 products/mo62a/mechanical/files/`
+**实际源位置：** `hardware/products/mo62a/mechanical/mechanical.en-US.md；附件 hardware/products/mo62a/mechanical/files/`
 
 **当前状态：** 已发布STEP ZIP、ZIP和解压STEP的哈希、README说明及CAD投影。模型能导入，但历史OpenCascade整模型拓扑检查未通过，不能删掉这一边界。
 

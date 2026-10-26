@@ -6,7 +6,7 @@
 
 准确表达哪个产品/版本在什么范围内有哪份有效材料，让集成者知道限制和需要继续确认的事项。
 
-**实际源位置：** `products/mo62a/compliance/：certifications、declarations、integration-notes、regulatory-and-safety.en-US.md`
+**实际源位置：** `hardware/products/mo62a/compliance/：certifications、declarations、integration-notes、regulatory-and-safety.en-US.md`
 
 **当前状态：** 当前页面为Coming soon，没有可据此宣称的证书编号或完成状态。章节说明的是如何提交真实文件，不代替合规部门判断。
 

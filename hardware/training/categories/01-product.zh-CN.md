@@ -6,7 +6,7 @@
 
 让读者知道这是什么产品、有哪些有来源的规格，以及哪些是设计能力、哪些有实际验证。
 
-**实际源位置：** `products/mo62a/overview/overview.en-US.md`
+**实际源位置：** `hardware/products/mo62a/overview/overview.en-US.md`
 
 **当前状态：** 当前已有规格正文；产品身份、规格和来源由普通 Markdown 维护，product.xlsx 尚未启用。
 

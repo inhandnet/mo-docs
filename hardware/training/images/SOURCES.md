@@ -17,10 +17,6 @@
 | compare-pr.png | [GitHub Docs](https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request) | [原图](https://docs.github.com/assets/cb-34097/images/help/pull_requests/pull-request-compare-pull-request.png) |
 | files-changed.png | [GitHub Docs](https://docs.github.com/en/pull-requests/how-tos/create-pull-requests/creating-a-pull-request) | [原图](https://docs.github.com/assets/cb-23571/images/help/pull_requests/pull-request-tabs-changed-files.png) |
 
-## 本仓库公开界面
-
-repository.png、mechanical-file.png、releases.png 为本仓库公开页面的只读浏览器截图，基于既有 master ac48228 / Release V1.0.1-rc4。没有登录个人账号、修改页面内容、创建练习PR或发布新版本。页面更新后按钮位置可能变化。
-
 ## 本地示例渲染
 
 example-*.png 对应 training/examples/category-records/ 中的真实 Markdown，exercise-solution.png 对应机械练习答案。它们是本地浏览器渲染截图，属于训练资料，不是 GitHub UI、设备测试或线上发布证据。

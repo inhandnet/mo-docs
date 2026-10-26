@@ -26,7 +26,7 @@
 
 ## 第二步：建分支并改正文
 
-按照[网页流程第2–6步](../../github-workflow.zh-CN.md#2-从最新-master-创建工作分支)建分支，打开本目录 `record.en-US.md`，点铅笔。
+按照[网页流程第3–5步](../../github-workflow.zh-CN.md#3-从最新-master-建分支)建分支，打开本目录 `record.en-US.md`，点铅笔。
 
 完成以下**准确改动**：
 
@@ -87,14 +87,14 @@ Training only; do not merge as product documentation.
 - 已逐项核对装配标识、格式、用途和原有检查限制。
 - 已在GitHub Preview检查格式，并打开附件链接。
 - Files changed仅含训练文件。
-- commit-message / ci：等待运行，完成后补真实结果。
+- commit-message / validate-content：等待运行，完成后补真实结果。
 ```
 
 选择 **Create draft pull request**。不要写不存在的PR号或假装CI已经通过。
 
 ## 第五步：检查CI与处理一次反馈
 
-查看 `commit-message` 和 `ci`。通过后把实际run链接和结果补入PR说明。产品站构建应保持原产品内容；训练文件在仓库中审阅，不需要申请产品站路由。
+查看 `commit-message` 和 `validate-content`。通过后把实际run链接和结果补入PR说明。训练文件只在仓库中审阅，不登记网站页面。
 
 讲师提出一条反馈，例如“补充文件hash只证明字节一致、不证明几何有效”。你在同一分支的记录中补一句：
 
@@ -112,7 +112,7 @@ A matching checksum identifies file bytes; it does not establish geometric valid
 
 讲师验收后 **Close pull request**，删除本次训练分支。不要点击Squash and merge、创建Tag或替换真实STEP文件。你自己Fork中的训练文件也可随分支一起删除，不影响上游。
 
-实际机械资料更新沿用同样流程，但文件位置改为 `products/mo62a/mechanical/`，每个字段由实际批准来源填写。新增下载需维护者登记assets并检查站点下载；Ready for review之后由Admin合并，需要发布时另建新Tag。不要把练习中的未记录字段直接复制到已确认规格上。
+实际机械资料更新沿用同样流程，但文件位置改为 `hardware/products/mo62a/mechanical/`，每个字段由实际批准来源填写。新增下载需维护者在 `content/hardware-map.json` 登记assets并检查站点下载；Ready for review之后由Admin合并，需要发布时另建新Tag。不要把练习中的未记录字段直接复制到已确认规格上。
 
 ## 讲师验收
 

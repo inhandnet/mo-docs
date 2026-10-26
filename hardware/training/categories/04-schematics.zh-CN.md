@@ -6,7 +6,7 @@
 
 提供可追溯的电路设计来源，并指导读者定位模块；不把原理图元件清单等同于实际装配BOM。
 
-**实际源位置：** `products/mo62a/schematics/schematics.en-US.md；附件 products/mo62a/schematics/files/`
+**实际源位置：** `hardware/products/mo62a/schematics/schematics.en-US.md；附件 hardware/products/mo62a/schematics/files/`
 
 **当前状态：** 本仓库已存两份完整PDF；不是Git LFS指针。文件名与标题栏修订/日期存在已记录差异，不可自行“修正”为一致。
 

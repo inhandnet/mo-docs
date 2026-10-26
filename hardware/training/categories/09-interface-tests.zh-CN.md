@@ -6,7 +6,7 @@
 
 把“接口在什么条件下通过什么测试”写成能复查的记录，区别设计参考、单次连通和完整兼容认证。
 
-**实际源位置：** `products/mo62a/validation/interfaces/（当前为预留目录）`
+**实际源位置：** `hardware/products/mo62a/validation/interfaces/（当前为预留目录）`
 
 **当前状态：** 当前产品页引用软件文档中的部分GPIO/UART/PWM实测；本目录没有独立结构化测试记录。新增记录需公开原始证据并链接到相关页。
 

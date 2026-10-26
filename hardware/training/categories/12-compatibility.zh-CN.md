@@ -6,7 +6,7 @@
 
 回答“这个具体配件能否在这块板、这个装配/软件版本、这些条件下使用”，并保留失败和限制。
 
-**实际源位置：** `accessories/compatibility/mo62a/：supported-accessories.en-US.md、hat-compatibility.en-US.md`
+**实际源位置：** `hardware/accessories/compatibility/mo62a/：supported-accessories.en-US.md、hat-compatibility.en-US.md`
 
 **当前状态：** 当前为占位，没有可作为任意HAT或外设已通过证明的完整记录。需要从单个配件和明确测试条件建立关系。
 
