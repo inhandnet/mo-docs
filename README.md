@@ -39,10 +39,6 @@ The unified website serves all documentation, including hardware pages and their
       <td align="left">Hardware source-to-document route and public asset mapping</td>
     </tr>
     <tr>
-      <td align="left"><code>content/hardware-migration.json</code></td>
-      <td align="left">Original hardware repository, commit, paths and migration hashes</td>
-    </tr>
-    <tr>
       <td align="left"><code>validation/</code></td>
       <td align="left">Generated copy of a fixed developer content contract, with commit and hashes</td>
     </tr>
@@ -55,7 +51,7 @@ The unified website serves all documentation, including hardware pages and their
 
 Write normal Markdown. Use registered components for tabs, media, downloads and version tables; component implementation belongs in developer. Shared content and media imports are allowed. Hooks, network requests, arbitrary JavaScript, inline styles and imports from developer's internal `src/` are rejected by the content contract. Teaching code inside fenced code blocks is unaffected. Excel remains a source document or attachment; new structured web data uses JSON.
 
-Hardware material was migrated from the archived mo-hardware repository. Each file has one maintained source under `hardware/`; `content/hardware-map.json` places hardware pages and assets in the `/docs/` navigation. Training and source/license evidence remain in the repository.
+Each file has one maintained source under `hardware/`; `content/hardware-map.json` places hardware pages and assets in the `/docs/` navigation. Training and source/license evidence remain in the repository.
 
 ## Mo series repository architecture
 
@@ -103,7 +99,7 @@ Hardware material was migrated from the archived mo-hardware repository. Each fi
   </tbody>
 </table>
 
-`Mo*` covers independently maintained product repositories such as [Mo62A](https://github.com/inhandnet/Mo62A), Mo68A, Mo69A, Mo67A, Mo3588 and Mo3568. The framework does not fix their number. Hardware content and maintainer training move from mo-hardware into mo-docs; mo-hardware remains a historical migration source and is not a separate member of the target website composition.
+`Mo*` covers independently maintained product repositories such as [Mo62A](https://github.com/inhandnet/Mo62A), Mo68A, Mo69A, Mo67A, Mo3588 and Mo3568. The framework does not fix their number. Hardware content and maintainer training are maintained in mo-docs.
 
 Each source repository publishes ordinary versions. Developer alone has website RC/final channels. The target composition binds **developer + mo-docs + mo-tools + mo-models + mo-examples + selected Mo\*** to exact commits and consumed-asset hashes. A new source release does not change an already frozen website combination. Tutorial applicability, PCB revisions, image versions and actual validation remain distinct.
 
@@ -253,9 +249,9 @@ Set `DEVELOPER_DIR` if the website checkout is elsewhere. Preview runs developer
 
 See [CONTRIBUTING.md](CONTRIBUTING.md), [ARCHITECTURE.md](ARCHITECTURE.md) and [SECURITY.md](SECURITY.md). Content is CC BY-SA 4.0; third-party notices remain in [static/ASSETS.md](static/ASSETS.md) and beside their source files.
 
-## Migration status and diagrams
+## Status and diagrams
 
-Hardware references and maintainer training are consolidated; website implementation lives in developer. Executable tutorial resources now belong to mo-tools, mo-models and mo-examples. `content/resource-map.json` preserves legacy download URLs; `content/resource-migration.json` records original commits, paths, hashes and necessary adjustments. This repository retains prose, images, design attachments and declarative firewall configuration. Developer release freezing and full-site rollout have separate acceptance.
+Website implementation lives in developer. Executable tutorial resources belong to mo-tools, mo-models and mo-examples; `content/resource-map.json` tells developer where to publish them under `/docs/downloads/`. This repository retains prose, images, design attachments and declarative firewall configuration. Developer release freezing and full-site rollout have separate acceptance.
 
 Diagram source is maintained centrally in developer/scripts/render-architecture.mjs. Run `npm run docs:diagrams`, setting DEVELOPER_DIR if necessary, to regenerate this repository's six bilingual SVGs.
 

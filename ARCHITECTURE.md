@@ -13,9 +13,7 @@ same `/docs/` navigation. The website is pre-release, so no legacy
 `/hardware-docs/` routes or redirect stubs are kept.
 
 `hardware/training/` and `hardware/templates/` remain author resources and are
-excluded from product navigation. Migration provenance records the original
-mo-hardware commit and file hashes. Those hashes document the migration baseline;
-future reviewed content edits are allowed and have their own Git history.
+excluded from product navigation.
 
 `static/` contains media and downloadable resources. Hardware assets are
 maintained once under `hardware/` and listed in `content/hardware-map.json`;

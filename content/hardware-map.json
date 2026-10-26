@@ -246,9 +246,5 @@
       "source": "hardware/products/mo62a/images/mo62a-power-temperature-20261022.svg",
       "target": "img/hardware-development/mo62a-power-temperature-20261022.svg"
     }
-  ],
-  "migrated_from": {
-    "repository": "inhandnet/mo-hardware",
-    "commit": "f4b1c7862a9c8f9827dcb149acbffd8b5ccc2f5d"
-  }
+  ]
 }

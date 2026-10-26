@@ -7,11 +7,7 @@ pages and attachment URLs; training and templates are excluded from navigation.
 
 - [Products](products/): product-specific facts and their sources.
 - [Accessories](accessories/): accessory records and compatibility evidence.
-- [Current author workflow](training/UNIFIED-WORKFLOW.zh-CN.md).
-- [Training and preserved examples](training/README.zh-CN.md).
+- [Author workflow and training](training/README.zh-CN.md).
 - [Templates](templates/): reusable author records.
 - [Content conventions](CONTENT-CONTRACT.md).
 - [Repository contribution and release workflow](../CONTRIBUTING.md).
-
-`content/hardware-migration.json` records the original mo-hardware commit and
-file hashes. Published historical Tags and assets in that repository are retained.

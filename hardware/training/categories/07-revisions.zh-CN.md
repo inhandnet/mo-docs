@@ -6,7 +6,7 @@
 
 使读者能把实际板卡和正确资料对应起来，同时清楚哪些对应关系尚未建立。
 
-**实际源位置：** `products/mo62a/revisions/hardware-revisions.en-US.md`
+**实际源位置：** `hardware/products/mo62a/revisions/hardware-revisions.en-US.md`
 
 **当前状态：** 当前有识别方法和已知文件标识差异，没有权威ECN、装配变化表或序列号映射。
 

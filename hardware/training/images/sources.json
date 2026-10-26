@@ -73,24 +73,6 @@
       "attribution": "GitHub Docs",
       "modifications": "none"
     },
-    "repository.png": {
-      "url": "https://github.com/inhandnet/mo-hardware",
-      "attribution": "Read-only capture of the public mo-hardware repository",
-      "sha256": "09975a027f2644c8e8dd5231cbd0ece1116d249fee099f12b83fe7af9fd1c227",
-      "modifications": "none"
-    },
-    "mechanical-file.png": {
-      "url": "https://github.com/inhandnet/mo-hardware/blob/master/products/mo62a/mechanical/mechanical.en-US.md",
-      "attribution": "Read-only capture of the public mo-hardware repository",
-      "sha256": "e0c31103afedbaadfb8b2f8f7cd5ffdb53c0a65e827468c87d4cfd4c0710ec75",
-      "modifications": "none"
-    },
-    "releases.png": {
-      "url": "https://github.com/inhandnet/mo-hardware/releases/tag/V1.0.1-rc4",
-      "attribution": "Read-only capture of the public mo-hardware repository",
-      "sha256": "b37eb08323a6772c02b6f778d22b1a7292c4a01f54e7b603a805fad65d9b432a",
-      "modifications": "none"
-    },
     "example-01-product.png": {
       "source": "training/examples/category-records/01-product.en-US.md",
       "type": "local Markdown rendering",

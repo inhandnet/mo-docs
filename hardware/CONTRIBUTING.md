@@ -7,4 +7,4 @@ start with `hardware/`; content mapping is at `content/hardware-map.json`.
 
 Only mo-docs publishes new hardware content as part of its ordinary content
 Release. Developer selects the content version and owns website RCs, deployment
-and rollback. Old mo-hardware training screenshots are historical references.
+and rollback.

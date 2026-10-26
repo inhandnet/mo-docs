@@ -39,10 +39,6 @@ Mo 系列软硬件文档源仓库，维护教程、规格、媒体、设计资�
       <td align="left">硬件源文件与文档路由、公开素材的映射</td>
     </tr>
     <tr>
-      <td align="left"><code>content/hardware-migration.json</code></td>
-      <td align="left">原硬件仓库、提交、路径和迁移哈希</td>
-    </tr>
-    <tr>
       <td align="left"><code>validation/</code></td>
       <td align="left">developer 固定版本内容规则的生成副本，记录提交与哈希</td>
     </tr>
@@ -55,7 +51,7 @@ Mo 系列软硬件文档源仓库，维护教程、规格、媒体、设计资�
 
 普通正文写 Markdown；选项卡、媒体、下载和版本表调用标准组件，实现统一放在 developer。允许导入共享正文和媒体文件。内容规则拒绝 Hooks、网络请求、任意 JavaScript、内联样式和 developer 内部 `src/` 导入；代码围栏中的教学代码不受影响。Excel 保留为原始资料或附件，新增结构化网页数据采用 JSON。
 
-硬件内容从已归档的 mo-hardware 仓库迁入。每个文件只在 `hardware/` 下维护一份，`content/hardware-map.json` 把硬件页面与附件纳入 `/docs/` 导航；培训、来源和许可证据继续保留。
+每个文件只在 `hardware/` 下维护一份，`content/hardware-map.json` 把硬件页面与附件纳入 `/docs/` 导航；培训、来源和许可证据继续保留。
 
 ## Mo 系列仓库协同
 
@@ -103,7 +99,7 @@ Mo 系列软硬件文档源仓库，维护教程、规格、媒体、设计资�
   </tbody>
 </table>
 
-`Mo*` 表示各型号独立的产品仓库，例如 [Mo62A](https://github.com/inhandnet/Mo62A)、Mo68A、Mo69A、Mo67A、Mo3588、Mo3568，框架不固定数量。mo-hardware 的资料与维护培训迁入 mo-docs；mo-hardware 保留为历史迁移来源，不再单列为目标网站发布组成项。
+`Mo*` 表示各型号独立的产品仓库，例如 [Mo62A](https://github.com/inhandnet/Mo62A)、Mo68A、Mo69A、Mo67A、Mo3588、Mo3568，框架不固定数量。硬件资料与维护培训由 mo-docs 维护。
 
 各源仓库独立发布普通版本，只有 developer 区分网站 RC 与正式版。目标发布组成绑定 **developer + mo-docs + mo-tools + mo-models + mo-examples + 纳入的 Mo\***，记录准确提交与所消费附件哈希。上游新发版本不会改变已冻结的网站组合。教程适用范围、PCB 修订、镜像版本和实际验证结论分别记录。
 
@@ -253,9 +249,9 @@ npm run preview -- --port 8051
 
 参见 [贡献指南](CONTRIBUTING.zh-CN.md)、[技术架构](ARCHITECTURE.md) 和 [安全说明](SECURITY.md)。内容采用 CC BY-SA 4.0；第三方许可保留在 [static/ASSETS.md](static/ASSETS.md) 和相关资源旁。
 
-## 迁移状态与图示维护
+## 状态与图示维护
 
-硬件资料与维护培训已归并，前端已移至 developer。教程可执行资源已按职责归入 mo-tools、mo-models 和 mo-examples；`content/resource-map.json` 保留旧下载地址，`content/resource-migration.json` 记录原提交、路径、哈希和必要调整。正文、图片、设计附件及声明式防火墙配置继续由本仓库维护。developer 的发布冻结与整站上线另行验收。
+网站实现在 developer。教程可执行资源按职责归入 mo-tools、mo-models 和 mo-examples；`content/resource-map.json` 告诉 developer 把它们发布到 `/docs/downloads/` 的位置。正文、图片、设计附件及声明式防火墙配置继续由本仓库维护。developer 的发布冻结与整站上线另行验收。
 
 框架图源统一维护在 developer/scripts/render-architecture.mjs。运行 `npm run docs:diagrams`，或设置 DEVELOPER_DIR 指向已安装的 developer 工作区，生成本仓库六张中英文 SVG。
 

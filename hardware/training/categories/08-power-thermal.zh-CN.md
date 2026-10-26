@@ -6,7 +6,7 @@
 
 使另一名工程师能理解测量边界、复现条件并检查结论，不把额定值、手工读数和时间序列混用。
 
-**实际源位置：** `products/mo62a/validation/power-thermal/；已有入口 power-and-thermal.en-US.md`
+**实际源位置：** `hardware/products/mo62a/validation/power-thermal/；已有入口 power-and-thermal.en-US.md`
 
 **当前状态：** 现有页只有产品额定值与一次只读传感器截图；新增工作负载测量必须单独提供原始数据和方法。待审的内部测量不能未经确认带入公开资料。
 

@@ -6,7 +6,7 @@
 
 让用户识别准确配件、阅读安装与使用限制，而不是靠营销名称猜测适配。
 
-**实际源位置：** `accessories/catalog/；新独立配件可规划 accessories/<稳定ID>/`
+**实际源位置：** `hardware/accessories/catalog/；新独立配件可规划 hardware/accessories/<稳定ID>/`
 
 **当前状态：** 当前为目录和Coming soon指引，没有已发布的完整配件清单。共用配件只保留一个权威记录，板卡适配另维护关系。
 
