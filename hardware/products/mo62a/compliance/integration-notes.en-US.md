@@ -1,5 +1,4 @@
 ---
-draft: true
 title: "Integration notes"
 description: "Mo 62A: For OEMs building the board into a product."
 sidebar_position: 3
