@@ -1,5 +1,4 @@
 ---
-draft: true
 title: "40-pin HAT compatibility"
 description: "Mo 62A: HATs verified on this board."
 sidebar_position: 2

@@ -1,5 +1,4 @@
 ---
-draft: true
 title: "Regulatory & safety information"
 description: "Mo 62A: Safe use, RoHS / REACH, WEEE, batteries."
 sidebar_position: 4

@@ -103,7 +103,7 @@ Sheet 17 labels the EEPROM `BL24C02F` at 7-bit address `0x50`, with a write-prot
 
 Sheet 16 shows the `FG6221ASRC-0L` wireless module. Its Wi-Fi data path is the MMC2/SDIO connection from sheet 14; Bluetooth uses UART6 with flow-control signals. Separate enable/interrupt nets and the module supplies are part of the design, so an antenna connection alone is not sufficient software bring-up.
 
-CON1 provides the shared Wi-Fi/BLE antenna connection. Antenna type, placement and RF clearance matter when adding an enclosure. See [Network](/docs/mo-62a/mo-os/network/#shared-wi-fi-and-ble-antenna) for the documented setup; a module part number is not evidence of final-product radio approval. Certification and regulatory information is published under Compliance when it becomes available.
+CON1 provides the shared Wi-Fi/BLE antenna connection. Antenna type, placement and RF clearance matter when adding an enclosure. See [Network](/docs/mo-62a/mo-os/network/#shared-wi-fi-and-ble-antenna) for the documented setup; a module part number is not evidence of final-product radio approval. Certification and regulatory information is published under [Compliance](/mo-62a/compliance/) when it becomes available.
 
 ## Ethernet and PoE taps
 
