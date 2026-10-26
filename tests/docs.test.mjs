@@ -9,10 +9,12 @@ test('documentation contains only Mo boards and their shared resources', async (
   for (const entry of entries.filter(e => e.isDirectory())) {
     assert.ok(/^mo-[a-z0-9-]+$/.test(entry.name) || ['_partials', 'accessories', 'security', 'works-with-mo'].includes(entry.name), `Out-of-scope documentation: ${entry.name}`);
   }
-  for (const board of ['mo-62a', 'mo-68a']) {
-    const sections = (await fs.readdir(new URL(`${board}/`, root), {withFileTypes: true})).filter(e => e.isDirectory());
-    assert.equal(sections.length, 13, `${board} must include the complete documentation section tree`);
-  }
+  const sections = async board => (await fs.readdir(new URL(`${board}/`, root), {withFileTypes: true})).filter(e => e.isDirectory()).map(e => e.name).sort();
+  // Hardware sections come from content/hardware-map.json; software sections are the same for every board.
+  const hardware = ['accessories', 'compliance', 'hardware-development'];
+  const software = async board => (await sections(board)).filter(name => !hardware.includes(name));
+  assert.equal((await software('mo-62a')).length, 10, 'mo-62a must include the complete software section tree');
+  assert.deepEqual(await software('mo-68a'), await software('mo-62a'));
 });
 
 test('shared MDX imports and category landing pages exist', async () => {

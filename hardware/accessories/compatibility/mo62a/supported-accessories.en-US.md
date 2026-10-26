@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Supported accessories"
 description: "Mo 62A: Official, verified and community-reported accessories."
 sidebar_position: 1

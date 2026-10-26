@@ -31,8 +31,8 @@ The unified website serves all documentation, including hardware pages and their
       <td align="left">Hardware specifications, interfaces, schematics, mechanical files and accessories</td>
     </tr>
     <tr>
-      <td align="left"><code>hardware/training/</code>, <code>hardware/templates/</code></td>
-      <td align="left">Maintenance training and author templates; excluded from product navigation</td>
+      <td align="left"><code>hardware/training/</code></td>
+      <td align="left">Maintenance training; excluded from product navigation</td>
     </tr>
     <tr>
       <td align="left"><code>content/hardware-map.json</code></td>

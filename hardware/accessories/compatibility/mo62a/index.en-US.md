@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Accessories \u2014 Mo 62A"
 sidebar_label: "Accessories"
 description: "Mo 62A: Which accessories work with the Mo 62A. Specs and guides are in the [Accessories](/accessories) section."

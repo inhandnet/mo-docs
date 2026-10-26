@@ -1,4 +1,5 @@
 ---
+draft: true
 title: "Accessory guides"
 description: "Specs, installation and use of each official accessory."
 sidebar_position: 2

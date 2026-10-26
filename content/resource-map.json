@@ -3,267 +3,267 @@
   "files": [
     {
       "repository": "mo-models",
-      "path": "benchmarks/benchmark-inference.py",
+      "path": "products/mo62a/benchmarks/benchmark-inference.py",
       "target": "downloads/ai/benchmark-inference.py"
     },
     {
       "repository": "mo-models",
-      "path": "benchmarks/results/mo62a-v110-tidl-11_02_17_00/benchmark-nano.json",
+      "path": "products/mo62a/benchmarks/results/mo62a-v110-tidl-11_02_17_00/benchmark-nano.json",
       "target": "downloads/ai/benchmark-nano.json"
     },
     {
       "repository": "mo-models",
-      "path": "benchmarks/results/mo62a-v110-tidl-11_02_17_00/benchmark-small.json",
+      "path": "products/mo62a/benchmarks/results/mo62a-v110-tidl-11_02_17_00/benchmark-small.json",
       "target": "downloads/ai/benchmark-small.json"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/python-smoke/infer-yolox-nano.py",
+      "path": "products/mo62a/ai/python-smoke/infer-yolox-nano.py",
       "target": "downloads/ai/infer-yolox-nano.py"
     },
     {
       "repository": "mo-models",
-      "path": "compat/evidence/mo62a-v110-stack-inventory.json",
+      "path": "products/mo62a/compat/evidence/mo62a-v110-stack-inventory.json",
       "target": "downloads/ai/mo62a-v110-stack-inventory.json"
     },
     {
       "repository": "mo-models",
-      "path": "compat/evidence/mo62a-v110-ti-binary-comparison.json",
+      "path": "products/mo62a/compat/evidence/mo62a-v110-ti-binary-comparison.json",
       "target": "downloads/ai/mo62a-v110-ti-binary-comparison.json"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/LICENSE",
+      "path": "products/mo62a/ai/zone-demo/LICENSE",
       "target": "downloads/ai/zone-demo/LICENSE"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/README.md",
+      "path": "products/mo62a/ai/zone-demo/README.md",
       "target": "downloads/ai/zone-demo/README.md"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/SOURCE.txt",
+      "path": "products/mo62a/ai/zone-demo/SOURCE.txt",
       "target": "downloads/ai/zone-demo/SOURCE.txt"
     },
     {
       "repository": "mo-tools",
-      "path": "toolchain/host-setup/activate_host.sh",
+      "path": "products/mo62a/toolchain/host-setup/activate_host.sh",
       "target": "downloads/ai/zone-demo/activate_host.sh"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/compare_detections.py",
+      "path": "products/mo62a/ai/zone-demo/compare_detections.py",
       "target": "downloads/ai/zone-demo/compare_detections.py"
     },
     {
       "repository": "mo-models",
-      "path": "compile/zone-demo/compile_model.py",
+      "path": "products/mo62a/compile/zone-demo/compile_model.py",
       "target": "downloads/ai/zone-demo/compile_model.py"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/fetch_model.py",
+      "path": "products/mo62a/ai/zone-demo/fetch_model.py",
       "target": "downloads/ai/zone-demo/fetch_model.py"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/inputs/calibration.mp4",
+      "path": "products/mo62a/ai/zone-demo/inputs/calibration.mp4",
       "target": "downloads/ai/zone-demo/inputs/calibration.mp4"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/inputs/evaluation.mp4",
+      "path": "products/mo62a/ai/zone-demo/inputs/evaluation.mp4",
       "target": "downloads/ai/zone-demo/inputs/evaluation.mp4"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/inspect_bundle.py",
+      "path": "products/mo62a/ai/zone-demo/inspect_bundle.py",
       "target": "downloads/ai/zone-demo/inspect_bundle.py"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/logic.py",
+      "path": "products/mo62a/ai/zone-demo/logic.py",
       "target": "downloads/ai/zone-demo/logic.py"
     },
     {
       "repository": "mo-models",
-      "path": "compile/zone-demo/model.py",
+      "path": "products/mo62a/compile/zone-demo/model.py",
       "target": "downloads/ai/zone-demo/model.py"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/prepare_inputs.py",
+      "path": "products/mo62a/ai/zone-demo/prepare_inputs.py",
       "target": "downloads/ai/zone-demo/prepare_inputs.py"
     },
     {
       "repository": "mo-tools",
-      "path": "toolchain/host-setup/requirements-host.txt",
+      "path": "products/mo62a/toolchain/host-setup/requirements-host.txt",
       "target": "downloads/ai/zone-demo/requirements-host.txt"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/run_images.py",
+      "path": "products/mo62a/ai/zone-demo/run_images.py",
       "target": "downloads/ai/zone-demo/run_images.py"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/run_video.py",
+      "path": "products/mo62a/ai/zone-demo/run_video.py",
       "target": "downloads/ai/zone-demo/run_video.py"
     },
     {
       "repository": "mo-tools",
-      "path": "toolchain/host-setup/setup_host.sh",
+      "path": "products/mo62a/toolchain/host-setup/setup_host.sh",
       "target": "downloads/ai/zone-demo/setup_host.sh"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/sources.json",
+      "path": "products/mo62a/ai/zone-demo/sources.json",
       "target": "downloads/ai/zone-demo/sources.json"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/test_evidence.py",
+      "path": "products/mo62a/ai/zone-demo/test_evidence.py",
       "target": "downloads/ai/zone-demo/test_evidence.py"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/test_logic.py",
+      "path": "products/mo62a/ai/zone-demo/test_logic.py",
       "target": "downloads/ai/zone-demo/test_logic.py"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/verify_inputs.py",
+      "path": "products/mo62a/ai/zone-demo/verify_inputs.py",
       "target": "downloads/ai/zone-demo/verify_inputs.py"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/zone.json",
+      "path": "products/mo62a/ai/zone-demo/zone.json",
       "target": "downloads/ai/zone-demo/zone.json"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/evidence/zone-demo-events.csv",
+      "path": "products/mo62a/ai/zone-demo/evidence/zone-demo-events.csv",
       "target": "downloads/ai/zone-demo-events.csv"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/evidence/zone-demo-evidence.json",
+      "path": "products/mo62a/ai/zone-demo/evidence/zone-demo-evidence.json",
       "target": "downloads/ai/zone-demo-evidence.json"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/zone-demo/evidence/zone-demo-frames.jsonl",
+      "path": "products/mo62a/ai/zone-demo/evidence/zone-demo-frames.jsonl",
       "target": "downloads/ai/zone-demo-frames.jsonl"
     },
     {
       "repository": "mo-examples",
-      "path": "camera/jpeg-capture/capture-jpeg-mmap.sh",
+      "path": "products/mo62a/camera/jpeg-capture/capture-jpeg-mmap.sh",
       "target": "downloads/camera/capture-jpeg-mmap.sh"
     },
     {
       "repository": "mo-examples",
-      "path": "network/ble/mo-ble-demo-peripheral.py",
+      "path": "products/mo62a/network/ble/mo-ble-demo-peripheral.py",
       "target": "downloads/network/mo-ble-demo-peripheral.py"
     },
     {
       "repository": "mo-examples",
-      "path": "network/ble/mo-ble-gatt-check.py",
+      "path": "products/mo62a/network/ble/mo-ble-gatt-check.py",
       "target": "downloads/network/mo-ble-gatt-check.py"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/npu-demo/SOURCE.txt",
+      "path": "products/mo62a/ai/npu-demo/SOURCE.txt",
       "target": "downloads/npu-demo/SOURCE.txt"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/npu-demo/backend-comparison.json",
+      "path": "products/mo62a/ai/npu-demo/backend-comparison.json",
       "target": "downloads/npu-demo/backend-comparison.json"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/npu-demo/people-demo.yaml",
+      "path": "products/mo62a/ai/npu-demo/people-demo.yaml",
       "target": "downloads/npu-demo/people-demo.yaml"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/npu-demo/people-sample.mp4",
+      "path": "products/mo62a/ai/npu-demo/people-sample.mp4",
       "target": "downloads/npu-demo/people-sample.mp4"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/npu-demo/pet-demo.yaml",
+      "path": "products/mo62a/ai/npu-demo/pet-demo.yaml",
       "target": "downloads/npu-demo/pet-demo.yaml"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/npu-demo/pet-sample.mp4",
+      "path": "products/mo62a/ai/npu-demo/pet-sample.mp4",
       "target": "downloads/npu-demo/pet-sample.mp4"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/npu-demo/run-video-demo.sh",
+      "path": "products/mo62a/ai/npu-demo/run-video-demo.sh",
       "target": "downloads/npu-demo/run-video-demo.sh"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/npu-demo/traffic-sample.mp4",
+      "path": "products/mo62a/ai/npu-demo/traffic-sample.mp4",
       "target": "downloads/npu-demo/traffic-sample.mp4"
     },
     {
       "repository": "mo-examples",
-      "path": "ai/npu-demo/video-demo.yaml",
+      "path": "products/mo62a/ai/npu-demo/video-demo.yaml",
       "target": "downloads/npu-demo/video-demo.yaml"
     },
     {
       "repository": "mo-tools",
-      "path": "diagnostics/peripherals/mo-docs-gpio-loopback.py",
+      "path": "products/mo62a/diagnostics/peripherals/mo-docs-gpio-loopback.py",
       "target": "downloads/peripherals/mo-docs-gpio-loopback.py"
     },
     {
       "repository": "mo-tools",
-      "path": "diagnostics/peripherals/mo-docs-pwm-loopback.py",
+      "path": "products/mo62a/diagnostics/peripherals/mo-docs-pwm-loopback.py",
       "target": "downloads/peripherals/mo-docs-pwm-loopback.py"
     },
     {
       "repository": "mo-tools",
-      "path": "diagnostics/peripherals/mo-docs-uart-loopback.py",
+      "path": "products/mo62a/diagnostics/peripherals/mo-docs-uart-loopback.py",
       "target": "downloads/peripherals/mo-docs-uart-loopback.py"
     },
     {
       "repository": "mo-examples",
-      "path": "r5f/mcu-console/mcu-console.py",
+      "path": "products/mo62a/r5f/mcu-console/mcu-console.py",
       "target": "downloads/real-time-cores/mcu-console.py"
     },
     {
       "repository": "mo-examples",
-      "path": "r5f/mcu-console/mo62a-mcu-console.out",
+      "path": "products/mo62a/r5f/mcu-console/mo62a-mcu-console.out",
       "target": "downloads/real-time-cores/mo62a-mcu-console.out"
     },
     {
       "repository": "mo-examples",
-      "path": "r5f/mcu-console/mo62a-mcu-console.out.sha256",
+      "path": "products/mo62a/r5f/mcu-console/mo62a-mcu-console.out.sha256",
       "target": "downloads/real-time-cores/mo62a-mcu-console.out.sha256"
     },
     {
       "repository": "mo-examples",
-      "path": "r5f/mcu-console/mo62a_console.c",
+      "path": "products/mo62a/r5f/mcu-console/mo62a_console.c",
       "target": "downloads/real-time-cores/mo62a_console.c"
     },
     {
       "repository": "mo-examples",
-      "path": "r5f/mcu-console/mo62a_mcu_console.diff",
+      "path": "products/mo62a/r5f/mcu-console/mo62a_mcu_console.diff",
       "target": "downloads/real-time-cores/mo62a_mcu_console.diff"
     },
     {
       "repository": "mo-examples",
-      "path": "r5f/mcu-console/reload-cycle.sh",
+      "path": "products/mo62a/r5f/mcu-console/reload-cycle.sh",
       "target": "downloads/real-time-cores/reload-cycle.sh"
     },
     {
       "repository": "mo-examples",
-      "path": "r5f/mcu-console/rpmsg_echo_latency.c",
+      "path": "products/mo62a/r5f/mcu-console/rpmsg_echo_latency.c",
       "target": "downloads/real-time-cores/rpmsg_echo_latency.c"
     }
   ],
