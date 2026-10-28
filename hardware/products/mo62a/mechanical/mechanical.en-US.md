@@ -9,9 +9,9 @@ sidebar_position: 4
 
 The Mo62A PCBA assembly model is available as a compressed STEP file for inspecting component placement and planning enclosure clearances:
 
-- [Assembly STEP model (ZIP, 23.4 MiB)](/downloads/hardware/mo62a/MO_62A_MB_PCBA_V1_ASM.stp.zip) — extracts to a 153.9 MiB `.stp` file.
-- [SHA-256 checksums](/downloads/hardware/mo62a/SHA256SUMS.txt) — covers both the ZIP and the extracted STEP file.
-- [Model provenance and verification notes](/downloads/hardware/mo62a/README.txt).
+- [Mechanical drawing, 2D (PDF)](/downloads/hardware/mo62a/Mo62A_mechanical_drawing_V1.0-20260409.pdf) — `Mo62A_mechanical_drawing_V1.0-20260409.pdf`.
+- [Assembly STEP model (ZIP, 23.4 MiB)](/downloads/hardware/mo62a/Mo62A_3d_model_V1.0-20260409.stp.zip) — `Mo62A_3d_model_V1.0-20260409.stp.zip`, extracts to the 153.9 MiB `MO_62A_MB_PCBA_V1_ASM.stp`.
+- [SHA-256 checksums](/downloads/hardware/mo62a/SHA256SUMS.txt) — covers every Mo 62A hardware download, including the extracted STEP file.
 
 The assembly identifier is `MO_62A_MB_PCBA_V1_ASM`. Its STEP header records a Creo export timestamp of April 29, 2026; this is an export timestamp, not a hardware release date or proof that the model matches every shipped revision. Personal author metadata has been removed; the geometry data is unchanged.
 
@@ -26,11 +26,11 @@ OpenCascade imported and rendered this file, but its whole-model topology validi
 Save the ZIP and `SHA256SUMS.txt` in a new directory, then run on a Linux workstation:
 
 ```bash
-unzip MO_62A_MB_PCBA_V1_ASM.stp.zip
-sha256sum -c SHA256SUMS.txt
+unzip Mo62A_3d_model_V1.0-20260409.stp.zip
+sha256sum -c SHA256SUMS.txt --ignore-missing
 ```
 
-Both files must report `OK`. On Windows, use `Get-FileHash -Algorithm SHA256` and compare each result with the downloaded checksum file. Keep the checksum with your enclosure project so the exact reference is identifiable.
+Both the ZIP and the extracted STEP file must report `OK`. On Windows, use `Get-FileHash -Algorithm SHA256` and compare each result with the downloaded checksum file. Keep the checksum with your enclosure project so the exact reference is identifiable.
 
 ### 2. Import and inspect the assembly
 

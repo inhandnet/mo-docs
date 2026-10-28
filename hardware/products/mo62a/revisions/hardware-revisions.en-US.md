@@ -6,7 +6,7 @@ sidebar_position: 6
 
 ## Identify the board, not just the software
 
-Use the markings on your own board and its order/assembly records to identify the hardware. Then confirm which schematic and mechanical package apply. A filename containing `V11`, a Linux model string or the appearance of a connector is not enough to select a hardware revision.
+Use the markings on your own board and its order/assembly records to identify the hardware. Then confirm which schematic and mechanical package apply. A schematic filename, a Linux model string or the appearance of a connector is not enough to select a hardware revision.
 
 ### 1. Read the physical markings
 
@@ -33,18 +33,17 @@ Compare the identifiers below with the exact PDF you downloaded. If a filename, 
 
 ## Published schematic identifiers
 
-Two files are available from [Schematics](/mo-62a/hardware-development/schematics/), with checked sizes and SHA-256 hashes. The first-sheet title-block fields are transcribed here so they can be compared without reading cropped screenshots:
+One schematic is published, on [Schematics](/mo-62a/hardware-development/schematics/), with its size and SHA-256 hash. Earlier schematic files are withdrawn. The first-sheet title-block fields are transcribed here so they can be compared without reading cropped screenshots:
 
-| Filename identifier | First-sheet title block | Interpretation |
+| File | First-sheet title block | Interpretation |
 |---|---|---|
-| `V1.0-260203` | Rev V1.0; April 1, 2026 | Filename suffix and title-block date differ |
-| `V11-260426` | Rev V1.0; April 27, 2026 | Filename and first-sheet revision/date identifiers differ; the reason is not established |
+| `Mo62A_schematic_V1.1-20260504.pdf` | V1.1; October 27, 2026 | The title-block date and the filename date (May 4, 2026) differ; use the filename and hash to identify the file |
 
-These are document identifiers, not an approved board-revision comparison or release chronology. The reason for the filename/title-block differences has not been established. The [module descriptions and circuit references](/mo-62a/hardware-development/schematics/#find-a-module-in-the-schematic) explain the drawings without treating their labels as an as-built BOM.
+This is a document identifier, not an approved board-revision comparison or release chronology. The [module descriptions and circuit references](/mo-62a/hardware-development/schematics/#find-a-module-in-the-schematic) explain the drawings without treating their labels as an as-built BOM.
 
 ## Can software read the hardware revision?
 
-The V11-named schematic includes `HW_REV0`, `HW_REV1` and `HW_REV2` strap nets on sheet 9. The reviewed public material does not establish a validated mapping from their values to the complete PCB/assembly revision. Their presence is not enough to publish a reliable revision-decoding command.
+The V1.1 schematic includes `HW_REV0`, `HW_REV1` and `HW_REV2` strap nets on sheet 9. The reviewed public material does not establish a validated mapping from their values to the complete PCB/assembly revision. Their presence is not enough to publish a reliable revision-decoding command.
 
 Likewise, the EEPROM circuit does not establish an identification-record format or guarantee that a revision has been programmed. Do not probe undocumented straps, change pin multiplexing or write the EEPROM to identify the board. Use the physical and supplier records above unless a revision-matched identification procedure is provided.
 
@@ -68,9 +67,9 @@ Interface or accessory being integrated:
 
 ## What is not established
 
-No authoritative engineering change notice, assembly/BOM change list or revision-to-serial mapping was found in the reviewed public material. Consequently, this page does not claim that every difference between the two PDFs is fitted on every board, or that accessories and images are interchangeable across all revisions.
+No authoritative engineering change notice, assembly/BOM change list or revision-to-serial mapping was found in the reviewed public material. Consequently, this page does not claim that the published schematic matches every shipped board, or that accessories and images are interchangeable across all revisions.
 
-The V1.1-named PDF has local change annotations on some sheets, but those annotations are not a complete release history. Connector references also conflict with the older SDK README: both PDFs identify the expansion header as J6 and the fan as J1. Use [Hardware interfaces](/mo-62a/hardware-development/hardware-interfaces/) and verify the actual connector and pin 1.
+The V1.1 PDF has local change annotations on some sheets, but those annotations are not a complete release history. Connector references also conflict with the older SDK README: the schematic identifies the expansion header as J6 and the fan as J1. Use [Hardware interfaces](/mo-62a/hardware-development/hardware-interfaces/) and verify the actual connector and pin 1.
 
 ## Before a revision-dependent change
 

@@ -1,0 +1,65 @@
+{
+ "schema_version": 1,
+ "board": "mo-62a",
+ "naming": "<Board>_<type>_V<version>-<YYYYMMDD>.<ext>; the version is the hardware revision, or the document revision for datasheets",
+ "checksums": "SHA256SUMS.txt",
+ "files": [
+  {
+   "category": "datasheet",
+   "title": "Datasheet",
+   "file": "Mo62A_datasheet_V1.5-20261026.pdf",
+   "version": "V1.5",
+   "date": "2026-10-26",
+   "bytes": 2171132,
+   "sha256": "147212ddbb59316652f1a8b4e91a6ab0f3b1f5fbdb0d29abaeee81594a914554"
+  },
+  {
+   "category": "mechanical_drawing",
+   "title": "Mechanical drawing (2D)",
+   "file": "Mo62A_mechanical_drawing_V1.0-20260409.pdf",
+   "version": "V1.0",
+   "date": "2026-04-09",
+   "bytes": 420115,
+   "sha256": "846d2302ef38344dca71f4ae9a7ea9c9d05484eaf653cd8fa3778b49f1d52614"
+  },
+  {
+   "category": "3d_model",
+   "title": "3D model (STEP)",
+   "file": "Mo62A_3d_model_V1.0-20260409.stp.zip",
+   "version": "V1.0",
+   "date": "2026-04-09",
+   "bytes": 24542271,
+   "sha256": "bbb27e5b16e253fc991a8df99de0cdf10bcb1a09b442cb23bcf41711a4a0cde6",
+   "note": "ZIP containing MO_62A_MB_PCBA_V1_ASM.stp (161,380,954 bytes); nominal assembly reference."
+  },
+  {
+   "category": "schematic",
+   "title": "Schematics",
+   "file": "Mo62A_schematic_V1.1-20260504.pdf",
+   "version": "V1.1",
+   "date": "2026-05-04",
+   "bytes": 1675506,
+   "sha256": "2b5d05f8c3396c443a578de1ca59c88c4f6ee1a69735ace0ec988992d5518b4c"
+  },
+  {
+   "category": "component_placement",
+   "title": "Component placement",
+   "file": "Mo62A_component_placement_V1.1-20260504.pdf",
+   "version": "V1.1",
+   "date": "2026-05-04",
+   "bytes": 256730,
+   "sha256": "d72f4b2dc3a262f4b4997246a1583e1fe121ebef47e4da115ba4eff19bf4eceb"
+  },
+  {
+   "category": "pinout",
+   "title": "40-pin header pinout",
+   "file": "Mo62A_pinout_V1.1-20261028.pdf",
+   "version": "V1.1",
+   "date": "2026-10-28",
+   "bytes": 80861,
+   "sha256": "2d3d853258a29e5f7f77094765490dcbe0dc090b02a9b6fc46c8c0e9d9d5394a",
+   "note": "Draft for review; generated from the hardware interfaces guide.",
+   "status": "draft"
+  }
+ ]
+}

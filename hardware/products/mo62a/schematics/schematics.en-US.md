@@ -5,49 +5,48 @@ sidebar_position: 5
 ---
 
 
-Use this page to understand how the hardware modules connect and where to find their circuits. The descriptions refer to the V1.1-named schematic below, not a complete as-built BOM or a list of tested functions. For physical wiring, use [Hardware interfaces](/mo-62a/hardware-development/hardware-interfaces/); for measured behaviour, follow the linked application guides.
+Use this page to understand how the hardware modules connect and where to find their circuits. The descriptions refer to the V1.1 schematic below, not a complete as-built BOM or a list of tested functions. For physical wiring, use [Hardware interfaces](/mo-62a/hardware-development/hardware-interfaces/); for measured behaviour, follow the linked application guides.
 
 ## Download the published files
 
-These PDFs are preserved from the [Mo62A repository schematic directory](https://github.com/inhandnet/Mo62A/tree/master/doc/Schematic) and shipped with this hardware site. The labels below identify the filenames; they are not a verified hardware change history.
+The current schematic is V1.1. Older schematic files are withdrawn and no longer published; every Mo 62A hardware file is listed on [Resource download](/docs/mo-62a/resource-download/).
 
-| File identifier | Direct PDF | Size |
+| File | Revision | Size |
 |---|---|---|
-| V11 / 260426 | [MO_62A_S_MB_V11-260426.pdf](/downloads/hardware/mo62a/schematics/MO_62A_S_MB_V11-260426.pdf) | 1,130,181 bytes |
-| V1.0 / 260203 | [MO_62A_sch_V1.0-260203.pdf](/downloads/hardware/mo62a/schematics/MO_62A_sch_V1.0-260203.pdf) | 1,058,114 bytes |
+| [Mo62A_schematic_V1.1-20260504.pdf](/downloads/hardware/mo62a/Mo62A_schematic_V1.1-20260504.pdf) | V1.1, May 4, 2026 | 1,675,506 bytes |
+| [Mo62A_component_placement_V1.1-20260504.pdf](/downloads/hardware/mo62a/Mo62A_component_placement_V1.1-20260504.pdf) | V1.1, May 4, 2026 | 256,730 bytes |
 
-The downloaded PDF bytes must match these SHA-256 hashes, also verified against the original public Git LFS object identifiers:
+The downloaded bytes must match these SHA-256 hashes, also listed in [SHA256SUMS.txt](/downloads/hardware/mo62a/SHA256SUMS.txt):
 
 ```text
-11aea5b41fe549bc77c8b476fdc14d8d407facbcf6f87f41ca69d9b9bf982ce7  MO_62A_S_MB_V11-260426.pdf
-50defd55bd0c9edeef46dc421bc65c7743482e32a996ee8e3ac560908cc3aeff  MO_62A_sch_V1.0-260203.pdf
+2b5d05f8c3396c443a578de1ca59c88c4f6ee1a69735ace0ec988992d5518b4c  Mo62A_schematic_V1.1-20260504.pdf
+d72f4b2dc3a262f4b4997246a1583e1fe121ebef47e4da115ba4eff19bf4eceb  Mo62A_component_placement_V1.1-20260504.pdf
 ```
 
-These hashes identify the reviewed bytes. Downloads here are complete PDFs, not Git LFS pointers. For a controlled design copy, retain the hardware-site Release version and hash; review any replacement before using it.
+For a controlled design copy, retain the filename and hash; review any replacement before using it.
 
 ## Preview and connector references
 
-The following English reference is redrawn from sheet 1 of the V1.1-named PDF. It translates the Chinese labels and retains the source connections; it is not an unmodified schematic or an as-built component list:
+The following English reference is redrawn from sheet 1 of the V1.1 PDF. It translates the Chinese labels and retains the source connections; it is not an unmodified schematic or an as-built component list:
 
 [![English reference diagram redrawn from the V1.1-named Mo62A schematic sheet 1; use the original PDF for circuit design](/img/hardware-development/mo62a-block-v11-en.svg)](/img/hardware-development/mo62a-block-v11-en.svg)
 
-The source diagram's `RJ45+PoE` label refers to the PoE header J5 on sheet 18, which connects the RJ45 transformer taps to an external PoE PD/converter; the board itself has no PoE power circuit. The older V1.0-named PDF also shows an optional eMMC block, which is not evidence that the tested board has eMMC fitted.
+The source diagram's `RJ45+PoE` label refers to the PoE header J5 on sheet 18, which connects the RJ45 transformer taps to an external PoE PD/converter; the board itself has no PoE power circuit. 
 
-Source sheets can disagree: for example, the block diagram names EEPROM `M24M02E`, while sheet 17 of the V1.1-named file labels it `BL24C02F`. This page preserves that discrepancy rather than choosing an unverified fitted part; obtain the revision-matched BOM for component selection.
+Source sheets can disagree: for example, the block diagram names EEPROM `M24M02E`, while sheet 17 of the V1.1 file labels it `BL24C02F`. This page preserves that discrepancy rather than choosing an unverified fitted part; obtain the revision-matched BOM for component selection.
 
-For the older file, [open the V1.0-named English block reference](/img/hardware-development/mo62a-block-v10-en.svg). It retains the source's dashed optional eMMC block and unresolved `TIMER?` label; do not treat them as fitted or tested capabilities.
 
 ### Connector circuits (sheet 17)
 
 Sheet 17 provides the expansion, fan, debug and RTC circuits:
 
-[![Unmodified sheet 17 of the V1.1-named PDF, with J6 expansion, J1 fan, J4 debug and J2 battery references](/img/hardware-development/mo62a-connectors-v11.png)](/img/hardware-development/mo62a-connectors-v11.png)
+[![Unmodified sheet 17 of the V1.1 PDF, with J6 expansion, J1 fan, J4 debug and J2 battery references](/img/hardware-development/mo62a-connectors-v11.png)](/img/hardware-development/mo62a-connectors-v11.png)
 
 Use the original PDF for detailed inspection; the previews are not editable design sources. See [Hardware interfaces](/mo-62a/hardware-development/hardware-interfaces/) for the pin mapping and the older README's conflicting connector references.
 
 ## Find a module in the schematic
 
-The sheet numbers below are the numbers printed in the schematic title blocks. In the reviewed V11 PDF, viewer pages 7 and 8 contain sheets 8 and 7 respectively. Use the sheet title as well as the PDF page counter when locating a circuit.
+The sheet numbers below are the numbers printed in the schematic title blocks. In the V1.1 PDF, viewer pages 7 and 8 contain sheets 8 and 7 respectively. Use the sheet title as well as the PDF page counter when locating a circuit.
 
 | Module | Schematic sheets | What to follow |
 |---|---|---|
@@ -88,16 +87,16 @@ Keep memory capacity, boot-loader training data and hardware revision as separat
 
 ## I²C control and EEPROM
 
-The V11 I²C tree on sheet 3 and the detailed circuits identify the following routes. These are SoC bus names, not guaranteed Linux `/dev/i2c-N` numbers or evidence that every device has been probed:
+The V1.1 I²C tree on sheet 3 and the detailed circuits identify the following routes. These are SoC bus names, not guaranteed Linux `/dev/i2c-N` numbers or evidence that every device has been probed:
 
-| SoC bus | Connection in the V11 drawings | Integration note |
+| SoC bus | Connection in the V1.1 drawings | Integration note |
 |---|---|---|
 | `SoC_I2C0` | TPS6593 PMIC; PCF85263 RTC; BL24C02 EEPROM | PMIC configuration and EEPROM writes are not general-purpose discovery operations |
 | `SoC_I2C1` | TLV320AIC3106 audio codec; SiI9022A HDMI bridge | Shared control bus for on-board devices |
 | `SoC_I2C2` | CSI camera; J6 pins 27/28 | Reserved camera bus in the documented pin configuration |
 | `WKUP_I2C0` | J6 pins 3/5 | Requires the appropriate peripheral overlay; use 3.3 V-compatible hardware |
 
-Sheet 17 labels the EEPROM `BL24C02F` at 7-bit address `0x50`, with a write-protect connection. Sheet 1 instead names `M24M02E`, and the older SDK README places the EEPROM on `SoC_I2C1`, unlike the V11 sheets 3/17. Do not use those older descriptions as an automatic bus-selection or fitted-part rule. Obtain the revision-matched schematic/BOM and check the active device tree before adding a driver; this guide does not establish an EEPROM data format or a PCB-revision value stored there.
+Sheet 17 labels the EEPROM `BL24C02F` at 7-bit address `0x50`, with a write-protect connection. Sheet 1 instead names `M24M02E`, and the older SDK README places the EEPROM on `SoC_I2C1`, unlike the V1.1 sheets 3/17. Do not use those older descriptions as an automatic bus-selection or fitted-part rule. Obtain the revision-matched schematic/BOM and check the active device tree before adding a driver; this guide does not establish an EEPROM data format or a PCB-revision value stored there.
 
 ## Wi-Fi and Bluetooth
 
@@ -144,17 +143,15 @@ The older README disagrees on some connector names and fan signal assignments. F
 
 ## Repository and download checks
 
-The mo-docs repository stores complete PDF files under `hardware/products/mo62a/schematics/files/`; it does not use Git LFS for these attachments. The upstream Mo62A BSP repository uses Git LFS at a different path, so its commands do not apply to these files.
-
-After cloning mo-docs, inspect the local files:
+The mo-docs repository stores hardware downloads under `hardware/products/mo62a/files/` with Git LFS. Install Git LFS before cloning, or run `git lfs pull` afterwards, then check the files:
 
 ```bash
-file hardware/products/mo62a/schematics/files/*.pdf
-sha256sum hardware/products/mo62a/schematics/files/*.pdf
+cd hardware/products/mo62a/files
+sha256sum -c SHA256SUMS.txt --ignore-missing
 ```
 
-Compare each result with the filename, size and SHA-256 in [Download the published files](#download-the-published-files). A short text file beginning with `version https://git-lfs.github.com/spec/v1` is a pointer, not a PDF; obtain the complete bytes from the published downloads before use. The repository checks reject LFS pointers.
+A short text file beginning with `version https://git-lfs.github.com/spec/v1` is an LFS pointer, not a PDF; run `git lfs pull` or use the website downloads.
 
 ## Revision caveat
 
-The first-sheet title block in the V1.1-named file still says `Rev V1.0`, and its date is April 27, 2026, while the filename ends in `260426`. The V1.0-named file's first-sheet date is April 1, 2026, not the `260203` filename suffix. Do not silently treat filename suffixes as release dates or title-block labels as an authoritative change list. See [Hardware revisions](/mo-62a/hardware-development/hardware-revisions/) for what can and cannot be identified.
+The first-sheet title block of this file says `V1.1` dated October 27, 2026, while the filename date is May 4, 2026. Compare the title block with the marking on your board, and see [Hardware revisions](/mo-62a/hardware-development/hardware-revisions/) for what can and cannot be identified.

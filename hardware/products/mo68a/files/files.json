@@ -1,0 +1,17 @@
+{
+ "schema_version": 1,
+ "board": "mo-68a",
+ "naming": "<Board>_<type>_V<version>-<YYYYMMDD>.<ext>; the version is the hardware revision, or the document revision for datasheets",
+ "checksums": "SHA256SUMS.txt",
+ "files": [
+  {
+   "category": "datasheet",
+   "title": "Datasheet",
+   "file": "Mo68A_datasheet_V1.1-20261026.pdf",
+   "version": "V1.1",
+   "date": "2026-10-26",
+   "bytes": 2179213,
+   "sha256": "199c2ea6ca5b813831cf1dcfe02d590f1c92a037729f9011751e0e47c5cc3608"
+  }
+ ]
+}
