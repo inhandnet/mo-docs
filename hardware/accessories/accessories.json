@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "note": "Maintained accessory selection. Tested means reported compatible by InHand engineering; it is not a sales-availability or certification claim. Selected items have no recorded compatibility test. Coming-soon items await selection or validation.",
+  "accessories": [
+    {
+      "id": "usb-c-power-supply",
+      "name": "USB-C power supply",
+      "spec": "5 V / 5 A; interchangeable CN / US / EU / UK AC plugs",
+      "category": "power",
+      "boards": [
+        "mo-62a",
+        "mo-68a"
+      ],
+      "tier": "inhand-selection",
+      "status": "tested",
+      "shop_url": null,
+      "docs_url": "/docs/mo-62a/accessories/supported-accessories/",
+      "options": [
+        "CN AC plug",
+        "US AC plug",
+        "EU AC plug",
+        "UK AC plug"
+      ]
+    },
+    {
+      "id": "microsd-card",
+      "name": "microSD card",
+      "spec": "SanDisk 32 GB, Class 10 / U1 / A1",
+      "category": "storage",
+      "boards": [
+        "mo-62a",
+        "mo-68a"
+      ],
+      "tier": "inhand-selection",
+      "status": "tested",
+      "shop_url": null,
+      "docs_url": "/docs/mo-62a/accessories/supported-accessories/"
+    },
+    {
+      "id": "cooling-fan",
+      "name": "Cooling fan",
+      "spec": "3007 speed-controlled blower, silver type A; 5 V PWM, 4-pin",
+      "category": "cooling",
+      "boards": [
+        "mo-62a",
+        "mo-68a"
+      ],
+      "tier": "inhand-selection",
+      "status": "tested",
+      "shop_url": null,
+      "docs_url": "/docs/mo-62a/accessories/supported-accessories/"
+    },
+    {
+      "id": "wifi-antenna",
+      "name": "Wi-Fi antenna",
+      "spec": "External Wi-Fi antenna, 55 mm lead, U.FL",
+      "category": "wireless",
+      "boards": [
+        "mo-62a"
+      ],
+      "tier": "inhand-selection",
+      "status": "selected",
+      "shop_url": null,
+      "docs_url": "/docs/mo-62a/accessories/supported-accessories/"
+    },
+    {
+      "id": "usb-wifi-bt-adapter",
+      "name": "USB Wi-Fi / Bluetooth adapter",
+      "spec": "USB wireless adapter; model and driver support pending",
+      "category": "wireless",
+      "boards": [
+        "mo-68a"
+      ],
+      "tier": "inhand-selection",
+      "status": "coming-soon",
+      "shop_url": null,
+      "docs_url": "/docs/mo-68a/accessories/supported-accessories/"
+    },
+    {
+      "id": "rtc-battery",
+      "name": "RTC battery",
+      "spec": "CR2032, 2-pin 1.0 mm connector, 50 mm lead",
+      "category": "power",
+      "boards": [
+        "mo-62a",
+        "mo-68a"
+      ],
+      "tier": "inhand-selection",
+      "status": "tested",
+      "shop_url": null,
+      "docs_url": "/docs/mo-62a/accessories/supported-accessories/"
+    },
+    {
+      "id": "ttl-debug-cable",
+      "name": "TTL debug cable",
+      "spec": "USB to 3.3 V TTL UART, 1 m",
+      "category": "debug",
+      "boards": [
+        "mo-62a",
+        "mo-68a"
+      ],
+      "tier": "inhand-selection",
+      "status": "tested",
+      "shop_url": null,
+      "docs_url": "/docs/mo-62a/accessories/supported-accessories/"
+    },
+    {
+      "id": "micro-hdmi-cable",
+      "name": "micro HDMI cable",
+      "spec": "micro HDMI to HDMI, 1 m",
+      "category": "display",
+      "boards": [
+        "mo-62a"
+      ],
+      "tier": "inhand-selection",
+      "status": "tested",
+      "shop_url": null,
+      "docs_url": "/docs/mo-62a/accessories/supported-accessories/"
+    },
+    {
+      "id": "mini-dp-cable",
+      "name": "mini DP cable",
+      "spec": "mini DisplayPort to DisplayPort, 1 m",
+      "category": "display",
+      "boards": [
+        "mo-68a"
+      ],
+      "tier": "inhand-selection",
+      "status": "tested",
+      "shop_url": null,
+      "docs_url": "/docs/mo-68a/accessories/supported-accessories/"
+    },
+    {
+      "id": "camera-module",
+      "name": "Camera module",
+      "spec": "Waveshare IMX219-160, 160° field of view; matching FPC cable required",
+      "category": "camera",
+      "boards": [
+        "mo-62a",
+        "mo-68a"
+      ],
+      "tier": "inhand-selection",
+      "status": "tested",
+      "shop_url": null,
+      "docs_url": "/docs/mo-62a/accessories/supported-accessories/",
+      "reference_url": "https://www.waveshare.net/shop/IMX219-160-Camera.htm"
+    },
+    {
+      "id": "active-mini-dp-hdmi",
+      "name": "Active mini DP to HDMI cable",
+      "spec": "Active conversion, 1.8 m",
+      "category": "display",
+      "boards": [
+        "mo-68a"
+      ],
+      "tier": "inhand-selection",
+      "status": "tested",
+      "shop_url": null,
+      "docs_url": "/docs/mo-68a/accessories/supported-accessories/"
+    }
+  ],
+  "updated": "2026-10-28"
+}

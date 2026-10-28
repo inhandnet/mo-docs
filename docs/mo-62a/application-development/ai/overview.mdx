@@ -10,7 +10,7 @@ import subgraph from '@site/static/img/application-development/ai/ai-subgraph.pn
 import versionMatrix from '@site/static/img/application-development/ai/ai-version-matrix.png';
 import runtime from '@site/static/img/application-development/ai/mo62a-stack-v110.png';
 
-Mo62A uses the AM62A's C7x DSP and Matrix Multiply Accelerator (MMA) for TIDL-accelerated neural-network inference. The advertised 2 TOPS is a peak hardware capability, not application throughput. Arm Cortex-A53 cores still run application code and can execute network sections through a compatible CPU runtime. They are not guaranteed to remain idle. See [TI's AM62A peak-performance explanation](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1338450/am62a7-how-mma-2-tops-peak-performance-is-computed).
+Mo62A uses the AM62A's C7x DSP with a Matrix Multiply Accelerator (MMA), TI's deep-learning accelerator, for TIDL-accelerated neural-network inference. The advertised 2 TOPS is a peak hardware capability, not application throughput. Arm Cortex-A53 cores still run application code and can execute network sections through a compatible CPU runtime. They are not guaranteed to remain idle. See [TI's AM62A peak-performance explanation](https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1338450/am62a7-how-mma-2-tops-peak-performance-is-computed).
 
 :::info[Evidence and version scope]
 Local results refer to the Mo62A V1.1.0 development installation with TIDL `11_02_17_00` and TI ONNX Runtime 1.23.0, not a pristine TI EVM image. The `2026-08-19` value reported by `mo-version` is an image build field, not the GitHub release date. The diagrams explain software relationships; they are not traces or proof that every depicted path was tested on Mo62A.

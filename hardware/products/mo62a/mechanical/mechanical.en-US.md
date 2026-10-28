@@ -9,9 +9,10 @@ sidebar_position: 4
 
 The Mo62A PCBA assembly model is available as a compressed STEP file for inspecting component placement and planning enclosure clearances:
 
-- [Assembly STEP model (ZIP, 23.4 MiB)](/downloads/hardware/mo62a/MO_62A_MB_PCBA_V1_ASM.stp.zip) — extracts to a 153.9 MiB `.stp` file.
-- [SHA-256 checksums](/downloads/hardware/mo62a/SHA256SUMS.txt) — covers both the ZIP and the extracted STEP file.
-- [Model provenance and verification notes](/downloads/hardware/mo62a/README.txt).
+- [Mechanical drawing, 2D (PDF)](/downloads/hardware/mo62a/Mo62A_mechanical_drawing_V1.0-20260409.pdf) — `Mo62A_mechanical_drawing_V1.0-20260409.pdf`.
+- [Assembly STEP model (ZIP, 23.4 MiB)](/downloads/hardware/mo62a/Mo62A_3d_model_V1.0-20260409.stp.zip) — `Mo62A_3d_model_V1.0-20260409.stp.zip`, extracts to the 153.9 MiB `MO_62A_MB_PCBA_V1_ASM.stp`.
+- [PCB outline, top and bottom (DXF in ZIP)](/downloads/hardware/mo62a/Mo62A_2d_dxf_V1.1-20260504.zip) — `Mo62A_2d_dxf_V1.1-20260504.zip`: V1.1 PCB layout exported from the board design, in millimetres (DXF R12), with the board outline, pads, silkscreen, reference designators and drill holes. Use it to place cut-outs and connectors in an enclosure or carrier design; confirm against a physical board.
+- [SHA-256 checksums](/downloads/hardware/mo62a/SHA256SUMS.txt) — covers every Mo 62A hardware download, including the extracted STEP file.
 
 The assembly identifier is `MO_62A_MB_PCBA_V1_ASM`. Its STEP header records a Creo export timestamp of April 29, 2026; this is an export timestamp, not a hardware release date or proof that the model matches every shipped revision. Personal author metadata has been removed; the geometry data is unchanged.
 
@@ -26,11 +27,11 @@ OpenCascade imported and rendered this file, but its whole-model topology validi
 Save the ZIP and `SHA256SUMS.txt` in a new directory, then run on a Linux workstation:
 
 ```bash
-unzip MO_62A_MB_PCBA_V1_ASM.stp.zip
-sha256sum -c SHA256SUMS.txt
+unzip Mo62A_3d_model_V1.0-20260409.stp.zip
+sha256sum -c SHA256SUMS.txt --ignore-missing
 ```
 
-Both files must report `OK`. On Windows, use `Get-FileHash -Algorithm SHA256` and compare each result with the downloaded checksum file. Keep the checksum with your enclosure project so the exact reference is identifiable.
+Both the ZIP and the extracted STEP file must report `OK`. On Windows, use `Get-FileHash -Algorithm SHA256` and compare each result with the downloaded checksum file. Keep the checksum with your enclosure project so the exact reference is identifiable.
 
 ### 2. Import and inspect the assembly
 
@@ -44,7 +45,7 @@ In the file's coordinate system, the full assembly has an axis-aligned bounding 
 
 ## Published dimensions
 
-The English Mo62A Datasheet V1.0, available through the [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO62A), gives the nominal dimensions on page 3 and mass on page 5. The values below are source references, not measurements taken from the STEP model or a physical sample.
+The English [Mo62A Datasheet V1.5](/downloads/hardware/mo62a/Mo62A_datasheet_V1.5-20261026.pdf), gives the nominal dimensions on page 3 and mass on page 5. The values below are source references, not measurements taken from the STEP model or a physical sample.
 
 :::warning[Reference only, not a production drawing]
 The source explicitly states that all dimensions are approximate, for reference only, and must not be used for manufacturing. Dimensions can change without notice. This page does not replace a revision-controlled mechanical drawing with tolerances.
@@ -54,8 +55,8 @@ The source explicitly states that all dimensions are approximate, for reference 
 |---|---|---|
 | Board outline | 85 × 56 mm | Initial space planning only |
 | Mass | 47 g | Product specification; accessories are separate |
-| Mounting-hole centres | Approximately 58 × 49 mm in the drawing | Confirm against the actual revision and a toleranced drawing |
-| Hole diameter | Approximately 2.5 mm in the drawing | Do not infer an approved screw size or tightening torque |
+| Mounting-hole centres | 58 × 49 mm in the supplied 2D mechanical drawing | Confirm against the actual revision and a toleranced drawing |
+| Hole diameter | 2.5 mm in the supplied 2D mechanical drawing | Do not infer an approved screw size or tightening torque |
 | Connector positions and selected dimensions | Reference front, side and interface views on page 3 | Not a complete height or keep-out specification; confirm against the revision-matched mechanical package |
 
 ## Enclosure and cable clearance
@@ -73,6 +74,6 @@ See [Hardware interfaces](/mo-62a/hardware-development/hardware-interfaces/) for
 
 ## Production drawings and validation limits
 
-The assembly STEP model above is available; a separately released DXF outline and a toleranced production drawing have not been verified. No case-fit or mounting-load test was performed for this page. The model does not remove the source datasheet's reference-only restriction on its dimension drawing.
+The supplied STEP, 2D PDF and DXF downloads are available above. A toleranced production drawing has not been verified. No case-fit or mounting-load test was performed for this page. The model does not remove the source datasheet's reference-only restriction on its dimension drawing.
 
 Before enclosure tooling, request the mechanical package for the exact PCB/assembly revision, including connector envelopes, keep-outs, mounting tolerances and approved fasteners. Include the board's silkscreen and ordered SKU; a schematic filename alone is not sufficient revision identification. See [Hardware revisions](/mo-62a/hardware-development/hardware-revisions/).

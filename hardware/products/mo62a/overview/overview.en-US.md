@@ -25,7 +25,7 @@ Use [Schematics](/mo-62a/hardware-development/schematics/#preview-and-connector-
 | MCU R5F / FreeRTOS | [MCU console](/docs/mo-62a/real-time-cores/mcu-console/), RPMsg, 30 reload cycles and AI coexistence | Validated example on the MCU R5F; DM R5F remains reserved for system management |
 | Secure boot | SoC/SDK capabilities and [provisioning guidance](/docs/mo-62a/low-level-development/secure-boot/) | Board key provisioning has not been validated |
 
-Memory capacity is an ordered hardware option listed above, with no default capacity specified here. Confirm the purchased SKU and use `free -h` to inspect memory visible to Linux; reservations mean this is not a direct reading of fitted DRAM capacity.
+Memory capacity is an ordered hardware option: 2 GB (default) or 4 GB, as listed in Datasheet V1.5. Confirm the purchased SKU and use `free -h` to inspect memory visible to Linux; reservations mean this is not a direct reading of fitted DRAM capacity.
 
 ## Integration references
 
@@ -37,6 +37,6 @@ Memory capacity is an ordered hardware option listed above, with no default capa
 
 ## Downloads
 
-- [English datasheet — InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO62A)
+- [English datasheet V1.5 (PDF)](/downloads/hardware/mo62a/Mo62A_datasheet_V1.5-20261026.pdf)
 - [Schematics](/mo-62a/hardware-development/schematics/)
 - [OS images](/software#os-images)

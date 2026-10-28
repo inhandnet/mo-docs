@@ -4,7 +4,7 @@ description: "Mo 68A specifications."
 sidebar_position: 1
 ---
 
-The Mo 68A is built on the **TI AM68A** vision processor: two Arm Cortex-A72 cores at 2.0 GHz and two C7x DSPs with a deep-learning accelerator for **8 TOPS** of AI inference. It adds a second camera input, 4K60 video encode / decode, USB 3.0 and PCIe 3.0, on the same 85 × 56 mm footprint as the Mo 62A.
+The Mo 68A is built on the **TI AM68A** vision processor: two Arm Cortex-A72 cores at 2.0 GHz and two C7x DSPs and one Matrix Multiply Accelerator (MMA), TI's deep-learning accelerator, for **8 TOPS** of AI inference. It adds a second camera input, 4K60 video encode / decode, USB 3.0 and PCIe 3.0, on the same 85 × 56 mm footprint as the Mo 62A.
 
 ![Mo 68A board](/img/boards/mo-68a.png)
 
@@ -13,10 +13,10 @@ The Mo 68A is built on the **TI AM68A** vision processor: two Arm Cortex-A72 cor
 | Parameter | Specification |
 |---|---|
 | Processor | TI AM68A, 2 × Arm Cortex-A72 @ 2.0 GHz |
-| AI accelerator | 2 × C7x DSP + deep-learning accelerator, 8 TOPS |
+| AI accelerator | 2 × C7x DSP + MMA, 8 TOPS |
 | ISP / vision | On-chip ISP + VPAC (RGB-IR, WDR, LDC) + DMPAC |
 | Video | 4K60 video codec |
-| Memory | LPDDR4, 4 / 8 GB (8 GB default); models Mo-68A-4G / Mo-68A-8G |
+| Memory | LPDDR4, 4 / 8 GB (8 GB default); models Mo68A-4G-DC / Mo68A-8G-DC |
 | Storage | microSD card |
 | Ethernet | 1 × Gigabit Ethernet |
 | USB | 4 × USB 3.0 Type-A |
@@ -24,7 +24,7 @@ The Mo 68A is built on the **TI AM68A** vision processor: two Arm Cortex-A72 cor
 | Display | 1 × mini DisplayPort; up to 2 × 4-lane MIPI DSI |
 | Camera | Up to 2 × 4-lane MIPI CSI-2 |
 | Audio | I²S via 40-pin header |
-| Expansion | 40-pin header: GPIO / I²C / I²S / SPI / UART / PCM, 3.3 V logic |
+| Expansion | 40-pin header: GPIO / I²C / I²S / SPI / UART / PCM, 3.3 V logic; check pinout and software support |
 | Debug | 1 × TTL UART console |
 | Fan | 1 × 4-pin fan header (5 V / PWM / GND / TACH) |
 | Button | 1 × Reset button |
@@ -55,10 +55,20 @@ The Mo 68A is built on the **TI AM68A** vision processor: two Arm Cortex-A72 cor
 | Operating system | Debian 13 (Trixie), Linux kernel 6.12 |
 | AI runtime | TI TIDL with ONNX Runtime / TFLite |
 | Development | Python, C/C++, OpenCV, GStreamer, NumPy, apt |
-| Security | Secure boot, Arm TrustZone, OP-TEE, hardware AES-256 |
+| Security capabilities | Secure boot, Arm TrustZone, OP-TEE, hardware AES-256; provisioning and enforcement require validation |
 
 ## Mo 68A vs Mo 62A
 
 Choose the Mo 68A for multiple cameras, higher resolution, video recording alongside inference, or PCIe expansion. For a single camera at lower cost, see the [Mo 62A](/mo-62a/hardware-development/overview/).
 
-Specifications follow Mo 68A_Datasheet_V1.0. Datasheet, user manual and hardware interface description: [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO68A).
+Specifications follow [Mo 68A Datasheet V1.1](/downloads/hardware/mo68a/Mo68A_datasheet_V1.1-20261026.pdf). Datasheet, user manual and hardware interface description: [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO68A).
+
+## Configuration and measured behavior
+
+The currently listed **Mo68A-4G-DC** and **Mo68A-8G-DC** variants configure **MIPI0 as DSI** and **MIPI1 as CSI**. The maximum interface capabilities above do not mean two CSI cameras and two DSI displays are available simultaneously. Schematic V1.1 uses resistor population to select the MIPI routing; a software overlay cannot change an unconnected hardware path.
+
+The AM68A includes one C7x/MMA inference path plus a second C7x DSP. In the [power and thermal measurements](../power-and-thermal/), two camera inference streams shared the first path. A separate convolution workload exercised the second DSP. These observations do not establish maximum AI throughput.
+
+The security entries are published product capabilities. Customer-key provisioning and enforcement of authenticated boot have not been validated for this documentation. The public Debian V1.0.0 image is linked on [Software](/software#mo-68a-images); the power-test installation separately reported 1.0.2.
+
+All available hardware downloads and their SHA-256 checksums are listed in [Resource download](/docs/mo-68a/resource-download/).

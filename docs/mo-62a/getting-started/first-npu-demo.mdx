@@ -20,7 +20,7 @@ Run live object detection with the pre-installed `edgeai-demo` launcher. An IMX2
 
 You can also [run the supplied sample videos](#run-the-sample-video-no-camera-required) without a camera. Both paths run inference **on Mo62A**. The result screenshots and recording on this page use the video-file path; the camera connection and menu instructions are shown separately.
 
-Mo62A's AI accelerator is the **C7x DSP with its Matrix Multiply Accelerator (MMA)**. TIDL runs supported model operations on this hardware. Python and C/C++ are two application backends; choosing Python does not mean inference runs only on the CPU.
+Mo62A's AI accelerator is the **C7x DSP with a Matrix Multiply Accelerator (MMA)**, TI's deep-learning accelerator. TIDL runs supported model operations on this hardware. Python and C/C++ are two application backends; choosing Python does not mean inference runs only on the CPU.
 
 This page covers connecting the camera and running the first AI demonstration. For Bayer/NV12 formats, media topology, ISP tuning files and camera-to-JPEG development without inference, use [Camera & video](../application-development/camera-and-video.mdx). For the software stack and model development, continue to [AI development](../application-development/ai/index.mdx).
 
@@ -139,7 +139,7 @@ edgeai-demo list
 
 Use this path if a camera is unavailable or you want a repeatable scene. Skip steps 1–3: neither a CSI connection nor `init-imx219` is needed. Keep HDMI connected and control the board through SSH or UART.
 
-The current `edgeai-demo` menu accepts CSI and USB cameras. For a file input, the helper below launches the **same installed EdgeAI Python or C/C++ application** with a video configuration. It uses **hardware H.264 decoding** (`v4l2h264dec`) and **TIDL acceleration** for YOLOX-S-Lite (8220). Decoding runs on the VPU; inference runs on C7x/MMA. The file configuration sets `drop: False`, so a faster decoder waits for the inference pipeline instead of decoding and discarding unnecessary frames.
+The current `edgeai-demo` menu accepts CSI and USB cameras. For a file input, the helper below launches the **same installed EdgeAI Python or C/C++ application** with a video configuration. It uses **hardware H.264 decoding** (`v4l2h264dec`) and **TIDL acceleration** for YOLOX-S-Lite (8220). Decoding runs on the VPU; inference runs on the C7x DSP and MMA. The file configuration sets `drop: False`, so a faster decoder waits for the inference pipeline instead of decoding and discarding unnecessary frames.
 
 :::note[Video-demo image requirements]
 The hardware-decoded example was verified on a test device with the AM62A VPU polling and GStreamer V4L2 format fixes from the Mo62A source tree. These changes have not yet been validated in a newly released image. An older image can contain the demo and models but still lack these fixes; use a build containing them for this video path. The CSI instructions above do not require H.264 decoding.
@@ -254,7 +254,7 @@ For the pet scene, copy `pet-sample.mp4` and `pet-demo.yaml` instead, then pass 
 
 ### C/C++ and Python: same model, same video
 
-Both backends invoke TIDL on C7x/MMA. C/C++ can reduce application and pipeline overhead, but changing the application language does not increase the accelerator's physical compute capacity. The measured benefit in this example is **higher end-to-end throughput**.
+Both backends invoke TIDL on the C7x DSP and MMA. C/C++ can reduce application and pipeline overhead, but changing the application language does not increase the accelerator's physical compute capacity. The measured benefit in this example is **higher end-to-end throughput**.
 
 For the same 20-second road video and 8220 model, three runs per backend produced:
 
@@ -363,7 +363,7 @@ A compatible UVC camera can be used in place of IMX219. It does not require `ini
 
 ## Continue with AI development
 
-- [AI overview](../application-development/ai/overview.mdx): C7x/MMA, TIDL and the camera-to-inference software stack.
+- [AI overview](../application-development/ai/overview.mdx): the C7x DSP and MMA, TIDL and the camera-to-inference software stack.
 - [Pre-compiled models](../application-development/ai/model-hub.mdx): installed models, task types and compatibility references.
 - [Camera & video](../application-development/camera-and-video.mdx): media topology, Bayer/NV12 formats, ISP tuning and verified camera-to-JPEG capture without inference.
 - [AI development](../application-development/ai/index.mdx): the separate area for toolchain setup, model compilation, inference APIs and application development.

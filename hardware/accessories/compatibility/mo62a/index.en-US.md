@@ -1,12 +1,9 @@
 ---
-title: "Accessories \u2014 Mo 62A"
-sidebar_label: "Accessories"
-description: "Mo 62A: Which accessories work with the Mo 62A. Specs and guides are in the [Accessories](/accessories) section."
-sidebar_position: 0
+title: "Accessories"
+description: "Accessories selected for Mo 62A."
+sidebar_position: 8
 ---
 
+Find power, cooling, camera, storage and display accessories in [Supported accessories](./supported-accessories/). The list distinguishes tested selections from items still being prepared. Check each accessory's board compatibility and connector pinout before connecting it.
 
-Which accessories work with the Mo 62A. Specs and guides are in the [Accessories](/accessories) section.
-
-- [Supported accessories](/mo-62a/accessories/supported-accessories/)
-- [40-pin HAT compatibility](/mo-62a/accessories/hat-compatibility/)
+See [Hardware interfaces](/mo-62a/hardware-development/hardware-interfaces/) for the board connections.

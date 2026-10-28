@@ -7,7 +7,7 @@ sidebar_position: 3
 
 ## Power supply and measurement boundary
 
-These are published product ratings from page 5 of the English Mo62A Datasheet V1.0 in the [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO62A), not measurements from the documentation test bench.
+These are published product ratings from page 5 of the English Mo62A Datasheet V1.5 in the [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO62A), not measurements from the documentation test bench.
 
 | Item | Published value | Interpretation |
 |---|---|---|
@@ -94,7 +94,7 @@ Download the [measurement record and all temperature/CPU/fan samples (JSON)](/do
 
 ### AI load and useful application throughput
 
-The following averages exclude the first 60 seconds of each AI workload. CPU busy is across all four cores; C7x load comes from a single TI performance collector. No independent MMA utilization counter was available, so these values do not establish that the NPU was fully saturated.
+The following averages exclude the first 60 seconds of each AI workload. CPU busy is across all four cores; C7x load comes from a single TI performance collector. No independent accelerator utilization counter was available, so these values do not establish that the NPU was fully saturated.
 
 | Case | CPU busy | C7x mean | Application throughput |
 |---|---|---|---|

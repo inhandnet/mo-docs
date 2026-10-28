@@ -171,12 +171,8 @@
   ],
   "assets": [
     {
-      "source": "hardware/products/mo62a/schematics/files/MO_62A_S_MB_V11-260426.pdf",
-      "target": "downloads/hardware/mo62a/schematics/MO_62A_S_MB_V11-260426.pdf"
-    },
-    {
-      "source": "hardware/products/mo62a/schematics/files/MO_62A_sch_V1.0-260203.pdf",
-      "target": "downloads/hardware/mo62a/schematics/MO_62A_sch_V1.0-260203.pdf"
+      "source": "hardware/products/mo62a/validation/power-thermal/files/mo62a-power-temperature-20261022.json",
+      "target": "downloads/hardware/mo62a-power-temperature-20261022.json"
     },
     {
       "source": "hardware/products/mo62a/images/mo62a-interfaces.png",
@@ -203,18 +199,6 @@
       "target": "img/hardware-development/mo62a-step-top.png"
     },
     {
-      "source": "hardware/products/mo62a/mechanical/files/MO_62A_MB_PCBA_V1_ASM.stp.zip",
-      "target": "downloads/hardware/mo62a/MO_62A_MB_PCBA_V1_ASM.stp.zip"
-    },
-    {
-      "source": "hardware/products/mo62a/mechanical/files/SHA256SUMS.txt",
-      "target": "downloads/hardware/mo62a/SHA256SUMS.txt"
-    },
-    {
-      "source": "hardware/products/mo62a/mechanical/files/README.txt",
-      "target": "downloads/hardware/mo62a/README.txt"
-    },
-    {
       "source": "hardware/products/mo62a/images/mo62a-board-top.png",
       "target": "img/hardware-development/mo62a-board-top.png"
     },
@@ -231,20 +215,84 @@
       "target": "img/hardware-development/mo62a-block-v11-en.svg"
     },
     {
-      "source": "hardware/products/mo62a/images/mo62a-block-v10-en.svg",
-      "target": "img/hardware-development/mo62a-block-v10-en.svg"
-    },
-    {
       "source": "hardware/reference-assets/img/boards/mo-68a.png",
       "target": "img/boards/mo-68a.png"
     },
     {
-      "source": "hardware/products/mo62a/validation/power-thermal/files/mo62a-power-temperature-20261022.json",
-      "target": "downloads/hardware/mo62a-power-temperature-20261022.json"
-    },
-    {
       "source": "hardware/products/mo62a/images/mo62a-power-temperature-20261022.svg",
       "target": "img/hardware-development/mo62a-power-temperature-20261022.svg"
+    },
+    {
+      "source": "hardware/products/mo62a/files/Mo62A_datasheet_V1.5-20261026.pdf",
+      "target": "downloads/hardware/mo62a/Mo62A_datasheet_V1.5-20261026.pdf"
+    },
+    {
+      "source": "hardware/products/mo62a/files/Mo62A_mechanical_drawing_V1.0-20260409.pdf",
+      "target": "downloads/hardware/mo62a/Mo62A_mechanical_drawing_V1.0-20260409.pdf"
+    },
+    {
+      "source": "hardware/products/mo62a/files/Mo62A_3d_model_V1.0-20260409.stp.zip",
+      "target": "downloads/hardware/mo62a/Mo62A_3d_model_V1.0-20260409.stp.zip"
+    },
+    {
+      "source": "hardware/products/mo62a/files/Mo62A_schematic_V1.1-20260504.pdf",
+      "target": "downloads/hardware/mo62a/Mo62A_schematic_V1.1-20260504.pdf"
+    },
+    {
+      "source": "hardware/products/mo62a/files/Mo62A_component_placement_V1.1-20260504.pdf",
+      "target": "downloads/hardware/mo62a/Mo62A_component_placement_V1.1-20260504.pdf"
+    },
+    {
+      "source": "hardware/products/mo62a/files/Mo62A_pinout_V1.1-20261028.pdf",
+      "target": "downloads/hardware/mo62a/Mo62A_pinout_V1.1-20261028.pdf"
+    },
+    {
+      "source": "hardware/products/mo62a/files/SHA256SUMS.txt",
+      "target": "downloads/hardware/mo62a/SHA256SUMS.txt"
+    },
+    {
+      "source": "hardware/products/mo68a/files/Mo68A_datasheet_V1.1-20261026.pdf",
+      "target": "downloads/hardware/mo68a/Mo68A_datasheet_V1.1-20261026.pdf"
+    },
+    {
+      "source": "hardware/products/mo68a/files/SHA256SUMS.txt",
+      "target": "downloads/hardware/mo68a/SHA256SUMS.txt"
+    },
+    {
+      "source": "hardware/products/mo62a/files/Mo62A_2d_dxf_V1.1-20260504.zip",
+      "target": "downloads/hardware/mo62a/Mo62A_2d_dxf_V1.1-20260504.zip"
+    },
+    {
+      "source": "hardware/products/mo68a/files/Mo68A_pinout_V1.0-20261028.pdf",
+      "target": "downloads/hardware/mo68a/Mo68A_pinout_V1.0-20261028.pdf"
+    },
+    {
+      "source": "hardware/products/mo68a/files/Mo68A_3d_model_V1.0-20260429.stp.zip",
+      "target": "downloads/hardware/mo68a/Mo68A_3d_model_V1.0-20260429.stp.zip"
+    },
+    {
+      "source": "hardware/products/mo68a/files/Mo68A_schematic_V1.1-20261021.pdf",
+      "target": "downloads/hardware/mo68a/Mo68A_schematic_V1.1-20261021.pdf"
+    },
+    {
+      "source": "hardware/products/mo68a/files/Mo68A_component_placement_V1.1-20260506.pdf",
+      "target": "downloads/hardware/mo68a/Mo68A_component_placement_V1.1-20260506.pdf"
+    },
+    {
+      "source": "hardware/products/mo68a/files/Mo68A_2d_dxf_V1.1-20260506.zip",
+      "target": "downloads/hardware/mo68a/Mo68A_2d_dxf_V1.1-20260506.zip"
+    },
+    {
+      "source": "hardware/products/mo68a/validation/power-thermal/files/mo68a-power-temperature-20261028.json",
+      "target": "downloads/hardware/mo68a-power-temperature-20261028.json"
+    },
+    {
+      "source": "hardware/products/mo68a/images/mo68a-power-temperature-20261028.svg",
+      "target": "img/hardware-development/mo68a-power-temperature-20261028.svg"
+    },
+    {
+      "source": "hardware/products/mo68a/files/Mo68A_mechanical_drawing_V1.1-20261028.pdf",
+      "target": "downloads/hardware/mo68a/Mo68A_mechanical_drawing_V1.1-20261028.pdf"
     }
   ]
 }

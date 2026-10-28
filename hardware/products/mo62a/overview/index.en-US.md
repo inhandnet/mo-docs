@@ -16,3 +16,7 @@ The pages distinguish product ratings and design references from electrical test
 - [Mechanical](/mo-62a/hardware-development/mechanical/)
 - [Schematics](/mo-62a/hardware-development/schematics/)
 - [Hardware revisions](/mo-62a/hardware-development/hardware-revisions/)
+
+## Hardware files
+
+The [resource download page](/docs/mo-62a/resource-download/) lists the current datasheet, schematic, component-placement drawing, 2D mechanical PDF, top/bottom DXF, assembly STEP and 40-pin pinout. Each download has a version and SHA-256 checksum.

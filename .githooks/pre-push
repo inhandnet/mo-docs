@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
 set -eu
-exec node "$(git rev-parse --show-toplevel)/scripts/check-push.mjs" "$@"
+# Both checks read the pushed refs from standard input.
+refs=$(cat)
+node "$(git rev-parse --show-toplevel)/scripts/check-push.mjs" "$@" <<<"$refs"
+# Upload the Git LFS objects of hardware downloads before the refs.
+git lfs pre-push "$@" <<<"$refs"
