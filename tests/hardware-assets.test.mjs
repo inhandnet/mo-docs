@@ -67,3 +67,17 @@ test('hardware file lists match their files, names and checksums', async () => {
     }
   }
 });
+
+test('certification lists reference published hardware files', async () => {
+  for (const board of ['mo62a', 'mo68a']) {
+    const list = JSON.parse(await fs.readFile(new URL(`hardware/products/${board}/compliance/certifications.json`, root), 'utf8'));
+    const files = JSON.parse(await fs.readFile(new URL(`hardware/products/${board}/files/files.json`, root), 'utf8')).files.map((f) => f.file);
+    assert.equal(list.schema_version, 1);
+    for (const item of list.items) {
+      assert.match(item.id, /^[a-z0-9-]+$/);
+      assert.ok(['certified', 'in-progress'].includes(item.status), item.id);
+      assert.ok(item.status === 'certified' ? item.files.length > 0 : item.files.length === 0, item.id);
+      for (const file of item.files) assert.ok(files.includes(file), file);
+    }
+  }
+});

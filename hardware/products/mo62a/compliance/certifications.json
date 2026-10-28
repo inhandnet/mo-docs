@@ -1,0 +1,6 @@
+{
+ "schema_version": 1,
+ "board": "mo-62a",
+ "about": "Certifications shown on the website. Each item: id, name, status (certified | in-progress), files (names in ../files/files.json). List only confirmed certifications.",
+ "items": []
+}
