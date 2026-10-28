@@ -79,7 +79,7 @@ The documented board boots from microSD. A silicon boot-mode list or an unconnec
 
 ## LPDDR4 and microSD
 
-Sheet 8 contains the 32-bit LPDDR4 interface, address/control signals and decoupling. The exact memory device and boot-loader DDR configuration must match the purchased assembly. The 2 GB, 4 GB and 8 GB product options do not establish which part is fitted to an individual board, and no default capacity is implied here.
+Sheet 8 contains the 32-bit LPDDR4 interface, address/control signals and decoupling. The exact memory device and boot-loader DDR configuration must match the purchased assembly. The 2 GB and 4 GB product options do not establish which part is fitted to an individual board, and no default capacity is implied here.
 
 Sheets 14–15 route MMC1 to the microSD connector, including card detect, signal protection and controlled card/I/O power. MMC2 is used by the wireless module; it is not another removable-storage slot. The older schematic's optional eMMC block must not be treated as proof of an installed eMMC device.
 

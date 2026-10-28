@@ -21,7 +21,7 @@ Copy the full marking, including punctuation and any adjacent date. The standard
 | PCB model/revision marking | Silkscreen on the actual board | The printed PCB identifier; not a complete fitted-component list |
 | Date or other adjacent marking | Copy exactly from the actual board | A traceable marking; its meaning needs confirmation if undocumented |
 | Assembly/BOM revision and serial or lot | Assembly label or supplier record, if available | The assembled configuration when matched to the supplier's records |
-| Ordered SKU and memory option | Order confirmation or supplied product label | The purchased option; 2 GB, 4 GB and 8 GB are not PCB revision numbers |
+| Ordered SKU and memory option | Order confirmation or supplied product label | The purchased option; 2 GB and 4 GB are not PCB revision numbers |
 | Schematic filename and SHA-256 | Downloaded PDF and [published checksums](/mo-62a/hardware-development/schematics/#download-the-published-files) | The exact design document you reviewed, not proof it matches the assembly |
 | Firmware and Linux versions | Image release, `/etc/os-release` and `uname -r` | Software configuration, not physical hardware identity |
 
