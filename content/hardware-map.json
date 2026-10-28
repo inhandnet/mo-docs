@@ -265,6 +265,10 @@
     {
       "source": "hardware/products/mo68a/files/Mo68A_pinout_V1.0-20261028.pdf",
       "target": "downloads/hardware/mo68a/Mo68A_pinout_V1.0-20261028.pdf"
+    },
+    {
+      "source": "hardware/products/mo68a/files/Mo68A_3d_model_V1.0-20260429.stp.zip",
+      "target": "downloads/hardware/mo68a/Mo68A_3d_model_V1.0-20260429.stp.zip"
     }
   ]
 }

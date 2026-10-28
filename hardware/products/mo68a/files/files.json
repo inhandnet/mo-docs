@@ -14,6 +14,16 @@
    "sha256": "199c2ea6ca5b813831cf1dcfe02d590f1c92a037729f9011751e0e47c5cc3608"
   },
   {
+   "category": "3d_model",
+   "title": "3D model (STEP)",
+   "file": "Mo68A_3d_model_V1.0-20260429.stp.zip",
+   "version": "V1.0",
+   "date": "2026-04-29",
+   "bytes": 26820988,
+   "sha256": "6eb351f2180eb1263317b8e359726515e634e3f62c96d66634e342a09ff8445d",
+   "note": "ZIP containing MO_68A_PCB_MB_V1_ASM.stp (173,455,673 bytes); nominal assembly reference."
+  },
+  {
    "category": "pinout",
    "title": "40-pin header pinout",
    "file": "Mo68A_pinout_V1.0-20261028.pdf",
