@@ -1,11 +1,11 @@
 ---
 title: "Certifications"
-description: "Mo 68A: FCC, ISED, CE, UKCA and other certifications."
+description: "Mo 68A certification progress and available documents."
 sidebar_position: 1
 ---
 
-Certification status and numbers for the Mo 68A (FCC, ISED, CE, UKCA and others).
+The following certification work is in progress for Mo 68A. An in-progress item is not a certificate or an approval number. Download links will appear when documents are available.
 
-:::info[Coming soon]
-This content is being prepared. For product questions, use the [contact page](https://developer.inhand.online/contact/).
-:::
+<!-- certification-status:mo-68a -->
+
+See the [series certification overview](/hardware#certifications) for both boards. Contact [InHand](/contact/) for certification documents required by your product or destination market.

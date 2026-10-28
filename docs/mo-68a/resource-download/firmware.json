@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "board": "mo-68a",
+  "version": "V1.0.0",
+  "date": "2026-06-05",
+  "name": "mo68a-trixie-xfce-V1.0.0.img.xz",
+  "bytes": 1508858832,
+  "sha256": "1cffa5478bd7f84ffc259f444aa2790939f8300493d95005d179b5d224f75b50",
+  "url": "https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO68A",
+  "os": "Debian 13 (Trixie), XFCE",
+  "source": "InHand Resource Center",
+  "checked_at": "2026-10-28"
+}

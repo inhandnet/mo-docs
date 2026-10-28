@@ -45,7 +45,7 @@ In the file's coordinate system, the full assembly has an axis-aligned bounding 
 
 ## Published dimensions
 
-The English Mo62A Datasheet V1.0, available through the [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO62A), gives the nominal dimensions on page 3 and mass on page 5. The values below are source references, not measurements taken from the STEP model or a physical sample.
+The English [Mo62A Datasheet V1.5](/downloads/hardware/mo62a/Mo62A_datasheet_V1.5-20261026.pdf), gives the nominal dimensions on page 3 and mass on page 5. The values below are source references, not measurements taken from the STEP model or a physical sample.
 
 :::warning[Reference only, not a production drawing]
 The source explicitly states that all dimensions are approximate, for reference only, and must not be used for manufacturing. Dimensions can change without notice. This page does not replace a revision-controlled mechanical drawing with tolerances.
@@ -55,8 +55,8 @@ The source explicitly states that all dimensions are approximate, for reference 
 |---|---|---|
 | Board outline | 85 × 56 mm | Initial space planning only |
 | Mass | 47 g | Product specification; accessories are separate |
-| Mounting-hole centres | Approximately 58 × 49 mm in the drawing | Confirm against the actual revision and a toleranced drawing |
-| Hole diameter | Approximately 2.5 mm in the drawing | Do not infer an approved screw size or tightening torque |
+| Mounting-hole centres | 58 × 49 mm in the supplied 2D mechanical drawing | Confirm against the actual revision and a toleranced drawing |
+| Hole diameter | 2.5 mm in the supplied 2D mechanical drawing | Do not infer an approved screw size or tightening torque |
 | Connector positions and selected dimensions | Reference front, side and interface views on page 3 | Not a complete height or keep-out specification; confirm against the revision-matched mechanical package |
 
 ## Enclosure and cable clearance
@@ -74,6 +74,6 @@ See [Hardware interfaces](/mo-62a/hardware-development/hardware-interfaces/) for
 
 ## Production drawings and validation limits
 
-The assembly STEP model above is available; a separately released DXF outline and a toleranced production drawing have not been verified. No case-fit or mounting-load test was performed for this page. The model does not remove the source datasheet's reference-only restriction on its dimension drawing.
+The supplied STEP, 2D PDF and DXF downloads are available above. A toleranced production drawing has not been verified. No case-fit or mounting-load test was performed for this page. The model does not remove the source datasheet's reference-only restriction on its dimension drawing.
 
 Before enclosure tooling, request the mechanical package for the exact PCB/assembly revision, including connector envelopes, keep-outs, mounting tolerances and approved fasteners. Include the board's silkscreen and ordered SKU; a schematic filename alone is not sufficient revision identification. See [Hardware revisions](/mo-62a/hardware-development/hardware-revisions/).

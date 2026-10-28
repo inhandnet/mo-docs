@@ -7,7 +7,7 @@ sidebar_position: 3
 
 ## Power supply and measurement boundary
 
-These are published product ratings from page 5 of the English Mo62A Datasheet V1.0 in the [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO62A), not measurements from the documentation test bench.
+These are published product ratings from page 5 of the English Mo62A Datasheet V1.5 in the [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO62A), not measurements from the documentation test bench.
 
 | Item | Published value | Interpretation |
 |---|---|---|

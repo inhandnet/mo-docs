@@ -281,6 +281,18 @@
     {
       "source": "hardware/products/mo68a/files/Mo68A_2d_dxf_V1.1-20260506.zip",
       "target": "downloads/hardware/mo68a/Mo68A_2d_dxf_V1.1-20260506.zip"
+    },
+    {
+      "source": "hardware/products/mo68a/validation/power-thermal/files/mo68a-power-temperature-20261028.json",
+      "target": "downloads/hardware/mo68a-power-temperature-20261028.json"
+    },
+    {
+      "source": "hardware/products/mo68a/images/mo68a-power-temperature-20261028.svg",
+      "target": "img/hardware-development/mo68a-power-temperature-20261028.svg"
+    },
+    {
+      "source": "hardware/products/mo68a/files/Mo68A_mechanical_drawing_V1.1-20261028.pdf",
+      "target": "downloads/hardware/mo68a/Mo68A_mechanical_drawing_V1.1-20261028.pdf"
     }
   ]
 }
