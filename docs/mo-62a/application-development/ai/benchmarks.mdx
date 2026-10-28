@@ -76,7 +76,7 @@ The [warehouse tutorial](./tutorial-yolo.mdx) uses a newly calibrated YOLOX-tiny
 | 2 | 78.119 s | 7.821 fps | 17.608 ms | 17.998 ms |
 | 3 | 77.451 s | 7.889 fps | 17.622 ms | 18.022 ms |
 
-The timer covers input checksum calculation, OpenCV software decoding, preprocessing, inference, zone rules, rendering and MJPEG/file output, excluding session creation. No screen capture or large-file transfer ran during these timed loops. The source/output timeline is 30 fps; it is not the measured processing rate. The 17.6 ms call is not a hardware-only MMA timer.
+The timer covers input checksum calculation, OpenCV software decoding, preprocessing, inference, zone rules, rendering and MJPEG/file output, excluding session creation. No screen capture or large-file transfer ran during these timed loops. The source/output timeline is 30 fps; it is not the measured processing rate. The 17.6 ms call is not a hardware-only accelerator timer.
 
 All three runs produced identical per-frame detections and states, with events at 7.367 s and 8.667 s of source time. The original 8200 baseline passed before and after, with the same boot and remote processor running. Thermal readings at those checks were approximately 54–55 °C, not continuous temperature monitoring. No power data was collected. The model visibly misses small/occluded people; output consistency is not a recall or mAP result.
 

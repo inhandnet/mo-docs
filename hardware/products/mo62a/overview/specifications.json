@@ -11,21 +11,19 @@
       "realtime": "MCU Cortex-R5F + Device Manager Cortex-R5F (reserved)"
     },
     "accelerator": {
-      "name": "C7x DSP + Matrix Multiply Accelerator (MMA)",
+      "name": "C7x DSP + Deep Learning Accelerator",
       "tops": 2
     },
     "memory": {
       "technology": "LPDDR4",
       "capacities_gb": [
         2,
-        4,
-        8
+        4
       ],
-      "default_gb": 4,
+      "default_gb": 2,
       "model_codes": {
-        "2": "Mo-62A-2G",
-        "4": "Mo-62A-4G",
-        "8": "Mo-62A-8G"
+        "2": "MO62A-2G",
+        "4": "MO62A-4G"
       }
     }
   },

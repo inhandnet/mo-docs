@@ -71,7 +71,7 @@ S1 connects to the PMIC power-button/enable input. The PMIC and SoC reset nets a
 
 ## Processor, clocks, reset and boot
 
-The AM62A processor contains the Linux application cores, MCU and Device Manager R5F cores, and C7x/MMA acceleration. These are internal SoC blocks, not separate board connectors. Sheets 9–14 show the external pad groups and their routing. A pad's schematic name may describe one alternate function; the active device tree determines which function Linux uses.
+The AM62A processor contains the Linux application cores, MCU and Device Manager R5F cores, and the C7x DSP with its Deep Learning Accelerator. These are internal SoC blocks, not separate board connectors. Sheets 9–14 show the external pad groups and their routing. A pad's schematic name may describe one alternate function; the active device tree determines which function Linux uses.
 
 Sheet 11 records the resistor-selected boot configuration. Sheets 12–13 include clock/reset-related connections, and sheet 14 collects the MMC interfaces. Follow cross-sheet net labels such as `RESETSTATz` and the peripheral-specific reset nets to distinguish a shared reset source from a device reset controlled by GPIO. Do not bridge test points or change strap resistors to select a software feature.
 

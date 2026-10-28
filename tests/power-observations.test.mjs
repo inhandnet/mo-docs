@@ -59,7 +59,7 @@ test('AI, electrical and thermal measurement boundaries stay separate', () => {
   assert.ok(record.cases[5].ai_after_60_s.usb_fps_approx > 10);
   assert.ok(record.cases[5].ai_after_60_s.csi_fps_approx > 10);
   for (const phrase of ['not time-averaged power', 'not ambient temperatures', 'not necessarily simultaneous',
-    'not a separately captured maximum', 'thermal equilibrium', 'No independent MMA utilization counter',
+    'not a separately captured maximum', 'thermal equilibrium', 'No independent accelerator utilization counter',
     'This earlier read-only capture is separate from P0–P5']) assert.ok(article.includes(phrase), phrase);
   assert.doesNotMatch(article, /no such readings were collected|no idle, peak or workload power measurement/);
   assert.doesNotMatch(JSON.stringify(record), /10\.5\.\d+\.\d+|\/home\/|\/tmp\/|password|Bearer /i);

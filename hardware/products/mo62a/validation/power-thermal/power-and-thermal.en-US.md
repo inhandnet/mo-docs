@@ -94,7 +94,7 @@ Download the [measurement record and all temperature/CPU/fan samples (JSON)](/do
 
 ### AI load and useful application throughput
 
-The following averages exclude the first 60 seconds of each AI workload. CPU busy is across all four cores; C7x load comes from a single TI performance collector. No independent MMA utilization counter was available, so these values do not establish that the NPU was fully saturated.
+The following averages exclude the first 60 seconds of each AI workload. CPU busy is across all four cores; C7x load comes from a single TI performance collector. No independent accelerator utilization counter was available, so these values do not establish that the NPU was fully saturated.
 
 | Case | CPU busy | C7x mean | Application throughput |
 |---|---|---|---|
