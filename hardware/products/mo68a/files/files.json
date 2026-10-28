@@ -24,6 +24,34 @@
    "note": "ZIP containing MO_68A_PCB_MB_V1_ASM.stp (173,455,673 bytes); nominal assembly reference."
   },
   {
+   "category": "schematic",
+   "title": "Schematics",
+   "file": "Mo68A_schematic_V1.1-20261021.pdf",
+   "version": "V1.1",
+   "date": "2026-10-21",
+   "bytes": 1042554,
+   "sha256": "1528d0d5060741914881d262842297a7b40d596f3804bbd3ebad83f52095c0b9"
+  },
+  {
+   "category": "component_placement",
+   "title": "Component placement",
+   "file": "Mo68A_component_placement_V1.1-20260506.pdf",
+   "version": "V1.1",
+   "date": "2026-05-06",
+   "bytes": 301592,
+   "sha256": "50acb8e37f72186c10bab38eccb9549b2b1b02613b0bef6f5a383ef90f7caca6"
+  },
+  {
+   "category": "2d_dxf",
+   "title": "PCB outline (DXF)",
+   "file": "Mo68A_2d_dxf_V1.1-20260506.zip",
+   "version": "V1.1",
+   "date": "2026-05-06",
+   "bytes": 180420,
+   "sha256": "7c40d56b0018965f80e62f35ff4007eae1a16614a4d45ab198875ed9ef24414b",
+   "note": "Top and bottom PCB layout in millimetres (DXF R12): board outline, pads, silkscreen, reference designators and drill holes."
+  },
+  {
    "category": "pinout",
    "title": "40-pin header pinout",
    "file": "Mo68A_pinout_V1.0-20261028.pdf",

@@ -269,6 +269,18 @@
     {
       "source": "hardware/products/mo68a/files/Mo68A_3d_model_V1.0-20260429.stp.zip",
       "target": "downloads/hardware/mo68a/Mo68A_3d_model_V1.0-20260429.stp.zip"
+    },
+    {
+      "source": "hardware/products/mo68a/files/Mo68A_schematic_V1.1-20261021.pdf",
+      "target": "downloads/hardware/mo68a/Mo68A_schematic_V1.1-20261021.pdf"
+    },
+    {
+      "source": "hardware/products/mo68a/files/Mo68A_component_placement_V1.1-20260506.pdf",
+      "target": "downloads/hardware/mo68a/Mo68A_component_placement_V1.1-20260506.pdf"
+    },
+    {
+      "source": "hardware/products/mo68a/files/Mo68A_2d_dxf_V1.1-20260506.zip",
+      "target": "downloads/hardware/mo68a/Mo68A_2d_dxf_V1.1-20260506.zip"
     }
   ]
 }
