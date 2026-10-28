@@ -99,7 +99,7 @@ These directions apply to the component side only. Turning the board over revers
 
 Use physical pin numbers when wiring and SoC controller names when programming. A BCM-style HAT label such as `GPIO17` is not Linux GPIO line 17 on Mo62A. The table applies to the tested `microSD-default` configuration: pins 27/28 remain reserved for camera I²C, and power/ground pins are not GPIO. A peripheral overlay takes ownership of its associated signal pins.
 
-For a compact standalone lookup, [open the logical pin map](/img/hardware-development/mo62a-40pin-reference.svg). It shows the same pin assignments, not the physical viewing direction. A printable [40-pin pinout PDF](/downloads/hardware/mo62a/Mo62A_pinout_V1.1-20261028.pdf) (draft, under review) combines this table with the orientation diagram.
+For a compact standalone lookup, [open the logical pin map](/img/hardware-development/mo62a-40pin-reference.svg). It shows the same pin assignments, not the physical viewing direction. A printable [40-pin pinout PDF](/downloads/hardware/mo62a/Mo62A_pinout_V1.1-20261028.pdf) combines this table with the orientation diagram.
 
 | Physical pin | Power or SoC signal | GPIO chip / offset | Alternate function |
 |---|---|---|---|

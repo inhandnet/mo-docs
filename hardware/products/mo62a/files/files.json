@@ -66,10 +66,9 @@
    "file": "Mo62A_pinout_V1.1-20261028.pdf",
    "version": "V1.1",
    "date": "2026-10-28",
-   "bytes": 80861,
-   "sha256": "2d3d853258a29e5f7f77094765490dcbe0dc090b02a9b6fc46c8c0e9d9d5394a",
-   "note": "Draft for review; generated from the hardware interfaces guide.",
-   "status": "draft"
+   "bytes": 79488,
+   "sha256": "6a92b108a9467d5904850ddce67d9dc01440f10474f26d42728dfc79cc06781d",
+   "note": "Generated from the Mo 62A hardware interfaces guide and schematic V1.1 sheet 17."
   }
  ]
 }

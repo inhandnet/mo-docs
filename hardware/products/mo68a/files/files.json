@@ -29,10 +29,9 @@
    "file": "Mo68A_pinout_V1.0-20261028.pdf",
    "version": "V1.0",
    "date": "2026-10-28",
-   "bytes": 82745,
-   "sha256": "0a2f44b4be5367e68441233725e2526b02d628ebf1c23dfa03d46be1f507f7a5",
-   "note": "Draft for review; generated from the Mo 68A User manual V1.0.",
-   "status": "draft"
+   "bytes": 81414,
+   "sha256": "097672ed769f3b6f3bcaa2ec0907d4e01ff1e3db9d58dbb62425cbaed9d9b6fd",
+   "note": "Generated from the Mo 68A User manual V1.0, section 14."
   }
  ]
 }
