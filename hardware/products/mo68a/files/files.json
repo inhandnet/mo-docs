@@ -12,6 +12,17 @@
    "date": "2026-10-26",
    "bytes": 2179213,
    "sha256": "199c2ea6ca5b813831cf1dcfe02d590f1c92a037729f9011751e0e47c5cc3608"
+  },
+  {
+   "category": "pinout",
+   "title": "40-pin header pinout",
+   "file": "Mo68A_pinout_V1.0-20261028.pdf",
+   "version": "V1.0",
+   "date": "2026-10-28",
+   "bytes": 82745,
+   "sha256": "0a2f44b4be5367e68441233725e2526b02d628ebf1c23dfa03d46be1f507f7a5",
+   "note": "Draft for review; generated from the Mo 68A User manual V1.0.",
+   "status": "draft"
   }
  ]
 }
