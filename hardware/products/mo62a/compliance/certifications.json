@@ -2,5 +2,36 @@
  "schema_version": 1,
  "board": "mo-62a",
  "about": "Certifications shown on the website. Each item: id, name, status (certified | in-progress), files (names in ../files/files.json). List only confirmed certifications.",
- "items": []
+ "items": [
+  {
+   "id": "ce",
+   "name": "CE (EU)",
+   "status": "in-progress",
+   "files": []
+  },
+  {
+   "id": "fcc",
+   "name": "FCC (US)",
+   "status": "in-progress",
+   "files": []
+  },
+  {
+   "id": "ic",
+   "name": "IC (Canada, ISED)",
+   "status": "in-progress",
+   "files": []
+  },
+  {
+   "id": "en-18031",
+   "name": "EN 18031 (EU RED cybersecurity)",
+   "status": "in-progress",
+   "files": []
+  },
+  {
+   "id": "rohs",
+   "name": "RoHS",
+   "status": "in-progress",
+   "files": []
+  }
+ ]
 }
