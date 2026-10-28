@@ -4,7 +4,7 @@ description: "Mo 68A specifications."
 sidebar_position: 1
 ---
 
-The Mo 68A is built on the **TI AM68A** vision processor: two Arm Cortex-A72 cores at 2.0 GHz and two C7x DSPs with MMA (Matrix Multiply Accelerator) for **8 TOPS** of AI inference. It adds a second camera input, 4K60 video encode / decode, USB 3.0 and PCIe 3.0, on the same 85 × 56 mm footprint as the Mo 62A.
+The Mo 68A is built on the **TI AM68A** vision processor: two Arm Cortex-A72 cores at 2.0 GHz and two C7x DSPs with a Matrix Multiply Accelerator (MMA), TI's deep-learning accelerator, for **8 TOPS** of AI inference. It adds a second camera input, 4K60 video encode / decode, USB 3.0 and PCIe 3.0, on the same 85 × 56 mm footprint as the Mo 62A.
 
 ![Mo 68A board](/img/boards/mo-68a.png)
 

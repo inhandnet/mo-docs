@@ -11,7 +11,7 @@
       "realtime": "MCU Cortex-R5F + Device Manager Cortex-R5F (reserved)"
     },
     "accelerator": {
-      "name": "C7x DSP + Deep Learning Accelerator",
+      "name": "C7x DSP + MMA",
       "tops": 2
     },
     "memory": {
