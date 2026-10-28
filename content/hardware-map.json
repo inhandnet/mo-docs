@@ -257,6 +257,10 @@
     {
       "source": "hardware/products/mo68a/files/SHA256SUMS.txt",
       "target": "downloads/hardware/mo68a/SHA256SUMS.txt"
+    },
+    {
+      "source": "hardware/products/mo62a/files/Mo62A_2d_dxf_V1.1-20260504.zip",
+      "target": "downloads/hardware/mo62a/Mo62A_2d_dxf_V1.1-20260504.zip"
     }
   ]
 }

@@ -11,6 +11,7 @@ The Mo62A PCBA assembly model is available as a compressed STEP file for inspect
 
 - [Mechanical drawing, 2D (PDF)](/downloads/hardware/mo62a/Mo62A_mechanical_drawing_V1.0-20260409.pdf) — `Mo62A_mechanical_drawing_V1.0-20260409.pdf`.
 - [Assembly STEP model (ZIP, 23.4 MiB)](/downloads/hardware/mo62a/Mo62A_3d_model_V1.0-20260409.stp.zip) — `Mo62A_3d_model_V1.0-20260409.stp.zip`, extracts to the 153.9 MiB `MO_62A_MB_PCBA_V1_ASM.stp`.
+- [PCB outline, top and bottom (DXF in ZIP)](/downloads/hardware/mo62a/Mo62A_2d_dxf_V1.1-20260504.zip) — `Mo62A_2d_dxf_V1.1-20260504.zip`: V1.1 PCB layout exported from the board design, in millimetres (DXF R12), with the board outline, pads, silkscreen, reference designators and drill holes. Use it to place cut-outs and connectors in an enclosure or carrier design; confirm against a physical board.
 - [SHA-256 checksums](/downloads/hardware/mo62a/SHA256SUMS.txt) — covers every Mo 62A hardware download, including the extracted STEP file.
 
 The assembly identifier is `MO_62A_MB_PCBA_V1_ASM`. Its STEP header records a Creo export timestamp of April 29, 2026; this is an export timestamp, not a hardware release date or proof that the model matches every shipped revision. Personal author metadata has been removed; the geometry data is unchanged.

@@ -51,6 +51,16 @@
    "sha256": "d72f4b2dc3a262f4b4997246a1583e1fe121ebef47e4da115ba4eff19bf4eceb"
   },
   {
+   "category": "2d_dxf",
+   "title": "PCB outline (DXF)",
+   "file": "Mo62A_2d_dxf_V1.1-20260504.zip",
+   "version": "V1.1",
+   "date": "2026-05-04",
+   "bytes": 112984,
+   "sha256": "eade26db28799e1ae531fc925f6f815d6d93751ef6b632adda9b0f2926391f07",
+   "note": "Top and bottom PCB layout in millimetres (DXF R12): board outline, pads, silkscreen, reference designators and drill holes."
+  },
+  {
    "category": "pinout",
    "title": "40-pin header pinout",
    "file": "Mo62A_pinout_V1.1-20261028.pdf",
