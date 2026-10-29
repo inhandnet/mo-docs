@@ -267,8 +267,8 @@
       "target": "downloads/hardware/mo68a/Mo68A_pinout_V1.0-20261028.pdf"
     },
     {
-      "source": "hardware/products/mo68a/files/Mo68A_3d_model_V1.0-20260429.stp.zip",
-      "target": "downloads/hardware/mo68a/Mo68A_3d_model_V1.0-20260429.stp.zip"
+      "source": "hardware/products/mo68a/files/Mo68A_3d_model_V1.1-20261029.stp.rar",
+      "target": "downloads/hardware/mo68a/Mo68A_3d_model_V1.1-20261029.stp.rar"
     },
     {
       "source": "hardware/products/mo68a/files/Mo68A_schematic_V1.1-20261021.pdf",
@@ -279,8 +279,8 @@
       "target": "downloads/hardware/mo68a/Mo68A_component_placement_V1.1-20260506.pdf"
     },
     {
-      "source": "hardware/products/mo68a/files/Mo68A_2d_dxf_V1.1-20260506.zip",
-      "target": "downloads/hardware/mo68a/Mo68A_2d_dxf_V1.1-20260506.zip"
+      "source": "hardware/products/mo68a/files/Mo68A_2d_dxf_V1.1-20261029.dxf",
+      "target": "downloads/hardware/mo68a/Mo68A_2d_dxf_V1.1-20261029.dxf"
     },
     {
       "source": "hardware/products/mo68a/validation/power-thermal/files/mo68a-power-temperature-20261028.json",
@@ -291,8 +291,8 @@
       "target": "img/hardware-development/mo68a-power-temperature-20261028.svg"
     },
     {
-      "source": "hardware/products/mo68a/files/Mo68A_mechanical_drawing_V1.1-20261028.pdf",
-      "target": "downloads/hardware/mo68a/Mo68A_mechanical_drawing_V1.1-20261028.pdf"
+      "source": "hardware/products/mo68a/files/Mo68A_mechanical_drawing_V1.1-20261029.pdf",
+      "target": "downloads/hardware/mo68a/Mo68A_mechanical_drawing_V1.1-20261029.pdf"
     }
   ]
 }

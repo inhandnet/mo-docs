@@ -16,22 +16,22 @@
     {
       "category": "mechanical_drawing",
       "title": "Mechanical drawing (2D)",
-      "file": "Mo68A_mechanical_drawing_V1.1-20261028.pdf",
+      "file": "Mo68A_mechanical_drawing_V1.1-20261029.pdf",
       "version": "V1.1",
-      "date": "2026-10-28",
-      "bytes": 1454836,
-      "sha256": "dd6eb8765a0ab51ec39a6b0fc18f18a5e4f4f3c2d7a5aeb61148bc288a93b00e",
-      "note": "A3 vector PDF derived from supplied V1.1 top/bottom DXF; extracted reference dimensions, no tolerances or verified heights."
+      "date": "2026-10-29",
+      "bytes": 159324,
+      "sha256": "2c7605117a5490db691c43eb3bc76e02f73af8303638c838cda697d7880e6a33",
+      "note": "Hardware engineering V1.1 drawing supplied on 2026-10-29; original PDF, with dimensioned and side views."
     },
     {
       "category": "3d_model",
       "title": "3D model (STEP)",
-      "file": "Mo68A_3d_model_V1.0-20260429.stp.zip",
-      "version": "V1.0",
-      "date": "2026-04-29",
-      "bytes": 26820988,
-      "sha256": "6eb351f2180eb1263317b8e359726515e634e3f62c96d66634e342a09ff8445d",
-      "note": "ZIP containing MO_68A_PCB_MB_V1_ASM.stp (173,455,673 bytes); nominal assembly reference."
+      "file": "Mo68A_3d_model_V1.1-20261029.stp.rar",
+      "version": "V1.1",
+      "date": "2026-10-29",
+      "bytes": 14955961,
+      "sha256": "0578182d862049d8446aba9a9652b36df20976ba2f983644ee41bb4e679a180b",
+      "note": "RAR containing MO_68a_pcb_mb_v1_1.stp (123,006,892 bytes); supplied V1.1 assembly model."
     },
     {
       "category": "schematic",
@@ -53,13 +53,13 @@
     },
     {
       "category": "2d_dxf",
-      "title": "PCB outline (DXF)",
-      "file": "Mo68A_2d_dxf_V1.1-20260506.zip",
+      "title": "Mechanical drawing (DXF)",
+      "file": "Mo68A_2d_dxf_V1.1-20261029.dxf",
       "version": "V1.1",
-      "date": "2026-05-06",
-      "bytes": 180420,
-      "sha256": "7c40d56b0018965f80e62f35ff4007eae1a16614a4d45ab198875ed9ef24414b",
-      "note": "Top and bottom PCB layout in millimetres (DXF R12): board outline, pads, silkscreen, reference designators and drill holes."
+      "date": "2026-10-29",
+      "bytes": 3114845,
+      "sha256": "7d217a22c1dfeee294d37f551aa35cd413cd3866076852fc831cce522858ff0e",
+      "note": "Hardware engineering V1.1 dimensioned mechanical drawing; original DXF."
     },
     {
       "category": "pinout",
