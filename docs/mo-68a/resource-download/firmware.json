@@ -9,5 +9,11 @@
   "url": "https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO68A",
   "os": "Debian 13 (Trixie), XFCE",
   "source": "InHand Resource Center",
-  "checked_at": "2026-10-28"
+  "checked_at": "2026-10-29",
+  "kernel": {
+    "series": "6.12",
+    "source": "Mo 68A Datasheet V1.1 (2026-10-26)",
+    "source_url": "/docs/downloads/hardware/mo68a/Mo68A_datasheet_V1.1-20261026.pdf",
+    "scope": "Product specification; patch version of the published V1.0.0 image is not specified."
+  }
 }

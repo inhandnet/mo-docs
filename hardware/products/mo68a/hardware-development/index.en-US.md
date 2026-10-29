@@ -15,4 +15,4 @@ Specifications, interfaces, power, mechanical data, schematics and revisions.
 - [Schematics](/mo-68a/hardware-development/schematics/)
 - [Hardware revisions](/mo-68a/hardware-development/hardware-revisions/)
 
-The [resource download page](/docs/mo-68a/resource-download/) lists the datasheet, schematics, placement, DXF, derived 2D PDF, STEP and pinout with SHA-256 checksums.
+The [resource download page](/docs/mo-68a/resource-download/) lists the datasheet, schematics, placement, DXF, 2D PDF, STEP and pinout with SHA-256 checksums.

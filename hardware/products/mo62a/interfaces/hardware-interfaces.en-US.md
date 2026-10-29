@@ -72,7 +72,7 @@ InHand reports a successful PoE HAT power-up, but this review did not reproduce 
 
 ## Controls and board identification
 
-- **S1:** the SDK documents a power-button connection to the PMIC's `NPWRON` input, whereas the English datasheet labels it a reset button. A short-press/long-press behaviour test was not performed for this page; do not infer an unconditional reset action from that label.
+- **S1:** the SDK documents a power-button connection to the PMIC's `NPWRON` input, consistent with the power-button label in Datasheet V1.5. A short-press/long-press behaviour test was not performed for this page; do not infer an unconditional reset action.
 - **Indicator:** Linux exposes `/sys/class/leds/red` and `/sys/class/leds/green`. Read `brightness` and `trigger` for the software state; those values alone do not verify the observed colour or every boot/shutdown indication. See [First boot](/docs/mo-62a/getting-started/first-boot/) for the documented startup sequence.
 - **Board identity:** the reference image shows a model/revision silkscreen below J6. Record your own marking and assembly label; the image does not identify your board revision. See [Hardware revisions](/mo-62a/hardware-development/hardware-revisions/).
 

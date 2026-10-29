@@ -85,7 +85,7 @@
         },
         {
           "label": "Button",
-          "value": "1 × Reset button"
+          "value": "1 × Power button (S1, PMIC input; behaviour depends on software configuration)"
         },
         {
           "label": "LEDs",
