@@ -15,11 +15,14 @@ try {
     // --not from pre-push and accidentally include old history.
     const legacy = new Set(git('rev-list', policy.legacyBoundary).split('\n'));
     entries = git('rev-list', '--no-merges', '--reverse', ...revs).split('\n').filter(sha => sha && !legacy.has(sha))
-      .map((sha) => [sha.slice(0, 12), git('show', '-s', '--format=%B', sha)]);
+      .map((sha) => [sha, git('show', '-s', '--format=%B', sha)]);
   } else throw new Error('Usage: check-commit-msg.sh --file <file> | --title <file> | --revs <range>');
   let failed = false;
   for (const [label, message] of entries) {
-    const errors = checkMessage(message, {titleOnly: mode === '--title'});
+    const historical = mode === '--revs'
+      ? policy.historicalMessageExceptions?.[label]?.errors || [] : [];
+    const errors = checkMessage(message, {titleOnly: mode === '--title'})
+      .filter(error => !historical.includes(error));
     if (errors.length) { failed = true; console.error(`${label}:\n${errors.map((error) => `  - ${error}`).join('\n')}`); }
   }
   if (failed) process.exitCode = 1;

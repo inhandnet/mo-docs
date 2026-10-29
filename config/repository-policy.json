@@ -2,6 +2,12 @@
   "version": 1,
   "defaultBranch": "master",
   "legacyBoundary": "7a8a82240f88a1c2d2aeed11dc93ba92cd6c42ad",
+  "historicalMessageExceptions": {
+    "4a192d2702cbc5872d496ae04a1f7cb5cc894f20": {
+      "reason": "The immutable V1.0.2 tag records this merged commit with one 73-character body line. All other checks and later commits remain subject to the normal policy.",
+      "errors": ["Wrap line 5 at 72 characters."]
+    }
+  },
   "headerMaxLength": 72,
   "types": [
     "feat",
