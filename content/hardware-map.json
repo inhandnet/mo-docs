@@ -215,6 +215,10 @@
       "target": "img/hardware-development/mo62a-block-v11-en.svg"
     },
     {
+      "source": "hardware/reference-assets/img/boards/mo-62a.png",
+      "target": "img/boards/mo-62a.png"
+    },
+    {
       "source": "hardware/reference-assets/img/boards/mo-68a.png",
       "target": "img/boards/mo-68a.png"
     },

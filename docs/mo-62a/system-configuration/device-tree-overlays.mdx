@@ -28,7 +28,7 @@ Each entry in `extlinux/extlinux.conf` on the `BOOT` partition loads the base de
 
 Only `microSD-default` loads the camera overlay. The peripheral entries boot without the CSI camera, and pins 27 and 28 stay reserved for the camera I²C bus in every entry; do not drive them as GPIO. A combined overlay, `k3-am62a7-mo-62a-exp-periph.dtbo`, is also present in `BOOT/ti/` and enables all of the buses above at once, but it has no boot entry of its own; see [Add your own entry](#add-your-own-entry).
 
-The pin numbers, signal names and GPIO line numbers are in [Hardware interfaces](../hardware-development/hardware-interfaces.mdx#40-pin-header-j6).
+The pin numbers, signal names and GPIO line numbers are in [Hardware interfaces](../hardware-development/hardware-interfaces.mdx#expansion-header).
 
 ## Select an entry
 

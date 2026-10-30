@@ -1,35 +1,55 @@
 ---
-title: "Power and thermal"
+title: "Power & thermal"
 description: "Mo 68A supply requirements and eight measured CPU, DSP and camera workloads."
 sidebar_position: 3
 ---
 
-## Supply and cooling
+## Supply requirements {#supply-and-cooling}
 
-[Mo 68A Datasheet V1.1](/downloads/hardware/mo68a/Mo68A_datasheet_V1.1-20261026.pdf) specifies **USB-C 5 V / 5 A DC**, **25 W maximum**, and **0–50 °C operating ambient**. The 25 W rating is not the result of the measurements below. Size the supply and peripheral budget for the complete system.
+Published ratings follow [Mo 68A Datasheet V1.1](/downloads/hardware/mo68a/Mo68A_datasheet_V1.1-20261026.pdf).
 
-Use the active cooler and leave its airflow unobstructed. The J7 fan connector is 5 V / PWM / GND / TACH on pins 1–4; see [Hardware interfaces](../hardware-interfaces/). The kernel controls fan speed automatically. Sensor temperatures are on-chip readings, not ambient temperature or a new operating rating.
+| Item | Published value | Interpretation |
+|---|---|---|
+| Input | USB Type-C, 5 V | Use a suitable 5 V supply and cable |
+| Supply rating | 5 V / 5 A | Check the adapter's 5 V output rating, not just its total wattage |
+| Maximum consumption | 25 W | Published rating, not the measured draw of the workloads below |
+| Operating temperature | 0–50 °C | Operating ambient; not an internal SoC sensor reading |
 
-## Measurement setup — 28 October 2026
+Size the supply and peripheral budget for the complete system.
+
+## Measured workload power and temperature {#measurement-setup--28-october-2026}
+
+### Measurement setup
+
+Measurements were recorded on 28 October 2026.
 
 Eight sequential workloads were observed for approximately five minutes each. An operator read V/A/W from the USB-C input power meter after at least one minute; software logged both CPU cores, all seven thermal zones and fan state at a nominal one-second interval. DSP busy time came from TI performance statistics. These instruments are not synchronized, so a reported power value and the highest logged temperature are not necessarily simultaneous.
 
-The tested installation reports version **1.0.2**, TI SDK **11.01.00.03** and TIDL **11_01_06_00**. An isolated, matching TI AI runtime, official models and camera plugins were deployed for this experiment. This is distinct from the Resource Center's public V1.0.0 image. Two Cortex-A72 cores, an active fan, keyboard/mouse, a UGREEN USB camera and an IMX219 CSI camera were attached. The monitor had an independent power supply.
+| Item | Recorded condition |
+|---|---|
+| System | Test installation 1.0.2, TI SDK 11.01.00.03, TIDL 11_01_06_00; distinct from public image V1.0.0 |
+| CPU | Two Cortex-A72 cores |
+| AI application | Isolated matching TI runtime, official models and camera plugins deployed for the experiment |
+| Cameras | UGREEN USB camera and IMX219 CSI camera |
+| Other connections | Keyboard, mouse, active fan and DP display |
+| Electrical boundary | USB-C input meter; monitor independently powered |
+| Cooling | Same fan specification as Mo 62A; heatsink contact and enclosure configuration not recorded |
+| Meter | Operator-read V/A/W; power meter and software telemetry not synchronized |
 
 The operator reported 15–20 °C ambient before P3. The equipment was then moved; the new ambient temperature was not reported. The cooler was reported as the same fan specification used with Mo 62A; heatsink contact and enclosure configuration were not recorded. P3–P5 used a 1024 × 600 DP canvas. Different starting temperatures, relocation and display changes limit comparisons between runs and with Mo 62A.
 
 ### Workloads
 
-| Case | Workload |
-|---|---|
-| P0 | Idle, peripherals attached, cameras not streaming, display login screen |
-| P1 | Two CPU cores running pinned SHA-256 workers at normal priority |
-| P2 | USB MJPEG 1280 × 720 at 30 fps, software JPEG decode, discard output |
-| P3 | USB 720p30, official YOLOX-S-Lite 8220 inference, detection overlay and DP display |
-| P4 | P3 plus two pinned SHA-256 workers at normal priority |
-| P5 | USB 720p30 plus IMX219 1080p RAW8/ISP, two 8220 inference streams and DP mosaic, two nice-19 SHA-256 workers |
-| P6 | C7x_1: official SSD-ResNet34 8000 at 1200 × 1200; C7x_2: 7 × 7 convolution at 1920 × 1080; two CPU NEON workers |
-| P7 | P6 plus independent USB 1080p MJPEG capture/decode (60 fps requested) and IMX219 1080p ISP/720p scaling (30 fps requested) |
+| Case | Purpose | Workload | AI model |
+|---|---|---|---|
+| P0 | Idle reference | Peripherals attached, cameras not streaming, display login screen | None |
+| P1 | CPU load | Two pinned SHA-256 workers at normal priority | None |
+| P2 | Capture and decode overhead | USB MJPEG 1280 × 720 at 30 fps, software JPEG decode, discard output | None |
+| P3 | Single-camera vision | USB 720p30, inference, detection overlay and DP display | YOLOX-S-Lite 8220, 640 × 640 |
+| P4 | AI and CPU competition | P3 plus two pinned SHA-256 workers at normal priority | Same 8220 model |
+| P5 | Dual-camera vision and CPU load | USB 720p30 plus IMX219 1080p RAW8/ISP, two inference streams and DP mosaic, two nice-19 SHA-256 workers | Two 8220 streams on C7x_1/MMA |
+| P6 | Both DSPs and CPUs under load | C7x_1/MMA inference; C7x_2 7 × 7 convolution at 1920 × 1080; two CPU NEON workers | SSD-ResNet34 8000, 1200 × 1200 |
+| P7 | DSP/CPU load with camera processing | P6 plus independent USB 1080p MJPEG capture/decode (60 fps requested) and IMX219 1080p ISP/720p scaling (30 fps requested) | Same 8000 model; camera frames not used for inference |
 
 P3–P5 used TI's official AM68A YOLOX-S-Lite 8220 model (640 × 640, COCO, 283/283 nodes offloaded). P5's two camera streams shared the C7x_1/MMA inference path; they did not use one DSP per camera. The AM68A has two C7x DSPs and one MMA, not two equivalent TIDL/MMA inference engines.
 
@@ -82,6 +102,10 @@ P3–P5 completed the observation window, but their AI applications required the
 P0 used an 80 °C test guard; subsequent accepted runs used a **105 °C test cutoff** and fan-operation monitoring. No accepted run reached its cutoff. This was an experiment limit, not a recommendation to operate continuously at 105 °C or a change to the published ambient range. No thermal-equilibrium, model-accuracy, all-peripheral-load or transient-peak qualification was performed. Screen visibility of both P5 detection streams was not independently confirmed.
 
 For enclosure and supply design, repeat the intended workload at the final ambient temperature, cooling, scene and peripheral configuration, and measure startup and transient peaks with suitable instrumentation.
+
+## Cooling and the fan connector
+
+Use the active cooler and leave its airflow unobstructed. The J7 fan connector is 5 V / PWM / GND / TACH on pins 1–4; see [Hardware interfaces](../hardware-interfaces/). The kernel controls fan speed automatically. Sensor temperatures are on-chip readings, not ambient temperature or a new operating rating.
 
 ## Read temperature and fan state
 

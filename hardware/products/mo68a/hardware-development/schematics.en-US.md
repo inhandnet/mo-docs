@@ -4,7 +4,16 @@ description: "Mo 68A schematics and source references."
 sidebar_position: 5
 ---
 
-Download the [Mo 68A schematic V1.1 (PDF)](/downloads/hardware/mo68a/Mo68A_schematic_V1.1-20261021.pdf) and [component-placement drawing V1.1 (PDF)](/downloads/hardware/mo68a/Mo68A_component_placement_V1.1-20260506.pdf). Verify files against [SHA256SUMS.txt](/downloads/hardware/mo68a/SHA256SUMS.txt).
+Use this page to locate circuit modules and select the matching schematic and component-placement files. The drawings describe design connections; use [Hardware interfaces](../hardware-interfaces/) for physical wiring.
+
+## Downloads
+
+| Document | Version | Download |
+|---|---|---|
+| Schematics | V1.1 | [PDF](/downloads/hardware/mo68a/Mo68A_schematic_V1.1-20261021.pdf) |
+| Component placement | V1.1 | [PDF](/downloads/hardware/mo68a/Mo68A_component_placement_V1.1-20260506.pdf) |
+
+Verify downloads against [SHA-256 checksums](/downloads/hardware/mo68a/SHA256SUMS.txt).
 
 The schematic contains 22 sheets. Its cover is dated 21 October 2026; several interior title blocks are dated 28 October. The download filename follows the cover date and does not imply all sheets have the same date. See [Hardware revisions](../hardware-revisions/) before matching it to a board.
 
@@ -30,9 +39,21 @@ The schematic contains 22 sheets. Its cover is dated 21 October 2026; several in
 | 20 | HCPS power-control circuit |
 | 21–22 | Miscellaneous power and 5 V input |
 
-## Connector review
+## Circuit reference {#connector-review}
 
 Use [Hardware interfaces](../hardware-interfaces/) for a connector index, expansion pinout and the V1.1 MIPI configuration. The schematic records design connections, not validation of a particular cable, peripheral or software image.
+
+## Verify downloads
+
+Save the selected PDFs and checksum file in the same directory, then run:
+
+```bash
+sha256sum -c SHA256SUMS.txt --ignore-missing
+```
+
+Confirm each downloaded file reports `OK`. On Windows, use `Get-FileHash -Algorithm SHA256` and compare with the published checksum file. Keep the original filename and hash with your design records.
+
+## Source and revision notes
 
 **Source discrepancies:** sheet 18 has conflicting pin numbering between the drawn J6 debug circuit and its silkscreen note, and between the J8 battery circuit and the older hardware-reference table. Do not wire either connector from a text note alone; confirm the actual PCB pin numbering, ground and polarity. The interface page records the specific differences.
 

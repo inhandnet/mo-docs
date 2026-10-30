@@ -7,44 +7,16 @@ sidebar_position: 5
 
 Use this page to understand how the hardware modules connect and where to find their circuits. The descriptions refer to the V1.1 schematic below, not a complete as-built BOM or a list of tested functions. For physical wiring, use [Hardware interfaces](/mo-62a/hardware-development/hardware-interfaces/); for measured behaviour, follow the linked application guides.
 
-## Download the published files
+## Downloads {#download-the-published-files}
 
-The current schematic is V1.1. Older schematic files are withdrawn and no longer published; every Mo 62A hardware file is listed on [Resource download](/docs/mo-62a/resource-download/).
-
-| File | Revision | Size |
+| Document | Version | Download |
 |---|---|---|
-| [Mo62A_schematic_V1.1-20260504.pdf](/downloads/hardware/mo62a/Mo62A_schematic_V1.1-20260504.pdf) | V1.1, May 4, 2026 | 1,675,506 bytes |
-| [Mo62A_component_placement_V1.1-20260504.pdf](/downloads/hardware/mo62a/Mo62A_component_placement_V1.1-20260504.pdf) | V1.1, May 4, 2026 | 256,730 bytes |
+| Schematics | V1.1 | [PDF](/downloads/hardware/mo62a/Mo62A_schematic_V1.1-20260504.pdf) |
+| Component placement | V1.1 | [PDF](/downloads/hardware/mo62a/Mo62A_component_placement_V1.1-20260504.pdf) |
 
-The downloaded bytes must match these SHA-256 hashes, also listed in [SHA256SUMS.txt](/downloads/hardware/mo62a/SHA256SUMS.txt):
+Verify downloads against [SHA-256 checksums](/downloads/hardware/mo62a/SHA256SUMS.txt).
 
-```text
-2b5d05f8c3396c443a578de1ca59c88c4f6ee1a69735ace0ec988992d5518b4c  Mo62A_schematic_V1.1-20260504.pdf
-d72f4b2dc3a262f4b4997246a1583e1fe121ebef47e4da115ba4eff19bf4eceb  Mo62A_component_placement_V1.1-20260504.pdf
-```
-
-For a controlled design copy, retain the filename and hash; review any replacement before using it.
-
-## Preview and connector references
-
-The following English reference is redrawn from sheet 1 of the V1.1 PDF. It translates the Chinese labels and retains the source connections; it is not an unmodified schematic or an as-built component list:
-
-[![English reference diagram redrawn from the V1.1-named Mo62A schematic sheet 1; use the original PDF for circuit design](/img/hardware-development/mo62a-block-v11-en.svg)](/img/hardware-development/mo62a-block-v11-en.svg)
-
-The source diagram's `RJ45+PoE` label refers to the PoE header J5 on sheet 18, which connects the RJ45 transformer taps to an external PoE PD/converter; the board itself has no PoE power circuit. 
-
-Source sheets can disagree: for example, the block diagram names EEPROM `M24M02E`, while sheet 17 of the V1.1 file labels it `BL24C02F`. This page preserves that discrepancy rather than choosing an unverified fitted part; obtain the revision-matched BOM for component selection.
-
-
-### Connector circuits (sheet 17)
-
-Sheet 17 provides the expansion, fan, debug and RTC circuits:
-
-[![Unmodified sheet 17 of the V1.1 PDF, with J6 expansion, J1 fan, J4 debug and J2 battery references](/img/hardware-development/mo62a-connectors-v11.png)](/img/hardware-development/mo62a-connectors-v11.png)
-
-Use the original PDF for detailed inspection; the previews are not editable design sources. See [Hardware interfaces](/mo-62a/hardware-development/hardware-interfaces/) for the pin mapping and the older README's conflicting connector references.
-
-## Find a module in the schematic
+## Sheet index {#find-a-module-in-the-schematic}
 
 The sheet numbers below are the numbers printed in the schematic title blocks. In the V1.1 PDF, viewer pages 7 and 8 contain sheets 8 and 7 respectively. Use the sheet title as well as the PDF page counter when locating a circuit.
 
@@ -61,7 +33,28 @@ The sheet numbers below are the numbers printed in the schematic title blocks. I
 | Display and analogue audio | 9–10, 21–22 | Parallel display bus, HDMI bridge, McASP paths and audio codec |
 | Expansion, cooling, RTC and debug | 17 | J6, fan PWM/tach, battery backup and console buffer |
 
-## Power input and sequencing
+## Circuit reference
+
+### Preview and connector references
+
+The following English reference is redrawn from sheet 1 of the V1.1 PDF. It translates the Chinese labels and retains the source connections; it is not an unmodified schematic or an as-built component list:
+
+[![English reference diagram redrawn from the V1.1-named Mo62A schematic sheet 1; use the original PDF for circuit design](/img/hardware-development/mo62a-block-v11-en.svg)](/img/hardware-development/mo62a-block-v11-en.svg)
+
+The source diagram's `RJ45+PoE` label refers to the PoE header J5 on sheet 18, which connects the RJ45 transformer taps to an external PoE PD/converter; the board itself has no PoE power circuit. 
+
+Source sheets can disagree: for example, the block diagram names EEPROM `M24M02E`, while sheet 17 of the V1.1 file labels it `BL24C02F`. This page preserves that discrepancy rather than choosing an unverified fitted part; obtain the revision-matched BOM for component selection.
+
+
+#### Connector circuits (sheet 17)
+
+Sheet 17 provides the expansion, fan, debug and RTC circuits:
+
+[![Unmodified sheet 17 of the V1.1 PDF, with J6 expansion, J1 fan, J4 debug and J2 battery references](/img/hardware-development/mo62a-connectors-v11.png)](/img/hardware-development/mo62a-connectors-v11.png)
+
+Use the original PDF for detailed inspection; the previews are not editable design sources. See [Hardware interfaces](/mo-62a/hardware-development/hardware-interfaces/) for the pin mapping and the older README's conflicting connector references.
+
+### Power input and sequencing
 
 The USB-C 5 V input feeds the board's power-distribution circuits. Sheet 2 gives the high-level rail map; sheets 4–7 contain the input, regulator/load-switch, TPS6593 PMIC and SoC power circuits. The design separates the system 3.3 V rail from switched expansion supplies, while the PMIC supplies the core, DDR and I/O domains.
 
@@ -69,7 +62,7 @@ For an integration change, trace a load back through its switch/regulator to the
 
 S1 connects to the PMIC power-button/enable input. The PMIC and SoC reset nets are distinct from the software interpretation of a button press. Consult [Power & thermal](/mo-62a/hardware-development/power-and-thermal/) for ratings and read-only sensors, and [controls](/mo-62a/hardware-development/hardware-interfaces/#controls-and-board-identification) for the unverified button/indicator behaviour.
 
-## Processor, clocks, reset and boot
+### Processor, clocks, reset and boot
 
 The AM62A processor contains the Linux application cores, MCU and Device Manager R5F cores, and the C7x DSP with its Matrix Multiply Accelerator (MMA). These are internal SoC blocks, not separate board connectors. Sheets 9–14 show the external pad groups and their routing. A pad's schematic name may describe one alternate function; the active device tree determines which function Linux uses.
 
@@ -77,7 +70,7 @@ Sheet 11 records the resistor-selected boot configuration. Sheets 12–13 includ
 
 The documented board boots from microSD. A silicon boot-mode list or an unconnected MMC0 pad group does not prove that another boot device is fitted or qualified. Use [Storage & boot](/docs/mo-62a/system-configuration/storage-and-boot/) for the supported image workflow and [Real-time cores](/docs/mo-62a/real-time-cores/overview/) for processor ownership.
 
-## LPDDR4 and microSD
+### LPDDR4 and microSD
 
 Sheet 8 contains the 32-bit LPDDR4 interface, address/control signals and decoupling. The exact memory device and boot-loader DDR configuration must match the purchased assembly. The 2 GB and 4 GB product options do not establish which part is fitted to an individual board, and no default capacity is implied here.
 
@@ -85,7 +78,7 @@ Sheets 14–15 route MMC1 to the microSD connector, including card detect, signa
 
 Keep memory capacity, boot-loader training data and hardware revision as separate identifiers. `free -h` reports memory available to Linux after reservations, not the DRAM part number or PCB revision. See [Hardware revisions](/mo-62a/hardware-development/hardware-revisions/) before choosing revision-dependent files.
 
-## I²C control and EEPROM
+### I²C control and EEPROM
 
 The V1.1 I²C tree on sheet 3 and the detailed circuits identify the following routes. These are SoC bus names, not guaranteed Linux `/dev/i2c-N` numbers or evidence that every device has been probed:
 
@@ -98,50 +91,50 @@ The V1.1 I²C tree on sheet 3 and the detailed circuits identify the following r
 
 Sheet 17 labels the EEPROM `BL24C02F` at 7-bit address `0x50`, with a write-protect connection. Sheet 1 instead names `M24M02E`, and the older SDK README places the EEPROM on `SoC_I2C1`, unlike the V1.1 sheets 3/17. Do not use those older descriptions as an automatic bus-selection or fitted-part rule. Obtain the revision-matched schematic/BOM and check the active device tree before adding a driver; this guide does not establish an EEPROM data format or a PCB-revision value stored there.
 
-## Wi-Fi and Bluetooth
+### Wi-Fi and Bluetooth
 
 Sheet 16 shows the `FG6221ASRC-0L` wireless module. Its Wi-Fi data path is the MMC2/SDIO connection from sheet 14; Bluetooth uses UART6 with flow-control signals. Separate enable/interrupt nets and the module supplies are part of the design, so an antenna connection alone is not sufficient software bring-up.
 
 CON1 provides the shared Wi-Fi/BLE antenna connection. Antenna type, placement and RF clearance matter when adding an enclosure. See [Network](/docs/mo-62a/mo-os/network/#shared-wi-fi-and-ble-antenna) for the documented setup; a module part number is not evidence of final-product radio approval. Certification and regulatory information is published under [Compliance](/mo-62a/compliance/) when it becomes available.
 
-## Ethernet and PoE taps
+### Ethernet and PoE taps
 
 The SoC's RGMII1 interface on sheet 9 connects to the DP83867 PHY on sheet 18. The same sheet includes the management/control, reset and clock connections, the RJ45 magnetics and the Ethernet transformer taps brought to J5.
 
 J5 is not connected as a regulated 5 V output or as GPIO. Power over Ethernet requires an external matching powered-device circuit and DC/DC conversion, with its approved output connected to the board's power rails. The `RJ45+PoE` block label does not identify a supported IEEE class, HAT model or delivered power. See the [J5 integration precautions](/mo-62a/hardware-development/hardware-interfaces/#other-connectors) before selecting an add-on.
 
-## USB hub and Type-C connection
+### USB hub and Type-C connection
 
 Sheet 19 routes SoC USB1 to the USB2514 hub, which supplies the four USB 2.0 Type-A data ports. They share one upstream USB 2.0 link; they are not four independent host-controller links. The downstream VBUS switch and overcurrent connections are also shown there, so device power and data bandwidth must be budgeted separately.
 
 USB0 is routed to the Type-C connector through sheets 19 and 4. That circuit connection alone does not establish a tested device/gadget or recovery workflow, nor USB Power Delivery voltage negotiation. The documented input is 5 V; do not infer a supported higher input voltage from the Type-C connector shape.
 
-## CSI camera path
+### CSI camera path
 
 Sheet 20 routes CSI0 to the 22-pin, 0.5 mm JP1 FPC connector: four differential data-lane pairs, a differential clock pair, the I²C control path and camera-control/power connections. A four-lane receiver does not mean every sensor uses four lanes or that every 22-pin ribbon has the same wiring.
 
 Sensor compatibility also depends on the driver, device tree, supported modes and ISP configuration. The validated guide uses IMX219; see [Camera & video](/docs/mo-62a/application-development/camera-and-video/). Check the FPC pinout and contact orientation before applying power rather than selecting a cable only by pitch and pin count.
 
-## Display and analogue audio
+### Display and analogue audio
 
 Sheet 22 connects the SoC parallel display output to the SiI9022A RGB-to-HDMI transmitter and then micro HDMI. Its control/reset path and McASP0 audio connection are separate from the pixel-data bus. The schematic describes the path; supported display modes depend on the driver and connected display.
 
 Sheet 21 uses the TLV320AIC3106 codec for the board's analogue audio jack. It has an McASP1 digital-audio connection and `SoC_I2C1` control. This is distinct from HDMI audio on McASP0 and an optional header audio HAT on McASP2. Use [Display & audio](/docs/mo-62a/mo-os/display-and-audio/) to select the correct Linux output instead of assuming all three paths are one sound device.
 
-## Expansion, cooling, RTC and debug
+### Expansion, cooling, RTC and debug
 
 The [sheet 17 preview](#connector-circuits-sheet-17) collects several otherwise independent circuits:
 
 | Circuit | Signal path | What it means for integration |
 |---|---|---|
-| J6 expansion | Multiplexed SoC GPIO/peripheral pads plus power and ground | Use physical pin numbers; confirm the overlay and conflicts in [Hardware interfaces](/mo-62a/hardware-development/hardware-interfaces/#40-pin-header-j6) |
+| J6 expansion | Multiplexed SoC GPIO/peripheral pads plus power and ground | Use physical pin numbers; confirm the overlay and conflicts in [Hardware interfaces](/mo-62a/hardware-development/hardware-interfaces/#expansion-header) |
 | J1 fan | EHRPWM1 control through the fan interface; tachometer return to a timer input | Not the EHRPWM0 output tested on J6 pin 33; J6 pin 36 shares the EHRPWM1 controller |
 | RTC and J2 battery | PCF85263 RTC, crystal and backup supply | Battery polarity/type and retention need their own verification; Linux may report the compatible `pcf85363` driver name |
 | J4 debug | Buffered SoC UART0 to 3.3 V console RX/TX and ground | Not RS-232 and not a claim of galvanic isolation; the documented console is `ttyS2`, separate from header UART5 |
 
 The older README disagrees on some connector names and fan signal assignments. Follow the reviewed sheet 17 references, the pin table and live device-tree mapping together, and validate any change on the exact board revision. Do not infer a completed electrical test merely because a net is drawn.
 
-## Repository and download checks
+## Verify downloads {#repository-and-download-checks}
 
 The mo-docs repository stores hardware downloads under `hardware/products/mo62a/files/` with Git LFS. Install Git LFS before cloning, or run `git lfs pull` afterwards, then check the files:
 
@@ -152,6 +145,6 @@ sha256sum -c SHA256SUMS.txt --ignore-missing
 
 A short text file beginning with `version https://git-lfs.github.com/spec/v1` is an LFS pointer, not a PDF; run `git lfs pull` or use the website downloads.
 
-## Revision caveat
+## Source and revision notes {#revision-caveat}
 
 The first-sheet title block of this file says `V1.1` dated October 27, 2026, while the filename date is May 4, 2026. Compare the title block with the marking on your board, and see [Hardware revisions](/mo-62a/hardware-development/hardware-revisions/) for what can and cannot be identified.

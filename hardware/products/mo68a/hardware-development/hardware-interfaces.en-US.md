@@ -4,7 +4,13 @@ description: "Mo 68A hardware interfaces and source references."
 sidebar_position: 2
 ---
 
-## Locate the connectors
+Start with the connector map, confirm the electrical requirements, then select the physical pins and the matching software configuration.
+
+:::warning[Disconnect power before wiring]
+Header signals use 3.3 V logic and are not 5 V tolerant. Confirm pin 1, ground and connector polarity on the actual board; the debug and RTC source discrepancies below need particular care.
+:::
+
+## Connector map {#locate-the-connectors}
 
 This index combines Mo 68A Datasheet V1.1, User manual V1.0 §§5–17, Hardware Reference Manual V1.0 and [schematic V1.1](../schematics/). Where they differ, the difference is identified below. Use the [component-placement PDF](/downloads/hardware/mo68a/Mo68A_component_placement_V1.1-20260506.pdf) to locate reference designators on the actual board.
 
@@ -26,7 +32,15 @@ This index combines Mo 68A Datasheet V1.1, User manual V1.0 §§5–17, Hardware
 
 The four USB ports share the hub and supply; four connectors do not imply four independent full-bandwidth links or an unlimited peripheral power budget. Ethernet's transformer tap connector alone is not a PoE power supply.
 
-## 40-pin expansion header
+## Camera and display {#mipi-configuration--check-hardware-first}
+
+The V1.1 schematic sheet 8 labels **MIPI0 / J24 default DSI0** and **MIPI1 / J25 default CSI1**. The current `-DC` SKUs match that arrangement. Resistors select the high-speed routing; the former mux parts were removed in V1.1. A device-tree overlay cannot switch absent physical routing.
+
+The older user manual describes camera overlays on either port and a DSI-on-J24 plus CSI-on-J25 scenario. Apply those instructions only to a compatible physical configuration and matching image. Its J25 DSI software path is marked unavailable. Maximum SoC camera/display counts are not a promise of all modes on a `-DC` board.
+
+Use a compatible 22-pin cable and verify contact orientation before power-on. Do not hot-plug the FPC. The power experiment used one IMX219 CSI stream plus one USB camera; it did not validate two CSI cameras or DSI display operation.
+
+## Expansion header {#40-pin-expansion-header}
 
 Download the [J11 40-pin pinout PDF](/downloads/hardware/mo68a/Mo68A_pinout_V1.0-20261028.pdf). Physical pin numbering is not a Linux GPIO offset, and a matching 40-pin footprint does not establish software or electrical compatibility with every HAT.
 
@@ -43,15 +57,9 @@ Download the [J11 40-pin pinout PDF](/downloads/hardware/mo68a/Mo68A_pinout_V1.0
 
 Use only 3.3 V logic on signal pins. Confirm the current device-tree assignment before driving a pin; pinmux capabilities are not a statement that every function is enabled in every image.
 
-## MIPI configuration — check hardware first
+## Fan, debug UART and RTC
 
-The V1.1 schematic sheet 8 labels **MIPI0 / J24 default DSI0** and **MIPI1 / J25 default CSI1**. The current `-DC` SKUs match that arrangement. Resistors select the high-speed routing; the former mux parts were removed in V1.1. A device-tree overlay cannot switch absent physical routing.
-
-The older user manual describes camera overlays on either port and a DSI-on-J24 plus CSI-on-J25 scenario. Apply those instructions only to a compatible physical configuration and matching image. Its J25 DSI software path is marked unavailable. Maximum SoC camera/display counts are not a promise of all modes on a `-DC` board.
-
-Use a compatible 22-pin cable and verify contact orientation before power-on. Do not hot-plug the FPC. The power experiment used one IMX219 CSI stream plus one USB camera; it did not validate two CSI cameras or DSI display operation.
-
-## Fan
+### Fan
 
 The drawn J7 circuit and its labels agree on pins 1–4:
 
@@ -64,12 +72,29 @@ The drawn J7 circuit and its labels agree on pins 1–4:
 
 The kernel controls fan speed. Keep cooling active during sustained AI/CPU loads; see [Power and thermal](../power-and-thermal/) for measured data and read-only monitoring.
 
-## Debug UART and RTC: source pin-number discrepancies
+### Debug UART and RTC: source pin-number discrepancies
 
 **J6:** the user manual and schematic silkscreen note say pin 1 RX, pin 2 GND, pin 3 TX. The drawn circuit on schematic V1.1 sheet 18 instead connects pin 1 RX, pin 2 TX and pin 3 GND. This documentation cannot resolve the physical connector numbering from those conflicting sources. Confirm ground and signal positions on the actual board before connecting an adapter. Use 3.3 V TTL, cross adapter TX to board RX, and never connect adapter power to a signal pin. Terminal settings are 115200 baud, 8 data bits, no parity, 1 stop bit, no flow control.
 
 **J8:** the V1.1 drawn circuit connects pin 1 to ground and pin 2 to the battery path through D2; the older hardware-reference table reverses the polarity. A nearby schematic note also calls pin 2 “5V”, although this is the RTC battery connector. Use the specified 3 V CR2032 battery assembly and verify actual connector polarity before insertion; do not treat that note as a 5 V battery requirement.
 
-## Source and software scope
+## Controls and board identification
+
+SW1 is the reset button; the documentation lists power/status indicators. Check the board marking and assembly label as described in [Hardware revisions](../hardware-revisions/). This page does not establish a tested button-press sequence or a complete LED-state table.
+
+## Software configuration
+
+Choose the pinmux, driver and peripheral configuration for the purchased assembly and installed image. The connector capabilities above do not establish that every peripheral function is enabled. Use [Device tree overlays](/docs/mo-68a/system-configuration/device-tree-overlays/) and [GPIO & peripherals](/docs/mo-68a/application-development/gpio-and-peripherals/) for board-specific guidance as it becomes available.
+
+## Downloads
+
+| Document | Version | Download |
+|---|---|---|
+| Component placement | V1.1 | [PDF](/downloads/hardware/mo68a/Mo68A_component_placement_V1.1-20260506.pdf) |
+| 40-pin header pinout | V1.0 | [PDF](/downloads/hardware/mo68a/Mo68A_pinout_V1.0-20261028.pdf) |
+
+Verify downloads against [SHA-256 checksums](/downloads/hardware/mo68a/SHA256SUMS.txt).
+
+## Sources and validation scope {#source-and-software-scope}
 
 The source manuals are available from the [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO68A). Hardware connection information does not independently validate every peripheral, overlay or driver. Public-image downloads are on [Software](/software#mo-68a-images); selected accessories are in [Supported accessories](/mo-68a/accessories/supported-accessories/).
