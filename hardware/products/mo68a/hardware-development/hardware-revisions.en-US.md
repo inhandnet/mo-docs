@@ -23,7 +23,7 @@ Each download retains its own version. A common product name does not establish 
 | Component placement | V1.1 / 2026-05-06 | PCB layout drawing |
 | Mechanical DXF | V1.1 / supplied 2026-10-29 | Engineering drawing with dimensions and side views |
 | Mechanical PDF | V1.1 / 2026-10-29 | Original engineering PDF; title block specifies V1.1 and millimetres |
-| Assembly STEP | V1.1 / supplied 2026-10-29 | STEP file in the supplied RAR package |
+| Assembly STEP | V1.1 / supplied 2026-10-29 | Supplied STEP file, repackaged as ZIP without changing its contents |
 | 40-pin pinout | V1.0 / 2026-10-28 | Derived from User manual V1.0 §14; J11 signal map checked against schematic V1.1 |
 
 ## Change history and limitations

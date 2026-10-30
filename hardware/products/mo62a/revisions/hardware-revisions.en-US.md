@@ -37,7 +37,7 @@ Compare the identifiers below with the exact PDF you downloaded. If a filename, 
 |---|---|---|
 | Datasheet | V1.5 / 2026-10-26 | Product document revision |
 | Mechanical drawing (2D) | V1.0 / 2026-04-09 | File identifier; confirm the PCB/assembly match |
-| 3D model (STEP) | V1.0 / 2026-04-09 | File identifier; confirm the PCB/assembly match |
+| 3D model (STEP) | V1.1 / supplied 2026-10-30 | Updated assembly model; confirm the physical PCB/assembly match |
 | Schematics | V1.1 / 2026-05-04 | File identifier; confirm the PCB/assembly match |
 | Component placement | V1.1 / 2026-05-04 | File identifier; confirm the PCB/assembly match |
 | Mechanical drawing (DXF) | V1.1 / 2026-05-04 | File identifier; confirm the PCB/assembly match |
