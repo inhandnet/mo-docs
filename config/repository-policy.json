@@ -5,7 +5,20 @@
   "historicalMessageExceptions": {
     "4a192d2702cbc5872d496ae04a1f7cb5cc894f20": {
       "reason": "The immutable V1.0.2 tag records this merged commit with one 73-character body line. All other checks and later commits remain subject to the normal policy.",
-      "errors": ["Wrap line 5 at 72 characters."]
+      "errors": [
+        "Wrap line 5 at 72 characters."
+      ]
+    },
+    "4dd7597b85e338df020c1d0e32958122c87e5cf6": {
+      "reason": "The already merged PR #50 records six overlong body lines. Only these exact errors on this immutable commit are exempt; new messages and all other checks retain the normal policy.",
+      "errors": [
+        "Wrap line 4 at 72 characters.",
+        "Wrap line 5 at 72 characters.",
+        "Wrap line 6 at 72 characters.",
+        "Wrap line 9 at 72 characters.",
+        "Wrap line 10 at 72 characters.",
+        "Wrap line 11 at 72 characters."
+      ]
     }
   },
   "headerMaxLength": 72,
