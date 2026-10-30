@@ -26,12 +26,12 @@
     {
       "category": "3d_model",
       "title": "3D model (STEP)",
-      "file": "Mo68A_3d_model_V1.1-20261029.stp.rar",
+      "file": "Mo68A_3d_model_V1.1-20261029.stp.zip",
       "version": "V1.1",
       "date": "2026-10-29",
-      "bytes": 14955961,
-      "sha256": "0578182d862049d8446aba9a9652b36df20976ba2f983644ee41bb4e679a180b",
-      "note": "RAR containing MO_68a_pcb_mb_v1_1.stp (123,006,892 bytes); supplied V1.1 assembly model."
+      "bytes": 18090261,
+      "sha256": "5508feeb726bff5522bc46218d14a2ef97aa8b1fee50b14e034e5580ca63fd34",
+      "note": "ZIP containing MO_68a_pcb_mb_v1_1.stp (123,006,892 bytes); supplied V1.1 assembly model, STEP content unchanged."
     },
     {
       "category": "schematic",

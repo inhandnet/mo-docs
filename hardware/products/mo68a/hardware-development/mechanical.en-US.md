@@ -12,13 +12,13 @@ Use the 2D drawings for dimensions and the STEP assembly for component and conne
 |---|---|---|
 | Mechanical drawing (2D) | V1.1 | [PDF](/downloads/hardware/mo68a/Mo68A_mechanical_drawing_V1.1-20261029.pdf) |
 | Mechanical drawing (DXF) | V1.1 | [DXF](/downloads/hardware/mo68a/Mo68A_2d_dxf_V1.1-20261029.dxf) |
-| 3D model (STEP) | V1.1 | [STEP (RAR)](/downloads/hardware/mo68a/Mo68A_3d_model_V1.1-20261029.stp.rar) |
+| 3D model (STEP) | V1.1 | [STEP (ZIP)](/downloads/hardware/mo68a/Mo68A_3d_model_V1.1-20261029.stp.zip) |
 | Component placement | V1.1 | [PDF](/downloads/hardware/mo68a/Mo68A_component_placement_V1.1-20260506.pdf) |
 | Datasheet | V1.1 | [PDF](/downloads/hardware/mo68a/Mo68A_datasheet_V1.1-20261026.pdf) |
 
 Verify downloads against [SHA-256 checksums](/downloads/hardware/mo68a/SHA256SUMS.txt).
 
-The mechanical PDF, DXF and STEP archive were supplied by hardware engineering on 29 October 2026 and are published without modifying their contents. Extract the RAR archive with a compatible tool to obtain `MO_68a_pcb_mb_v1_1.stp`.
+The mechanical PDF, DXF and STEP model were supplied by hardware engineering on 29 October 2026. The STEP model is repackaged as ZIP without changing the model contents; the PDF and DXF are unchanged. The STEP ZIP is 17.3 MiB and extracts to the 117.3 MiB `MO_68a_pcb_mb_v1_1.stp`.
 
 ## Dimensions and mounting
 
@@ -38,14 +38,14 @@ The current archive contains the V1.1 STEP assembly model. The archive passed an
 
 ### Verify and open the model
 
-Save the STEP RAR and checksum file in the same directory. On a Linux workstation with a compatible RAR extractor:
+Save the ZIP and `SHA256SUMS.txt` in a new directory, then run on a Linux workstation:
 
 ```bash
+unzip Mo68A_3d_model_V1.1-20261029.stp.zip
 sha256sum -c SHA256SUMS.txt --ignore-missing
-unrar x Mo68A_3d_model_V1.1-20261029.stp.rar
 ```
 
-The archive must report `OK`. The published checksum list verifies the delivered archive; it does not list a separate hash for the extracted STEP file. On Windows, use `Get-FileHash -Algorithm SHA256` and compare the archive hash before extraction. Open the `.stp` in a STEP-capable CAD application and confirm millimetres as the unit. Inspect the model there for the required top and isometric views.
+Both the ZIP and the extracted STEP file must report `OK`. On Windows, use `Get-FileHash -Algorithm SHA256` and compare each result with the downloaded checksum file. Open the `.stp` in a STEP-capable CAD application and confirm millimetres as the unit. Inspect the model there for the required top and isometric views.
 
 ## Enclosure and cable clearance
 

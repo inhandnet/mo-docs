@@ -25,12 +25,12 @@
   {
    "category": "3d_model",
    "title": "3D model (STEP)",
-   "file": "Mo62A_3d_model_V1.0-20260409.stp.zip",
-   "version": "V1.0",
-   "date": "2026-04-09",
-   "bytes": 24542271,
-   "sha256": "bbb27e5b16e253fc991a8df99de0cdf10bcb1a09b442cb23bcf41711a4a0cde6",
-   "note": "ZIP containing MO_62A_MB_PCBA_V1_ASM.stp (161,380,954 bytes); nominal assembly reference."
+   "file": "Mo62A_3d_model_V1.1-20261030.stp.zip",
+   "version": "V1.1",
+   "date": "2026-10-30",
+   "bytes": 25309931,
+   "sha256": "5fe7bb8560e19ca0a1355081c1da23fd7113d2d9be83146149664fa2609439c7",
+   "note": "ZIP containing Mo_62A_P_MB_V11.stp (165,752,752 bytes); supplied V1.1 assembly model, STEP content unchanged."
   },
   {
    "category": "schematic",

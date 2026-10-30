@@ -13,13 +13,13 @@ Use the 2D drawings for dimensions and the STEP assembly for component and conne
 |---|---|---|
 | Mechanical drawing (2D) | V1.0 | [PDF](/downloads/hardware/mo62a/Mo62A_mechanical_drawing_V1.0-20260409.pdf) |
 | Mechanical drawing (DXF) | V1.1 | [DXF (ZIP)](/downloads/hardware/mo62a/Mo62A_2d_dxf_V1.1-20260504.zip) |
-| 3D model (STEP) | V1.0 | [STEP (ZIP)](/downloads/hardware/mo62a/Mo62A_3d_model_V1.0-20260409.stp.zip) |
+| 3D model (STEP) | V1.1 | [STEP (ZIP)](/downloads/hardware/mo62a/Mo62A_3d_model_V1.1-20261030.stp.zip) |
 | Component placement | V1.1 | [PDF](/downloads/hardware/mo62a/Mo62A_component_placement_V1.1-20260504.pdf) |
 | Datasheet | V1.5 | [PDF](/downloads/hardware/mo62a/Mo62A_datasheet_V1.5-20261026.pdf) |
 
 Verify downloads against [SHA-256 checksums](/downloads/hardware/mo62a/SHA256SUMS.txt).
 
-The DXF ZIP contains top and bottom PCB layouts in millimetres (DXF R12): outline, pads, silkscreen, reference designators and drill holes. The STEP ZIP is 23.4 MiB and extracts to the 153.9 MiB `MO_62A_MB_PCBA_V1_ASM.stp`.
+The DXF ZIP contains top and bottom PCB layouts in millimetres (DXF R12): outline, pads, silkscreen, reference designators and drill holes. The STEP ZIP is 24.1 MiB and extracts to the 158.1 MiB `Mo_62A_P_MB_V11.stp`.
 
 ## Dimensions and mounting {#published-dimensions}
 
@@ -39,12 +39,12 @@ The source explicitly states that all dimensions are approximate, for reference 
 
 ## Assembly model and previews
 
-The assembly identifier is `MO_62A_MB_PCBA_V1_ASM`. Its STEP header records a Creo export timestamp of April 29, 2026; this is an export timestamp, not a hardware release date or proof that the model matches every shipped revision. Personal author metadata has been removed; the geometry data is unchanged.
+The V1.1 assembly model was supplied on October 30, 2026 as `Mo_62A_P_MB_V11.stp`. Its STEP header records a Creo export timestamp of October 30, 2026 and retains the internal identifier `0_MO_62A_MB_PCBA_V1_ASM`. The published version follows the supplied V1.1 model, not that internal name. The STEP file is packaged without modifying its contents.
 
 :::warning[Confirm the assembly revision before designing around it]
 The downloadable model is a nominal assembly reference, not a toleranced manufacturing drawing. It does not establish an approved enclosure fit, fastening specification, keep-out volume or production release. Confirm the board revision and fitted components with InHand, and check a physical sample before enclosure tooling. A model's `V1` identifier must not be assumed to mean the same revision as a schematic filename.
 
-OpenCascade imported and rendered this file, but its whole-model topology validity check did not pass. The download retains the supplied geometry without automatic repair. Validate the import in your CAD application before editing or Boolean operations; request a validated model for production work. Successful display and a matching checksum do not establish geometric validity.
+The supplied V1.1 file imported successfully in OpenCascade and passed its whole-model topology validity check. The download retains the supplied geometry without automatic repair. Check the import in your own CAD application before editing or Boolean operations; this software check does not validate physical clearances or enclosure fit.
 :::
 
 ### Verify and open the model {#1-download-and-check-the-files}
@@ -52,7 +52,7 @@ OpenCascade imported and rendered this file, but its whole-model topology validi
 Save the ZIP and `SHA256SUMS.txt` in a new directory, then run on a Linux workstation:
 
 ```bash
-unzip Mo62A_3d_model_V1.0-20260409.stp.zip
+unzip Mo62A_3d_model_V1.1-20261030.stp.zip
 sha256sum -c SHA256SUMS.txt --ignore-missing
 ```
 

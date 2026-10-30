@@ -26,30 +26,46 @@ test('published source text does not reintroduce removed branding', async () => 
   }
 });
 
-test('assembly download has the exact checked ZIP and STEP payload', async () => {
-  const dir = new URL('hardware/products/mo62a/files/', root);
-  const zip = new URL('Mo62A_3d_model_V1.0-20260409.stp.zip', dir);
-  const sums = await fs.readFile(new URL('SHA256SUMS.txt', dir), 'utf8');
-  const data = await fs.readFile(zip);
-  assert.equal(data.length, 24542271);
-  const digest = createHash('sha256').update(data).digest('hex');
-  assert.equal(digest, 'bbb27e5b16e253fc991a8df99de0cdf10bcb1a09b442cb23bcf41711a4a0cde6');
-  assert.ok(sums.includes(digest + '  Mo62A_3d_model_V1.0-20260409.stp.zip'));
-  // Use the standard-library ZIP reader, not an external CAD dependency.
-  const result = JSON.parse(execFileSync('python3', ['-c', `
+test('assembly downloads have the exact checked ZIP and STEP payloads', async () => {
+  for (const [board, file, member, zipHash, stepHash, stepBytes] of [
+  [
+    "mo62a",
+    "Mo62A_3d_model_V1.1-20261030.stp.zip",
+    "Mo_62A_P_MB_V11.stp",
+    "5fe7bb8560e19ca0a1355081c1da23fd7113d2d9be83146149664fa2609439c7",
+    "3719f7274b154073737fd89d566c38391904a88e2346be100949089019c95561",
+    165752752
+  ],
+  [
+    "mo68a",
+    "Mo68A_3d_model_V1.1-20261029.stp.zip",
+    "MO_68a_pcb_mb_v1_1.stp",
+    "5508feeb726bff5522bc46218d14a2ef97aa8b1fee50b14e034e5580ca63fd34",
+    "7619f990f41d433d0e8723e1bedbc5c90011e01316480d1c792a8fcbad7b5205",
+    123006892
+  ]
+]) {
+    const dir = new URL(`hardware/products/${board}/files/`, root);
+    const zip = new URL(file, dir);
+    const sums = await fs.readFile(new URL('SHA256SUMS.txt', dir), 'utf8');
+    const digest = createHash('sha256').update(await fs.readFile(zip)).digest('hex');
+    assert.equal(digest, zipHash);
+    assert.ok(sums.includes(`${digest}  ${file}\n`));
+    const result = JSON.parse(execFileSync('python3', ['-c', `
 import hashlib,json,sys,zipfile
 with zipfile.ZipFile(sys.argv[1]) as archive:
-    assert archive.namelist() == ['MO_62A_MB_PCBA_V1_ASM.stp']
-    data = archive.read(archive.namelist()[0])
-    header = data.split(b'DATA;', 1)[0]
-    assert b"(''),('')" in header
-    assert b'AUTOMOTIVE_DESIGN' in header
+    assert archive.namelist() == [sys.argv[2]]
+    assert archive.testzip() is None
+    data = archive.read(sys.argv[2])
+    assert data.startswith(b'ISO-10303-21;')
+    assert b'AUTOMOTIVE_DESIGN' in data.split(b'DATA;', 1)[0]
     assert data.rstrip().endswith(b'END-ISO-10303-21;')
     print(json.dumps({'size':len(data),'sha256':hashlib.sha256(data).hexdigest()}))
-`, zip.pathname], {encoding: 'utf8'}));
-  assert.equal(result.size, 161380954);
-  assert.equal(result.sha256, '42871136c3c8c521f21ed779f51368f0e11ba09fee8d7208ef538b293808f6fa');
-  assert.ok(sums.includes(result.sha256 + '  MO_62A_MB_PCBA_V1_ASM.stp\n'));
+`, zip.pathname, member], {encoding: 'utf8'}));
+    assert.equal(result.size, stepBytes);
+    assert.equal(result.sha256, stepHash);
+    assert.ok(sums.includes(`${result.sha256}  ${member}\n`));
+  }
 });
 
 test('hardware file lists match their files, names and checksums', async () => {
