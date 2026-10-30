@@ -12,6 +12,6 @@ The power adapter uses interchangeable AC plugs; select the plug for the destina
 
 The same active cooler is selected for Mo 62A and Mo 68A. Allow airflow around it and check the fan connector's pin order. The RTC battery also needs the correct connector polarity.
 
-The camera entry identifies the selected module, not a guarantee for every IMX219 board, lens or cable. Check the FPC width, contact orientation and board configuration. Display cables must match the board connector; mini DP to HDMI requires active conversion.
+The camera entry identifies the selected module, not a guarantee for every IMX219 board, lens or cable. Check the FPC width, contact orientation and board configuration. Mo 62A uses micro HDMI; select a cable with the matching connector.
 
 Purchase availability is listed in the [InHand store](https://inhandgo.com/).

@@ -5,7 +5,7 @@ sidebar_position: 3
 ---
 
 
-## Power supply and measurement boundary
+## Supply requirements {#power-supply-and-measurement-boundary}
 
 These are published product ratings from page 5 of the English Mo62A Datasheet V1.5 in the [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO62A), not measurements from the documentation test bench.
 
@@ -26,7 +26,7 @@ On October 22, 2026, one Mo62A development installation was observed from idle t
 
 **Measurement limits.** Power values are manually read USB-meter display values, not time-averaged power or captured electrical peaks. Temperature values come from three on-chip sensors sampled at approximately 1 Hz; they are not ambient temperatures. No exact timestamp was supplied for the meter readings, so a power value and a temperature maximum in the same row are not necessarily simultaneous. These short runs do not establish thermal equilibrium, sustained operation in an enclosure, a minimum supply rating or absolute maximum board consumption.
 
-### Test environment and electrical boundary
+### Measurement setup {#test-environment-and-electrical-boundary}
 
 The meter was in series with the USB-C supply. Readings include the board and connected peripherals powered downstream of that meter. They exclude the monitor's separate power supply; this is not bare-board, SoC-only or NPU-only power.
 
@@ -43,7 +43,7 @@ The meter was in series with the USB-C supply. Readings include the board and co
 | Meter | Screen-only USB power meter, read by the operator. Model, accuracy, sampling rate and calibration were not recorded; no meter photograph or recording accompanies these values |
 | Board identification | The tested board's fitted-memory SKU and PCB marking were not recorded in this measurement session |
 
-### What each workload tests
+### Workloads {#what-each-workload-tests}
 
 P0–P2 kept the HDMI login screen visible. P3–P5 temporarily stopped the login-screen service and used KMS direct display for the application. All listed connections remained in place; the exact time when the CSI module was connected was not separately recorded.
 
@@ -60,7 +60,7 @@ P3–P5 used `ONR-OD-8220-yolox-s-lite-mmdet-coco-640x640` with a detection thre
 
 The display canvas was 1920 × 1080. P3/P4 used one 1280 × 720 application view; P5 used two 960 × 540 views. P5's CSI configuration targeted 30 fps, but independent CSI capture FPS was not measured. USB 60 fps in P3–P5 is the device-reported negotiated interval, not the rate of completed inference frames. P2 was explicitly constrained to 30 fps and decoded at approximately 30 fps.
 
-### Meter readings and observed temperature
+### Meter readings and temperatures {#meter-readings-and-observed-temperature}
 
 The final column is the highest sample across all three thermal zones during each recorded run, rounded to two decimals. It is not a temperature rise above ambient, a chip temperature rating, or the temperature at the instant of the meter reading.
 
@@ -92,7 +92,7 @@ This chart is plotted from recorded telemetry, not an instrument photograph. Eac
 
 Download the [measurement record and all temperature/CPU/fan samples (JSON)](/downloads/hardware/mo62a-power-temperature-20261022.json). It contains the manually reported V/A/W values separately from the software telemetry, per-run sample counts, exact temperature extrema, model identity, AI summaries and the measurement limitations. Private connection details and raw terminal sessions are not included.
 
-### AI load and useful application throughput
+### CPU, DSP and throughput {#ai-load-and-useful-application-throughput}
 
 The following averages exclude the first 60 seconds of each AI workload. CPU busy is across all four cores; C7x load comes from a single TI performance collector. No independent accelerator utilization counter was available, so these values do not establish that the NPU was fully saturated.
 
@@ -108,7 +108,7 @@ P4 drew 0.354 W more than P3 while application throughput fell by about 22.5%: f
 
 Both P5 processing counters continued to advance. A separate operator confirmation or recording of moving images and visible detection boxes was not supplied; these power/load results are not visual acceptance, model-accuracy or industrial-inspection qualification.
 
-### Limits and safe interpretation
+### Completion and limits {#limits-and-safe-interpretation}
 
 Runs were limited to approximately 300 seconds, with an 80 °C sensor cutoff and a fan-operation guard. P5 additionally checked that both streams continued processing. No run reached that temperature cutoff. The cutoff was a conservative test guard, not a new operating-temperature specification.
 
@@ -122,7 +122,7 @@ Use cooling appropriate to the workload and enclosure. Keep airflow unobstructed
 
 The schematics identify the 5 V PWM fan connector as J1, SH1.0-4p: pin 1 is 5 V, pin 2 PWM, pin 3 GND and pin 4 tachometer. The older README calls this connector J6; check the actual connector and cable against the schematic.
 
-Locate J1 in the [connector map](/mo-62a/hardware-development/hardware-interfaces/#locate-the-board-features) and consult the [original fan circuit on sheet 17](/mo-62a/hardware-development/schematics/#connector-circuits-sheet-17) before choosing a cable.
+Locate J1 in the [connector map](/mo-62a/hardware-development/hardware-interfaces/#connector-map) and consult the [original fan circuit on sheet 17](/mo-62a/hardware-development/schematics/#connector-circuits-sheet-17) before choosing a cable.
 
 Do not write raw PWM sysfs values to experiment with cooling. The fan uses EHRPWM1 at `23010000.pwm`; header pin 36 also has an EHRPWM1 alternate function. Controller indices can change when another overlay is enabled. The [header PWM test](/docs/mo-62a/application-development/gpio-and-peripherals/) uses EHRPWM0 at `23000000.pwm`, not the fan controller.
 

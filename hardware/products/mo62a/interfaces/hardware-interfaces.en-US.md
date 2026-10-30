@@ -5,13 +5,13 @@ sidebar_position: 2
 ---
 
 
-Start with the connector map, check the electrical requirements, then use the [40-pin table](#40-pin-header-j6) to find the signal and Linux GPIO line. For runnable GPIO, UART and PWM examples, continue with [GPIO & peripherals](/docs/mo-62a/application-development/gpio-and-peripherals/).
+Start with the connector map, check the electrical requirements, then use the [40-pin table](#expansion-header) to find the signal and Linux GPIO line. For runnable GPIO, UART and PWM examples, continue with [GPIO & peripherals](/docs/mo-62a/application-development/gpio-and-peripherals/).
 
 :::warning[Disconnect power before wiring]
 Header signals use 3.3 V logic. Do not apply 5 V to a GPIO, connect two outputs together, or assume that a mechanically compatible HAT has compatible signals and software. Locate physical pin 1 on your board before connecting anything.
 :::
 
-## Locate the board features
+## Connector map {#locate-the-board-features}
 
 The component-side reference below uses the standard Mo62A product image, with the 40-pin header along the top edge and USB/Ethernet on the right. Numbers run clockwise from J6 at the top. They are location markers, not electrical pin numbers. The image retains its original perspective; it is not an orthographic drawing or a dimensional reference.
 
@@ -19,7 +19,7 @@ The component-side reference below uses the standard Mo62A product image, with t
 
 | Marker | Connector or control | Purpose and next check |
 |---|---|---|
-| 01 | J6 — 40-pin expansion | 3.3 V signals plus separate power/ground pins; see [J6 orientation and pin assignments](#40-pin-header-j6) |
+| 01 | J6 — 40-pin expansion | 3.3 V signals plus separate power/ground pins; see [J6 orientation and pin assignments](#expansion-header) |
 | 02 | J1 — fan | 4-pin fan connector; match the pinout and cable below |
 | 03 | USB Type-A | Four USB 2.0 ports in two stacked pairs; shared upstream link and power budget |
 | 04 | Ethernet | Gigabit RJ45; PoE conversion is not built into the board |
@@ -36,23 +36,7 @@ The component-side reference below uses the standard Mo62A product image, with t
 
 Open the image to enlarge it. Check the connector shape, silkscreen and pin-1 mark on your own board before connecting anything. J5 is a transformer-tap header, not a 5 V supply; see [Other connectors](#other-connectors).
 
-## Camera, fan and debug UART
-
-The CSI camera connector JP1 is a 22-pin, 0.5 mm FPC connector. MIPI CSI-2 support alone does not establish FPC pinout or cable compatibility; verify the wiring and contact orientation. The tested sensor is IMX219. Disconnect power before handling the ribbon and use the [camera connection guide and JPEG capture test](/docs/mo-62a/application-development/camera-and-video/).
-
-The small fan, debug and battery connectors are separate interfaces, not interchangeable power sockets:
-
-| Connector | Schematic pin assignment | Before connecting |
-|---|---|---|
-| J1 fan, SH1.0-4p | 1: 5 V; 2: PWM; 3: GND; 4: tachometer | Use a matching fan and cable; do not rely on wire colours |
-| J4 debug, SH1.0-3p | 1: board RX; 2: GND; 3: board TX | 3.3 V TTL USB-UART; 115200 baud, 8N1 |
-| J2 RTC battery, SH1.0-2p | 1: GND; 2: VBAT | Verify approved battery type and plug polarity |
-
-The debug UART is `ttyS2`, not the header's UART5 `/dev/ttyS3`. Cross adapter TX to board RX and adapter RX to board TX, and connect ground. Do not connect an RS-232 voltage interface or use the adapter's power wire to power the board. See [First boot](/docs/mo-62a/getting-started/first-boot/#serial-console).
-
-J2 is a battery connector, not a CR1220 coin-cell holder. The schematic labels the external RTC as PCF85263ATL; Linux reports the compatible driver name `pcf85363`. Driver naming alone does not establish a board revision. Battery retention was not tested in this review.
-
-## Other connectors
+### Other connectors
 
 | Interface | Board connection | Integration note |
 |---|---|---|
@@ -70,19 +54,19 @@ J5 requires a matching external PoE powered-device (PD) and power-conversion boa
 
 InHand reports a successful PoE HAT power-up, but this review did not reproduce it or record a specific HAT model, IEEE PoE class or delivered power. This is not a qualification of arbitrary PoE HATs; obtain the approved accessory details before integration.
 
-## Controls and board identification
+## Camera and display {#camera-fan-and-debug-uart}
 
-- **S1:** the SDK documents a power-button connection to the PMIC's `NPWRON` input, consistent with the power-button label in Datasheet V1.5. A short-press/long-press behaviour test was not performed for this page; do not infer an unconditional reset action.
-- **Indicator:** Linux exposes `/sys/class/leds/red` and `/sys/class/leds/green`. Read `brightness` and `trigger` for the software state; those values alone do not verify the observed colour or every boot/shutdown indication. See [First boot](/docs/mo-62a/getting-started/first-boot/) for the documented startup sequence.
-- **Board identity:** the reference image shows a model/revision silkscreen below J6. Record your own marking and assembly label; the image does not identify your board revision. See [Hardware revisions](/mo-62a/hardware-development/hardware-revisions/).
+The CSI camera connector JP1 is a 22-pin, 0.5 mm FPC connector. MIPI CSI-2 support alone does not establish FPC pinout or cable compatibility; verify the wiring and contact orientation. The tested sensor is IMX219. Disconnect power before handling the ribbon and use the [camera connection guide and JPEG capture test](/docs/mo-62a/application-development/camera-and-video/).
 
-## 40-pin header (J6)
+Display uses micro HDMI. See [Display & audio](/docs/mo-62a/mo-os/display-and-audio/) for software configuration.
+
+## Expansion header {#40-pin-header-j6}
 
 The published [schematic](/mo-62a/hardware-development/schematics/), sheet 17, identifies the expansion header as J6 and the fan connector as J1. The older SDK README calls them J9 and J6 respectively. This page follows the schematic references; also check the `USER EXPN` marking, connector shape and pin-1 indication on your actual board. Do not select a connector by a conflicting reference alone.
 
 ### Confirm the physical orientation
 
-Orient the component side as in the [connector map](#locate-the-board-features), with J6 along the top edge and USB/Ethernet on the right. This separate diagram shows physical pin numbers, not the map's location markers:
+Orient the component side as in the [connector map](#connector-map), with J6 along the top edge and USB/Ethernet on the right. This separate diagram shows physical pin numbers, not the map's location markers:
 
 [![J6 physical numbering viewed from the component side: outer row 2 to 40, inner row 1 to 39; pins 1 and 2 are the leftmost column, pins 39 and 40 the rightmost](/img/hardware-development/mo62a-j6-orientation.svg)](/img/hardware-development/mo62a-j6-orientation.svg)
 
@@ -158,7 +142,27 @@ sudo gpioinfo -c gpiochip2
 
 For driven GPIO, edge monitoring and cleanup, use the tested [GPIO & peripherals](/docs/mo-62a/application-development/gpio-and-peripherals/) procedures. In libgpiod v2, `gpioset --hold-period=2s` specifies a minimum hold period; it does not by itself mean that the process exits after two seconds. A GPIO output is held while the request remains open.
 
-## Select a peripheral function
+## Fan, debug UART and RTC
+
+The small fan, debug and battery connectors are separate interfaces, not interchangeable power sockets:
+
+| Connector | Schematic pin assignment | Before connecting |
+|---|---|---|
+| J1 fan, SH1.0-4p | 1: 5 V; 2: PWM; 3: GND; 4: tachometer | Use a matching fan and cable; do not rely on wire colours |
+| J4 debug, SH1.0-3p | 1: board RX; 2: GND; 3: board TX | 3.3 V TTL USB-UART; 115200 baud, 8N1 |
+| J2 RTC battery, SH1.0-2p | 1: GND; 2: VBAT | Verify approved battery type and plug polarity |
+
+The debug UART is `ttyS2`, not the header's UART5 `/dev/ttyS3`. Cross adapter TX to board RX and adapter RX to board TX, and connect ground. Do not connect an RS-232 voltage interface or use the adapter's power wire to power the board. See [First boot](/docs/mo-62a/getting-started/first-boot/#serial-console).
+
+J2 is a battery connector, not a CR1220 coin-cell holder. The schematic labels the external RTC as PCF85263ATL; Linux reports the compatible driver name `pcf85363`. Driver naming alone does not establish a board revision. Battery retention was not tested in this review.
+
+## Controls and board identification
+
+- **S1:** the SDK documents a power-button connection to the PMIC's `NPWRON` input, consistent with the power-button label in Datasheet V1.5. A short-press/long-press behaviour test was not performed for this page; do not infer an unconditional reset action.
+- **Indicator:** Linux exposes `/sys/class/leds/red` and `/sys/class/leds/green`. Read `brightness` and `trigger` for the software state; those values alone do not verify the observed colour or every boot/shutdown indication. See [First boot](/docs/mo-62a/getting-started/first-boot/) for the documented startup sequence.
+- **Board identity:** the reference image shows a model/revision silkscreen below J6. Record your own marking and assembly label; the image does not identify your board revision. See [Hardware revisions](/mo-62a/hardware-development/hardware-revisions/).
+
+## Software configuration {#select-a-peripheral-function}
 
 Choose a supplied entry with `bootcfg`; changing the default reboots the board. Confirm the live device-tree status after reboot. Do not enable the audio overlay with the GPIO/PWM loopback jumpers still attached.
 
@@ -175,7 +179,16 @@ The combined `exp-periph` overlay is present in the SDK but is not a supplied `m
 
 Resolve PWM controllers through `/sys/class/pwm/pwmchip*/device`: EHRPWM0 is `23000000.pwm`; the fan uses `23010000.pwm`. Do not hard-code `pwmchip0`. Header pin 36 shares the fan's EHRPWM1 controller, so it is not an independent, already-tested PWM output.
 
-## Sources and checks
+## Downloads
+
+| Document | Version | Download |
+|---|---|---|
+| Component placement | V1.1 | [PDF](/downloads/hardware/mo62a/Mo62A_component_placement_V1.1-20260504.pdf) |
+| 40-pin header pinout | V1.1 | [PDF](/downloads/hardware/mo62a/Mo62A_pinout_V1.1-20261028.pdf) |
+
+Verify downloads against [SHA-256 checksums](/downloads/hardware/mo62a/SHA256SUMS.txt).
+
+## Sources and validation scope {#sources-and-checks}
 
 The physical-pin mapping was cross-checked against the [SDK README](https://github.com/inhandnet/Mo62A#7-hardware-reference), the per-pad device-tree definitions, the individual overlays and the published schematics. The diagram's logical mapping was checked for all 40 pins. Only the GPIO, UART5 and pin-33 PWM loopbacks linked above are electrical tests; the remaining entries are design references.
 

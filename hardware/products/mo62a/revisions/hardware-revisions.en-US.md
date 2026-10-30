@@ -4,13 +4,13 @@ description: "Identify the physical Mo62A board, record PCB and assembly details
 sidebar_position: 6
 ---
 
-## Identify the board, not just the software
+## Board identification {#identify-the-board-not-just-the-software}
 
 Use the markings on your own board and its order/assembly records to identify the hardware. Then confirm which schematic and mechanical package apply. A schematic filename, a Linux model string or the appearance of a connector is not enough to select a hardware revision.
 
 ### 1. Read the physical markings
 
-Disconnect all power before handling the board. Use the [connector map](/mo-62a/hardware-development/hardware-interfaces/#locate-the-board-features) to orient the component side: J6 is along the top edge, with USB and Ethernet on the right. The reference board's model/revision silkscreen is below J6.
+Disconnect all power before handling the board. Use the [connector map](/mo-62a/hardware-development/hardware-interfaces/#connector-map) to orient the component side: J6 is along the top edge, with USB and Ethernet on the right. The reference board's model/revision silkscreen is below J6.
 
 Copy the full marking, including punctuation and any adjacent date. The standard product image shows `Mo_62A_P_MB_V1.0` and `2026-02-04`; these are examples from that image, not the identity of every shipped board or a verified manufacturing date. Check both sides of your own board for additional assembly or serial labels, without removing components or peeling labels.
 
@@ -22,7 +22,7 @@ Copy the full marking, including punctuation and any adjacent date. The standard
 | Date or other adjacent marking | Copy exactly from the actual board | A traceable marking; its meaning needs confirmation if undocumented |
 | Assembly/BOM revision and serial or lot | Assembly label or supplier record, if available | The assembled configuration when matched to the supplier's records |
 | Ordered SKU and memory option | Order confirmation or supplied product label | The purchased option; 2 GB and 4 GB are not PCB revision numbers |
-| Schematic filename and SHA-256 | Downloaded PDF and [published checksums](/mo-62a/hardware-development/schematics/#download-the-published-files) | The exact design document you reviewed, not proof it matches the assembly |
+| Schematic filename and SHA-256 | Downloaded PDF and [published checksums](/mo-62a/hardware-development/schematics/#downloads) | The exact design document you reviewed, not proof it matches the assembly |
 | Firmware and Linux versions | Image release, `/etc/os-release` and `uname -r` | Software configuration, not physical hardware identity |
 
 `free -h` reports memory available to Linux after reservations. The device-tree model is supplied by software, and an RTC driver name can cover compatible parts. None of these alone identifies the PCB or fitted BOM.
@@ -31,7 +31,19 @@ Copy the full marking, including punctuation and any adjacent date. The standard
 
 Compare the identifiers below with the exact PDF you downloaded. If a filename, title block or board marking disagrees, keep the original identifiers and ask InHand for the matching schematic/BOM and any engineering change notice. Do not silently rename a revision or assume that the newer-looking filename applies to your board.
 
-## Published schematic identifiers
+## Published documents {#published-schematic-identifiers}
+
+| Document | Version / filename date | Interpretation |
+|---|---|---|
+| Datasheet | V1.5 / 2026-10-26 | Product document revision |
+| Mechanical drawing (2D) | V1.0 / 2026-04-09 | File identifier; confirm the PCB/assembly match |
+| 3D model (STEP) | V1.0 / 2026-04-09 | File identifier; confirm the PCB/assembly match |
+| Schematics | V1.1 / 2026-05-04 | File identifier; confirm the PCB/assembly match |
+| Component placement | V1.1 / 2026-05-04 | File identifier; confirm the PCB/assembly match |
+| Mechanical drawing (DXF) | V1.1 / 2026-05-04 | File identifier; confirm the PCB/assembly match |
+| 40-pin header pinout | V1.1 / 2026-10-28 | Pinout document revision; check its stated source |
+
+### Schematic title-block discrepancy
 
 One schematic is published, on [Schematics](/mo-62a/hardware-development/schematics/), with its size and SHA-256 hash. Earlier schematic files are withdrawn. The first-sheet title-block fields are transcribed here so they can be compared without reading cropped screenshots:
 
@@ -39,15 +51,21 @@ One schematic is published, on [Schematics](/mo-62a/hardware-development/schemat
 |---|---|---|
 | `Mo62A_schematic_V1.1-20260504.pdf` | V1.1; October 27, 2026 | The title-block date and the filename date (May 4, 2026) differ; use the filename and hash to identify the file |
 
-This is a document identifier, not an approved board-revision comparison or release chronology. The [module descriptions and circuit references](/mo-62a/hardware-development/schematics/#find-a-module-in-the-schematic) explain the drawings without treating their labels as an as-built BOM.
+This is a document identifier, not an approved board-revision comparison or release chronology. The [module descriptions and circuit references](/mo-62a/hardware-development/schematics/#sheet-index) explain the drawings without treating their labels as an as-built BOM.
 
-## Can software read the hardware revision?
+### Can software read the hardware revision?
 
 The V1.1 schematic includes `HW_REV0`, `HW_REV1` and `HW_REV2` strap nets on sheet 9. The reviewed public material does not establish a validated mapping from their values to the complete PCB/assembly revision. Their presence is not enough to publish a reliable revision-decoding command.
 
 Likewise, the EEPROM circuit does not establish an identification-record format or guarantee that a revision has been programmed. Do not probe undocumented straps, change pin multiplexing or write the EEPROM to identify the board. Use the physical and supplier records above unless a revision-matched identification procedure is provided.
 
-## Record a board for integration or support
+## Change history and limitations {#what-is-not-established}
+
+No authoritative engineering change notice, assembly/BOM change list or revision-to-serial mapping was found in the reviewed public material. Consequently, this page does not claim that the published schematic matches every shipped board, or that accessories and images are interchangeable across all revisions.
+
+The V1.1 PDF has local change annotations on some sheets, but those annotations are not a complete release history. Connector references also conflict with the older SDK README: the schematic identifies the expansion header as J6 and the fan as J1. Use [Hardware interfaces](/mo-62a/hardware-development/hardware-interfaces/) and verify the actual connector and pin 1.
+
+## Support record {#record-a-board-for-integration-or-support}
 
 Attach a clear photograph of your own PCB marking and relevant assembly label when requesting revision-dependent advice. Use this template; leave unavailable fields as `not recorded` instead of guessing. Share serial/lot identifiers through the appropriate support channel rather than putting them in public issue screenshots.
 
@@ -65,13 +83,7 @@ Kernel version:
 Interface or accessory being integrated:
 ```
 
-## What is not established
-
-No authoritative engineering change notice, assembly/BOM change list or revision-to-serial mapping was found in the reviewed public material. Consequently, this page does not claim that the published schematic matches every shipped board, or that accessories and images are interchangeable across all revisions.
-
-The V1.1 PDF has local change annotations on some sheets, but those annotations are not a complete release history. Connector references also conflict with the older SDK README: the schematic identifies the expansion header as J6 and the fan as J1. Use [Hardware interfaces](/mo-62a/hardware-development/hardware-interfaces/) and verify the actual connector and pin 1.
-
-## Before a revision-dependent change
+## Integration checklist {#before-a-revision-dependent-change}
 
 1. Record the physical board and assembly identification.
 2. Keep the exact schematic file and its hash, not just a moving branch URL.

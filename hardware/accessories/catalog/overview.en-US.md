@@ -15,5 +15,5 @@ The catalog is being prepared. This page does not publish an approved accessory 
 An accessory entry and its board compatibility record are separate. A connector that fits does not establish electrical, software or enclosure compatibility.
 
 :::info[Coming soon]
-This content is being prepared. For product questions, use the [contact page](https://developer.inhand.online/contact/).
+This content is being prepared. For product questions, use the [contact page](/contact/).
 :::

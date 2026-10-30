@@ -1,12 +1,14 @@
 ---
 title: "Overview & specifications"
-description: "Mo 68A specifications."
+description: "Mo 68A hardware specifications, configuration, measured workflows and design references."
 sidebar_position: 1
 ---
 
 The Mo 68A is built on the **TI AM68A** vision processor: two Arm Cortex-A72 cores at 2.0 GHz and two C7x DSPs and one Matrix Multiply Accelerator (MMA), TI's deep-learning accelerator, for **8 TOPS** of AI inference. It adds a second camera input, 4K60 video encode / decode, USB 3.0 and PCIe 3.0, on the same 85 × 56 mm footprint as the Mo 62A.
 
-![Mo 68A board](/img/boards/mo-68a.png)
+[![Mo 68A board — component-side top view](/img/boards/mo-68a.png)](/img/boards/mo-68a.png)
+
+## Specifications
 
 ### Hardware
 
@@ -42,7 +44,7 @@ The Mo 68A is built on the **TI AM68A** vision processor: two Arm Cortex-A72 cor
 | Parameter | Specification |
 |---|---|
 | Power input | USB Type-C, 5 V / 5 A |
-| Power consumption | 25 W max |
+| Power consumption | 25 W maximum rating (not measured workload power) |
 | Cooling | Active fan (optional); 4-pin fan connector |
 | Dimensions / weight | 85 × 56 mm, 53 g |
 | Operating temperature | 0 – 50 °C |
@@ -57,13 +59,9 @@ The Mo 68A is built on the **TI AM68A** vision processor: two Arm Cortex-A72 cor
 | Development | Python, C/C++, OpenCV, GStreamer, NumPy, apt |
 | Security capabilities | Secure boot, Arm TrustZone, OP-TEE, hardware AES-256; provisioning and enforcement require validation |
 
-## Mo 68A vs Mo 62A
-
-Choose the Mo 68A for multiple cameras, higher resolution, video recording alongside inference, or PCIe expansion. For a single camera at lower cost, see the [Mo 62A](/mo-62a/hardware-development/overview/).
-
 Specifications follow [Mo 68A Datasheet V1.1](/downloads/hardware/mo68a/Mo68A_datasheet_V1.1-20261026.pdf). Datasheet, user manual and hardware interface description: [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO68A).
 
-## Configuration and measured behavior
+## Design reference and validation scope {#configuration-and-measured-behavior}
 
 The currently listed **Mo68A-4G-DC** and **Mo68A-8G-DC** variants configure **MIPI0 as DSI** and **MIPI1 as CSI**. The maximum interface capabilities above do not mean two CSI cameras and two DSI displays are available simultaneously. Schematic V1.1 uses resistor population to select the MIPI routing; a software overlay cannot change an unconnected hardware path.
 
@@ -71,4 +69,29 @@ The AM68A includes one C7x/MMA inference path plus a second C7x DSP. In the [pow
 
 The security entries are published product capabilities. Customer-key provisioning and enforcement of authenticated boot have not been validated for this documentation. The public Debian V1.0.0 image is linked on [Software](/software#mo-68a-images); the power-test installation separately reported 1.0.2.
 
-All available hardware downloads and their SHA-256 checksums are listed in [Resource download](/docs/mo-68a/resource-download/).
+| Area | Evidence available | Boundary |
+|---|---|---|
+| Linux system | Public Debian image and separately recorded power-test installation | Test installation 1.0.2 is not qualification of public image V1.0.0 |
+| AI inference | Official TI models and load/throughput observations in [Power & thermal](../power-and-thermal/) | Two C7x cores do not imply two equivalent TIDL/MMA engines |
+| Camera and display | USB + IMX219 capture, ISP and DP output in the power experiment | Does not qualify two CSI cameras, DSI operation or every sensor mode |
+| Expansion | Source connector assignments and J11 pinout | No blanket HAT, PCIe or GPIO/peripheral qualification |
+| Power and cooling | Eight recorded workloads with manual input-meter readings and temperature logs | Not absolute maximum power, thermal equilibrium or environmental qualification |
+| Security | Published SoC/SDK capabilities | Customer-key provisioning and authenticated-boot enforcement are not validated here |
+
+## Integration references
+
+- [Hardware interfaces](../hardware-interfaces/): connector assignments, MIPI routing and source discrepancies.
+- [Power & thermal](../power-and-thermal/): supply ratings, measured workloads and live sensor readings.
+- [Mechanical](../mechanical/): dimensions, STEP model and enclosure integration.
+- [Schematics](../schematics/) and [Hardware revisions](../hardware-revisions/): design files and board identification.
+- [Compare the boards](/hardware#compare): product-level comparison; verify each board's own tested workflows before migration.
+
+## Downloads
+
+| Document | Version | Download |
+|---|---|---|
+| Datasheet | V1.1 | [PDF](/downloads/hardware/mo68a/Mo68A_datasheet_V1.1-20261026.pdf) |
+
+Verify downloads against [SHA-256 checksums](/downloads/hardware/mo68a/SHA256SUMS.txt).
+
+See [Resource download](/docs/mo-68a/resource-download/) for all hardware files and [OS images](/software#os-images) for system images.
