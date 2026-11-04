@@ -6,6 +6,12 @@ import sdCardAnimation from '@site/static/img/getting-started/armbian-imager-sel
 import sdCardStill from '@site/static/img/getting-started/armbian-imager-select-sd-card.png';
 import writeCardAnimation from '@site/static/img/getting-started/armbian-imager-write-sd-card.gif';
 import writeCardStill from '@site/static/img/getting-started/armbian-imager-write-sd-card.png';
+import mo68aCustomImageAnimation from '@site/static/img/getting-started/mo68a-imager-use-custom-image.gif';
+import mo68aCustomImageStill from '@site/static/img/getting-started/mo68a-imager-use-custom-image.png';
+import mo68aSdCardAnimation from '@site/static/img/getting-started/mo68a-imager-select-sd-card.gif';
+import mo68aSdCardStill from '@site/static/img/getting-started/mo68a-imager-select-sd-card.png';
+import mo68aWriteCardAnimation from '@site/static/img/getting-started/mo68a-imager-write-sd-card.gif';
+import mo68aWriteCardStill from '@site/static/img/getting-started/mo68a-imager-write-sd-card.png';
 
 Mo boards boot from a microSD card. You write the OS image to the card on your computer, then put the card in the board.
 
@@ -52,19 +58,27 @@ The steps below use Armbian Imager. Other image writers, such as [balenaEtcher](
 
 2. Click **Use Custom Image**, select the downloaded OS image, then click **Open**.
 
+   <Only board={props.board} is="mo-62a">
+
    <div className="mo-tool-screenshot">
-
-   <picture>
-     <source media="(prefers-reduced-motion: reduce)" srcSet={customImageStill} />
-     <Only board={props.board} is="mo-62a">
+     <picture>
+       <source media="(prefers-reduced-motion: reduce)" srcSet={customImageStill} />
        <img src={customImageAnimation} alt="Armbian Imager: click Use Custom Image, select the Mo62A OS image, and click Open" />
-     </Only>
-     <Only board={props.board} is="mo-68a">
-       <img src={customImageStill} alt="Armbian Imager on Windows showing the Use Custom Image button" />
-     </Only>
-   </picture>
-
+     </picture>
    </div>
+
+   </Only>
+
+   <Only board={props.board} is="mo-68a">
+
+   <div className="mo-tool-screenshot">
+     <picture>
+       <source media="(prefers-reduced-motion: reduce)" srcSet={mo68aCustomImageStill} />
+       <img src={mo68aCustomImageAnimation} alt="Armbian Imager: click Use Custom Image, select the Mo 68A OS image, and click Open" />
+     </picture>
+   </div>
+
+   </Only>
 
 3. Insert the microSD card into a card reader and connect the reader to your computer. In **Storage**, select your microSD card. Check the device name and capacity to make sure you choose the correct card.
 
@@ -79,6 +93,17 @@ The steps below use Armbian Imager. Other image writers, such as [balenaEtcher](
 
    </Only>
 
+   <Only board={props.board} is="mo-68a">
+
+   <div className="mo-tool-screenshot">
+     <picture>
+       <source media="(prefers-reduced-motion: reduce)" srcSet={mo68aSdCardStill} />
+       <img src={mo68aSdCardAnimation} alt="Armbian Imager: select the microSD card and review Confirm Selection" />
+     </picture>
+   </div>
+
+   </Only>
+
 4. Click **Erase & Flash**. Keep the card reader connected while the image is decompressed, written and verified. When **Flash complete!** appears, click **Done**.
 
    <Only board={props.board} is="mo-62a">
@@ -87,6 +112,17 @@ The steps below use Armbian Imager. Other image writers, such as [balenaEtcher](
      <picture>
        <source media="(prefers-reduced-motion: reduce)" srcSet={writeCardStill} />
        <img src={writeCardAnimation} alt="Armbian Imager: write and verify the microSD card, then click Done" />
+     </picture>
+   </div>
+
+   </Only>
+
+   <Only board={props.board} is="mo-68a">
+
+   <div className="mo-tool-screenshot">
+     <picture>
+       <source media="(prefers-reduced-motion: reduce)" srcSet={mo68aWriteCardStill} />
+       <img src={mo68aWriteCardAnimation} alt="Armbian Imager: write and verify the microSD card, then click Done" />
      </picture>
    </div>
 
