@@ -1,9 +1,88 @@
 ---
 title: "GPIO & peripherals"
-description: "Mo 68A: libgpiod, I\u00b2C, SPI, UART and PWM."
-sidebar_position: 1
+description: "Mo 68A: The 40-pin header, GPIO, SPI, UART, I2C and PWM."
+sidebar_position: 3
 ---
 
-Mo 68A: libgpiod, I\u00b2C, SPI, UART and PWM.
+J11 is a 40-pin header following the standard HAT footprint and pin numbering,
+carrying GPIO, SPI, UART, I2S and PWM.
 
-<ComingSoon />
+:::warning
+IO voltage is **3.3 V**. Connecting a 5 V signal to a GPIO pin can damage the
+SoC. Pins 2 and 4 supply 5 V for powering a HAT, but no signal pin tolerates it.
+:::
+
+## Two GPIO domains
+
+The lines on the header come from two different controllers, and that decides
+which chip you address:
+
+| Domain | Chip | Header pins |
+|---|---|---|
+| WKUP | `gpiochip0` | 11, 15, 22, 27, 28 |
+| Main | `gpiochip1` | all other GPIO pins |
+
+```bash
+gpiodetect
+```
+
+```
+gpiochip0 [42110000.gpio] (89 lines)
+gpiochip1 [600000.gpio]   (66 lines)
+gpiochip2 [0-0048]        (11 lines)
+```
+
+`gpiochip2` is the PMIC, not the header.
+
+## GPIO
+
+The board uses the Linux GPIO character device, and the `gpiod` tools are
+pre-installed. Lines are addressed by chip and line number, not by header pin:
+
+```bash
+gpioinfo -c gpiochip1        # what each line is and whether it is in use
+
+gpioget -c gpiochip1 0       # read GPIO0_0, header pin 13
+gpioset -c gpiochip1 0=1     # drive it high
+gpioset -c gpiochip1 0=0     # and low
+
+gpioget -c gpiochip0 60      # WKUP_GPIO0_60, header pin 11
+```
+
+The line number follows the signal name: `GPIO0_30` is line 30 on `gpiochip1`,
+`WKUP_GPIO0_60` is line 60 on `gpiochip0`.
+
+## I2C
+
+Two I2C buses reach the header, and a third serves the board itself:
+
+| Bus | Device | Where |
+|---|---|---|
+| SOC I2C0 | `/dev/i2c-1` | Header pins 3 and 5 |
+| WKUP I2C0 | `/dev/i2c-0` | Header pins 27 and 28 |
+| SOC I2C1 | `/dev/i2c-2` | On-board EEPROM and RTC |
+
+```bash
+i2cdetect -y 1              # scan the header bus
+```
+
+:::note
+Always name the bus. Addresses repeat across buses — the board EEPROM at `0x50`
+on `/dev/i2c-2` is not the only device that answers at `0x50`.
+:::
+
+## SPI, UART and PWM
+
+| Function | Header pins |
+|---|---|
+| SPI5 | 19 MOSI, 21 MISO, 23 CLK, 24 CS0, 26 CS1 |
+| UART5 | 8 TXD, 10 RXD |
+| PWM | 32 (ECAP0), 33 (PWM5_B) |
+| I2S | 12 CLK, 35 FS, 38 DIN, 40 DOUT |
+
+UART5 on the header is separate from the debug console on J6, which is UART8 and
+stays reserved for system use.
+
+A HAT that needs a pin mux different from the default requires a device tree
+overlay; see
+[Device tree overlays](../system-configuration/device-tree-overlays.mdx).

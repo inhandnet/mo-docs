@@ -1,9 +1,81 @@
 ---
 title: "Inference APIs"
-description: "Mo 68A: Python, C++, GStreamer and ONNX Runtime."
-sidebar_position: 6
+description: "Mo 68A: The Python and C/C++ interfaces that run TIDL artifacts on the board."
+sidebar_position: 4
 ---
 
-Mo 68A: Python, C++, GStreamer and ONNX Runtime.
+TIDL attaches to runtimes you already know rather than replacing them, so
+inference code looks like ordinary ONNX Runtime or TFLite code with one extra
+provider or delegate. The image carries both.
 
-<ComingSoon />
+## Two Pythons on the board
+
+The board has Debian's Python 3.13 at `/usr/bin/python3`, which apt and the
+system scripts depend on, and a separately built Python 3.12 that carries the
+TIDL packages. `/usr/local/bin/python3` points at the 3.12 one, so a normal
+shell resolves to the right interpreter:
+
+```bash
+python3 -c "import onnxruntime, tflite_runtime; print('ok')"
+```
+
+:::warning
+Calling `/usr/bin/python3` explicitly, or running a script whose shebang is
+`#!/usr/bin/python3`, gets Debian's 3.13 — which has none of the TIDL packages
+and fails on the import. Use `python3` from `PATH`, or `/usr/bin/python3.12`.
+:::
+
+The packages live in `/usr/lib/python3.12/site-packages`: `onnxruntime_tidl`,
+`dlr`, `numpy` and `cv2` among them.
+
+## Python
+
+The TIDL execution provider takes the directory of compiled artifacts and the
+target SoC. Everything else is the session API as usual:
+
+```python
+import onnxruntime as ort
+
+session = ort.InferenceSession(
+    "model.onnx",
+    providers=["TIDLExecutionProvider"],
+    provider_options=[{"artifacts_folder": "artifacts/", "platform": "J7"}],
+)
+outputs = session.run(None, {session.get_inputs()[0].name: input_tensor})
+```
+
+For a TFLite model the equivalent is the TIDL delegate, loaded from
+`/usr/lib/libtidl_tfl_delegate.so`.
+
+The first inference of a session is slower than the ones that follow: it loads
+the artifacts and brings up the C7x. Measure steady-state throughput after a few
+warm-up runs, not on the first call.
+
+## C and C++
+
+The runtime libraries and the header are already on the board, so a build needs
+no extra packages:
+
+| Path | What it is |
+|---|---|
+| `/usr/lib/libtidl_onnxrt_EP.so` | TIDL execution provider for ONNX Runtime |
+| `/usr/lib/libtidl_tfl_delegate.so` | TIDL delegate for TFLite |
+| `/usr/lib/libvx_tidl_rt.so` | TIDL runtime |
+| `/usr/include/itidl_rt.h` | Runtime header |
+
+The reference C++ examples build from the board's checkout of the tools:
+
+```bash
+cd /opt/edgeai-tidl-tools
+export SOC=am68a
+mkdir -p build && cd build
+cmake ../examples && make -j2
+```
+
+## What runs where
+
+TIDL takes the subgraphs it supports and leaves the rest on the Cortex-A72, so a
+model always runs — the question is how much of it was offloaded. When
+throughput is lower than expected, check the operator coverage from compilation
+before looking at the inference code; see
+[Compile your own model](./compile-your-own-model.mdx).

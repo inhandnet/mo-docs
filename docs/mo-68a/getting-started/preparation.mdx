@@ -4,6 +4,109 @@ description: "Mo 68A: Power, required cooling, SD card, access options and optio
 sidebar_position: 1
 ---
 
-Mo 68A: Power, required cooling, SD card, access options and optional accessories.
+Mo 68A boots from a microSD card. Decide how you will reach the board for its
+first login, then gather the items for that choice.
 
-<ComingSoon />
+## Choose your use case
+
+First-login setup runs once, on the console you are connected to.
+
+| Use case | What you connect | Where you run first-login setup |
+|---|---|---|
+| **Desktop** | Monitor, USB keyboard and mouse | On the board's own screen |
+| **Headless** | USB-to-UART adapter to your computer | In a serial terminal on your computer |
+
+Either way, SSH is enabled by default once the board is on the network.
+
+## Required items
+
+| Item | Specification | Required for |
+|---|---|---|
+| Computer | Windows, macOS or Linux | Both |
+| microSD card | 16 GB or larger, Class 10 / UHS-I | Both |
+| microSD card reader | USB 3.0 recommended | Both |
+| USB-C power adapter | 5 V / 5 A | Both |
+| PWM fan | 5 V, 4-pin, with TACH feedback | Both |
+| Ethernet cable | RJ45 | Both |
+| Monitor and cable | See [Display options](#display-options) | Desktop |
+| USB keyboard and mouse | — | Desktop |
+| USB-to-UART adapter | 3.3 V logic | Headless; optional for debug |
+
+:::warning
+Mo 68A requires active cooling. Without a fan the SoC overheats under load and
+throttles, leading to slowdown, instability or an unexpected reset. Buy a
+**4-pin** fan with TACH feedback — a 3-pin fan has no speed control and runs at
+full speed continuously.
+:::
+
+## Display options
+
+Mini DisplayPort (J9) carries a DP signal only, so the cable you buy depends on
+the input your monitor has.
+
+| Monitor input | What to use |
+|---|---|
+| DisplayPort | A Mini DP-to-DP cable |
+| HDMI | An **active** Mini DP-to-HDMI adapter, with a built-in DP-to-HDMI conversion chip |
+
+:::note
+A passive Mini DP-to-HDMI adapter does not work on Mo 68A. If an HDMI monitor
+stays dark, check this first.
+:::
+
+## Choosing a microSD card
+
+**16 GB** is the minimum, rated **Class 10 / UHS-I**. The desktop image expands to
+roughly 8 GB when written, and the card must hold the whole uncompressed image,
+not the `.img.xz` file you download; a larger card leaves room for updates, AI
+models and your own data. Writing the image erases the card, so copy off anything
+you want to keep.
+
+## Preparing the serial console
+
+For a headless setup, install a serial terminal before you power the board on, so
+that you capture the whole boot log.
+
+**Port settings:** 115200 baud, 8 data bits, no parity, 1 stop bit, no flow control.
+
+```bash
+# Linux
+minicom -D /dev/ttyUSB0 -b 115200
+
+# macOS
+screen /dev/cu.usbserial-* 115200
+```
+
+The device paths are examples; use the one your system assigns. On Windows, use
+PuTTY or Tera Term and select the adapter's COM port.
+
+## Optional accessories
+
+Prepare these only if you need them.
+
+| Accessory | Specification | What it is for |
+|---|---|---|
+| RTC battery | CR2032, 2-pin JST SH plug, 1.0 mm pitch | Keeps the clock while the board is powered off |
+| Camera module | MIPI CSI-2, such as IMX219 | The camera and AI examples |
+| USB Wi-Fi adapter | Wi-Fi 6, MediaTek MT7921AU chipset | Wireless networking without an Ethernet cable |
+
+### PCIe expansion
+
+PCIe reaches the board through J10, an FPC connector, so each device also needs a
+breakout board.
+
+| Accessory | Specification | What it is for |
+|---|---|---|
+| PCIe M.2 breakout board | Connects to J10 by FPC cable | Carries the M.2 card |
+| NVMe SSD | M.2, PCIe Gen3 x1 | Storage beyond the microSD card |
+| Wi-Fi 6E card | M.2 2230 A+E key, such as Intel AX210, plus two antennas | Wireless networking over PCIe |
+
+:::note
+PCIe is off by default; a device appears only once its boot overlay is enabled.
+Both ends of the J10 FPC cable are direction-sensitive — fitted the wrong way
+round, the device is not detected, link training fails, or the device is damaged.
+The 6 GHz band needs antennas rated for it and a 6 GHz access point.
+:::
+
+[Accessories](/docs/mo-68a/accessories) lists the part InHand tested for each item
+here and above.

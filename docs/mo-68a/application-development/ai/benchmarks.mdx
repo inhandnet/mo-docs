@@ -1,9 +1,67 @@
 ---
-title: "Performance & benchmarks"
-description: "Mo 68A: Method, results and scripts."
-sidebar_position: 8
+title: "Benchmarks"
+description: "Mo 68A: Measured inference times for the reference models, and how to read them."
+sidebar_position: 5
 ---
 
-Mo 68A: Method, results and scripts.
+The numbers below come from the reference test suite run ten times on one board,
+so that a systematic gap can be told apart from run-to-run noise. They describe
+that measurement, not a performance rating for the product.
 
-<ComingSoon />
+## How it was measured
+
+One Mo 68A on the factory image ran `gen_test_report.py` ten times, about 78
+seconds per run, all ten completing without error. Each row below is the mean of
+ten runs with its standard deviation.
+
+`ref` is the reference time TI ships with `edgeai-tidl-tools`, measured on TI's
+own evaluation module. It is a comparison point, not a specification Mo 68A is
+required to meet.
+
+## Reference models, ten runs
+
+| Model | ref (ms) | mean (ms) | σ | vs ref |
+|---|---|---|---|---|
+| `cl-tfl-mobilenet_v1_1.0_224` | 2.20 | 1.98 | 0.025 | **−10.0 %** |
+| `od-ort-ssd-lite_mobilenetv2_fpn` | 10.60 | 10.72 | 0.070 | +1.1 % |
+| `od-ort-ssd-lite_mobilenetv2_fpn` | 10.70 | 11.15 | 0.027 | +4.2 % |
+| `od-tfl-ssd_mobilenet_v2_300_float` | 7.15 | 7.49 | 0.073 | +4.8 % |
+| `cl-tfl-mobilenet_v1_1.0_224` | 2.03 | 2.18 | 0.371 | +7.2 % |
+| `ss-tfl-deeplabv3_mnv2_ade20k_float` | 11.74 | 12.90 | 0.071 | +9.9 % |
+| `cl-ort-resnet18-v1` | 2.75 | 3.08 | 0.035 | +12.1 % |
+| `cl-ort-resnet18-v1` | 2.66 | 3.00 | 0.060 | +12.7 % |
+| `ss-ort-deeplabv3lite_mobilenetv2` | 9.50 | 11.47 | 0.065 | +20.7 % |
+| `ss-tfl-deeplabv3_mnv2_ade20k_float` | 11.33 | 14.56 | 0.403 | +28.5 % |
+
+## Reading the spread
+
+**The differences are systematic, not noise.** Where a model sits above the
+reference it stays there: the fastest of ten runs is still 3.8 % to 26.3 % above,
+while σ is 0.027 to 0.403 — one to two orders of magnitude smaller than the gap.
+Repeating the run does not bring those models under the reference.
+
+**The board is not uniformly slower.** `cl-tfl-mobilenet_v1_1.0_224` against a
+2.20 ms reference measures 1.95–2.03 ms, faster than the reference in all ten
+runs. Whatever produces the gaps above is workload-dependent, not a flat
+hardware deficit.
+
+**One model is genuinely unstable.** The other `cl-tfl-mobilenet_v1_1.0_224`
+entry has σ 0.371 against a mean of 2.18 — a coefficient of variation of 17 %,
+where every other row sits near 1 %. A single measurement of that model can land
+anywhere in its range, so one run proves nothing about it either way.
+
+## Measure your own
+
+Run the suite more than once. A single run cannot separate a real difference
+from variance, which is the whole reason for the table above:
+
+```bash
+cd /opt/edgeai-tidl-tools
+export SOC=am68a
+python3 ./scripts/gen_test_report.py
+cat test_report_am68a.csv | column -t -s,
+```
+
+Compare like with like: the same tag, the same artifacts, the same thermal
+conditions. [Toolchain](./toolchain.mdx) covers version matching, and the board
+throttles under sustained load without its fan.

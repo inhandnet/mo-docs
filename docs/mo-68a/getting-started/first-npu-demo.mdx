@@ -1,9 +1,70 @@
 ---
-title: "Run your first NPU demo"
-description: "Mo 68A: Run a pre-installed detection demo on the AI accelerator."
+title: "First NPU demo"
+description: "Mo 68A: Run the TIDL reference suite on the C7x and MMA."
 sidebar_position: 4
 ---
 
-Mo 68A: Run a pre-installed detection demo on the AI accelerator.
+This runs TI's reference models on the board's AI accelerator and reports
+whether each one passed. It is the quickest way to confirm the accelerator
+works end to end before you put your own model on it.
 
-<ComingSoon />
+You need compiled artifacts from an x86 PC first — the board runs models, it
+does not compile them. [Toolchain](../application-development/ai/toolchain.mdx)
+and
+[Compile your own model](../application-development/ai/compile-your-own-model.mdx)
+cover that side.
+
+## 1. Clone the tools on the board
+
+The image carries the TIDL runtime libraries, not the repository, so the board
+needs its own checkout at the tag it reports:
+
+```bash
+cat /etc/inhand-release        # read TIDL_TAG
+
+cd /opt
+git clone https://github.com/TexasInstruments/edgeai-tidl-tools.git
+cd edgeai-tidl-tools
+git checkout <TIDL_TAG>
+```
+
+## 2. Copy the artifacts across
+
+From the PC, where the models were compiled:
+
+```bash
+cd ~/edgeai-tidl-tools
+tar -czf - model-artifacts/ models/ \
+  | ssh <user>@<board-ip> "cd /opt/edgeai-tidl-tools && tar -xzf -"
+```
+
+## 3. Build and run
+
+On the board:
+
+```bash
+cd /opt/edgeai-tidl-tools
+export SOC=am68a
+rm -rf build bin lib
+mkdir build && cd build
+cmake ../examples && make -j2
+cd ..
+
+python3 ./scripts/gen_test_report.py
+```
+
+## 4. Read the result
+
+A successful run reports `Func Pass: 10` — six Python rows, three ONNX Runtime
+and three TensorFlow Lite, plus four C++ rows, two of each:
+
+```bash
+cat test_report_am68a.csv | column -t -s,
+```
+
+Functional results tell you the accelerator produced correct output. The report
+also compares timings against TI's reference values, measured on TI's own
+evaluation module; several models sit above them on this board. That is a
+difference from a comparison point, not a defect — see
+[Benchmarks](../application-development/ai/benchmarks.mdx) for the measured
+spread and what it means.

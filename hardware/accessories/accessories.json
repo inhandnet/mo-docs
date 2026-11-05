@@ -65,14 +65,14 @@
     },
     {
       "id": "usb-wifi-bt-adapter",
-      "name": "USB Wi-Fi / Bluetooth adapter",
-      "spec": "USB wireless adapter; model and driver support pending",
+      "name": "USB Wi-Fi adapter",
+      "spec": "MediaTek MT7921AU (EDUP EP-AX1678); USB 3.0",
       "category": "wireless",
       "boards": [
         "mo-68a"
       ],
       "tier": "inhand-selection",
-      "status": "coming-soon",
+      "status": "tested",
       "shop_url": null,
       "docs_url": "/docs/mo-68a/accessories/supported-accessories/"
     },
@@ -148,8 +148,86 @@
     {
       "id": "active-mini-dp-hdmi",
       "name": "Active mini DP to HDMI cable",
-      "spec": "Active conversion, 1.8 m",
+      "spec": "Active conversion, male-to-male, 1.8 m",
       "category": "display",
+      "boards": [
+        "mo-68a"
+      ],
+      "tier": "inhand-selection",
+      "status": "tested",
+      "shop_url": null,
+      "docs_url": "/docs/mo-68a/accessories/supported-accessories/"
+    },
+    {
+      "id": "dsi-display",
+      "name": "DSI display",
+      "spec": "Raspberry Pi 7-inch IPS DSI panel; no touch",
+      "category": "display",
+      "boards": [
+        "mo-68a"
+      ],
+      "tier": "inhand-selection",
+      "status": "tested",
+      "shop_url": null,
+      "docs_url": "/docs/mo-68a/accessories/supported-accessories/"
+    },
+    {
+      "id": "pcie-m2-ekey-adapter",
+      "name": "PCIe to M.2 E-key adapter board",
+      "spec": "Waveshare PCIe to M.2 E-key; 2230 A+E",
+      "category": "expansion",
+      "boards": [
+        "mo-68a"
+      ],
+      "tier": "inhand-selection",
+      "status": "tested",
+      "shop_url": null,
+      "docs_url": "/docs/mo-68a/accessories/supported-accessories/"
+    },
+    {
+      "id": "pcie-wifi-card",
+      "name": "PCIe Wi-Fi 6E card",
+      "spec": "Intel AX210, M.2 2230 A+E key (EDUP EP-AX210); two antennas",
+      "category": "wireless",
+      "boards": [
+        "mo-68a"
+      ],
+      "tier": "inhand-selection",
+      "status": "tested",
+      "shop_url": null,
+      "docs_url": "/docs/mo-68a/accessories/supported-accessories/"
+    },
+    {
+      "id": "pcie-m2-nvme-adapter",
+      "name": "PCIe to M.2 NVMe adapter board",
+      "spec": "PCIe to M.2 M-key; 2230 / 2242 / 2280",
+      "category": "expansion",
+      "boards": [
+        "mo-68a"
+      ],
+      "tier": "inhand-selection",
+      "status": "tested",
+      "shop_url": null,
+      "docs_url": "/docs/mo-68a/accessories/supported-accessories/"
+    },
+    {
+      "id": "nvme-ssd",
+      "name": "NVMe SSD",
+      "spec": "M.2 NVMe, PCIe Gen3 x1; KIOXIA KEG60ZNS1T02",
+      "category": "storage",
+      "boards": [
+        "mo-68a"
+      ],
+      "tier": "inhand-selection",
+      "status": "tested",
+      "shop_url": null,
+      "docs_url": "/docs/mo-68a/accessories/supported-accessories/"
+    },
+    {
+      "id": "poe-hat",
+      "name": "PoE HAT",
+      "spec": "802.3af / at; 40-pin header",
+      "category": "power",
       "boards": [
         "mo-68a"
       ],

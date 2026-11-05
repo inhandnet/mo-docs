@@ -1,9 +1,90 @@
 ---
 title: "Device tree overlays"
-description: "Mo 68A: 40-pin peripheral mode and camera overlays."
-sidebar_position: 2
+description: "Mo 68A: Enable and disable peripherals through /boot/uEnv.txt."
+sidebar_position: 1
 ---
 
-Mo 68A: 40-pin peripheral mode and camera overlays.
+Mo 68A carries more peripheral interfaces than any one configuration uses at
+once. Which of them are active is decided at boot by device tree overlays, so a
+single image covers many hardware configurations: add or remove an overlay and
+the kernel loads or unloads the matching drivers, with no kernel rebuild.
 
-<ComingSoon />
+## uEnv.txt
+
+U-Boot reads `/boot/uEnv.txt` on every boot. Two variables matter:
+
+| Variable | Controls |
+|---|---|
+| `dorprocboot` | Loading the R5F and C7x firmware that AI inference needs |
+| `name_overlays` | The space-separated list of `.dtbo` files to apply |
+
+The image ships as:
+
+```ini title="/boot/uEnv.txt"
+dorprocboot=1
+name_overlays=ti/k3-j721s2-vision-apps.dtbo
+```
+
+That enables AI inference and leaves every other peripheral overlay unloaded.
+
+## Available overlays
+
+The image ships these in `/boot/dtb/ti/`:
+
+| Overlay | Enables |
+|---|---|
+| `ti/k3-j721s2-vision-apps.dtbo` | AI inference on the C7x and MMA — **required** |
+| `ti/k3-j721s2-mo68a-csi2-imx219-mipi0.dtbo` | IMX219 CSI-2 camera on J24 |
+| `ti/k3-j721s2-mo68a-csi2-imx219-mipi1.dtbo` | IMX219 CSI-2 camera on J25 |
+| `ti/k3-j721s2-mo68a-dsi-rpi-7inch-panel-mipi0.dtbo` | 7-inch DSI display on J24 |
+| `ti/k3-j721s2-mo68a-wm8960-audio-hat.dtbo` | WM8960 I2S audio HAT |
+| `ti/k3-j721s2-mo68a-disable-usbss-for-pcie.dtbo` | PCIe, by giving up USB 3.0 SuperSpeed |
+| `ti/k3-j721s2-mo68a-disable-edp-for-pcie.dtbo` | PCIe, by giving up eDP |
+
+## What the MIPI ports can do
+
+The two ports are fixed in hardware: **J24 drives a DSI display and J25 takes a
+CSI-2 camera.** The part number records it — in `Mo68A-8G-DC` the last two
+letters are J24 and J25, **D** for DSI only and **C** for CSI only. Read it from
+the board EEPROM:
+
+```bash
+sudo onie-tlv-read
+```
+
+An overlay only takes effect where the port supports it.
+
+## SerDes lanes
+
+The two `disable-*-for-pcie` overlays are mutually exclusive — append at most
+one. With neither, the board keeps its default eDP plus USB 3.0 SuperSpeed.
+
+## Change the overlays
+
+Append an overlay path to `name_overlays` to enable a feature, remove it to
+disable one. Keep it to a single `name_overlays` line: U-Boot honours only one.
+
+Editing `/boot/uEnv.txt` needs root. On the desktop, double-clicking opens the
+file read-only, so start the editor from a terminal:
+
+```bash
+sudo mousepad /boot/uEnv.txt   # desktop
+sudo vim /boot/uEnv.txt        # headless
+```
+
+An example with a DSI display on J24, an IMX219 camera on J25 and the audio HAT:
+
+```ini title="/boot/uEnv.txt"
+name_overlays=ti/k3-j721s2-vision-apps.dtbo ti/k3-j721s2-mo68a-dsi-rpi-7inch-panel-mipi0.dtbo ti/k3-j721s2-mo68a-csi2-imx219-mipi1.dtbo ti/k3-j721s2-mo68a-wm8960-audio-hat.dtbo
+```
+
+Then:
+
+1. Save the file and run `sync`.
+2. Power the board off.
+3. Connect or disconnect the peripheral. MIPI, the 40-pin header and the other
+   non-hot-pluggable interfaces must be handled with the board powered off.
+4. Power on and check the feature.
+
+If you changed only the overlay list and touched no hardware, a reboot does
+instead of the power cycle.

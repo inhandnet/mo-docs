@@ -1,9 +1,60 @@
 ---
 title: "Version map"
-description: "Mo 68A: Image, TI SDK, TIDL and ONNX Runtime versions."
+description: "Mo 68A: Which versions make up an image, and how to read them off a board."
 sidebar_position: 2
 ---
 
-Mo 68A: Image, TI SDK, TIDL and ONNX Runtime versions.
+An image is a fixed combination of firmware, kernel, TI SDK and TIDL runtime.
+The combination matters more than any single number: TIDL artifacts compiled
+against one tag do not run on a runtime built from another.
 
-<ComingSoon />
+## Read your own board
+
+Everything below can be read off a running board, and that is the version that
+counts — not what a download page said:
+
+```bash
+cat /etc/inhand-release     # firmware, TI SDK and TIDL versions
+cat /etc/os-release         # distribution
+uname -r                    # kernel
+```
+
+## What one image contains
+
+The values below come from firmware V1.0.4. Yours may differ; the point is which
+fields to compare, not these particular numbers.
+
+| Component | Where to read it | V1.0.4 |
+|---|---|---|
+| Firmware | `FIRMWARE_VERSION` | `1.0.4` |
+| TI Processor SDK | `TI_SDK_VERSION` | `11.01.00.03` |
+| TIDL | `TIDL_TAG` | `11_01_06_00` |
+| Kernel | `uname -r` | `6.12.35-vendor-k3-mo68a` |
+| Distribution | `/etc/os-release` | Debian 13 (trixie) |
+| Armbian build | `/etc/armbian-release` | `26.02.0-trunk` |
+
+`/etc/inhand-release` also records `BUILD_TIMESTAMP`, which identifies the exact
+build when two images share a firmware version.
+
+## The one that has to match
+
+`TIDL_TAG` is the only value that constrains something outside the board.
+`edgeai-tidl-tools` on your x86 PC must be checked out at that tag, because
+compiled artifacts are tied to the runtime that executes them:
+
+```bash
+cd ~/edgeai-tidl-tools
+git checkout <TIDL_TAG>
+```
+
+Artifacts compiled against a different tag fail at load time or silently fall
+back to the CPU. See
+[Toolchain](../application-development/ai/toolchain.mdx).
+
+## Kernel version strings
+
+The kernel string carries the board family rather than a marketing version:
+`6.12.35` is the upstream base, `vendor` the TI kernel branch, `k3-mo68a` the
+Armbian family name for this board. A kernel built from a modified tree gains a
+commit suffix, so two boards reporting different strings may still be running
+the same release.

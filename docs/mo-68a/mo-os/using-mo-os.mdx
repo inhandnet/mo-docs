@@ -1,9 +1,57 @@
 ---
 title: "Using Mo OS"
-description: "Mo 68A: Debian basics, apt and updates."
+description: "Mo 68A: Identify the running system and manage packages."
 sidebar_position: 1
 ---
 
-Mo 68A: Debian basics, apt and updates.
+Mo 68A runs Armbian on a Debian 13 base with the Xfce desktop, so everything you
+know about a Debian system applies.
 
-<ComingSoon />
+## Identify what is running
+
+```bash
+uname -r                  # kernel version
+cat /etc/os-release       # distribution
+cat /etc/inhand-release   # model, firmware and TIDL versions
+```
+
+`/etc/inhand-release` is the one to quote in a support request: it names the
+board model, the firmware version and the TIDL version the image was built with.
+
+## Check the system
+
+```bash
+lsblk                                      # root partition on /dev/mmcblk1p2
+df -h                                      # free space
+free -h                                    # memory
+ip addr show eth0                          # address
+timedatectl status                         # time and timezone
+cat /sys/class/thermal/thermal_zone0/temp  # SoC temperature, in milli-Celsius
+```
+
+The temperature reads in thousandths of a degree — `45000` is 45 °C.
+
+## Manage packages
+
+`apt` works as it does on any Debian system. On the desktop, Synaptic is
+installed as a graphical front end to the same package database: **Applications →
+System → Synaptic Package Manager**, or `synaptic-pkexec` from a terminal.
+
+```bash
+sudo apt update              # refresh the index first
+sudo apt install <package>
+sudo apt remove <package>    # purge instead of remove to drop config files too
+sudo apt autoremove          # drop dependencies nothing needs any more
+sudo apt upgrade             # upgrade everything installed
+
+apt search <keyword>
+apt show <package>
+```
+
+## Change the defaults
+
+```bash
+sudo hostnamectl set-hostname <hostname>
+sudo dpkg-reconfigure tzdata     # timezone
+sudo dpkg-reconfigure locales    # locale
+```

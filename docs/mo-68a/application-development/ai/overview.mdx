@@ -1,9 +1,64 @@
 ---
-title: "AI overview"
-description: "Mo 68A: two C7x DSPs and MMA, TIDL and the Mo AI software stack."
+title: "Overview"
+description: "Mo 68A: How TIDL offloads inference to the C7x and MMA, and where each step runs."
 sidebar_position: 1
 ---
 
-Mo 68A: two C7x DSPs and MMA, TIDL and the Mo AI software stack.
+The TDA4VE / AM68A SoC pairs a C7x DSP with an 8 TOPS Matrix Multiplier
+Accelerator. TI's TIDL runtime offloads the supported parts of a model to that
+pair and falls back to the Cortex-A72 for layers it cannot take, so a model runs
+whether or not every operator is accelerated.
 
-<ComingSoon />
+## Where each step runs
+
+Compilation and inference happen in different places, and that split shapes
+everything else:
+
+```
+  X86 PC                                   Mo 68A
+  ──────                                   ──────
+  edgeai-tidl-tools                        TIDL runtime, pre-installed
+      │                                          ▲
+      ├─ compile the model                       │
+      └─ model-artifacts/  ──────── copy ────────┘
+```
+
+**Compilation runs on an X86 PC only.** It needs `edgeai-tidl-tools`, which you
+clone and set up yourself; the board cannot compile models. What the board runs
+is the artifacts that compilation produces.
+
+**The runtime ships in the image.** `libtidl_onnxrt_EP.so`,
+`libtidl_tfl_delegate.so` and `libvx_tidl_rt.so` are already in `/usr/lib`, with
+`itidl_rt.h` in `/usr/include`, so nothing has to be installed on the board to
+run an inference.
+
+## Inference engines
+
+TIDL plugs into three runtimes rather than replacing them, so a model keeps the
+API it was written against:
+
+| Model format | Runtime | How TIDL attaches |
+|---|---|---|
+| ONNX | ONNX Runtime | Execution provider |
+| TensorFlow Lite | TFLite Runtime | Delegate |
+| TVM | TVM / Neo-AI-DLR | Compiled graph |
+
+## Versions have to match
+
+The `edgeai-tidl-tools` tag you compile with must match the TIDL runtime on the
+board. Artifacts built with a different tag are not portable across versions.
+Read the tag from the board:
+
+```bash
+cat /etc/inhand-release
+```
+
+```
+MODEL_NAME=Mo68A
+FIRMWARE_VERSION=1.0.4
+TI_SDK_VERSION=11.01.00.03
+TIDL_TAG=11_01_06_00
+```
+
+Use that `TIDL_TAG` value when you check out `edgeai-tidl-tools`.
+[Toolchain](./toolchain.mdx) covers the PC setup.

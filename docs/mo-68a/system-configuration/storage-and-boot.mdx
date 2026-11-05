@@ -1,9 +1,40 @@
 ---
 title: "Storage & boot"
-description: "Mo 68A: microSD boot, partitions and boot menu."
-sidebar_position: 1
+description: "Mo 68A: Partition layout, root expansion and log storage."
+sidebar_position: 2
 ---
 
-Mo 68A: microSD boot, partitions and boot menu.
+The microSD card is both the boot medium and the root filesystem. It carries two
+partitions:
 
-<ComingSoon />
+| Partition | Size | Mount point | Holds |
+|---|---|---|---|
+| `mmcblk1p1` | 256 MB | `/boot` | Kernel, device tree and overlays |
+| `mmcblk1p2` | The rest of the card | `/` | Root filesystem |
+
+```bash
+lsblk /dev/mmcblk1
+```
+
+```
+NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINTS
+mmcblk1     179:0    0 29.7G  0 disk
+├─mmcblk1p1 179:1    0  256M  0 part /boot
+└─mmcblk1p2 179:2    0 29.2G  0 part /var/log.hdd
+                                     /
+```
+
+`mmcblk1p2` appears twice because Armbian mounts `/var/log` as a tmpfs to spare
+the card, and keeps the persistent copy at `/var/log.hdd`. Logs that have to
+survive a reboot are there.
+
+## Root expansion
+
+The image is written at a fixed size, and the root partition grows to fill the
+card on the first boot. That expansion takes a while, so the free space you see
+immediately after the first login is not final:
+
+```bash
+df -h /
+```
+

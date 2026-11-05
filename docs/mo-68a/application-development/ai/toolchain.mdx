@@ -1,9 +1,85 @@
 ---
-title: "Set up the toolchain"
-description: "Mo 68A: Install the TI edgeai-tidl-tools version that matches your image."
-sidebar_position: 3
+title: "Toolchain"
+description: "Mo 68A: Set up edgeai-tidl-tools on an x86 PC to compile models."
+sidebar_position: 2
 ---
 
-Mo 68A: Install the TI edgeai-tidl-tools version that matches your image.
+Model compilation runs on an x86 PC, not on the board. This page sets up
+`edgeai-tidl-tools` there; [Compile your own model](./compile-your-own-model.mdx)
+uses it.
 
-<ComingSoon />
+## Pick the matching versions
+
+Artifacts are tied to the runtime that executes them, so the tools must match
+what is on the board. Read the tag from the board first:
+
+```bash
+cat /etc/inhand-release     # on Mo 68A
+```
+
+| Component | Version |
+|---|---|
+| TI Processor SDK Linux | 11.01.00.03 |
+| `edgeai-tidl-tools` tag | the `TIDL_TAG` your board reports |
+| Host OS | Ubuntu 22.04 |
+| Host Python | 3.10 |
+
+**Python 3.10 is not a preference.** TI's OSRT wheels — `onnxruntime_tidl`,
+`tflite_runtime`, `dlr`, `tvm` — are built against the `cp310` ABI and refuse to
+install on any other version, newer ones included.
+
+## Set up the host
+
+```bash
+sudo apt update
+sudo apt install -y git cmake build-essential libyaml-cpp-dev libglib2.0-dev \
+  python3.10-venv
+```
+
+Clone at the tag your board reported:
+
+```bash
+cd ~
+git clone https://github.com/TexasInstruments/edgeai-tidl-tools.git
+cd edgeai-tidl-tools
+git checkout <TIDL_TAG>
+```
+
+Work in a virtualenv. `setup.sh` installs a long list of packages and replaces
+`torch`, so running it against the system Python contaminates it:
+
+```bash
+python3.10 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip setuptools wheel
+```
+
+Install CPU-only PyTorch before `setup.sh` runs. `requirements_pc.txt` asks for
+`torch` with no build qualifier, so the default CUDA wheel — about 2.7 GB with
+the CUDA runtime bundled — would come down for tools that never touch the GPU:
+
+```bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+```
+
+Then run the setup, which places about 1.6 GB of TI tools under `tools/`:
+
+```bash
+export SOC=am68a
+source ./setup.sh
+```
+
+:::note
+`SOC=am68a` is correct for Mo 68A. The board is a TDA4VE / AM68A, and the TI
+tools key on the AM68A name — `AM68A/tidl_tools/` is where the compiler lands.
+:::
+
+## Restore the environment
+
+A new shell needs the virtualenv and the TI environment back:
+
+```bash
+cd ~/edgeai-tidl-tools
+source venv/bin/activate
+source ./setup_env.sh am68a
+```

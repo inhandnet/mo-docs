@@ -1,9 +1,26 @@
 ---
 title: "Next steps"
-description: "Mo 68A: Where to go after your first demo."
+description: "Mo 68A: Where to go after the board boots and the accelerator runs."
 sidebar_position: 5
 ---
 
-Mo 68A: Where to go after your first demo.
+Getting started took you from an unflashed card to a board running an
+accelerated model. Pick whichever of these matches what you are building — none
+of them depends on the others.
 
-<ComingSoon />
+| You want to | Start at |
+|---|---|
+| Put your own model on the accelerator | [Toolchain](../application-development/ai/toolchain.mdx), then [Compile your own model](../application-development/ai/compile-your-own-model.mdx) |
+| Write inference code | [Inference APIs](../application-development/ai/inference-apis.mdx) — the Python and C/C++ interfaces, and which Python to call |
+| Know what the timings mean | [Benchmarks](../application-development/ai/benchmarks.mdx) — measured against TI's reference values, and how to read the gap |
+| Capture video | [Camera & video](../application-development/camera-and-video.mdx) — CSI-2 camera on J25 and GStreamer pipelines |
+| Wire up hardware | [GPIO & peripherals](../application-development/gpio-and-peripherals.mdx) — the 40-pin header, its two GPIO domains and 3.3 V limit |
+| Enable a peripheral the image ships with | [Device tree overlays](../system-configuration/device-tree-overlays.mdx) — what each port supports and how to switch it |
+| Get on the network | [Network](../mo-os/network.mdx) — Ethernet, PoE and Wi-Fi adapters |
+| Run containers | [Containers](../application-deployment/containers.mdx) |
+| Build the image yourself | [Build from source](../low-level-development/build-from-source.mdx) |
+
+Two things are worth knowing before you go far in any direction. The board
+**requires active cooling** — without a fan it throttles under sustained load.
+And the `TIDL_TAG` on your board fixes which `edgeai-tidl-tools` tag you compile
+with; see [Version map](../resource-download/version-map.mdx).
