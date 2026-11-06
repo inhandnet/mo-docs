@@ -4,28 +4,17 @@ description: "Mo 68A: Enable and disable peripherals through /boot/uEnv.txt."
 sidebar_position: 1
 ---
 
-Mo 68A carries more peripheral interfaces than any one configuration uses at
-once. Which of them are active is decided at boot by device tree overlays, so a
-single image covers many hardware configurations: add or remove an overlay and
-the kernel loads or unloads the matching drivers, with no kernel rebuild.
+An overlay is a compiled device tree fragment (`.dtbo`) that patches nodes into
+the base device tree. U-Boot loads the base tree, applies every overlay named in
+`/boot/uEnv.txt`, and boots the kernel with the merged tree; the kernel then
+probes a driver for each device the merge enabled.
 
-## uEnv.txt
+The image boots with a default set of peripherals enabled; the rest stay off
+until an overlay turns them on. One image therefore serves every setup, with no
+kernel rebuild and no new image.
 
-U-Boot reads `/boot/uEnv.txt` on every boot. Two variables matter:
-
-| Variable | Controls |
-|---|---|
-| `dorprocboot` | Loading the R5F and C7x firmware that AI inference needs |
-| `name_overlays` | The space-separated list of `.dtbo` files to apply |
-
-The image ships as:
-
-```ini title="/boot/uEnv.txt"
-dorprocboot=1
-name_overlays=ti/k3-j721s2-vision-apps.dtbo
-```
-
-That enables AI inference and leaves every other peripheral overlay unloaded.
+So when you attach a camera, a DSI panel or an audio HAT, find its overlay in
+the table below, add it to `name_overlays` in `/boot/uEnv.txt`, and reboot.
 
 ## Available overlays
 
@@ -40,6 +29,9 @@ The image ships these in `/boot/dtb/ti/`:
 | `ti/k3-j721s2-mo68a-wm8960-audio-hat.dtbo` | WM8960 I2S audio HAT |
 | `ti/k3-j721s2-mo68a-disable-usbss-for-pcie.dtbo` | PCIe, by giving up USB 3.0 SuperSpeed |
 | `ti/k3-j721s2-mo68a-disable-edp-for-pcie.dtbo` | PCIe, by giving up eDP |
+
+The image ships with only `vision-apps` in `name_overlays`; every other overlay
+is yours to add.
 
 ## What the MIPI ports can do
 
