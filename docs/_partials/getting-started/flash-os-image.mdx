@@ -37,13 +37,17 @@ Please also download the corresponding <ImageDownload asset="checksums">SHA256SU
 
 <Only board={props.board} is="mo-68a">
 
-Get the latest image from the [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO68A). The Mo 68A GitHub repository is coming soon.
+Get the latest image from the [InHand Resource Center](https://www.inhand.com/en/resources-center/#/IndustrialDigitalization/AISingleBoardComputer/MO68A).
 
 </Only>
 
 ## 2. Write the image with Armbian Imager
 
+<Only board={props.board} is="mo-62a">
+
 The steps below use Armbian Imager. Other image writers, such as [balenaEtcher](https://etcher.balena.io/), also work.
+
+</Only>
 
 1. Download and install [Armbian Imager](https://imager.armbian.com/) (choose the version for your operating system: Windows, macOS or Linux).
 
@@ -130,9 +134,9 @@ The steps below use Armbian Imager. Other image writers, such as [balenaEtcher](
 
 5. Remove the card safely.
 
-## 3. Pre-configure the board (Optional)
-
 <Only board={props.board} is="mo-62a">
+
+## 3. Pre-configure the board (Optional)
 
 <section className="mo-preconfigure">
 
@@ -187,12 +191,6 @@ For security, we recommend changing the default username and password before the
 The firmware processes `sysconfig.txt` automatically on the first boot and then deletes it from the BOOT partition. It is not read on subsequent boots. After logging in, check that your settings have taken effect; the file being deleted does not confirm that every setting was applied successfully.
 
 </section>
-
-</Only>
-
-<Only board={props.board} is="mo-68a">
-
-Before you remove the card, you can set your user, password, network and hostname in `sysconfig.txt` on the card's `BOOT` drive. This is the recommended way to set up a board without a display. See <Link to={`/docs/${props.board}/getting-started/first-boot`}>First boot</Link>.
 
 </Only>
 
