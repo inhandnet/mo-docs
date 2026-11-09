@@ -28,13 +28,3 @@ mmcblk1     179:0    0 29.7G  0 disk
 the card, and keeps the persistent copy at `/var/log.hdd`. Logs that have to
 survive a reboot are there.
 
-## Root expansion
-
-The image is written at a fixed size, and the root partition grows to fill the
-card on the first boot. That expansion takes a while, so the free space you see
-immediately after the first login is not final:
-
-```bash
-df -h /
-```
-
