@@ -54,22 +54,34 @@ The line number follows the signal name: `GPIO0_30` is line 30 on `gpiochip1`,
 
 ## I2C
 
-Two I2C buses reach the header, and a third serves the board itself:
+Two I2C buses reach the header, and a third serves the board itself.
 
-| Bus | Device | Where |
-|---|---|---|
-| SOC I2C0 | `/dev/i2c-1` | Header pins 3 and 5 |
-| WKUP I2C0 | `/dev/i2c-0` | Header pins 27 and 28 |
-| SOC I2C1 | `/dev/i2c-2` | On-board EEPROM and RTC |
+:::warning
+`/dev/i2c-N` numbers follow probe order and **change between images and between
+boots**. Identify a bus by its controller address, not by the number you saw
+last time.
+:::
 
 ```bash
-i2cdetect -y 1              # scan the header bus
+for b in /sys/bus/i2c/devices/i2c-*; do
+  echo "$(basename "$b") $(basename "$(readlink -f "$b/of_node")")"
+done
 ```
 
-:::note
-Always name the bus. Addresses repeat across buses — the board EEPROM at `0x50`
-on `/dev/i2c-2` is not the only device that answers at `0x50`.
-:::
+| Controller | Address | Carries |
+|---|---|---|
+| WKUP I2C0 | `i2c@42120000` | Header pins 27 and 28 |
+| MAIN I2C0 | `i2c@2000000` | Header pins 3 and 5 |
+| MAIN I2C1 | `i2c@2010000` | On-board EEPROM and RTC |
+
+Scan the bus the loop above reported for the header controller:
+
+```bash
+i2cdetect -y <N>
+```
+
+Addresses repeat across buses, so a scan result means nothing without the bus
+it came from: `0x50` answers on more than one.
 
 ## SPI, UART and PWM
 
