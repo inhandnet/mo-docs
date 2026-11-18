@@ -1,94 +1,60 @@
 ---
 title: "Inference APIs"
-description: "Mo 68A: The Python and C/C++ interfaces that run TIDL artifacts on the board."
+description: "Mo 68A: Call TIDL from Python with ONNX Runtime or TFLite Runtime."
 sidebar_position: 5
 ---
 
-TIDL attaches to runtimes you already know rather than replacing them, so
-inference code looks like ordinary ONNX Runtime or TFLite code with one extra
-provider or delegate. The image carries both.
+TIDL provides a Python interface for working with ONNX and TensorFlow Lite
+models. By using these APIs, your application offloads inference to the
+C7x-MMA for accelerated execution, without leaving the runtime it already
+uses.
 
-## Two Pythons on the board
+The TIDL packages are installed for Python 3.12. Where a path has to be written
+out — a shebang, a service file — use `/usr/bin/python3.12`, not
+`/usr/bin/python3`.
 
-The board has Debian's Python 3.13 at `/usr/bin/python3`, which apt and the
-system scripts depend on, and a separately built Python 3.12 that carries the
-TIDL packages. `/usr/local/bin/python3` points at the 3.12 one, so a normal
-shell resolves to the right interpreter:
+## Python APIs
 
-```bash
-python3 -c "import onnxruntime, tflite_runtime; print('ok')"
-```
+Each runtime takes TIDL a different way: ONNX Runtime through an execution
+provider, TFLite Runtime through a delegate. Both read the artifacts you
+transferred from the PC.
 
-:::warning
-Calling `/usr/bin/python3` explicitly, or running a script whose shebang is
-`#!/usr/bin/python3`, gets Debian's 3.13 — which has none of the TIDL packages
-and fails on the import. Use `python3` from `PATH`, or `/usr/bin/python3.12`.
-:::
+### ONNX Runtime
 
-The packages live in `/usr/lib/python3.12/site-packages`: `onnxruntime_tidl`,
-`dlr`, `numpy` and `cv2` among them.
-
-## Python
-
-The TIDL execution provider takes the directory of compiled artifacts and the
-target SoC. Everything else is the session API as usual:
+ONNX models run through ONNX Runtime with TIDL as the execution provider.
+Point it at the artifacts directory, and pair it with the CPU provider, which
+runs any node TIDL did not take:
 
 ```python
 import onnxruntime as ort
 
 session = ort.InferenceSession(
     "model.onnx",
-    providers=["TIDLExecutionProvider"],
-    provider_options=[{"artifacts_folder": "artifacts/", "platform": "J7"}],
+    providers=["TIDLExecutionProvider", "CPUExecutionProvider"],
+    provider_options=[{"artifacts_folder": "artifacts/"}, {}],
 )
 outputs = session.run(None, {session.get_inputs()[0].name: input_tensor})
 ```
 
-For a TFLite model the equivalent is the TIDL delegate, loaded from
-`/usr/lib/libtidl_tfl_delegate.so`.
+### TFLite Runtime
 
-The first inference of a session is slower than the ones that follow: it loads
-the artifacts and brings up the C7x. Measure steady-state throughput after a few
-warm-up runs, not on the first call.
+TensorFlow Lite models run through TFLite Runtime with TIDL as the delegate.
+It takes the same `artifacts_folder`:
 
-## C and C++
+```python
+import tflite_runtime.interpreter as tflite
 
-The runtime libraries and the header are already on the board, so a build needs
-no extra packages:
-
-| Path | What it is |
-|---|---|
-| `/usr/lib/libtidl_onnxrt_EP.so` | TIDL execution provider for ONNX Runtime |
-| `/usr/lib/libtidl_tfl_delegate.so` | TIDL delegate for TFLite |
-| `/usr/lib/libvx_tidl_rt.so` | TIDL runtime |
-| `/usr/include/itidl_rt.h` | Runtime header |
-
-The reference C++ examples build from the board's checkout of the tools:
-
-```bash
-cd /opt/edgeai-tidl-tools
-export SOC=J721S2
-./scripts/build/build_cpp.sh --clean
-./scripts/build/build_cpp.sh
+interpreter = tflite.Interpreter(
+    model_path="model.tflite",
+    experimental_delegates=[
+        tflite.load_delegate(
+            "/usr/lib/libtidl_tfl_delegate.so",
+            {"artifacts_folder": "artifacts/"},
+        )
+    ],
+)
+interpreter.allocate_tensors()
 ```
 
-TI's README says `yaml-cpp` must be built from source first on SDK 11.2. Not
-here — Debian trixie ships `libyaml-cpp-dev` 0.8.0, the version TI asks for.
-
-Run a built example with:
-
-```bash
-cd runtimes/examples/cpp/basic_example
-../bin/Release/basic_example --config ./config.yaml
-```
-
-It writes to `outputs/<model>/offload/frame_<n>/`. C++ runs inference only;
-compilation stays on the PC, in Python.
-
-## What runs where
-
-TIDL takes the subgraphs it supports and leaves the rest on the Cortex-A72, so a
-model always runs — the question is how much of it was offloaded. When
-throughput is lower than expected, check the operator coverage from compilation
-before looking at the inference code; see
-[Compile your own model](./compile-your-own-model.mdx).
+TI's repository also has wrapper classes, `ONNXRT` and `TFLiteRT`, which TI's
+own examples use to drive four runtimes through one interface.
