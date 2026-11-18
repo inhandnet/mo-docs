@@ -4,23 +4,23 @@ description: "Mo 68A: Run the TIDL reference suite on the C7x-MMA."
 sidebar_position: 4
 ---
 
-This runs TI's reference models on the board's AI accelerator and reports how
-much of each one the accelerator took. It is the quickest way to confirm the
+This runs TI's reference models on Mo 68A and reports how much of each one
+TIDL offloaded to the C7x-MMA. It is the quickest way to confirm the
 accelerator works end to end before you put your own model on it.
 
-You need compiled artifacts from an x86 PC first — the board runs models, it
-does not compile them.
+Compile the models on an x86 PC first, then transfer them and their compiled
+model-artifacts to Mo 68A for on-device inference.
 [Set up the toolchain](../application-development/ai/toolchain.mdx) and
 [Compile your own model](../application-development/ai/compile-your-own-model.mdx)
-cover that side.
+cover those steps.
 
-## 1. Clone the tools on the board
+## 1. Clone edgeai-tidl-tools on Mo 68A
 
-The image carries the TIDL runtime libraries, not the repository, so the board
-needs its own checkout at the tag it reports:
+The image ships with the TIDL runtime libraries preinstalled, but not the
+repository. Read `TIDL_TAG` off Mo 68A and check out that tag:
 
 ```bash
-cat /etc/inhand-release        # read TIDL_TAG
+cat /etc/inhand-release
 
 cd /opt
 git clone https://github.com/TexasInstruments/edgeai-tidl-tools.git
@@ -28,10 +28,15 @@ cd edgeai-tidl-tools
 git checkout <TIDL_TAG>
 ```
 
-## 2. Copy the artifacts across
+## 2. Setup environment variables
 
-From the PC, where the models were compiled. Both directories live under
-`runtimes/examples/`:
+```bash
+export SOC=J721S2
+```
+
+## 3. Transfer compiled model artifacts
+
+Run this on the PC, where the models were compiled:
 
 ```bash
 cd ~/edgeai-tidl-tools/runtimes/examples
@@ -40,37 +45,34 @@ tar -czf - data/ model-artifacts/ \
       "cd /opt/edgeai-tidl-tools/runtimes/examples && tar -xzf -"
 ```
 
-## 3. Run the reference models
+## 4. Run the reference models
 
-On the board. Inference only — the board cannot compile:
+On Mo 68A, run inference with each runtime:
 
 ```bash
-cd /opt/edgeai-tidl-tools
-export SOC=J721S2
-
-cd runtimes/examples/python/basic_example
+cd /opt/edgeai-tidl-tools/runtimes/examples/python/basic_example
 python3 basic_example.py --config ./config.yaml -r onnxrt   --infer
 python3 basic_example.py --config ./config.yaml -r tflitert --infer
-python3 basic_example.py --config ./config.yaml -r tvmrt    --infer
 ```
 
-`config.yaml` holds nine models: five ONNX Runtime, two TensorFlow Lite, two
-TVM. Each run writes to `outputs/<model>/offload/frame_<n>/`.
+Outputs will be saved in
+`./runtimes/examples/python/basic_example/outputs/{model_name}/offload/frame_{frame_num}/`.
 
-## 4. Read the result
+## 5. Check how much was offloaded
 
-Each model prints how many layers went to the accelerator:
+TIDL prints how many nodes it offloaded for each model.
+
+ONNX Runtime:
 
 ```
-Number of subgraphs:1 , 329 nodes delegated out of 329 nodes
+Final number of subgraphs created are : 1, - Offloaded Nodes - 124, Total Nodes - 124
 ```
 
-**Read the node counts, not the exit status.** 0 subgraphs, or far fewer nodes
-delegated than the model has, means it ran on the Cortex-A72 — correct output,
-much slower.
+TFLite Runtime:
 
-Timings on this board sit above TI's published figures for several models.
-That is a difference from a comparison point, not a defect — see
-[Performance & benchmarks](../application-development/ai/benchmarks.mdx) for
-the measured
-spread and what it means.
+```
+Number of subgraphs:1 , 107 nodes delegated out of 107 nodes
+```
+
+Both lines show every node offloaded to the C7x-MMA. Nodes that are not
+offloaded run on the Cortex-A72 instead, which is slower.
