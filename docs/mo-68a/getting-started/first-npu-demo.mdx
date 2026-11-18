@@ -1,16 +1,16 @@
 ---
-title: "First NPU demo"
-description: "Mo 68A: Run the TIDL reference suite on the C7x and MMA."
+title: "Run your first NPU demo"
+description: "Mo 68A: Run the TIDL reference suite on the C7x-MMA."
 sidebar_position: 4
 ---
 
-This runs TI's reference models on the board's AI accelerator and reports
-whether each one passed. It is the quickest way to confirm the accelerator
-works end to end before you put your own model on it.
+This runs TI's reference models on the board's AI accelerator and reports how
+much of each one the accelerator took. It is the quickest way to confirm the
+accelerator works end to end before you put your own model on it.
 
 You need compiled artifacts from an x86 PC first — the board runs models, it
-does not compile them. [Toolchain](../application-development/ai/toolchain.mdx)
-and
+does not compile them.
+[Set up the toolchain](../application-development/ai/toolchain.mdx) and
 [Compile your own model](../application-development/ai/compile-your-own-model.mdx)
 cover that side.
 
@@ -30,41 +30,47 @@ git checkout <TIDL_TAG>
 
 ## 2. Copy the artifacts across
 
-From the PC, where the models were compiled:
+From the PC, where the models were compiled. Both directories live under
+`runtimes/examples/`:
 
 ```bash
-cd ~/edgeai-tidl-tools
-tar -czf - model-artifacts/ models/ \
-  | ssh <user>@<board-ip> "cd /opt/edgeai-tidl-tools && tar -xzf -"
+cd ~/edgeai-tidl-tools/runtimes/examples
+tar -czf - data/ model-artifacts/ \
+  | ssh <user>@<board-ip> \
+      "cd /opt/edgeai-tidl-tools/runtimes/examples && tar -xzf -"
 ```
 
-## 3. Build and run
+## 3. Run the reference models
 
-On the board:
+On the board. Inference only — the board cannot compile:
 
 ```bash
 cd /opt/edgeai-tidl-tools
-export SOC=am68a
-rm -rf build bin lib
-mkdir build && cd build
-cmake ../examples && make -j2
-cd ..
+export SOC=J721S2
 
-python3 ./scripts/gen_test_report.py
+cd runtimes/examples/python/basic_example
+python3 basic_example.py --config ./config.yaml -r onnxrt   --infer
+python3 basic_example.py --config ./config.yaml -r tflitert --infer
+python3 basic_example.py --config ./config.yaml -r tvmrt    --infer
 ```
+
+`config.yaml` holds nine models: five ONNX Runtime, two TensorFlow Lite, two
+TVM. Each run writes to `outputs/<model>/offload/frame_<n>/`.
 
 ## 4. Read the result
 
-A successful run reports `Func Pass: 10` — six Python rows, three ONNX Runtime
-and three TensorFlow Lite, plus four C++ rows, two of each:
+Each model prints how many layers went to the accelerator:
 
-```bash
-cat test_report_am68a.csv | column -t -s,
+```
+Number of subgraphs:1 , 329 nodes delegated out of 329 nodes
 ```
 
-Functional results tell you the accelerator produced correct output. The report
-also compares timings against TI's reference values, measured on TI's own
-evaluation module; several models sit above them on this board. That is a
-difference from a comparison point, not a defect — see
-[Benchmarks](../application-development/ai/benchmarks.mdx) for the measured
+**Read the node counts, not the exit status.** 0 subgraphs, or far fewer nodes
+delegated than the model has, means it ran on the Cortex-A72 — correct output,
+much slower.
+
+Timings on this board sit above TI's published figures for several models.
+That is a difference from a comparison point, not a defect — see
+[Performance & benchmarks](../application-development/ai/benchmarks.mdx) for
+the measured
 spread and what it means.

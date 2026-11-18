@@ -1,96 +1,78 @@
 ---
 title: "Compile your own model"
 description: "Mo 68A: Compile models to TIDL artifacts on an x86 PC and move them to the board."
-sidebar_position: 3
+sidebar_position: 4
 ---
 
-Compilation turns an ONNX, TFLite or TVM model into TIDL artifacts that the C7x
-and MMA can execute. It runs on the x86 PC set up in
-[Toolchain](./toolchain.mdx), never on the board.
+Compilation turns an ONNX or TFLite model into TIDL artifacts that the C7x-MMA
+can execute. It runs on an x86 PC only, with the toolchain from
+[Set up the toolchain](./toolchain.mdx).
 
-## Compile the reference models first
+## Setup environment variables
 
-Run the bundled models before your own. It proves the toolchain end to end, and
-it gives you a working example to compare against when your own model behaves
-oddly.
-
-With the environment restored:
+`setup_env.sh` sets up the environment variables required for using TIDL tools.
+Missing them is a common cause of errors:
 
 ```bash
 cd ~/edgeai-tidl-tools
 source venv/bin/activate
-source ./setup_env.sh am68a
-
-mkdir -p build && cd build
-cmake ../examples && make -j2 && cd ..
-
-source ./scripts/run_python_examples.sh -o
-python3 ./scripts/gen_test_report.py
+source ./scripts/setup/setup_env.sh J721S2
 ```
 
-`-o` means compile only. The script downloads about 200 MB of source models into
-`models/public/` and compiles them into about 720 MB of artifacts — eight models
-across both runtimes:
+## Compile the reference models
 
-| ONNX | TFLite |
-|---|---|
-| `resnet18_opset9.onnx` | `mobilenet_v1_1.0_224.tflite` |
-| `mobilenetv2-1.0.onnx` | `ssd_mobilenet_v2_300_float.tflite` |
-| `ssd-lite_mobilenetv2_fpn.onnx` | `ssdlite_mobiledet_dsp_320x320_coco.tflite` |
-| `deeplabv3lite_mobilenetv2.onnx` | `deeplabv3_mnv2_ade20k_float.tflite` |
-
-`gen_test_report.py` then runs inference on the PC and writes a per-model
-pass/fail summary:
+Run the following commands to compile the example models:
 
 ```bash
-cat test_report_pc_am68a.csv | column -t -s,
+cd runtimes/examples/python/basic_example
+python3 basic_example.py --config ./config.yaml -r onnxrt   --compile
+python3 basic_example.py --config ./config.yaml -r tflitert --compile
+python3 basic_example.py --config ./config.yaml -r tvmrt    --compile
 ```
 
-## What compilation produces
+Model artifacts will be saved in `./runtimes/examples/model-artifacts/`.
 
-| Path | Contents |
-|---|---|
-| `models/` | The source models |
-| `model-artifacts/` | Compiled TIDL artifacts, one directory per model |
-| `output_images/` | Annotated images from the PC inference run |
-| `test_report_pc_am68a.csv` | Per-model pass/fail summary |
+## Run inference on the PC
 
-`models/` and `model-artifacts/` are the two directories the board needs.
-
-## Move the artifacts to the board
-
-The board needs its own checkout of the tools — the image carries the runtime
-libraries, not the repository:
+Run the same commands with `--infer` instead of `--compile`. The PC runs the
+artifacts itself, in host emulation mode, so a successful run checks the setup
+and the model before you deploy it to Mo 68A.
 
 ```bash
-cd /opt
-git clone https://github.com/TexasInstruments/edgeai-tidl-tools.git
-cd edgeai-tidl-tools
-git checkout <TIDL_TAG>
+python3 basic_example.py --config ./config.yaml -r onnxrt   --infer
+python3 basic_example.py --config ./config.yaml -r tflitert --infer
+python3 basic_example.py --config ./config.yaml -r tvmrt    --infer
 ```
 
-Then, from the PC, stream both directories across:
+Outputs will be saved in
+`./runtimes/examples/python/basic_example/outputs/{model_name}/offload/frame_{frame_num}/`.
+
+## Transfer compiled model artifacts
+
+[Run your first NPU demo](../../getting-started/first-npu-demo.mdx) sets the
+board up once. With that done, transfer models and compiled model-artifacts to
+Mo 68A for on-device inference:
 
 ```bash
-cd ~/edgeai-tidl-tools
-tar -czf - model-artifacts/ models/ \
-  | ssh <user>@<board-ip> "cd /opt/edgeai-tidl-tools && tar -xzf -"
+cd ~/edgeai-tidl-tools/runtimes/examples
+tar -czf - data/ model-artifacts/ \
+  | ssh <user>@<board-ip> \
+      "cd /opt/edgeai-tidl-tools/runtimes/examples && tar -xzf -"
 ```
-
-[First NPU demo](../../getting-started/first-npu-demo.mdx) runs them on the
-board.
 
 ## Your own model
 
-The same two steps apply to a model of your own: compile it on the PC against
-the tag your board reports, then copy `model-artifacts/` across. Two things
-decide whether the result is useful.
+The same steps apply to a model of your own: compile it on the PC, then
+transfer the model and compiled model-artifacts to Mo 68A for on-device
+inference.
 
-**Operator coverage.** TIDL offloads the subgraphs it supports and leaves the
-rest on the Cortex-A72. A model that compiles is not necessarily a model that is
-accelerated — read the compiler's operator report to see what was taken.
+Things that matter for compilation:
 
-**Calibration data.** Compilation quantizes the model, using sample inputs to
-set the ranges. Inputs that do not represent what the model will actually see
-produce a model that runs fast and predicts badly. Keep the calibration set
-separate from the set you evaluate accuracy against.
+**Inference speed.** A successful compilation reports how many nodes will be
+offloaded to the C7x-MMA for accelerated execution. A fully offloaded model is
+the fastest; nodes that cannot be offloaded run on the Cortex-A72, which is
+far slower.
+
+**Inference accuracy.** Compilation quantizes the model from sample inputs.
+Use inputs that match what the model will see in service, and keep them
+separate from the set you measure accuracy against.

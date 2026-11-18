@@ -55,6 +55,12 @@ TIDL-RT names the C APIs; TIDLRUNTIME is the Python binding on top of them.
 TI's repository for TIDL. It carries the model compiler, reference examples for
 all three OSRT engines, and Python and C++ wrapper APIs. It supports both the
 x86 PC and Mo 68A: you compile models on the PC and run inference on the board.
+Check it out at the same tag on both machines: the `TIDL_TAG` Mo 68A reports
+in `/etc/inhand-release`.
+
+[Set up the toolchain](./toolchain.mdx) installs it on the PC.
+[Run your first NPU demo](../../getting-started/first-npu-demo.mdx) clones it on
+the board.
 
 ## Compile AI models on x86 PC
 
@@ -65,8 +71,11 @@ Model compilation runs on an x86 PC only, with the Python API from
 
 ## Run AI inference on x86 PC
 
-The same PC can run inference from the artifacts it just produced, in host
+The same PC can run inference from the artifacts it just compiled, in host
 emulation mode. That lets you check a model before you deploy it to Mo 68A.
+
+[Run inference on the PC](./compile-your-own-model.mdx#run-inference-on-the-pc)
+covers the `--infer` commands.
 
 ## Run AI inference on Mo 68A
 

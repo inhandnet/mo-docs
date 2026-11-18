@@ -1,7 +1,7 @@
 ---
 title: "Inference APIs"
 description: "Mo 68A: The Python and C/C++ interfaces that run TIDL artifacts on the board."
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 TIDL attaches to runtimes you already know rather than replacing them, so
@@ -67,10 +67,23 @@ The reference C++ examples build from the board's checkout of the tools:
 
 ```bash
 cd /opt/edgeai-tidl-tools
-export SOC=am68a
-mkdir -p build && cd build
-cmake ../examples && make -j2
+export SOC=J721S2
+./scripts/build/build_cpp.sh --clean
+./scripts/build/build_cpp.sh
 ```
+
+TI's README says `yaml-cpp` must be built from source first on SDK 11.2. Not
+here — Debian trixie ships `libyaml-cpp-dev` 0.8.0, the version TI asks for.
+
+Run a built example with:
+
+```bash
+cd runtimes/examples/cpp/basic_example
+../bin/Release/basic_example --config ./config.yaml
+```
+
+It writes to `outputs/<model>/offload/frame_<n>/`. C++ runs inference only;
+compilation stays on the PC, in Python.
 
 ## What runs where
 
