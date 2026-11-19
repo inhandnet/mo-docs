@@ -1,15 +1,15 @@
 ---
 title: "Run your first NPU demo"
-description: "Mo 68A: Run the TIDL reference suite on the C7x-MMA."
+description: "Mo 68A: Run the TIDL example models on the C7x-MMA."
 sidebar_position: 4
 ---
 
-This runs TI's reference models on Mo 68A and reports how much of each one
+This runs TI's example models on Mo 68A and reports how much of each one
 TIDL offloaded to the C7x-MMA. It is the quickest way to confirm the
 accelerator works end to end before you put your own model on it.
 
 Compile the models on an x86 PC first, then transfer them and their compiled
-model-artifacts to Mo 68A for on-device inference.
+model artifacts to Mo 68A for on-device inference.
 [Set up the toolchain](../application-development/ai/toolchain.mdx) and
 [Compile your own model](../application-development/ai/compile-your-own-model.mdx)
 cover those steps.
@@ -45,7 +45,7 @@ tar -czf - data/ model-artifacts/ \
       "cd /opt/edgeai-tidl-tools/runtimes/examples && tar -xzf -"
 ```
 
-## 4. Run the reference models
+## 4. Run the example models
 
 On Mo 68A, run inference with each runtime:
 

@@ -4,14 +4,33 @@ description: "Mo 68A: Compile models to TIDL artifacts on an x86 PC and move the
 sidebar_position: 4
 ---
 
-Compilation turns an ONNX or TFLite model into TIDL artifacts that the C7x-MMA
-can execute. It runs on an x86 PC only, with the toolchain from
+Compilation turns an ONNX or TFLite model into hardware-optimized TIDL
+artifacts that the C7x-MMA can execute for accelerated inference. It runs on
+an x86 PC only, with the toolchain from
 [Set up the toolchain](./toolchain.mdx).
+
+## Model compilation introduction
+
+Model compilation is the process of converting and optimizing neural network
+models from frameworks like ONNX and TensorFlow Lite into a format that can
+be efficiently executed on Mo 68A's C7x-MMA, significantly improving
+performance and power efficiency compared to running the original models on
+the Cortex-A72.
+
+It involves several key steps:
+
+- **Parsing.** Analyzing the model structure to identify operations that can
+  be offloaded to the C7x-MMA.
+- **Graph Optimization.** Internal optimizations applied by TIDL software to
+  enable support and optimize performance.
+- **Quantization & Calibration.** Converting floating-point operations to
+  fixed-point operations.
+- **Memory Planning.** Optimizing memory usage and data layout for Mo 68A.
 
 ## Setup environment variables
 
-`setup_env.sh` sets up the environment variables required for using TIDL tools.
-Missing them is a common cause of errors:
+`setup_env.sh` sets up the environment variables required for using TIDL
+tools:
 
 ```bash
 cd ~/edgeai-tidl-tools
@@ -19,18 +38,51 @@ source venv/bin/activate
 source ./scripts/setup/setup_env.sh J721S2
 ```
 
-## Compile the reference models
+:::note
+Missing environment variables are a common cause of errors during compilation
+and inference.
+:::
 
-Run the following commands to compile the example models:
+## Compile the example models
+
+Run the following commands:
 
 ```bash
 cd runtimes/examples/python/basic_example
 python3 basic_example.py --config ./config.yaml -r onnxrt   --compile
 python3 basic_example.py --config ./config.yaml -r tflitert --compile
-python3 basic_example.py --config ./config.yaml -r tvmrt    --compile
 ```
 
-Model artifacts will be saved in `./runtimes/examples/model-artifacts/`.
+Model artifacts will be saved in
+`~/edgeai-tidl-tools/runtimes/examples/model-artifacts/`.
+
+**Things that matter for compilation**
+
+**Inference speed.** A fully offloaded model — every operation executing on
+the C7x-MMA, with no CPU involvement — is the fastest and most power-efficient
+result.
+
+Compilation prints a Subgraph Information Summary for each model. The
+following is an example from `ss-ort-deeplabv3lite_mobilenetv2`:
+
+```
+------------------------- Subgraph Information Summary -------------------------
+--------------------------------------------------------------------------------
+|          Core           |      No. of Nodes       |   Number of Subgraphs   |
+--------------------------------------------------------------------------------
+| C7x                     |                     124 |                       1 |
+| CPU                     |                       0 |                       x |
+--------------------------------------------------------------------------------
+```
+
+- `C7x` — the nodes offloaded to the C7x-MMA.
+- `CPU` — the nodes that will run on the Cortex-A72.
+
+This model is fully offloaded: 124 nodes in one subgraph, none on the CPU.
+
+**Inference accuracy.** Compilation quantizes the model using sample inputs.
+Use inputs that match what the model will see in service, and keep them
+separate from the set you measure accuracy against.
 
 ## Run inference on the PC
 
@@ -41,16 +93,15 @@ and the model before you deploy it to Mo 68A.
 ```bash
 python3 basic_example.py --config ./config.yaml -r onnxrt   --infer
 python3 basic_example.py --config ./config.yaml -r tflitert --infer
-python3 basic_example.py --config ./config.yaml -r tvmrt    --infer
 ```
 
 Outputs will be saved in
-`./runtimes/examples/python/basic_example/outputs/{model_name}/offload/frame_{frame_num}/`.
+`~/edgeai-tidl-tools/runtimes/examples/python/basic_example/outputs/{model_name}/offload/frame_{frame_num}/`.
 
 ## Transfer compiled model artifacts
 
 [Run your first NPU demo](../../getting-started/first-npu-demo.mdx) sets the
-board up once. With that done, transfer models and compiled model-artifacts to
+board up once. With that done, transfer models and compiled model artifacts to
 Mo 68A for on-device inference:
 
 ```bash
@@ -63,16 +114,5 @@ tar -czf - data/ model-artifacts/ \
 ## Your own model
 
 The same steps apply to a model of your own: compile it on the PC, then
-transfer the model and compiled model-artifacts to Mo 68A for on-device
+transfer the model and compiled model artifacts to Mo 68A for on-device
 inference.
-
-Things that matter for compilation:
-
-**Inference speed.** A successful compilation reports how many nodes will be
-offloaded to the C7x-MMA for accelerated execution. A fully offloaded model is
-the fastest; nodes that cannot be offloaded run on the Cortex-A72, which is
-far slower.
-
-**Inference accuracy.** Compilation quantizes the model from sample inputs.
-Use inputs that match what the model will see in service, and keep them
-separate from the set you measure accuracy against.
