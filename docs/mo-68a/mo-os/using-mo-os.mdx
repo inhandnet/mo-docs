@@ -11,12 +11,14 @@ know about a Debian system applies.
 
 ```bash
 uname -r                  # kernel version
-cat /etc/os-release       # distribution
-cat /etc/inhand-release   # model, firmware and TIDL versions
+cat /etc/os-release       # distribution release
+cat /etc/inhand-release   # model, firmware version and TIDL tag
 ```
 
 `/etc/inhand-release` is the one to quote in a support request: it names the
-board model, the firmware version and the TIDL version the image was built with.
+model, the firmware version and the TIDL tag the image was built with.
+[Version map](../resource-download/version-map.mdx) covers the full set,
+including the bootloader and Armbian releases.
 
 ## Check the system
 
