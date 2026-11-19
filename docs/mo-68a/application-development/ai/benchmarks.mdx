@@ -1,67 +1,79 @@
 ---
-title: "Benchmarks"
-description: "Mo 68A: Measured inference times for the reference models, and how to read them."
-sidebar_position: 5
+title: "Performance & benchmarks"
+description: "Mo 68A: measured inference times for three detection models, and how to reproduce them."
+sidebar_position: 6
 ---
 
-The numbers below come from the reference test suite run ten times on one board,
-so that a systematic gap can be told apart from run-to-run noise. They describe
-that measurement, not a performance rating for the product.
+Measured inference times for three detection models on Mo 68A, via C7x-MMA vs
+Cortex-A72.
 
-## How it was measured
+## Inference via C7x-MMA runs in milliseconds
 
-One Mo 68A on the factory image ran `gen_test_report.py` ten times, about 78
-seconds per run, all ten completing without error. Each row below is the mean of
-ten runs with its standard deviation.
+Each model ran twice: one run via the C7x-MMA, the other via the Cortex-A72
+cores.
 
-`ref` is the reference time TI ships with `edgeai-tidl-tools`, measured on TI's
-own evaluation module. It is a comparison point, not a specification Mo 68A is
-required to meet.
-
-## Reference models, ten runs
-
-| Model | ref (ms) | mean (ms) | σ | vs ref |
+| Model | Input size | Via<br />C7x-MMA (ms) | Via<br />Cortex-A72 (ms) | Speed-up |
 |---|---|---|---|---|
-| `cl-tfl-mobilenet_v1_1.0_224` | 2.20 | 1.98 | 0.025 | **−10.0 %** |
-| `od-ort-ssd-lite_mobilenetv2_fpn` | 10.60 | 10.72 | 0.070 | +1.1 % |
-| `od-ort-ssd-lite_mobilenetv2_fpn` | 10.70 | 11.15 | 0.027 | +4.2 % |
-| `od-tfl-ssd_mobilenet_v2_300_float` | 7.15 | 7.49 | 0.073 | +4.8 % |
-| `cl-tfl-mobilenet_v1_1.0_224` | 2.03 | 2.18 | 0.371 | +7.2 % |
-| `ss-tfl-deeplabv3_mnv2_ade20k_float` | 11.74 | 12.90 | 0.071 | +9.9 % |
-| `cl-ort-resnet18-v1` | 2.75 | 3.08 | 0.035 | +12.1 % |
-| `cl-ort-resnet18-v1` | 2.66 | 3.00 | 0.060 | +12.7 % |
-| `ss-ort-deeplabv3lite_mobilenetv2` | 9.50 | 11.47 | 0.065 | +20.7 % |
-| `ss-tfl-deeplabv3_mnv2_ade20k_float` | 11.33 | 14.56 | 0.403 | +28.5 % |
+| `od-8200` YOLOX-nano-lite | 416 × 416 | **5.13** | 553 | 108× |
+| `od-8020` SSD-lite MobileNetV2 | 512 × 512 | **8.43** | 2515 | 298× |
+| `od-8220` YOLOX-S-lite | 640 × 640 | **13.21** | 2853 | 216× |
 
-## Reading the spread
+Measurement conditions:
 
-**The differences are systematic, not noise.** Where a model sits above the
-reference it stays there: the fastest of ten runs is still 3.8 % to 26.3 % above,
-while σ is 0.027 to 0.403 — one to two orders of magnitude smaller than the gap.
-Repeating the run does not bring those models under the reference.
+- One Mo 68A with TIDL `11_02_17_00`.
+- Each inference time is the mean of 100 calls.
+- The Cortex-A72 runs use both cores.
+- All-zero input, so the times cover the graph, not detection quality.
+- All three models were fully offloaded to the C7x-MMA.
 
-**The board is not uniformly slower.** `cl-tfl-mobilenet_v1_1.0_224` against a
-2.20 ms reference measures 1.95–2.03 ms, faster than the reference in all ten
-runs. Whatever produces the gaps above is workload-dependent, not a flat
-hardware deficit.
+## Reproduce these inference times
 
-**One model is genuinely unstable.** The other `cl-tfl-mobilenet_v1_1.0_224`
-entry has σ 0.371 against a mean of 2.18 — a coefficient of variation of 17 %,
-where every other row sits near 1 %. A single measurement of that model can land
-anywhere in its range, so one run proves nothing about it either way.
-
-## Measure your own
-
-Run the suite more than once. A single run cannot separate a real difference
-from variance, which is the whole reason for the table above:
+Run via the C7x-MMA:
 
 ```bash
-cd /opt/edgeai-tidl-tools
-export SOC=am68a
-python3 ./scripts/gen_test_report.py
-cat test_report_am68a.csv | column -t -s,
+sudo python3 benchmark-inference-mo68a.py \
+  /opt/model_zoo/od-8200_onnxrt_coco_edgeai-mmdet_yolox_nano_lite_416x416_20220214_model_onnx
 ```
 
-Compare like with like: the same tag, the same artifacts, the same thermal
-conditions. [Toolchain](./toolchain.mdx) covers version matching, and the board
-throttles under sustained load without its fan.
+Run via the Cortex-A72 cores:
+
+```bash
+sudo python3 benchmark-inference-mo68a.py \
+  /opt/model_zoo/od-8200_onnxrt_coco_edgeai-mmdet_yolox_nano_lite_416x416_20220214_model_onnx \
+  --cpu
+```
+
+## Benchmark your own model
+
+The script benchmarks ONNX models. It reads one directory per model, laid out
+like this:
+
+```
+my-model/
+├── model/
+│   └── <your-model>.onnx
+└── artifacts/
+    ├── allowedNode.txt
+    ├── onnxrtMetaData.txt
+    ├── subgraph_0_tidl_io_1.bin
+    └── subgraph_0_tidl_net.bin
+```
+
+[Compile your own model](./compile-your-own-model.mdx) leaves the `.onnx` file
+under `data/models/` and the artifacts under
+`model-artifacts/<model>/artifacts/`, so copy both into one directory first.
+
+Run via the C7x-MMA:
+
+```bash
+sudo python3 benchmark-inference-mo68a.py ~/my-model
+```
+
+Run via the Cortex-A72 cores:
+
+```bash
+sudo python3 benchmark-inference-mo68a.py ~/my-model --cpu
+```
+
+Check the offload line the runtime prints: a partly offloaded model does not
+compare with the figures above.
