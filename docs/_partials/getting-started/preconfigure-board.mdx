@@ -1,0 +1,55 @@
+## 3. Pre-configure the board (Optional)
+
+<section className="mo-preconfigure">
+
+You can set your login details and network settings before the first boot. This is especially useful if you plan to use the board without a monitor or keyboard. If you do not need to pre-configure the board, continue to <Link to="/docs/mo-62a/getting-started/first-boot">First boot</Link>.
+
+:::note
+For security, we recommend changing the default username and password before the first boot. Choose a strong, unique password. If you skip this step, change the default password immediately after logging in.
+:::
+
+1. Open the microSD card's **BOOT** drive on your computer after writing the image. If you have already ejected the card reader, reconnect it. Do not power on the board yet.
+
+   <div className="mo-tool-screenshot">
+
+   ![Windows File Explorer showing sysconfig.txt selected on the BOOT drive](@site/static/img/getting-started/mo62a-boot-sysconfig-windows.png)
+
+   </div>
+
+2. Open the existing `sysconfig.txt` file in a plain-text editor. The screenshot below shows the original file before any changes.
+
+   <div className="mo-tool-screenshot">
+
+   ![Original Mo62A sysconfig.txt showing the default login and commented-out optional settings](@site/static/img/getting-started/mo62a-sysconfig-default.png)
+
+   </div>
+
+   Change the values you need and remove the leading `#` to enable a commented-out setting. Use `key=value` without quotation marks. Edit existing entries rather than adding duplicates; leave settings you do not need commented out. Replace the default login details shown in the screenshot with your own username and a strong, unique password.
+
+   **Login and hostname**
+
+   Replace the example username, password and hostname with your own values:
+
+   ```ini title="BOOT/sysconfig.txt — login and hostname"
+   user_name=alice
+   user_password=replace-with-your-own-strong-password
+   hostname=mo62a-lab
+   ```
+
+   **Wi-Fi (optional)**
+
+   To connect to Wi-Fi on the first boot, also enable these settings. Replace the network name and password with your Wi-Fi credentials, and set `wifi_country` to the two-letter code for the country where you will use the board:
+
+   ```ini title="BOOT/sysconfig.txt — Wi-Fi"
+   wifi_ssid=YourNetworkName
+   wifi_password=YourWiFiPassword
+   wifi_country=US
+   ```
+
+   If you use Ethernet with DHCP, no network settings need to be changed in this file. For SSH public keys, a static Ethernet IP address, timezone and other options, see the <Link to="/docs/mo-62a/system-configuration/sysconfig-reference">sysconfig.txt reference</Link>.
+
+3. Save the file as UTF-8 plain text without a BOM, keeping the name `sysconfig.txt` (not `sysconfig.txt.txt`). Safely eject the microSD card, then insert it into Mo62A and follow <Link to="/docs/mo-62a/getting-started/first-boot">First boot</Link> to connect and power on the board.
+
+The firmware processes `sysconfig.txt` automatically on the first boot and then deletes it from the BOOT partition. It is not read on subsequent boots. After logging in, check that your settings have taken effect; the file being deleted does not confirm that every setting was applied successfully.
+
+</section>
