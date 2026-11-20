@@ -8,10 +8,14 @@ The following selections are maintained by InHand. **Tested** means engineering 
 
 <!-- accessories:mo-68a -->
 
-The power adapter uses interchangeable AC plugs; select the plug for the destination country. Its USB-C output must provide **5 V / 5 A**. A higher total USB-PD wattage alone does not establish that output.
+The power adapter ships with interchangeable AC plugs; fit the one for your country. Its USB-C output must provide **5 V / 5 A** — a higher total USB-PD wattage alone does not establish that output.
 
-The same active cooler is selected for Mo 62A and Mo 68A. Allow airflow around it and check the fan connector's pin order. The RTC battery also needs the correct connector polarity.
+Allow airflow around the cooler and check the fan connector's pin order. The RTC battery needs the correct connector polarity.
 
-The camera entry identifies the selected module, not a guarantee for every IMX219 board, lens or cable. Check the FPC width, contact orientation and board configuration. Mo 68A uses mini DisplayPort; HDMI displays require an active mini DP to HDMI converter.
+The camera entry identifies the module InHand tested, not every IMX219 board, lens or cable. Check the FPC width, contact orientation and board configuration.
+
+Mini DisplayPort (J9) carries a DP signal only: an HDMI display needs an active Mini DP-to-HDMI adapter, one with a built-in DP-to-HDMI conversion chip.
+
+PCIe devices reach J10 through an FPC cable, so each one also needs a breakout board. PCIe is off by default and appears only once its boot overlay is enabled.
 
 Purchase availability is listed in the [InHand store](https://inhandgo.com/).

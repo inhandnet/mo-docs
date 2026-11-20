@@ -1,9 +1,59 @@
 ---
 title: "Display & audio"
-description: "Mo 68A: Display output and audio."
-sidebar_position: 3
+description: "Mo 68A: Mini DisplayPort, MIPI DSI and audio output."
+sidebar_position: 4
 ---
 
-Mo 68A: Display output and audio.
+## Mini DisplayPort
 
-<ComingSoon />
+J9 is plug-and-play and drives desktop monitors. Which cable you need depends on
+the monitor's input:
+
+| Monitor input | Cable |
+|---|---|
+| DisplayPort | A Mini DP-to-DP cable |
+| HDMI | An **active** Mini DP-to-HDMI adapter, with a built-in DP-to-HDMI conversion chip |
+
+:::note
+J9 carries a DP signal only, so a passive Mini DP-to-HDMI adapter does not work.
+:::
+
+```bash
+cat /sys/class/drm/card*/card*-DP-*/status
+```
+
+## MIPI DSI display
+
+J24 drives a DSI display once its overlay is enabled. Append the overlay to
+`name_overlays` in `/boot/uEnv.txt`:
+
+```ini title="/boot/uEnv.txt"
+name_overlays=ti/k3-j721s2-vision-apps.dtbo ti/k3-j721s2-mo68a-dsi-rpi-7inch-panel-mipi0.dtbo
+```
+
+Save, run `sync`, power the board off, connect the display to J24, then power on.
+[Device tree overlays](../system-configuration/device-tree-overlays.mdx) covers
+the mechanism.
+
+:::warning
+With the DSI overlay enabled and no display connected to J24, the display
+subsystem fails to initialise and **Mini DisplayPort stops working too**. Enable
+the overlay only with the panel fitted.
+:::
+
+J25 does not support DSI.
+
+## Audio
+
+USB speakers, headsets and sound cards are plug-and-play: the kernel's USB Audio
+Class driver needs no configuration and the device appears as an ALSA card.
+
+```bash
+lsusb                           # the device is listed
+aplay -l                        # and registered as a card
+aplay -l | grep -i "USB Audio"  # its card number
+```
+
+Card numbers follow probe order, and I2S probes before USB. A USB audio device
+is card 0 only when no I2S sound card is present — with the WM8960 audio HAT
+overlay enabled, the HAT takes card 0 and USB audio becomes card 1.

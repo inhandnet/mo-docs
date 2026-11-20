@@ -1,9 +1,41 @@
 ---
 title: "Remote access"
-description: "Mo 68A: SSH, VNC and remote access."
-sidebar_position: 4
+description: "Mo 68A: Reach the board over SSH."
+sidebar_position: 3
 ---
 
-Mo 68A: SSH, VNC and remote access.
+SSH is how you reach the board without a monitor. No remote desktop server is
+pre-installed — if you want VNC or RDP, install and configure it yourself.
 
-<ComingSoon />
+## SSH
+
+The SSH server is enabled by default and the board takes its address over DHCP.
+Read the address on the board:
+
+```bash
+ip addr show eth0
+```
+
+Then connect with the account you created during the first-login setup:
+
+```bash
+ssh <username>@<board-ip>
+```
+
+## Key authentication
+
+Passwords over SSH are worth replacing with a key, especially on a board that
+sits on a shared network. From your computer:
+
+```bash
+ssh-keygen -t ed25519                      # if you have no key yet
+ssh-copy-id <username>@<board-ip>
+```
+
+Confirm the key works before you turn passwords off. Then, on the board:
+
+```bash
+sudo sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication no/' \
+  /etc/ssh/sshd_config
+sudo systemctl restart ssh
+```

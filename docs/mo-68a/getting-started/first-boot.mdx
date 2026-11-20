@@ -4,6 +4,83 @@ description: "Mo 68A: Set up your account, network and SSH."
 sidebar_position: 3
 ---
 
-Mo 68A: Set up your account, network and SSH.
+With the image written, connect the board, power it on and work through the
+setup it runs on the first login.
 
-<ComingSoon />
+## 1. Connect the board
+
+Connect everything else before power — plugging a peripheral into a powered
+board can damage the board or the peripheral.
+
+| Order | What | Where |
+|---|---|---|
+| 1 | Fan | J7 |
+| 2 | microSD card | J23, pushed until it clicks |
+| 3 | Monitor cable | J9 *(desktop)* |
+| 4 | USB keyboard and mouse | J2 or J3 *(desktop)* |
+| 5 | Ethernet cable | J1 |
+| 6 | USB-to-UART adapter | J6 *(headless)* |
+| 7 | USB-C power adapter | J5 |
+
+For a headless setup, open the serial terminal before applying power, or the
+early boot log is gone by the time the port opens. See
+[Serial console](../low-level-development/serial-console.mdx) for the settings.
+
+Connect the Ethernet cable before powering on if you want the setup to offer a
+locale based on your location.
+
+## 2. Power on
+
+Plug the adapter into J5, then into mains. The LED (D1) turns red immediately and
+goes solid green once the system is ready.
+
+## 3. Run the first-login setup
+
+Log in as `root` with password `1234`.
+
+:::warning
+`1234` is the published Armbian default and is the same on every unflashed
+image. The setup makes you replace it before you reach a shell; do not skip or
+postpone that.
+:::
+
+Armbian's setup runs by itself at that first login and asks you to:
+
+1. Set a new root password.
+2. Choose a default shell.
+3. Create a regular user account with `sudo` rights — use it for day-to-day work
+   and keep `root` for administration.
+4. Set the system locale and timezone.
+
+The keyboard is a QWERTY layout at this stage, whatever layout you use later.
+
+Once it finishes, a desktop setup lands on the Xfce desktop and a headless one at
+the command line.
+
+## 4. Connect over SSH
+
+SSH is enabled by default and the board takes its address over DHCP. Find the
+address on the board:
+
+```bash
+ip addr show eth0
+```
+
+Then from your computer:
+
+```bash
+ssh <username>@<board-ip>
+```
+
+Use the account you created during the setup; `<board-ip>` is the address from
+the previous step.
+
+## 5. Check the system
+
+```bash
+uname -r                  # kernel version
+cat /etc/inhand-release   # model, firmware and TIDL versions
+lsblk                     # root partition on /dev/mmcblk1p2
+ip addr show eth0         # an assigned IP address
+timedatectl status        # time and timezone
+```

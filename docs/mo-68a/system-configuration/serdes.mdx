@@ -1,0 +1,55 @@
+---
+title: "SerDes: eDP, PCIe and USB 3.0"
+description: "Mo 68A: Why eDP, PCIe and USB 3.0 SuperSpeed cannot all run at once, and how to choose two."
+sidebar_position: 3
+---
+
+The SoC has one 4-lane SerDes block, shared by eDP, PCIe and USB 3.0
+SuperSpeed. Due to a hardware constraint, **at most two of the three can be
+active at a time**.
+
+Which pair you want depends on your use case — each combination gives up the
+third. Choose your combination by editing `name_overlays` in `/boot/uEnv.txt`,
+followed by a reboot to make it take effect.
+
+## The three combinations
+
+| Active | What you give up |
+|---|---|
+| **eDP + USB 3.0 SS** | PCIe — no NVMe SSD, no PCIe Wi-Fi card |
+| eDP + PCIe | USB 3.0 SuperSpeed; the USB ports still work at USB 2.0 high speed |
+| USB 3.0 SS + PCIe | eDP, which takes **Mini DisplayPort (J9)** with it |
+
+## Change the combination
+
+The image ships with **eDP + USB 3.0 SS**: a board out of the box drives a
+monitor on J9 and runs USB 3.0, but PCIe is off.
+
+The following two overlays are named for what they disable to enable PCIe. Add
+**at most one** — they are mutually exclusive — or leave both out to keep the
+default.
+
+| Target | Append |
+|---|---|
+| eDP + PCIe | `ti/k3-j721s2-mo68a-disable-usbss-for-pcie.dtbo` |
+| USB 3.0 SS + PCIe | `ti/k3-j721s2-mo68a-disable-edp-for-pcie.dtbo` |
+
+```ini title="/boot/uEnv.txt — eDP + PCIe"
+name_overlays=ti/k3-j721s2-vision-apps.dtbo ti/k3-j721s2-mo68a-disable-usbss-for-pcie.dtbo
+```
+
+```ini title="/boot/uEnv.txt — USB 3.0 SS + PCIe"
+name_overlays=ti/k3-j721s2-vision-apps.dtbo ti/k3-j721s2-mo68a-disable-edp-for-pcie.dtbo
+```
+
+Save, run `sync`, then reboot;
+[Device tree overlays](./device-tree-overlays.mdx) covers the procedure and the
+rest of the overlay set.
+
+## Check what is active
+
+```bash
+lspci                                           # PCIe devices, empty when PCIe is off
+lsusb -t                                        # 5000M marks a SuperSpeed port
+cat /sys/class/drm/card*/card*-DP-*/status      # connected, when eDP drives J9
+```

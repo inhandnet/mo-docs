@@ -1,9 +1,104 @@
 ---
 title: "AI overview"
-description: "Mo 68A: two C7x DSPs and MMA, TIDL and the Mo AI software stack."
+description: "Mo 68A: How TIDL offloads inference to the C7x-MMA, and where each step runs."
 sidebar_position: 1
 ---
 
-Mo 68A: two C7x DSPs and MMA, TIDL and the Mo AI software stack.
+import osrtWorkflow from '@site/static/img/application-development/ai/osrt-workflow.png';
 
-<ComingSoon />
+Mo 68A integrates 8 TOPS of AI acceleration alongside dual Cortex-A72 cores,
+and is designed for image classification, object detection and semantic
+segmentation applications. It supports ONNX and TFLite models. TI's TIDL
+offloads supported subgraphs to the C7x-MMA for accelerated execution and runs
+the remaining layers on the Cortex-A72.
+
+The typical workflow involves two main steps, on two machines. You compile a
+model into TIDL artifacts on an x86 PC, then run inference from them on Mo 68A:
+
+<a href={osrtWorkflow} target="_blank" rel="noopener noreferrer">
+  <img src={osrtWorkflow} alt="Model compilation on an x86 PC produces compiled artifacts; inference on the TI SoC takes the model and those artifacts and returns a result" width="1280" height="720" />
+</a>
+
+## Model inference engines
+
+TIDL offers two deployment options: the industry-defined inference engines, and
+its own native engine.
+
+### Execution via Open Source Runtimes (OSRT)
+
+The three OSRT engines are ONNX Runtime, TFLite Runtime and TVM Runtime. Your
+application calls one of them, and TIDL bridges that engine to the C7x-MMA:
+
+| Runtime | Version | Model format | TIDL acts as |
+|---|---|---|---|
+| ONNX Runtime | 1.23.0 | `.onnx` | Execution provider |
+| TFLite Runtime | 2.12.0 | `.tflite` | Delegate |
+| TVM Runtime | 0.18.0 | `.onnx` | BYOC backend |
+
+The ONNX Runtime here is TI's fork. It adds `TIDLCompilationProvider` for
+compiling and `TIDLExecutionProvider` for inference. The PyPI package carries
+neither. [Set up the toolchain](./toolchain.mdx) installs the right wheel on the
+PC; the Mo 68A image ships with it preinstalled.
+
+### Native execution (TIDL-RT)
+
+TIDL-RT runs the network straight on the C7x-MMA, with no open-source runtime
+above it. Use it for performance- and safety-critical applications. It requires
+model artifacts to be fully offloaded, though — the Arm core is out of the
+execution path.
+
+TIDL-RT names the C APIs; TIDLRUNTIME is the Python binding on top of them.
+
+## edgeai-tidl-tools
+
+[`edgeai-tidl-tools`](https://github.com/TexasInstruments/edgeai-tidl-tools) is
+TI's repository for TIDL. It carries the model compiler, reference examples for
+all three OSRT engines, and Python and C++ wrapper APIs. It supports both the
+x86 PC and Mo 68A: you compile models on the PC and run inference on the board.
+Check it out at the same tag on both machines: the `TIDL_TAG` Mo 68A reports
+in `/etc/inhand-release`.
+
+[Set up the toolchain](./toolchain.mdx) installs it on the PC.
+[Run your first NPU demo](../../getting-started/first-npu-demo.mdx) clones it on
+the board.
+
+## Compile AI models on x86 PC
+
+Model compilation runs on an x86 PC only, with the Python API from
+`edgeai-tidl-tools`.
+
+[Compile your own model](./compile-your-own-model.mdx) covers the steps.
+
+## Run AI inference on x86 PC
+
+The same PC can run inference from the artifacts it just compiled, in host
+emulation mode. That lets you check a model before you deploy it to Mo 68A.
+
+[Run inference on the PC](./compile-your-own-model.mdx#run-inference-on-the-pc)
+covers the `--infer` commands.
+
+## Run AI inference on Mo 68A
+
+The Mo 68A image ships with the TIDL runtime libraries preinstalled. Clone
+`edgeai-tidl-tools` on the board at the tag the image reports in `TIDL_TAG`.
+
+Copy the artifacts across from the PC, then run inference with the same engine
+that compiled them:
+
+| Compiled with | Runs on |
+|---|---|
+| ONNX Runtime | ONNX Runtime |
+| TFLite Runtime | TFLite Runtime |
+
+[Inference APIs](./inference-apis.mdx) covers the calls.
+
+## Next steps
+
+| Step | Where | Page |
+|---|---|---|
+| Read `TIDL_TAG`, the `edgeai-tidl-tools` tag your PC must use to compile models | Mo 68A | [Version map](../../resource-download/version-map.mdx) |
+| Install the model compiler at that tag | x86 PC | [Set up the toolchain](./toolchain.mdx) |
+| Compile a model and check it | x86 PC | [Compile your own model](./compile-your-own-model.mdx) |
+| Copy the artifacts over and run inference | Mo 68A | [Run your first NPU demo](../../getting-started/first-npu-demo.mdx) |
+| Call the model from your own Python code | Mo 68A | [Inference APIs](./inference-apis.mdx) |
+| Review the performance benchmarks | Mo 68A | [Performance & benchmarks](./benchmarks.mdx) |
