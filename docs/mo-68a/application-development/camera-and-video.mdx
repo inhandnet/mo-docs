@@ -1,9 +1,96 @@
 ---
 title: "Camera & video"
-description: "Mo 68A: Cameras, ISP, GStreamer, codecs and RTSP."
+description: "Mo 68A: Capture from a CSI-2 camera and build GStreamer pipelines."
 sidebar_position: 2
 ---
 
-Mo 68A: Cameras, ISP, GStreamer, codecs and RTSP.
+A MIPI CSI-2 camera connects to J25. Capture and preview go through V4L2 and
+GStreamer, and the image ships TI's GStreamer build with the plugins that offload
+work to the SoC.
 
-<ComingSoon />
+:::note
+J24 drives a DSI display on current hardware and does not take a camera. See
+[Device tree overlays](../system-configuration/device-tree-overlays.mdx) for
+what each port supports.
+:::
+
+## Enable the camera
+
+Append the J25 camera overlay to `name_overlays` in `/boot/uEnv.txt`:
+
+```ini title="/boot/uEnv.txt"
+name_overlays=ti/k3-j721s2-vision-apps.dtbo ti/k3-j721s2-mo68a-csi2-imx219-mipi1.dtbo
+```
+
+Save, run `sync`, power the board off, connect the camera to J25, then power on.
+
+## Find the video node
+
+```bash
+v4l2-ctl --list-devices
+```
+
+The camera is the **first** `/dev/videoN` under `j721e-csi2rx`. Other devices —
+the hardware decoder among them — take node numbers too.
+
+:::warning
+Probe order is not fixed, so the number changes between boots. Read it each time
+rather than writing `/dev/video2` into a script.
+:::
+
+## Configure the sensor
+
+Set the sensor and the CSI bridge to the same format, 1920×1080 8-bit Bayer:
+
+```bash
+media-ctl -d /dev/media0 -V '"imx219 3-0010":0 [fmt:SRGGB8_1X8/1920x1080]'
+media-ctl -d /dev/media0 -V '"cdns_csi2rx.4514000.csi-bridge":0 [fmt:SRGGB8_1X8/1920x1080]'
+media-ctl -d /dev/media0 -V '"cdns_csi2rx.4514000.csi-bridge":1 [fmt:SRGGB8_1X8/1920x1080]'
+media-ctl -d /dev/media0 -V '"4510000.ticsi2rx":0 [fmt:SRGGB8_1X8/1920x1080]'
+```
+
+Exposure and gain are sensor controls:
+
+```bash
+v4l2-ctl -d /dev/v4l-subdev2 --set-ctrl=analogue_gain=200
+v4l2-ctl -d /dev/v4l-subdev2 --set-ctrl=exposure=3000
+```
+
+## Capture a frame
+
+```bash
+gst-launch-1.0 v4l2src device=/dev/videoN num-buffers=1 \
+  ! "video/x-bayer,width=1920,height=1080,format=rggb,framerate=30/1" \
+  ! bayer2rgb ! videoconvert ! jpegenc ! filesink location=cam.jpg
+```
+
+## GStreamer
+
+The image ships TI's GStreamer 1.22 under `/opt/ti-gst-1.22/`, with custom
+plugins that move media and vision work onto the SoC's accelerators.
+`/usr/local/bin/gst-launch-1.0` and its companions resolve to that build.
+
+```bash
+gst-inspect-1.0 --version
+gst-inspect-1.0 | grep -i ti        # the TI plugins
+```
+
+## Live preview
+
+`kmssink` needs DRM master, which the display manager holds, so stop it first:
+
+```bash
+sudo systemctl stop lightdm
+
+gst-launch-1.0 v4l2src device=/dev/videoN \
+  ! video/x-bayer,width=1920,height=1080,format=rggb,framerate=30/1 \
+  ! bayer2rgb ! kmssink driver-name=tidss sync=false
+```
+
+Ctrl+C stops it; `sudo systemctl start lightdm` brings the desktop back.
+
+:::note
+`driver-name=tidss` is not optional. The display and the GPU both register DRM
+devices, and which one becomes `card0` varies between boots — without naming the
+driver, `kmssink` can attach to the GPU and render nothing.
+:::

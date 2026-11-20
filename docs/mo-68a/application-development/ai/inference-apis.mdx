@@ -1,9 +1,60 @@
 ---
 title: "Inference APIs"
-description: "Mo 68A: Python, C++, GStreamer and ONNX Runtime."
-sidebar_position: 6
+description: "Mo 68A: Call TIDL from Python with ONNX Runtime or TFLite Runtime."
+sidebar_position: 5
 ---
 
-Mo 68A: Python, C++, GStreamer and ONNX Runtime.
+TIDL provides a Python interface for working with ONNX and TensorFlow Lite
+models. By using these APIs, your application offloads inference to the
+C7x-MMA for accelerated execution, without leaving the runtime it already
+uses.
 
-<ComingSoon />
+The TIDL packages are installed for Python 3.12. Where a path has to be written
+out — a shebang, a service file — use `/usr/bin/python3.12`, not
+`/usr/bin/python3`.
+
+## Python APIs
+
+Each runtime takes TIDL a different way: ONNX Runtime through an execution
+provider, TFLite Runtime through a delegate. Both read the artifacts you
+transferred from the PC.
+
+### ONNX Runtime
+
+ONNX models run through ONNX Runtime with TIDL as the execution provider.
+Point it at the artifacts directory, and pair it with the CPU provider, which
+runs any node TIDL did not take:
+
+```python
+import onnxruntime as ort
+
+session = ort.InferenceSession(
+    "model.onnx",
+    providers=["TIDLExecutionProvider", "CPUExecutionProvider"],
+    provider_options=[{"artifacts_folder": "artifacts/"}, {}],
+)
+outputs = session.run(None, {session.get_inputs()[0].name: input_tensor})
+```
+
+### TFLite Runtime
+
+TensorFlow Lite models run through TFLite Runtime with TIDL as the delegate.
+It takes the same `artifacts_folder`:
+
+```python
+import tflite_runtime.interpreter as tflite
+
+interpreter = tflite.Interpreter(
+    model_path="model.tflite",
+    experimental_delegates=[
+        tflite.load_delegate(
+            "/usr/lib/libtidl_tfl_delegate.so",
+            {"artifacts_folder": "artifacts/"},
+        )
+    ],
+)
+interpreter.allocate_tensors()
+```
+
+TI's repository also has wrapper classes, `ONNXRT` and `TFLiteRT`, which TI's
+own examples use to drive four runtimes through one interface.

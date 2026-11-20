@@ -4,6 +4,49 @@ description: "Mo 68A: Debug UART wiring and settings."
 sidebar_position: 2
 ---
 
-Mo 68A: Debug UART wiring and settings.
+The debug serial console shows the boot log and gives a login when display and
+network are unavailable, which makes it the way to set up a headless board and
+the first place to look when one does not boot.
 
-<ComingSoon />
+## Connector
+
+J6 is a 3-pin JST SH connector, 1.0 mm pitch. Use a USB-to-UART adapter with
+**3.3 V logic** and a matching plug.
+
+| Pin | Signal |
+|---|---|
+| 1 | RXD |
+| 2 | GND |
+| 3 | TXD |
+
+On the board the console is `/dev/ttyS2` (UART8). Do not use that device for
+anything else.
+
+## Port settings
+
+115200 baud, 8 data bits, no parity, 1 stop bit, no flow control.
+
+```bash
+# Linux
+minicom -D /dev/ttyUSB0 -b 115200
+
+# macOS
+screen /dev/cu.usbserial-* 115200
+```
+
+On Windows the adapter appears as `COMx` — check Device Manager for the number,
+then open it with PuTTY or Tera Term. The device paths are examples; use the one
+your system assigns.
+
+Open the terminal **before** applying power, or the early boot log is already
+gone by the time the port opens.
+
+## No output
+
+Work through these in order:
+
+1. Check that the adapter is connected to J6 at one end and to the computer's USB
+   port at the other.
+2. Check that the terminal is open on the adapter's port, not another one.
+3. Check the port settings above, in particular that flow control is off.
+4. Power-cycle the board with the terminal already open.

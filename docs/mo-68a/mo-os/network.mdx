@@ -1,9 +1,91 @@
 ---
 title: "Network"
-description: "Mo 68A: Ethernet and wireless."
+description: "Mo 68A: Ethernet, PoE and Wi-Fi through NetworkManager."
 sidebar_position: 2
 ---
 
-Mo 68A: Ethernet and wireless.
+NetworkManager manages both wired and wireless connections. On the desktop, the
+network icon in the system tray is the way in: left-click lists connections,
+right-click reaches **Connection Information** and **Edit Connections…**.
 
-<ComingSoon />
+## Ethernet
+
+`eth0` is the NetworkManager connection **Wired connection 1** and uses DHCP.
+
+```bash
+nmcli device status          # interfaces and their connections
+nmcli device show eth0       # MAC, IP, route and DNS
+cat /sys/class/net/eth0/speed  # link speed in Mb/s
+```
+
+:::warning
+Changing network settings over SSH drops the session the moment the change
+applies, and if the new configuration is wrong you cannot get back in. Make
+these changes from the serial console or a local terminal on the board.
+:::
+
+Set a static address:
+
+```bash
+sudo nmcli con mod "Wired connection 1" \
+  ipv4.method manual \
+  ipv4.addresses 192.168.1.100/24 \
+  ipv4.gateway 192.168.1.1 \
+  ipv4.dns "8.8.8.8 8.8.4.4"
+sudo nmcli con up "Wired connection 1"
+```
+
+The addresses above are placeholders — use ones valid on your network, or
+NetworkManager reports `IP configuration could not be reserved` and `eth0` stays
+down.
+
+Back to DHCP, clearing the manual entries so they cannot conflict:
+
+```bash
+sudo nmcli con mod "Wired connection 1" \
+  ipv4.method auto ipv4.addresses "" ipv4.gateway "" ipv4.dns ""
+sudo nmcli con up "Wired connection 1"
+```
+
+## Power over Ethernet
+
+J4 brings out the four center-tap signals of the RJ45 transformer, so a PoE HAT
+can power the board from the Ethernet cable alone — no USB-C supply on J5, one
+cable for both network and power.
+
+| Pin | Signal |
+|---|---|
+| 1 | TR1 |
+| 2 | TR0 |
+| 3 | TR3 |
+| 4 | TR2 |
+
+You need an 802.3af or 802.3at switch or injector upstream, and a PoE HAT whose
+4-pin header aligns with J4.
+
+## Wi-Fi
+
+Mo 68A has no onboard radio; Wi-Fi comes from an adapter. These are verified, and
+their firmware is already in the image:
+
+| Interface | Chipset | Driver |
+|---|---|---|
+| USB 3.0 | MediaTek MT7921AU — for example EP-AX1678 | `mt7921u` |
+| PCIe M.2 | Intel AX210, M.2 2230 A+E key | `iwlwifi` |
+
+The AX210 needs a breakout board, two antennas and a PCIe overlay; see
+[Device tree overlays](../system-configuration/device-tree-overlays.mdx).
+
+On the desktop, left-click the network icon, hover **Available networks**, pick
+the SSID and enter the password — NetworkManager saves it and reconnects after a
+reboot. From a terminal:
+
+```bash
+sudo nmcli device wifi list     # scan
+
+sudo nmcli con add type wifi con-name "<name>" ssid "<SSID>" \
+  wifi-sec.key-mgmt wpa-psk wifi-sec.psk "<password>"
+sudo nmcli con up "<name>"
+
+iw dev <interface> link         # signal, MCS and bitrate
+```

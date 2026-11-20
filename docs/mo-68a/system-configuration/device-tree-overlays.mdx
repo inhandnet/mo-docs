@@ -1,9 +1,116 @@
 ---
 title: "Device tree overlays"
-description: "Mo 68A: 40-pin peripheral mode and camera overlays."
-sidebar_position: 2
+description: "Mo 68A: Enable and disable peripherals through /boot/uEnv.txt."
+sidebar_position: 1
 ---
 
-Mo 68A: 40-pin peripheral mode and camera overlays.
+An overlay is a compiled device tree fragment (`.dtbo`) that patches nodes into
+the base device tree. U-Boot loads the base tree, applies every overlay named in
+`/boot/uEnv.txt`, and boots the kernel with the merged tree; the kernel then
+probes a driver for each device the merge enabled.
 
-<ComingSoon />
+The image boots with a default set of peripherals enabled; the rest stay off
+until an overlay turns them on. One image therefore serves every setup, with no
+kernel rebuild and no new image.
+
+## Available overlays
+
+The image ships these in `/boot/dtb/ti/`:
+
+| Overlay | Enables |
+|---|---|
+| `ti/k3-j721s2-vision-apps.dtbo` | AI inference on the C7x-MMA — **required** |
+| `ti/k3-j721s2-mo68a-csi2-imx219-mipi0.dtbo` | IMX219 CSI-2 camera on J24 |
+| `ti/k3-j721s2-mo68a-csi2-imx219-mipi1.dtbo` | IMX219 CSI-2 camera on J25 |
+| `ti/k3-j721s2-mo68a-dsi-rpi-7inch-panel-mipi0.dtbo` | 7-inch DSI display on J24 |
+| `ti/k3-j721s2-mo68a-wm8960-audio-hat.dtbo` | WM8960 I2S audio HAT |
+| `ti/k3-j721s2-mo68a-rpi-hdr-gpio.dtbo` | Plain GPIO on most 40-pin signal pins |
+| `ti/k3-j721s2-mo68a-disable-usbss-for-pcie.dtbo` | PCIe, by giving up USB 3.0 SuperSpeed |
+| `ti/k3-j721s2-mo68a-disable-edp-for-pcie.dtbo` | PCIe, by giving up eDP |
+| `ti/k3-j721s2-mo68a-disable-rtc.dtbo` | Nothing — it switches the on-board RTC off |
+
+The image ships with only `vision-apps` in `name_overlays`.
+
+`rpi-hdr-gpio` is the one to read twice before using. It re-muxes the 40-pin
+header so every signal pin is a GPIO line, which means giving up the buses that
+share those pads — I2C0 (pins 3, 5), UART5 (8, 10), I2S (12, 35, 38, 40), SPI5
+(19, 21, 23, 24, 26), ECAP0 (32) and PWM5_B (33). Pins 27 and 28 keep WKUP I2C0,
+which the PMIC also uses.
+
+`disable-rtc` exists for earlier hardware where the on-board RTC is unreachable
+from Linux and the kernel logs `rtc_read_time` errors. Current boards do not
+need it.
+
+## What the MIPI ports can do
+
+J24 and J25 are the board's two MIPI FPC connectors: each takes either a CSI-2
+camera module or a DSI display panel. **Different hardware variants support
+different functions on these two connectors**, so check your own board rather
+than take it for granted.
+
+The part number records it: the two letters after the memory size describe J24
+and then J25, where **D** is DSI only, **C** is CSI-2 only and **B** is both.
+
+Read the part number from the board EEPROM:
+
+```bash
+sudo onie-tlv-read
+```
+
+For example, a board that reports `Mo68A-8G-DC` has **D** then **C**: J24
+drives a DSI display and J25 takes a CSI-2 camera. An overlay only takes effect
+where the connector supports it, so on that board the J24 camera overlay will
+not work.
+
+## SerDes lanes
+
+The two `disable-*-for-pcie` overlays are mutually exclusive — add at most one.
+[SerDes: eDP, PCIe and USB 3.0](./serdes.mdx) covers what each combination
+costs.
+
+## Change the overlays
+
+Add an overlay to `name_overlays` to enable a peripheral; remove it to disable
+one. Keep them all on one `name_overlays` line — U-Boot reads only one.
+
+You need root to edit `/boot/uEnv.txt`. On the desktop, double-clicking opens
+it read-only, so start the editor from a terminal:
+
+```bash
+sudo mousepad /boot/uEnv.txt   # desktop
+sudo vim /boot/uEnv.txt        # headless
+```
+
+An example with a DSI display on J24, an IMX219 camera on J25 and the audio HAT:
+
+```ini title="/boot/uEnv.txt"
+name_overlays=ti/k3-j721s2-vision-apps.dtbo ti/k3-j721s2-mo68a-dsi-rpi-7inch-panel-mipi0.dtbo ti/k3-j721s2-mo68a-csi2-imx219-mipi1.dtbo ti/k3-j721s2-mo68a-wm8960-audio-hat.dtbo
+```
+
+Save the file and run `sync`.
+
+## Apply the change
+
+An overlay only tells the kernel a device is there, so you need to make sure
+the corresponding hardware is also correctly connected. How you make the new
+overlay list take effect therefore depends on whether a peripheral has to be
+connected or disconnected.
+
+### Without a peripheral change
+
+Nothing has to be physically connected or disconnected: either the peripheral
+is already in place, or the overlay changes only what is already on the board.
+A changed list takes effect at the next boot:
+
+```bash
+sudo reboot
+```
+
+### With a peripheral change
+
+MIPI, the 40-pin header and the other non-hot-pluggable interfaces must be
+connected with the board powered off:
+
+1. Power the board off.
+2. Connect or disconnect the peripheral.
+3. Power on and check it works.

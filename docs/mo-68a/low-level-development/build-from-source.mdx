@@ -1,9 +1,67 @@
 ---
 title: "Build from source"
-description: "Mo 68A: SDK, U-Boot, kernel and root file system."
+description: "Mo 68A: Build the firmware image from the public Armbian build repository."
 sidebar_position: 1
 ---
 
-Mo 68A: SDK, U-Boot, kernel and root file system.
+Everything needed to build the Mo 68A firmware image — board configuration,
+kernel and U-Boot sources, TI SDK components and image customisation — is in
+[https://github.com/inhandnet/mo68a-armbian](https://github.com/inhandnet/mo68a-armbian).
 
-<ComingSoon />
+## Build host
+
+| Requirement | Value |
+|---|---|
+| Architecture | x86_64 |
+| Operating system | Ubuntu 22.04 |
+| Memory | 8 GB |
+| Free disk | 50 GB |
+
+## Choose the distribution
+
+The image is Armbian on a Debian or Ubuntu base. `RELEASE` in
+`userpatches/config-mo68a.conf` selects which, and the release name carries
+through to the output filename.
+
+| `RELEASE` | Base |
+|---|---|
+| `trixie` | Debian 13 |
+| `noble` | Ubuntu 24.04 LTS |
+
+These are the two releases Armbian marks as supported. The configuration ships
+as:
+
+```ini title="userpatches/config-mo68a.conf"
+RELEASE=trixie
+DESKTOP_ENVIRONMENT=xfce
+```
+
+That combination is what InHand builds and tests.
+
+## Build the image
+
+```bash
+sudo apt install git git-lfs aria2
+git lfs install
+
+git clone https://github.com/inhandnet/mo68a-armbian
+cd mo68a-armbian
+./bootstrap.sh                 # downloads about 4 GB on the first run
+
+cd build
+./compile.sh mo68a
+./rename-image.sh
+```
+
+## Output
+
+Three files land in `build/output/images/`:
+
+| File | Contents |
+|---|---|
+| `mo68a-<release>-xfce-V<x.y.z>.img.xz` | The compressed image |
+| `mo68a-<release>-xfce-V<x.y.z>.img.xz.sha` | Its SHA256 checksum |
+| `mo68a-<release>-xfce-V<x.y.z>.img.txt` | Build manifest: vendor, revision, board, kernel version, build date and source revisions |
+
+[Install the OS](../getting-started/install-os.mdx) covers writing the image to a
+card.

@@ -1,9 +1,74 @@
 ---
 title: "Set up the toolchain"
-description: "Mo 68A: Install the TI edgeai-tidl-tools version that matches your image."
+description: "Mo 68A: Set up edgeai-tidl-tools on an x86 PC to compile models."
 sidebar_position: 3
 ---
 
-Mo 68A: Install the TI edgeai-tidl-tools version that matches your image.
+You compile models on an x86 PC and run inference on Mo 68A. This page covers
+installing the model compiler, `edgeai-tidl-tools`, on that PC. It runs once,
+and leaves a working tree at `~/edgeai-tidl-tools/` ready to compile models.
+[Compile your own model](./compile-your-own-model.mdx) is the next step.
 
-<ComingSoon />
+## Host requirements
+
+| Component | Value |
+|---|---|
+| Host OS | Ubuntu 22.04 |
+| Python | 3.10 |
+
+**Python 3.10 is required on the x86 PC**, as `onnxruntime_tidl`,
+`tflite_runtime`, `tvm` and `tidlruntime` ship only as `cp310` wheels. A
+Python 3.10 virtualenv will be used to keep the setup clean and isolated.
+
+## Install system dependencies
+
+```bash
+sudo apt update
+sudo apt install -y libyaml-cpp-dev libglib2.0-dev python-setuptools \
+  git cmake build-essential python3.10-venv
+```
+
+## Clone edgeai-tidl-tools at the matching tag
+
+Read `TIDL_TAG` off Mo 68A:
+
+```bash
+cat /etc/inhand-release
+```
+
+[Version map](../../resource-download/version-map.mdx) covers that tag and the
+other versions an image carries.
+
+Then clone on the PC, checking out the tag your board reported:
+
+```bash
+cd ~
+git clone https://github.com/TexasInstruments/edgeai-tidl-tools.git
+cd edgeai-tidl-tools
+git checkout <TIDL_TAG>
+```
+
+## Create and activate a Python 3.10 virtualenv
+
+```bash
+python3.10 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip setuptools wheel
+```
+
+Pre-install the CPU-only build of PyTorch, not the default wheel with its
+bundled CUDA runtime — about 2.7 GB — to save disk and bandwidth:
+
+```bash
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+```
+
+## Download and install tools and dependencies
+
+`setup.sh` downloads and installs the TIDL tools under `tools/` — about 1.6 GB
+for one SoC — along with the dependencies the examples need:
+
+```bash
+export SOC=J721S2
+./scripts/setup/setup.sh
+```

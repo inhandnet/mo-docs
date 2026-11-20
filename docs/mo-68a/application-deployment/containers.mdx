@@ -1,9 +1,48 @@
 ---
 title: "Containers"
-description: "Mo 68A: Running Docker containers."
+description: "Mo 68A: Install Docker and run containers on the board."
 sidebar_position: 1
 ---
 
-Mo 68A: Running Docker containers.
+No container runtime is pre-installed. Docker from the Debian archive installs
+and starts as it comes: the kernel carries nftables with the `nft_compat` layer
+that Docker's rules need, so there is no kernel rebuild and no switch to the
+legacy iptables backend.
 
-<ComingSoon />
+## Install Docker
+
+```bash
+sudo apt update
+sudo apt install docker.io
+```
+
+Add yourself to the `docker` group so you can run it without `sudo`, then log out
+and back in for the group to take effect:
+
+```bash
+sudo usermod -aG docker "$USER"
+```
+
+Check that the daemon is up and a container runs:
+
+```bash
+systemctl status docker
+docker run --rm hello-world
+```
+
+## Architecture
+
+The board is `aarch64`, and Docker picks the arm64 variant of a
+multi-architecture image by itself — you pull and run as you would anywhere. An
+image published only for `amd64` fails with `exec format error`; there is nothing
+to configure for that, so find an arm64 image or build one.
+
+## Storage
+
+Images and containers land on the microSD card under `/var/lib/docker`, and they
+are large relative to a card:
+
+```bash
+df -h /
+docker system df
+```

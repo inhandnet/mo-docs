@@ -1,9 +1,78 @@
 ---
 title: "Run your first NPU demo"
-description: "Mo 68A: Run a pre-installed detection demo on the AI accelerator."
+description: "Mo 68A: Run the TIDL example models on the C7x-MMA."
 sidebar_position: 4
 ---
 
-Mo 68A: Run a pre-installed detection demo on the AI accelerator.
+This runs TI's example models on Mo 68A and reports how much of each one
+TIDL offloaded to the C7x-MMA. It is the quickest way to confirm the
+accelerator works end to end before you put your own model on it.
 
-<ComingSoon />
+Compile the models on an x86 PC first, then transfer them and their compiled
+model artifacts to Mo 68A for on-device inference.
+[Set up the toolchain](../application-development/ai/toolchain.mdx) and
+[Compile your own model](../application-development/ai/compile-your-own-model.mdx)
+cover those steps.
+
+## 1. Clone edgeai-tidl-tools on Mo 68A
+
+The image ships with the TIDL runtime libraries preinstalled, but not the
+repository. Read `TIDL_TAG` off Mo 68A and check out that tag:
+
+```bash
+cat /etc/inhand-release
+
+cd /opt
+git clone https://github.com/TexasInstruments/edgeai-tidl-tools.git
+cd edgeai-tidl-tools
+git checkout <TIDL_TAG>
+```
+
+## 2. Setup environment variables
+
+```bash
+export SOC=J721S2
+```
+
+## 3. Transfer compiled model artifacts
+
+Run this on the PC, where the models were compiled:
+
+```bash
+cd ~/edgeai-tidl-tools/runtimes/examples
+tar -czf - data/ model-artifacts/ \
+  | ssh <user>@<board-ip> \
+      "cd /opt/edgeai-tidl-tools/runtimes/examples && tar -xzf -"
+```
+
+## 4. Run the example models
+
+On Mo 68A, run inference with each runtime:
+
+```bash
+cd /opt/edgeai-tidl-tools/runtimes/examples/python/basic_example
+python3 basic_example.py --config ./config.yaml -r onnxrt   --infer
+python3 basic_example.py --config ./config.yaml -r tflitert --infer
+```
+
+Outputs will be saved in
+`./runtimes/examples/python/basic_example/outputs/{model_name}/offload/frame_{frame_num}/`.
+
+## 5. Check how much was offloaded
+
+TIDL prints how many nodes it offloaded for each model.
+
+ONNX Runtime:
+
+```
+Final number of subgraphs created are : 1, - Offloaded Nodes - 124, Total Nodes - 124
+```
+
+TFLite Runtime:
+
+```
+Number of subgraphs:1 , 107 nodes delegated out of 107 nodes
+```
+
+Both lines show every node offloaded to the C7x-MMA. Nodes that are not
+offloaded run on the Cortex-A72 instead, which is slower.
